@@ -1,0 +1,32 @@
+CREATE TABLE planillas_pst (
+    cod_planilla smallint PRIMARY KEY IDENTITY(1,1),
+    cod_lote bigint,
+    fec_turno datetime,
+    cod_turno smallint,
+    cod_empresa numeric(18,0),
+    cod_especie smallint,
+    UNIQUE(cod_planilla) 
+);
+
+CREATE TABLE registro_planilla_pst 
+(
+    cod_reg smallint PRIMARY KEY IDENTITY(1,1),
+    cod_planilla smallint,
+    cod_corte_ini bigint,
+    cod_corte_fin bigint,
+    cod_proceso numeric(18,0),
+    cod_calibre smallint,
+    cod_calidad smallint,
+    piezas numeric(18,0),
+    kilos float,	
+    FOREIGN KEY (cod_planilla) REFERENCES planillas_pst(cod_planilla)
+);
+
+
+
+INSERT INTO planillas_pst (cod_lote, fec_turno, cod_turno, cod_empresa, cod_especie)
+VALUES (123456, '2024-01-10', 1, 1001, 5);
+
+
+INSERT INTO registro_planilla_pst (cod_planilla, cod_corte_ini, cod_corte_fin, cod_proceso, cod_calibre, cod_calidad, piezas, kilos)
+VALUES (1, 789, 791, 123456789, 2, 3, 100, 150.5);

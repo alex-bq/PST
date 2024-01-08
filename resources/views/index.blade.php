@@ -19,97 +19,59 @@
 <body>
     <div class="container-fluid align-text">
         <div class="row">
-            <div class="col-4">
-                <p><strong>Usuario:</strong> Cesar</p>
+            <!-- Columna 1: Fecha y Turno -->
+            <div class="col-2">
+                <p><strong>Fecha Turno:</strong> 03/01/2024</p>
             </div>
-            <div class="col-8"></div>
+            <div class="col-2">
+                <p><strong>Turno:</strong> Noche</p>
+
+            </div>
+
+            <div class="col-2">
+                <p><strong>Proveedor:</strong> Patagonia King Salmon</p>
+            </div>
+            <div class="col-2">
+                <p><strong>Especie:</strong> Salmon Chinook</p>
+
+            </div>
+
+            <!-- Columna 3: Supervisor y Planillera -->
+            <div class="col-2">
+                <p><strong>Supervisor:</strong> Natalie Altamirano</p>
+            </div>
+
+            <div class="col-2">
+                <p><strong>Planillera:</strong> Soledad B</p>
+
+            </div>
         </div>
+
 
         <div class="row">
             <div id="columna1" class="col-4">
                 <div class="container-fluid">
                     <div class="row">
                         <div class="col-md-6">
-                            <h6>Fecha</h6>
-                            <div class="input-group date" id="datepicker">
-                                <input type="text" class="form-control" id="date" placeholder="DD/MM/YYYY" />
-                                <span class="input-group-append">
-                                    <span class="input-group-text bg-light d-block">
-                                        <i class="fa fa-calendar"></i>
-                                    </span>
-                                </span>
-                            </div>
-                            <br /><br />
 
-                            <h6>Corte MP</h6>
-                            <select class="form-select" aria-label="Default select example">
+                            <br> <br>
+                            <h6>Corte Inicial</h6>
+                            <select class="form-select form-select-sm" aria-label="Default select example">
                                 <option selected></option>
                                 <option value="1">One</option>
                                 <option value="2">Two</option>
                                 <option value="3">Three</option>
                             </select>
 
-                            <h6>Kilos MP</h6>
-                            <input type="text" class="form-control" placeholder="123" />
-                            <h6>Empresa</h6>
-                            <select class="form-select" aria-label="Default select example">
+                            <h6>Proceso</h6>
+                            <select class="form-select form-select-sm" aria-label="Default select example">
                                 <option selected></option>
                                 <option value="1">One</option>
                                 <option value="2">Two</option>
                                 <option value="3">Three</option>
                             </select>
-                            <br />
-                            <h6>Tipo Proceso</h6>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault"
-                                    id="flexRadioDefault1" />
-                                <label class="form-check-label" for="flexRadioDefault1">
-                                    Pesaje
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault"
-                                    id="flexRadioDefault2" checked="" />
-                                <label class="form-check-label" for="flexRadioDefault2">
-                                    Corte
-                                </label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="flexRadioDefault"
-                                    id="flexRadioDefault2" checked="" />
-                                <label class="form-check-label" for="flexRadioDefault2">
-                                    Baader
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <h6>Lote</h6>
-                            <select class="form-select" aria-label="Default select example">
-                                <option selected></option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
-                            </select>
-                            <br /><br />
-
-                            <h6>Corte Final</h6>
-                            <select class="form-select" aria-label="Default select example">
-                                <option selected></option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
-                            </select>
-                            <h6>Calidad</h6>
-                            <select class="form-select" aria-label="Default select example">
-                                <option selected></option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
-                            </select>
-
                             <h6>Calibre</h6>
-                            <select class="form-select" aria-label="Default select example">
+                            <select class="form-select form-select-sm" aria-label="Default select example">
                                 <option selected></option>
                                 <option value="1">One</option>
                                 <option value="2">Two</option>
@@ -117,9 +79,40 @@
                             </select>
                             <br />
                             <h6>Piezas</h6>
-                            <input type="text" class="form-control" placeholder="123" />
+                            <input type="number" class="form-control form-control-sm" placeholder="123" />
+
+                        </div>
+
+                        <div class="col-md-6">
+
+                            <br /><br />
+
+                            <h6>Corte Final</h6>
+                            <select class="form-select form-select-sm" aria-label="Default select example">
+                                <option selected></option>
+                                <option value="1">One</option>
+                                <option value="2">Two</option>
+                                <option value="3">Three</option>
+                            </select>
+                            <h6>Destino</h6>
+                            <select class="form-select form-select-sm" aria-label="Default select example">
+                                <option selected></option>
+                                <option value="1">One</option>
+                                <option value="2">Two</option>
+                                <option value="3">Three</option>
+                            </select>
+
+                            <h6>Calidad</h6>
+                            <select class="form-select form-select-sm" aria-label="Default select example">
+                                <option selected></option>
+                                <option value="1">One</option>
+                                <option value="2">Two</option>
+                                <option value="3">Three</option>
+                            </select>
+                            <br />
+
                             <h6>Kilos</h6>
-                            <input type="text" class="form-control" placeholder="123" />
+                            <input type="number" class="form-control form-control-sm" placeholder="123" />
                         </div>
                     </div>
 
@@ -146,13 +139,13 @@
                     <table class="table table-bordered table-striped">
                         <thead>
                             <tr>
-                                <th scope="col">Fecha</th>
-                                <th scope="col">Empresa</th>
                                 <th scope="col">Lote</th>
-                                <th scope="col">Corte MMPP</th>
+                                <th scope="col">Corte Inicial</th>
                                 <th scope="col">Corte Final</th>
-                                <th scope="col">Calidad</th>
+                                <th scope="col">Proceso</th>
+                                <th scope="col">Destino</th>
                                 <th scope="col">Calibre</th>
+                                <th scope="col">Calidad</th>
                                 <th scope="col">Piezas</th>
                                 <th scope="col">Kilos</th>
                                 <th scope="col">Seleccionar</th>
@@ -161,15 +154,15 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <th>01/04/2024</th>
-                                <td>Multi x</td>
-                                <td>012310501</td>
+                                <th>012312457</th>
                                 <td>HON</td>
+                                <td>Trim D</td>
+                                <td>Congelado</td>
                                 <th>xx</th>
-                                <td>xx</td>
-                                <td>xx</td>
-                                <td>xx</td>
-                                <th>xx</th>
+                                <td>2-3</td>
+                                <td>Premium</td>
+                                <td>8</td>
+                                <th>9,0</th>
                                 <td>
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value=""
@@ -180,16 +173,17 @@
                                 </td>
                                 <td><a href="">editar</a></td>
                             </tr>
+                            @foreach($listado as $i)
                             <tr>
-                                <th>01/04/2024</th>
-                                <td>Multi x</td>
-                                <td>012310501</td>
-                                <td>HON</td>
-                                <th>xx</th>
+                                <th>{{$i->cod_planilla}}</th>
+                                <td>{{$i->cod_corte_ini}}</td>
+                                <td>{{$i->cod_corte_fin}}</td>
+                                <td>{{$i->cod_proceso}}</td>
                                 <td>xx</td>
-                                <td>xx</td>
-                                <td>xx</td>
-                                <th>xx</th>
+                                <td>{{$i->cod_calibre}}</td>
+                                <td>{{$i->cod_calidad}}</td>
+                                <td>{{$i->piezas}}</td>
+                                <td>{{$i->kilos}}</td>
                                 <td>
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" value=""
@@ -199,76 +193,48 @@
                                     </div>
                                 </td>
                                 <td><a href="">editar</a></td>
+
+
+
+
+
+
+
                             </tr>
-                            <tr>
-                                <th>01/04/2024</th>
-                                <td>Multi x</td>
-                                <td>012310501</td>
-                                <td>HON</td>
-                                <th>xx</th>
-                                <td>xx</td>
-                                <td>xx</td>
-                                <td>xx</td>
-                                <th>xx</th>
-                                <td>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value=""
-                                            id="flexCheckDefault" />
-                                        <label class="form-check-label" for="flexCheckDefault">
-                                        </label>
-                                    </div>
-                                </td>
-                                <td><a href="">editar</a></td>
-                            </tr>
-                            <tr>
-                                <th>01/04/2024</th>
-                                <td>Multi x</td>
-                                <td>012310501</td>
-                                <td>HON</td>
-                                <th>xx</th>
-                                <td>xx</td>
-                                <td>xx</td>
-                                <td>xx</td>
-                                <th>xx</th>
-                                <td>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value=""
-                                            id="flexCheckDefault" />
-                                        <label class="form-check-label" for="flexCheckDefault">
-                                        </label>
-                                    </div>
-                                </td>
-                                <td><a href="">editar</a></td>
-                            </tr>
-                            <tr>
-                                <th>01/04/2024</th>
-                                <td>Multi x</td>
-                                <td>012310501</td>
-                                <td>HON</td>
-                                <th>xx</th>
-                                <td>xx</td>
-                                <td>xx</td>
-                                <td>xx</td>
-                                <th>xx</th>
-                                <td>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value=""
-                                            id="flexCheckDefault" />
-                                        <label class="form-check-label" for="flexCheckDefault">
-                                        </label>
-                                    </div>
-                                </td>
-                                <td><a href="">editar</a></td>
-                            </tr>
+                            @endforeach
+
                         </tbody>
                     </table>
+                    <div class="row mt-4">
+                        <div class="col-4">
+                            <h6>Entrega Frigorífico</h6>
+                            <label for="cajasEntrega">Cajas:</label>
+                            <input type="number" class="form-control form-control-sm" id="cajasEntrega"
+                                placeholder="Cajas" />
+                            <label for="kilosEntrega">Kilos:</label>
+                            <input type="number" class="form-control form-control-sm" id="kilosEntrega"
+                                placeholder="Kilos" />
+                        </div>
+                        <div class="col-4">
+                            <h6>Recepción Planta</h6>
+                            <label for="cajasRecepcion">Cajas:</label>
+                            <input type="number" class="form-control form-control-sm" id="cajasRecepcion"
+                                placeholder="Cajas" />
+                            <label for="kilosRecepcion">Kilos:</label>
+                            <input type="number" class="form-control form-control-sm" id="kilosRecepcion"
+                                placeholder="Kilos" />
+                        </div>
+                    </div>
+
+                    <!-- Nueva Fila: Recepción Planta -->
+
                 </div>
             </div>
         </div>
     </div>
 
     <script type="text/javascript">
-        $(function ()                   $("#datepicker").datepick            });
+        $(function ()                   $("#datepicker").datepick);
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
