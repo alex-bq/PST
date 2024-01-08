@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 usuarios: admin, planillero, ...
 
 
@@ -35,4 +36,43 @@ registro producto
 
 usuario
 
+=======
+usuarios: admin, planillero, ...
+
+
+- vista de admin 
+
+ver filtrar, modificar, eliminar y agregar cualquier dato
+
+- vista de planillero 
+
+poder ver, ingresar, modificar y eliminar datos uno a uno
+
+- vista de busqueda 
+
+ver y filtrar 
+
+- log de registro modificaciones en la tabla (triggers)
+
+-----
+recordatorios
+
+- ver como funciona el sistema de trazabilidad
+
+- crear carta gantt para registro de avances portafolio
+
+- 
+
+
+---
+
+tablas
+
+planillas 
+
+registro producto
+
+usuario
+
+>>>>>>> c7cddc76adb1537e968a26bf9a9bd8c2930053f0
                                                                                                                                                                        
