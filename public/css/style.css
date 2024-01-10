@@ -1,0 +1,10 @@
+.table-wrapper {
+  height: 300px;
+  overflow-x: auto; /* Permite el desplazamiento horizontal */
+}
+
+thead.sticky-header th {
+  position: sticky;
+  top: 0;
+}
+

@@ -5,7 +5,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Planilla PST</title>
-    <link rel="stylesheet" href=".\resources\css\style.css" />
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
     <link rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
@@ -49,95 +49,99 @@
 
 
         <div class="row">
-            <div id="columna1" class="col-4">
-                <div class="container-fluid">
-                    <div class="row">
-                        <div class="col-md-6">
+                <div id="columna1" class="col-4">
+                    <div class="container-fluid">
+                        <form action=" " method=" "> 
+                            <div class="row">
+                                <div class="col-md-6">
 
-                            <br> <br>
-                            <h6>Corte Inicial</h6>
-                            <select class="form-select form-select-sm" aria-label="Default select example">
-                                <option selected></option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
-                            </select>
+                                    <br> <br>
+                                    <h6>Corte Inicial</h6>
+                                    <select class="form-select form-select-sm" aria-label="Selecciona un corte inicial">
+                                        <option selected></option>
+                                        @foreach ($cortes as $corte)
+                                            <option value="{{ $corte->cod_corte }}">{{ $corte->nombre }}</option>
+                                        @endforeach
+                                    </select>
 
-                            <h6>Proceso</h6>
-                            <select class="form-select form-select-sm" aria-label="Default select example">
-                                <option selected></option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
-                            </select>
-                            <h6>Calibre</h6>
-                            <select class="form-select form-select-sm" aria-label="Default select example">
-                                <option selected></option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
-                            </select>
+                                    <h6>Proceso</h6>
+                                    <select class="form-select form-select-sm" aria-label="Selecciona un proceso">
+                                        <option selected></option>
+                                        @foreach ($procesos as $proceso)
+                                            <option value="{{ $proceso->cod_sproceso }}">{{ $proceso->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                    <h6>Calibre</h6>
+                                    <select class="form-select form-select-sm" aria-label="Selecciona un calibre">
+                                        <option selected></option>
+                                        @foreach ($calibres as $calibre)
+                                            <option value="{{ $calibre->cod_calib }}">{{ $calibre->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                    <br />
+                                    <h6>Piezas</h6>
+                                    <input type="number" class="form-control form-control-sm" placeholder="123" />
+
+                                </div>
+
+                                <div class="col-md-6">
+
+                                    <br /><br />
+
+                                    <h6>Corte Final</h6>
+                                    <select class="form-select form-select-sm" aria-label="Selecciona un corte final">
+                                        <option selected></option>
+                                        @foreach ($cortes as $corte)
+                                            <option value="{{ $corte->cod_corte }}">{{ $corte->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                    <h6>Destino</h6>
+                                    <select class="form-select form-select-sm" aria-label="Selecciona un destino">
+                                        <option selected></option>
+                                        <option value="1">Destino 1</option>
+                                        <option value="2">Destino 2</option>
+                                        <option value="3">Destino 3</option>
+                                    </select>
+
+                                    <h6>Calidad</h6>
+                                    <select class="form-select form-select-sm" aria-label="Selecciona una calidad">
+                                        <option selected></option>
+                                        @foreach ($calidades as $calidad)
+                                            <option value="{{ $calidad->cod_cald }}">{{ $calidad->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                    <br />
+
+                                    <h6>Kilos</h6>
+                                    <input type="number" class="form-control form-control-sm" placeholder="123" />
+                                </div>
+                            </div>
+                        
+
                             <br />
-                            <h6>Piezas</h6>
-                            <input type="number" class="form-control form-control-sm" placeholder="123" />
 
-                        </div>
-
-                        <div class="col-md-6">
-
-                            <br /><br />
-
-                            <h6>Corte Final</h6>
-                            <select class="form-select form-select-sm" aria-label="Default select example">
-                                <option selected></option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
-                            </select>
-                            <h6>Destino</h6>
-                            <select class="form-select form-select-sm" aria-label="Default select example">
-                                <option selected></option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
-                            </select>
-
-                            <h6>Calidad</h6>
-                            <select class="form-select form-select-sm" aria-label="Default select example">
-                                <option selected></option>
-                                <option value="1">One</option>
-                                <option value="2">Two</option>
-                                <option value="3">Three</option>
-                            </select>
-                            <br />
-
-                            <h6>Kilos</h6>
-                            <input type="number" class="form-control form-control-sm" placeholder="123" />
-                        </div>
-                    </div>
-
-                    <br />
-
-                    <div class="row">
-                        <div class="col-md-6">
-                            <button type="button" class="btn btn-success btn-lg">
-                                Agregar
-                            </button>
-                        </div>
-                        <div class="col-md-6">
-                            <button type="button" class="btn btn-warning btn-lg">
-                                Limpiar
-                            </button>
-                        </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <button type="submit" class="btn btn-success btn-lg">
+                                        Agregar
+                                    </button>
+                                </div>
+                                <div class="col-md-6">
+                                    <button type="button" class="btn btn-warning btn-lg">
+                                        Limpiar
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
-            </div>
 
             <div class="col-8">
                 <h1>Planilla Control De Proceso SG</h1>
+                
                 <div class="table-wrapper">
-                    <table class="table table-bordered table-striped">
-                        <thead>
+                    <table class="table table-striped">
+                        <thead class="sticky-header">
                             <tr>
                                 <th scope="col">Lote</th>
                                 <th scope="col">Corte Inicial</th>
@@ -153,29 +157,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <th>012312457</th>
-                                <td>HON</td>
-                                <td>Trim D</td>
-                                <td>Congelado</td>
-                                <th>xx</th>
-                                <td>2-3</td>
-                                <td>Premium</td>
-                                <td>8</td>
-                                <th>9,0</th>
-                                <td>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="checkbox" value=""
-                                            id="flexCheckDefault" />
-                                        <label class="form-check-label" for="flexCheckDefault">
-                                        </label>
-                                    </div>
-                                </td>
-                                <td><a href="">editar</a></td>
-                            </tr>
+                            
                             @foreach($listado as $i)
                             <tr>
-                                <th>{{$i->cod_planilla}}</th>
+                                <th>{{$i->cod_reg}}</th>
                                 <td>{{$i->cod_corte_ini}}</td>
                                 <td>{{$i->cod_corte_fin}}</td>
                                 <td>{{$i->cod_proceso}}</td>
@@ -205,7 +190,11 @@
 
                         </tbody>
                     </table>
-                    <div class="row mt-4">
+                    
+
+
+                </div>
+                <div class="row mt-4">
                         <div class="col-4">
                             <h6>Entrega Frigorífico</h6>
                             <label for="cajasEntrega">Cajas:</label>
@@ -225,17 +214,15 @@
                                 placeholder="Kilos" />
                         </div>
                     </div>
-
-                    <!-- Nueva Fila: Recepción Planta -->
-
-                </div>
             </div>
+            
         </div>
     </div>
 
     <script type="text/javascript">
         $(function ()                   $("#datepicker").datepick);
     </script>
+    
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"

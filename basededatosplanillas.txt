@@ -24,9 +24,10 @@ CREATE TABLE registro_planilla_pst
 
 
 
+
 INSERT INTO planillas_pst (cod_lote, fec_turno, cod_turno, cod_empresa, cod_especie)
-VALUES (123456, '2024-01-10', 1, 1001, 5);
+VALUES (194133, '2024-01-10', 1, 77, 161);
 
 
 INSERT INTO registro_planilla_pst (cod_planilla, cod_corte_ini, cod_corte_fin, cod_proceso, cod_calibre, cod_calidad, piezas, kilos)
-VALUES (1, 789, 791, 123456789, 2, 3, 100, 150.5);
+VALUES (1, 10, 10, 1, 2, 1, 8, 9.0);
