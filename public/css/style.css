@@ -8,3 +8,11 @@ thead.sticky-header th {
   top: 0;
 }
 
+.card-body p {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.card-body p:last-child {
+  margin-right: 0; 
+}

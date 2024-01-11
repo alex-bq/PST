@@ -5,6 +5,9 @@ CREATE TABLE planillas_pst (
     cod_turno smallint,
     cod_empresa numeric(18,0),
     cod_especie smallint,
+    cod_planillera numeric(18,0),
+    cod_supervisor numeric(18,0),
+    guardado numeric(18,0),
     UNIQUE(cod_planilla) 
 );
 
@@ -18,11 +21,28 @@ CREATE TABLE registro_planilla_pst
     cod_calibre smallint,
     cod_calidad smallint,
     piezas numeric(18,0),
-    kilos float,	
+    kilos float,
+    guardado numeric(18,0),	
     FOREIGN KEY (cod_planilla) REFERENCES planillas_pst(cod_planilla)
 );
 
-
+CREATE VIEW v_registro_planilla_pst AS
+	SELECT 
+		cod_planilla, 
+		ini.nombre AS cInicial,
+		fin.nombre AS cFinal,
+		dbo.subproceso.nombre AS proceso,
+		dbo.calibre.nombre AS calibre,
+		dbo.calidad.nombre AS calidad,
+		piezas,
+		kilos,
+		guardado
+	FROM dbo.registro_planilla_pst
+	LEFT OUTER JOIN dbo.corte AS ini ON dbo.registro_planilla_pst.cod_corte_ini = ini.cod_corte
+	LEFT OUTER JOIN dbo.corte AS fin ON dbo.registro_planilla_pst.cod_corte_fin = fin.cod_corte
+	LEFT OUTER JOIN dbo.subproceso ON dbo.registro_planilla_pst.cod_proceso = dbo.subproceso.cod_sproceso
+	LEFT OUTER JOIN dbo.calibre ON dbo.registro_planilla_pst.cod_calibre = dbo.calibre.cod_calib
+	LEFT OUTER JOIN dbo.calidad ON dbo.registro_planilla_pst.cod_calidad = dbo.calidad.cod_cald;
 
 
 INSERT INTO planillas_pst (cod_lote, fec_turno, cod_turno, cod_empresa, cod_especie)

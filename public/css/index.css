@@ -1,0 +1,25 @@
+.card {
+    
+    cursor: pointer;
+    transition: box-shadow 0.3s ease-in-out; /* Agregamos una transición para la sombra */
+}
+
+.card:hover {
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.3); /* Añadimos sombra al pasar el mouse */
+}
+
+.card:active {
+    transform: scale(0.995); /* Reducimos ligeramente la escala al hacer clic */
+}
+
+.card-body p {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.card-body p:last-child {
+    margin-right: 0;
+}
+
+
+
