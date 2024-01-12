@@ -83,6 +83,20 @@ VALUES
     (4, 'INDUSTRIAL B', 0),
     (5, 'SIN CALIDAD', 0);
 
+
+
+-- Eliminar la tabla registro_planilla_pst
+DROP TABLE registro_planilla_pst;
+
+-- Eliminar la tabla planillas_pst
+DROP TABLE planillas_pst;
+
+-- Eliminar la tabla usuarios
+DROP TABLE dbo.usuarios;
+
+
+
+
 CREATE TABLE planillas_pst (
     cod_planilla smallint PRIMARY KEY IDENTITY(1,1),
     cod_lote bigint,
@@ -140,22 +154,52 @@ INSERT INTO registro_planilla_pst (cod_planilla, cod_corte_ini, cod_corte_fin, c
 VALUES (1, 10, 10, 1, 2, 1, 8, 9.0);
 
 CREATE VIEW v_registro_planilla_pst AS
-	SELECT 
-		cod_planilla, 
-		ini.nombre AS cInicial,
-		fin.nombre AS cFinal,
-		dbo.subproceso.nombre AS proceso,
-		dbo.calibre.nombre AS calibre,
-		dbo.calidad.nombre AS calidad,
-		piezas,
-		kilos,
-		guardado
-	FROM dbo.registro_planilla_pst
-	LEFT OUTER JOIN dbo.corte AS ini ON dbo.registro_planilla_pst.cod_corte_ini = ini.cod_corte
-	LEFT OUTER JOIN dbo.corte AS fin ON dbo.registro_planilla_pst.cod_corte_fin = fin.cod_corte
-	LEFT OUTER JOIN dbo.subproceso ON dbo.registro_planilla_pst.cod_proceso = dbo.subproceso.cod_sproceso
-	LEFT OUTER JOIN dbo.calibre ON dbo.registro_planilla_pst.cod_calibre = dbo.calibre.cod_calib
-	LEFT OUTER JOIN dbo.calidad ON dbo.registro_planilla_pst.cod_calidad = dbo.calidad.cod_cald;
+    SELECT 
+        cod_planilla, 
+        ini.nombre AS cInicial,
+        fin.nombre AS cFinal,
+        dbo.subproceso.nombre AS proceso,
+        dbo.calibre.nombre AS calibre,
+        dbo.calidad.nombre AS calidad,
+        piezas,
+        kilos,
+        guardado
+    FROM dbo.registro_planilla_pst
+    LEFT OUTER JOIN dbo.corte AS ini ON dbo.registro_planilla_pst.cod_corte_ini = ini.cod_corte
+    LEFT OUTER JOIN dbo.corte AS fin ON dbo.registro_planilla_pst.cod_corte_fin = fin.cod_corte
+    LEFT OUTER JOIN dbo.subproceso ON dbo.registro_planilla_pst.cod_proceso = dbo.subproceso.cod_sproceso
+    LEFT OUTER JOIN dbo.calibre ON dbo.registro_planilla_pst.cod_calibre = dbo.calibre.cod_calib
+    LEFT OUTER JOIN dbo.calidad ON dbo.registro_planilla_pst.cod_calidad = dbo.calidad.cod_cald;
+
+CREATE VIEW v_planilla_pst AS
+    SELECT cod_planilla,
+        dbo.lotes.nombre AS lote,
+        fec_turno,
+        dbo.turno.NomTurno AS turno,
+        dbo.empresas.descripcion AS empresa,
+        dbo.especies.descripcion AS especie,
+        cod_planillera,
+        planillera.nombre_usuario AS planillera_nombre,
+        dbo.planillas_pst.cod_supervisor,
+        supervisor.nombre_usuario AS supervisor_nombre,
+        guardado
+    FROM dbo.planillas_pst 
+    LEFT OUTER JOIN dbo.lotes ON dbo.planillas_pst.cod_lote  = dbo.lotes.cod_lote
+    LEFT OUTER JOIN dbo.turno ON dbo.planillas_pst.cod_turno = dbo.turno.CodTurno
+    LEFT OUTER JOIN dbo.empresas ON dbo.planillas_pst.cod_empresa = dbo.empresas.cod_empresa
+    LEFT OUTER JOIN dbo.especies ON dbo.planillas_pst.cod_especie = dbo.especies.cod_especie
+    LEFT OUTER JOIN dbo.usuarios_pst AS planillera ON dbo.planillas_pst.cod_planillera = planillera.cod_usuario
+    LEFT OUTER JOIN dbo.usuarios_pst AS supervisor ON dbo.planillas_pst.cod_supervisor = supervisor.cod_usuario;
+
+
+INSERT INTO dbo.usuarios (nombre_usuario, pass, rol_supervisor,rol_admin)
+VALUES
+    ('juan_perez', '123', 1,0),   -- Supervisor
+    ('maria_gomez', '123', 0,0),  -- Planillero
+    ('carlos_rodriguez', '123', 0,0),  -- Planillero
+    ('ana_martinez', '123', 1,0),  -- Supervisor
+    ('luis_sanchez', '123', 0,0),  -- Planillero
+	('admin','admin',0,1); -- Admin
 
 
 INSERT INTO planillas_pst (cod_lote, fec_turno, cod_turno, cod_empresa, cod_especie)
@@ -164,6 +208,24 @@ VALUES (194133, '2024-01-10', 1, 77, 161);
 
 INSERT INTO registro_planilla_pst (cod_planilla, cod_corte_ini, cod_corte_fin, cod_proceso, cod_calibre, cod_calidad, piezas, kilos)
 VALUES (1, 10, 10, 1, 2, 1, 8, 9.0);
+
+
+-- Insertar en la tabla 'planillas_pst'
+INSERT INTO planillas_pst (cod_lote, fec_turno, cod_turno, cod_empresa, cod_especie, cod_planillera, cod_supervisor, guardado)
+VALUES (194133, 
+'2024-01-12 08:00:00',
+ 1, 
+  77,
+   1,
+    123456789012345678,
+     123456789012345678,
+      0);
+
+-- Insertar en la tabla 'registro_planilla_pst'
+-- Supongamos que el código de la planilla insertada en la tabla 'planillas_pst' es 1
+
+INSERT INTO registro_planilla_pst (cod_planilla, cod_corte_ini, cod_corte_fin, cod_proceso, cod_calibre, cod_calidad, piezas, kilos, guardado)
+VALUES (1, 1001, 1002, 123456789012345678, 1, 1, 100, 50.5, 0);
 
 
 pq es codigo en el group by??? PROBAR!!!

@@ -16,7 +16,7 @@ class AuthController extends Controller
     {
         $credentials = $request->only('nombre_usuario', 'pass');
 
-        $user = DB::table('usuarios')
+        $user = DB::table('usuarios_pst')
             ->where('nombre_usuario', $credentials['nombre_usuario'])
             ->where('pass', $credentials['pass'])
             ->first();
@@ -45,9 +45,6 @@ class AuthController extends Controller
     // Limpiar la sesión
     session()->forget('user');
 
-    // Puedes realizar otras acciones aquí, si es necesario
-
-    // Redirigir a la página de inicio de sesión
     return redirect('/login')->with('message', 'Has cerrado sesión exitosamente.');
 }
 

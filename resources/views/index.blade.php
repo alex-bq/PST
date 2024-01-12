@@ -12,35 +12,52 @@
 
 </head>
 
-<body>
-    <div class="container-fluid">
-        <h1 class="mb-4">Página de Inicio</h1>
-        @if(session('user'))
-        <h2>{{ session('user')['nombre_usuario'] }}</h2>
-        <p>Rol: {{ session('user')['rol_supervisor'] ? 'Supervisor' : 'Planillero' }}</p>
-        <p><a href="{{ url('/logout') }}">Cerrar sesión</a></p>
+@if(!session('user'))
+    <script>
+        window.location.href = "{{ url('/login') }}";
+    </script>
+@endif
 
+<body>
+<div class="container-fluid">
+        <h1 class="mb-4">Página de Inicio</h1>  
+
+        @if(session('user'))
+            <h2>{{ session('user')['nombre_usuario'] }}</h2>
+
+
+            @if(!session('user')['rol_admin'])
+                <p>Rol: {{ session('user')['rol_supervisor'] ? 'Supervisor' : 'Planillero' }}</p>
+            @endif
             
+            <p><a href="{{ url('/logout') }}">Cerrar sesión</a></p>
+
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h2 class="mb-0">Planillas</h2>
-                <a href="crear_planilla.php" class="btn btn-primary">Crear Nueva Planilla</a>
+                <a href="{{ url('/crear_planilla') }}" class="btn btn-primary">Crear Nueva Planilla</a>
             </div>
 
-                <a href="">
-                    <div class="card">
-                        <div class="card-body">
-                            <p><strong>Fecha Turno:</strong> 03/01/2024</p>
-                            <p><strong>Turno:</strong>Noche</p>
-                            <p><strong>Proveedor:</strong>Patagonia King Salmon</p>
-                            <p><strong>Especie:</strong>Salmon Chinook</p>
-                            <p><strong>Supervisor:</strong>Natalie Altamirano</p>
+            @if(count($planillas) > 0)
+                @foreach($planillas as $planilla)
+                    <a href="{{ url('/planilla/' . $planilla->cod_planilla) }}">
+                        <div class="card">
+                            <div class="card-body">
+                                <p><strong>Lote:</strong>{{ $planilla->lote }}</p>
+                                <p><strong>Fecha Turno:</strong> {{ date('d/m/Y', strtotime($planilla->fec_turno)) }}</p>
+                                <p><strong>Turno:</strong>{{ $planilla->turno }}</p>
+                                <p><strong>Proveedor:</strong>{{ $planilla->empresa }}</p>
+                                <p><strong>Especie:</strong>{{ $planilla->especie }}</p>
+                                <p><strong>Supervisor:</strong>{{ $planilla->supervisor_nombre }}</p>
+                                <p><strong>Planillera:</strong>{{ $planilla->planillera_nombre }}</p>
+                            </div>
                         </div>
-                    </div>
-                </a>
-        @else
-            <p>Debes iniciar sesión para acceder al dashboard.</p>
+                    </a>
+                    <br>
+                @endforeach
+            @else
+                <p>No hay datos de planilla disponibles.</p>
+            @endif
         @endif
-        
     </div>
 
     <!-- Bootstrap JS y otros scripts -->

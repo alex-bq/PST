@@ -18,42 +18,52 @@
     </head>
 
 <body>
+    @if(!session('user'))
+        <script>
+            window.location.href = "{{ url('/login') }}";
+        </script>
+    @endif
+
     <div class="container-fluid align-text">
         <div class="row">
             <div class="col-2">
-                <p><strong>Fecha Turno:</strong> 03/01/2024</p>
+                <p><strong>Fecha Turno:</strong> {{ date('d/m/Y', strtotime($desc_planilla->fec_turno)) }}</p>
             </div>
             <div class="col-2">
-                <p><strong>Turno:</strong> Noche</p>
+                <p><strong>Turno:</strong> {{ $desc_planilla->turno }}</p>
 
             </div>
 
             <div class="col-2">
-                <p><strong>Proveedor:</strong> Patagonia King Salmon</p>
+                <p><strong>Proveedor:</strong> {{ $desc_planilla->empresa }}</p>
             </div>
             <div class="col-2">
-                <p><strong>Especie:</strong> Salmon Chinook</p>
+                <p><strong>Especie:</strong> {{ $desc_planilla->especie }}</p>
 
             </div>
 
             <div class="col-2">
-                <p><strong>Supervisor:</strong> Natalie Altamirano</p>
+                <p><strong>Supervisor:</strong> {{ $desc_planilla->supervisor_nombre }}</p>
             </div>
 
             <div class="col-2">
-                <p><strong>Planillera:</strong> Soledad B</p>
+                <p><strong>Planillera:</strong> {{ $desc_planilla->planillera_nombre }}</p>
 
             </div>
         </div>
-
+        @if(session('mensaje'))
+            <div class="alert alert-{{ session('mensaje')['tipo'] }}" role="alert">
+                {{ session('mensaje')['texto'] }}
+            </div>
+        @endif
 
         <div class="row">
                 <div id="columna1" class="col-4">
                     <div class="container-fluid">
-                        <form action="{{ url('/agregar-registro') }}" method="POST">
+                        <form id="form1" action="{{ url('/agregar-registro') }}" method="POST">
                         @csrf
                             <div class="row">
-                            <h4>Lote : 1231231</h4>
+                            <h4>Lote : {{ $desc_planilla->lote }}</h4>
                                 <div class="col-md-6">
                             
                                      <br>
@@ -120,6 +130,8 @@
                         
 
                             <br />
+                            <input type="hidden" name="idPlanilla" value="{{ $idPlanilla }}">
+
 
                             <div class="row">
                                 <div class="col-md-6">
@@ -128,9 +140,9 @@
                                     </button>
                                 </div>
                                 <div class="col-md-6">
-                                    <button type="button" class="btn btn-warning btn-lg">
-                                        Limpiar
-                                    </button>
+                                <button type="button" class="btn btn-warning btn-lg" onclick="limpiarFormulario()">
+                                    Limpiar
+                                </button>
                                 </div>
                             </div>
                         </form>
@@ -161,7 +173,7 @@
                         @php
                             $contador = 1;
                         @endphp
-                            
+                        @if(is_object($planilla))
                             @foreach($planilla as $i)
                             <tr>
                                 <th>{{$contador}}</th>
@@ -187,7 +199,9 @@
                                 $contador++;
                             @endphp
                             @endforeach
-
+                        @else
+                            <p>La planilla no existe o no tienes permisos para acceder.</p>
+                        @endif
                         </tbody>
                     </table>
                     
@@ -213,6 +227,12 @@
                             <input type="number" class="form-control form-control-sm" id="kilosRecepcion"
                                 placeholder="Kilos" />
                         </div>
+                        <div class=col-4>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                Agregar
+                            </button>
+                        </div>
+
                     </div>
             </div>
             
@@ -245,6 +265,7 @@
             });
 
             
+            
             function actualizarTabla(planilla) {
                 var tabla = $('#tabla-registros table tbody');
                 tabla.empty();
@@ -273,6 +294,12 @@
                 });
             }
         });
+    </script>
+
+    <script>
+        function limpiarFormulario() {
+            document.getElementById('form1').reset();
+        }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
