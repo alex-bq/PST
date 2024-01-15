@@ -10,22 +10,27 @@ class IndexController extends Controller
 {
     public function index()
     {
-        $codUsuario = Session::get('user.id');
-        $rolUsuario = Session::get('user.rol_admin');
+        
+        $planillas = DB::table('pst.dbo.v_planilla_pst')
+        ->select('*')
+        ->get();
 
-        $condicionConsulta = function ($query) use ($codUsuario, $rolUsuario) {
-            if (!$rolUsuario) {
-                $query->where(function ($query) use ($codUsuario) {
-                    $query->where('cod_planillera', $codUsuario)
-                        ->orWhere('cod_supervisor', $codUsuario);
-                });
-            }
-        };
+        // $codUsuario = Session::get('user.cod_usuario');
+        // $codRol = Session::get('user.cod_rol');
 
-        $planillas = DB::table('v_planilla_pst')
-            ->select('*')
-            ->where($condicionConsulta)
-            ->get();
+        // if ($codRol == '3'){
+
+        //     $planillas = DB::table('v_planilla_pst')
+        //     ->select('*')
+        //     ->get();
+        // }
+        // else{
+        //     $planillas = DB::table('v_planilla_pst')
+        //     ->select('*')
+        //     ->where('cod_planillera', $codUsuario)
+        //     ->orWhere('cod_supervisor', $codUsuario)
+        //     ->get();
+        // }
 
         // Si $planillas es null o no es una colección, inicializarlo como una colección vacía
         $planillas = $planillas ?? collect();

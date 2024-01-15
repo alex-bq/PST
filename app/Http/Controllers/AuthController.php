@@ -14,20 +14,21 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->only('nombre_usuario', 'pass');
+        $credentials = $request->only('usuario', 'pass');
 
-        $user = DB::table('usuarios_pst')
-            ->where('nombre_usuario', $credentials['nombre_usuario'])
+        $user = DB::table('pst.dbo.v_data_usuario')
+            ->where('usuario', $credentials['usuario'])
             ->where('pass', $credentials['pass'])
             ->first();
 
         if ($user) {
             // Autenticación exitosa
             session(['user' => [
-                'id' => $user->cod_usuario,
-                'nombre_usuario' => $user->nombre_usuario,
-                'rol_supervisor' => $user->rol_supervisor,
-                'rol_admin' => $user->rol_admin,
+                'cod_usuario' => $user->cod_usuario,
+                'usuario' => $user->usuario,
+                'nombre' => $user->nombre,
+                'cod_rol'=> $user->cod_rol,
+                'rol' => $user->rol,
             ]]);
 
             return redirect()->route('inicio');
@@ -39,8 +40,7 @@ class AuthController extends Controller
 
     public function logout()
 {
-    // Obtener datos del usuario antes de cerrar sesión (si es necesario)
-    $userData = session('user');
+
 
     // Limpiar la sesión
     session()->forget('user');

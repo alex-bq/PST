@@ -173,21 +173,21 @@ CREATE VIEW v_registro_planilla_pst AS
 
 CREATE VIEW v_planilla_pst AS
     SELECT cod_planilla,
-        dbo.lotes.nombre AS lote,
+        bdsystem.dbo.lotes.nombre AS lote,
         fec_turno,
-        dbo.turno.NomTurno AS turno,
-        dbo.empresas.descripcion AS empresa,
-        dbo.especies.descripcion AS especie,
+        bdsystem.dbo.turno.NomTurno AS turno,
+        bdsystem.dbo.empresas.descripcion AS empresa,
+        bdsystem.dbo.especies.descripcion AS especie,
         cod_planillera,
         planillera.nombre_usuario AS planillera_nombre,
         dbo.planillas_pst.cod_supervisor,
         supervisor.nombre_usuario AS supervisor_nombre,
         guardado
-    FROM dbo.planillas_pst 
-    LEFT OUTER JOIN dbo.lotes ON dbo.planillas_pst.cod_lote  = dbo.lotes.cod_lote
-    LEFT OUTER JOIN dbo.turno ON dbo.planillas_pst.cod_turno = dbo.turno.CodTurno
-    LEFT OUTER JOIN dbo.empresas ON dbo.planillas_pst.cod_empresa = dbo.empresas.cod_empresa
-    LEFT OUTER JOIN dbo.especies ON dbo.planillas_pst.cod_especie = dbo.especies.cod_especie
+    FROM dbo.planillas_pst
+    LEFT OUTER JOIN bdsystem.dbo.lotes ON dbo.planillas_pst.cod_lote  = bdsystem.dbo.lotes.cod_lote 
+    LEFT OUTER JOIN bdsystem.dbo.turno ON dbo.planillas_pst.cod_turno = bdsystem.dbo.turno.CodTurno
+    LEFT OUTER JOIN bdsystem.dbo.empresas ON dbo.planillas_pst.cod_empresa = bdsystem.dbo.empresas.cod_empresa
+    LEFT OUTER JOIN bdsystem.dbo.especies ON dbo.planillas_pst.cod_especie = bdsystem.dbo.especies.cod_especie
     LEFT OUTER JOIN dbo.usuarios_pst AS planillera ON dbo.planillas_pst.cod_planillera = planillera.cod_usuario
     LEFT OUTER JOIN dbo.usuarios_pst AS supervisor ON dbo.planillas_pst.cod_supervisor = supervisor.cod_usuario;
 

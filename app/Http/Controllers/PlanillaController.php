@@ -12,34 +12,27 @@ class PlanillaController extends Controller
 
     
 {
-    $cortes = DB::select('SELECT dbo.corte.cod_corte,dbo.corte.nombre FROM dbo.corte WHERE dbo.corte.inactivo = 0 AND dbo.corte.transito = 1 GROUP BY dbo.corte.nombre,dbo.corte.cod_corte ORDER BY dbo.corte.nombre ASC;');
-    $procesos = DB::select('SELECT dbo.subproceso.cod_sproceso,dbo.subproceso.nombre FROM dbo.subproceso WHERE dbo.subproceso.inactivo = 0 ORDER BY dbo.subproceso.nombre ASC;');
-    $calibres = DB::select('SELECT dbo.calibre.cod_calib, dbo.calibre.nombre FROM dbo.calibre WHERE inactivo = 0 AND transito = 1 ;');
-    $calidades = DB::select('SELECT DISTINCT MIN(dbo.calidad.cod_cald) as cod_cald,dbo.calidad.nombre FROM dbo.calidad WHERE inactivo = 0 GROUP BY dbo.calidad.nombre ORDER BY dbo.calidad.nombre ASC;');
+    $cortes = DB::select('SELECT cod_corte,nombre FROM pst.dbo.corte WHERE inactivo = 0 AND transito = 1 GROUP BY nombre,cod_corte ORDER BY nombre ASC;');
+    $procesos = DB::select('SELECT cod_sproceso,nombre FROM pst.dbo.subproceso WHERE inactivo = 0 ORDER BY nombre ASC;');
+    $calibres = DB::select('SELECT cod_calib,nombre FROM calibre WHERE inactivo = 0 AND transito = 1 ;');
+    $calidades = DB::select('SELECT cod_cald,nombre FROM pst.dbo.calidad WHERE inactivo = 0 ORDER BY nombre ASC;');
 
-    $idUsuario = session('user')['id'];
-    $rolUsuario = session('user')['rol_admin'];
+    
 
 
-    $desc_planilla = DB::table('v_planilla_pst')
+    $desc_planilla = DB::table('pst.dbo.v_planilla_pst')
             ->select('*')
             ->where('cod_planilla',$idPlanilla)
             ->first();
 
-    if ($rolUsuario) {
-        // Si es admin, muestra la planilla seleccionada
-        $planilla = DB::table("dbo.v_registro_planilla_pst")
-            ->select('cInicial', 'cFinal', 'proceso', 'calibre', 'calidad', 'piezas', 'kilos')
-            ->get();
-    } else {
-        // Si no es admin, verifica que la planilla pertenezca al usuario
-        $planilla = DB::table("dbo.v_registro_planilla_pst")
-            ->select('cInicial', 'cFinal', 'proceso', 'calibre', 'calidad', 'piezas', 'kilos')
-            ->where('cod_planilla', $idPlanilla)
-            ->get();
+    
+    $planilla = DB::table("pst.dbo.v_registro_planilla_pst")
+        ->select('cInicial', 'cFinal', 'proceso', 'calibre', 'calidad', 'piezas', 'kilos')
+        ->where('cod_planilla', $idPlanilla)
+        ->get();
 
         
-    }
+    
 
     
 
@@ -59,7 +52,7 @@ class PlanillaController extends Controller
         $kilos = $request->input('kilos');
 
 
-        DB::table('registro_planilla_pst')->insert([
+        DB::table('pst.dbo.registro_planilla_pst')->insert([
             'cod_planilla' => $idPlanilla ,
             'cod_corte_ini' => $codCorteIni,
             'cod_corte_fin' => $codCorteFin,
@@ -72,7 +65,7 @@ class PlanillaController extends Controller
         ]);
 
         
-        $planillaActualizada = DB::table("dbo.v_registro_planilla_pst")
+        $planillaActualizada = DB::table("pst.dbo.v_registro_planilla_pst")
             ->where('cod_planilla', $idPlanilla)
             ->select('cInicial', 'cFinal', 'proceso', 'calibre', 'calidad', 'piezas', 'kilos')
             ->get();

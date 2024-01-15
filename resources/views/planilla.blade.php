@@ -47,7 +47,7 @@
             </div>
 
             <div class="col-2">
-                <p><strong>Planillera:</strong> {{ $desc_planilla->planillera_nombre }}</p>
+                <p><strong>Planillero:</strong> {{ $desc_planilla->planillero_nombre }}</p>
 
             </div>
         </div>

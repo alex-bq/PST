@@ -30,8 +30,8 @@ dudas
 - en cortes salen tipos como atun,aros de calamar,tentaculos de jibia como se relaciona con la especie que le pertenece a la planilla
 se filtrara segun la especie?
 
-- un lote puede tener mas de una planilla? para cuando se agregue planillas
-- 
+- un lote puede tener mas de una planilla? para cuando se agregue planillas (SI)
+ 
 ---
 
 tablas
