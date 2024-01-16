@@ -47,3 +47,15 @@ ORDER BY IdLote DESC;
 		NomTurno,
 		inactivo
 	FROM dbo.turno 
+	
+SELECT cod_empresa,descripcion FROM bdsystem.dbo.empresas WHERE inactivo=0 ORDER BY descripcion ASC;
+
+SELECT cod_especie,descripcion FROM bdsystem.dbo.especies WHERE inactivo=0 ORDER BY descripcion ASC;
+
+
+SELECT codTurno,NomTurno FROM bdsystem.dbo.turno WHERE inactivo=0 ORDER BY NomTurno ASC;
+
+SELECT cod_usuario,nombre FROM v_data_usuario WHERE cod_rol=2 ORDER BY nombre ASC; -- Supervisores
+
+
+SELECT cod_usuario,nombre FROM v_data_usuario WHERE cod_rol=1 ORDER BY nombre ASC; -- Planilleros
