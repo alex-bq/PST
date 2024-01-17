@@ -103,8 +103,9 @@ CREATE TABLE planillas_pst (
     fec_turno datetime,
     cod_turno smallint,
     cod_empresa numeric(18,0),
+    cod_proveedor numeric(18,0),
     cod_especie smallint,
-    cod_planillera numeric(18,0),
+    cod_planillero numeric(18,0),
     cod_supervisor numeric(18,0),
     guardado numeric(18,0),
     UNIQUE(cod_planilla) 

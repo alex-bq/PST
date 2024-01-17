@@ -46,12 +46,13 @@ usuario
 -- cambios 
 
 - kilos no se resgistran en decimal
+
 agregar destinos para supervisor
 
 filtro de planillas
 
 
-crear bd aparte   
+crear bd aparte   X
 
 entrega caja,pieza,kilos y a recepcion
 

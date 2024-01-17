@@ -12,6 +12,11 @@ class PlanillaController extends Controller
 
     
 {
+
+    if (!session('user')) {
+        return redirect('/login');
+    }
+
     $cortes = DB::select('SELECT cod_corte,nombre FROM pst.dbo.corte WHERE inactivo = 0 AND transito = 1 GROUP BY nombre,cod_corte ORDER BY nombre ASC;');
     $procesos = DB::select('SELECT cod_sproceso,nombre FROM pst.dbo.subproceso WHERE inactivo = 0 ORDER BY nombre ASC;');
     $calibres = DB::select('SELECT cod_calib,nombre FROM calibre WHERE inactivo = 0 AND transito = 1 ;');
@@ -24,6 +29,11 @@ class PlanillaController extends Controller
             ->select('*')
             ->where('cod_planilla',$idPlanilla)
             ->first();
+
+    if (!$desc_planilla) {
+        // La planilla no existe, redirigir al usuario a la página de inicio
+        return redirect('/inicio')->with('error', 'La planilla no existe.');
+    }
 
     
     $planilla = DB::table("pst.dbo.v_registro_planilla_pst")

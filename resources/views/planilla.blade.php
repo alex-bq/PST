@@ -18,11 +18,7 @@
     </head>
 
 <body>
-    @if(!session('user'))
-        <script>
-            window.location.href = "{{ url('/login') }}";
-        </script>
-    @endif
+    
 
     <div class="container-fluid align-text">
         <div class="row">

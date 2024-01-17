@@ -9,7 +9,14 @@ class AuthController extends Controller
 {
     public function showLoginForm()
     {
+        if (session('user')) {
+            return redirect('/inicio');
+        }
+        
         return view('auth.login');
+
+        
+
     }
 
     public function login(Request $request)

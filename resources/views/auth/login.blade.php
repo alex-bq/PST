@@ -10,11 +10,6 @@
     <link rel="stylesheet" href="{{ asset('css/login.css') }}"> <!-- Agrega el archivo de estilos específico para el login si lo tienes -->
 </head>
 
-@if(session('user'))
-    <script>
-        window.location.href = "{{ url('/inicio') }}";
-    </script>
-@endif
 
 <body class="bg-light">
 
