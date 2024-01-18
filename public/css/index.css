@@ -23,3 +23,36 @@ body {
 .table-row:active {
     transform: scale(0.995);
 }
+
+
+
+
+
+
+
+
+
+.accordion-content {
+	display: none;
+	padding: 20px;
+	overflow: auto;
+}
+
+.accordion-content p{
+	margin:0;
+}
+
+.accordion-content img {
+	display: block;
+	float: left;
+	margin: 0 15px 10px 0;
+	width: 50%;
+	height: auto;
+}
+
+
+@media (max-width: 767px) {
+	.accordion-content {
+		padding: 10px 0;
+	}
+}

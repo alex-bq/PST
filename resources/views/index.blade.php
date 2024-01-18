@@ -8,7 +8,6 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.17.0/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
 </head>
 
@@ -19,14 +18,14 @@
                 <img src="{{ url('http://192.168.1.122/img/logo.png') }}" alt="Logo" height="50">
             </a>
 
-            <div class="collapse navbar-collapse justify-content" id="navbarNavAltMarkup">
+            <!-- <div class="collapse navbar-collapse justify-content" id="navbarNavAltMarkup">
                 <div class="navbar-nav d-flex align-items-center">
                     <a class="nav-link active" aria-current="page" href="#">Home</a>
                     <a class="nav-link" href="#">Features</a>
                     <a class="nav-link" href="#">Pricing</a>
                     <a class="nav-link disabled" aria-disabled="true">Disabled</a>
                 </div>
-            </div>
+            </div> -->
 
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <div class="navbar-nav d-flex align-items-center">
@@ -61,56 +60,51 @@
 
 
         <div class="mb-3">
-            <div class="accordion flush" id="filtroAcordeon">
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="filtroHeader">
-                        <button class="accordion-button" type="button" data-bs-toggle="collapse"
-                            data-bs-target="#filtroCollapse" aria-expanded="true" aria-controls="filtroCollapse">
-                            Filtros
-                        </button>
-                    </h2>
-                    <div id="filtroCollapse" class="accordion-collapse collapse " aria-labelledby="filtroHeader"
-                        data-bs-parent="#filtroAcordeon">
-                        <div class="accordion-body">
-                            <form>
-                                <div class="row">
+            <div class="accordion-container">
 
-                                    <!-- Filtro por Fecha -->
-                                    <div class="col-md-3">
-                                        <input type="date" class="form-control" name="filtroFecha"
-                                            placeholder="Filtrar por Fecha">
-                                    </div>
+                <a type="button" class="accordion-titulo btn btn-light btn-sm" href='#'>Mas filtros<span
+                        class="toggle-icon"></span></a>
+                <div class="accordion-content">
 
-                                    <!-- Otros filtros aquí... -->
-                                    <div class="col-md-3">
-                                        <select class="form-select" name="filtroTurno">
-                                            <option selected disabled>Filtro Turno </option>
-                                            @foreach ($turnos as $turno)
-                                            <option value="{{ $turno->NomTurno }}">{{ $turno->NomTurno }}</option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                    <form>
+                        <div class="row">
 
-                                    <div class="col-md-3">
-                                        <select class="form-select" name="filtroProv">
-                                            <option selected disabled>Filtro Proveedor</option>
-                                            @foreach ($empresas as $empresa)
-                                            <option value="{{ $empresa->cod_empresa }}">{{ $empresa->descripcion }}
-                                            </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
+                            <!-- Filtro por Fecha -->
+                            <div class="col-md-3">
+                                <input type="date" class="form-control" name="filtroFecha"
+                                    placeholder="Filtrar por Fecha">
+                            </div>
 
-                                    <div class="col-md-3">
-                                        <button type="submit" class="btn btn-primary">Filtrar</button>
-                                    </div>
+                            <!-- Otros filtros aquí... -->
+                            <div class="col-md-3">
+                                <select class="form-select" name="filtroTurno">
+                                    <option selected disabled>Filtro Turno </option>
+                                    @foreach ($turnos as $turno)
+                                    <option value="{{ $turno->NomTurno }}">{{ $turno->NomTurno }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
 
-                                </div>
-                            </form>
+                            <div class="col-md-3">
+                                <select class="form-select" name="filtroProv">
+                                    <option selected disabled>Filtro Proveedor</option>
+                                    @foreach ($empresas as $empresa)
+                                    <option value="{{ $empresa->cod_empresa }}">{{ $empresa->descripcion }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-primary">Filtrar</button>
+                            </div>
+
                         </div>
-                    </div>
+                    </form>
                 </div>
+
             </div>
+
         </div>
 
 
@@ -164,18 +158,11 @@
                                 <div class="form-group">
                                     <div id="mensajeError" class="alert alert-danger" style="display: none;"></div>
                                     <label for="codLote">Lote</label>
-                                    <div class="input-group">
-                                        <input type="text" class="form-control" id="codLote" name="codLote" required>
-                                        <button class="btn btn-outline-success" type="button">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                                fill="currentColor" class="bi bi-check2-square" viewBox="0 0 16 16">
-                                                <path
-                                                    d="M3 14.5A1.5 1.5 0 0 1 1.5 13V3A1.5 1.5 0 0 1 3 1.5h8a.5.5 0 0 1 0 1H3a.5.5 0 0 0-.5.5v10a.5.5 0 0 0 .5.5h10a.5.5 0 0 0 .5-.5V8a.5.5 0 0 1 1 0v5a1.5 1.5 0 0 1-1.5 1.5z" />
-                                                <path
-                                                    d="m8.354 10.354 7-7a.5.5 0 0 0-.708-.708L8 9.293 5.354 6.646a.5.5 0 1 0-.708.708l3 3a.5.5 0 0 0 .708 0" />
-                                            </svg>
-                                        </button>
-                                    </div>
+
+                                    <input type="text" class="form-control" id="codLote" name="codLote"
+                                        placeholder="Ingrese el lote" required>
+
+
                                 </div>
                             </div>
                         </div>
@@ -185,7 +172,7 @@
                                 <div class="form-group">
                                     <label for="codEmpresa">Empresa</label>
                                     <select class="form-select" name="empresa">
-                                        <option selected></option>
+                                        <option selected disabled></option>
                                         @foreach ($empresas as $empresa)
                                         <option value="{{ $empresa->cod_empresa }}">{{ $empresa->descripcion }}</option>
                                         @endforeach
@@ -194,9 +181,9 @@
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="codEspecie">Proveedor</label>
-                                    <select class="form-select" name="especie">
-                                        <option selected></option>
+                                    <label for="proveedor">Proveedor</label>
+                                    <select class="form-select" name="proveedor">
+                                        <option selected disabled></option>
                                         @foreach ($proveedores as $proveedor)
                                         <option value="{{ $proveedor->cod_proveedor }}">{{ $proveedor->descripcion }}
                                         </option>
@@ -208,7 +195,7 @@
                                 <div class="form-group">
                                     <label for="codEspecie">Especie</label>
                                     <select class="form-select" name="especie">
-                                        <option selected></option>
+                                        <option selected disabled></option>
                                         @foreach ($especies as $especie)
                                         <option value="{{ $especie->cod_especie }}">{{ $especie->descripcion }}</option>
                                         @endforeach
@@ -229,7 +216,7 @@
                                 <div class="form-group">
                                     <label for="codTurno">Turno</label>
                                     <select class="form-select" name="turno">
-                                        <option selected></option>
+                                        <option selected disabled>Seleccione un turno</option>
                                         @foreach ($turnos as $turno)
                                         <option value="{{ $turno->codTurno }}">{{ $turno->NomTurno }}</option>
                                         @endforeach
@@ -242,10 +229,14 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="codSupervisor">Supervisor</label>
-                                    <select class="form-select" name="supervisor">
-                                        <option selected></option>
+                                    <select class="form-select" name="supervisor" @if(session('user')['cod_rol']==2)
+                                        disabled @endif>
+                                        <option selected disabled>Seleccione un supervisor</option>
                                         @foreach ($supervisores as $supervisor)
-                                        <option value="{{ $supervisor->cod_usuario }}">{{ $supervisor->nombre }}
+                                        <option value="{{ $supervisor->cod_usuario }}" @if(session('user')['cod_rol']==2
+                                            && session('user')['cod_usuario']==$supervisor->cod_usuario) selected
+                                            @endif>
+                                            {{ $supervisor->nombre }}
                                         </option>
                                         @endforeach
                                     </select>
@@ -254,16 +245,21 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="codPlanillero">Planillero</label>
-                                    <select class="form-select" name="planillero">
-                                        <option selected></option>
+                                    <select class="form-select" name="planillero" @if(session('user')['cod_rol']==1)
+                                        disabled @endif>
+                                        <option selected disabled>Seleccione un planillero</option>
                                         @foreach ($planilleros as $planillero)
-                                        <option value="{{ $planillero->cod_usuario }}">{{ $planillero->nombre }}
+                                        <option value="{{ $planillero->cod_usuario }}" @if(session('user')['cod_rol']==1
+                                            && session('user')['cod_usuario']==$planillero->cod_usuario) selected
+                                            @endif>
+                                            {{ $planillero->nombre }}
                                         </option>
                                         @endforeach
                                     </select>
                                 </div>
                             </div>
                         </div>
+
                         <br><br>
 
                         <button type="submit" class="btn btn-primary">Crear Planilla</button>
@@ -276,6 +272,26 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+    <script>
+        $(function () {
+            $(".accordion-titulo").click(function (e) {
+
+                e.preventDefault();
+
+                var contenido = $(this).next(".accordion-content");
+
+                if (contenido.css("display") == "none") { //open		
+                    contenido.slideDown(250);
+                    $(this).addClass("open");
+                }
+                else { //close		
+                    contenido.slideUp(250);
+                    $(this).removeClass("open");
+                }
+
+            });
+        });
+    </script>
     <script>
         var baseUrl = "{{ url('/') }}";
 
@@ -305,6 +321,45 @@
             });
         });
     </script>
+    <script>
+        $(document).ready(function () {
+            // Asociar el evento blur al campo de lote
+            $('#codLote').on('blur', function () {
+                // Obtén el valor del campo de lote
+                var loteValue = $(this).val();
+
+                // Realiza la consulta AJAX solo si el campo de lote tiene un valor
+                if (loteValue.trim() !== '') {
+                    // Realiza la consulta AJAX
+                    $.ajax({
+                        type: 'POST',
+                        url: '{{ route('obtener_valores_lote') }}',
+                        data: {
+                            '_token': '{{ csrf_token() }}',
+                            'lote': loteValue
+                        },
+                        success: function (response) {
+                            // Actualiza los valores de los select con la respuesta del servidor
+                            $('select[name="empresa"]').val(response.cod_empresa)
+                            $('select[name="proveedor"]').val(response.cod_proveedor)
+                            $('select[name="especie"]').val(response.cod_especie)
+                            $('#mensajeError').hide()
+                        },
+                        error: function (xhr) {
+                            $('select[name="empresa"]').val('').prop('disabled', false);
+                            $('select[name="proveedor"]').val('').prop('disabled', false);
+                            $('select[name="especie"]').val('').prop('disabled', false);
+                            $('#mensajeError').text('El lote no existe.').show();
+
+                        }
+
+
+                    });
+                }
+            });
+        });
+    </script>
+
 </body>
 
 </html>

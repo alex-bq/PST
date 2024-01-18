@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use DB;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\DB;
 
 class IndexController extends Controller
 {
@@ -44,12 +44,33 @@ class IndexController extends Controller
         return view('index', compact('empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'planillas'));
     }
 
+    public function obtenerValores(Request $request)
+    {
+        $loteValue = $request->input('lote');
+
+        $result = DB::table('bdsystem.dbo.lotes')
+            ->leftJoin('bdsystem.dbo.detalle_lote', 'bdsystem.dbo.lotes.cod_lote', '=', 'bdsystem.dbo.detalle_lote.cod_lote')
+            ->where('nombre', $loteValue)
+            ->select('cod_empresa', 'bdsystem.dbo.detalle_lote.cod_proveedor', 'cod_especie')
+            ->first();
+
+        if (!$result) {
+            // Muestra un mensaje en el terminal
+
+            return response()->json(['error' => 'El lote no existe.'], 422, $result);
+        }
+
+
+
+        return response()->json($result);
+    }
+
     public function procesarFormulario(Request $request)
     {
         $request->validate([
             'codLote' => 'required',
             'empresa' => 'required',
-            'proveedor' => 'reuqired',
+            'proveedor' => 'required',
             'especie' => 'required',
             'fechaTurno' => 'required',
             'turno' => 'required',
