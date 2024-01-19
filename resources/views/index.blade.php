@@ -43,7 +43,7 @@
             <div class="row d-flex justify-content-between align-items-center">
                 <h1 class="mb-4">Planillas</h1>
                 <div class="col-md-3">
-                    <input type="text" class="form-control" name="filtroLote" placeholder="Filtrar por Lote">
+                    <input type="text" class="form-control" id="filtroLote" name="filtroLote" placeholder="Filtrar por Lote">
                 </div>
 
                 <div class="col-md-6 text-end">
@@ -66,7 +66,9 @@
                         class="toggle-icon"></span></a>
                 <div class="accordion-content">
 
-                    <form>
+                    <form id="formularioFiltro"> 
+                        @csrf
+                    
                         <div class="row">
 
                             <!-- Filtro por Fecha -->
@@ -88,8 +90,49 @@
                             <div class="col-md-3">
                                 <select class="form-select" name="filtroProv">
                                     <option selected disabled>Filtro Proveedor</option>
+                                    @foreach ($proveedores as $proveedor)
+                                    <option value="{{ $proveedor->descripcion }}">{{ $proveedor->descripcion }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" name="filtroEmpresa">
+                                    <option selected disabled>Filtro Empresa</option>
                                     @foreach ($empresas as $empresa)
-                                    <option value="{{ $empresa->cod_empresa }}">{{ $empresa->descripcion }}
+                                    <option value="{{ $empresa->descripcion }}">{{ $empresa->descripcion }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            
+
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <select class="form-select" name="filtroEspecie">
+                                    <option selected disabled>Filtro Especie</option>
+                                    @foreach ($especies as $especie)
+                                    <option value="{{ $especie->descripcion }}">{{ $especie->descripcion }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" name="filtroSupervisor">
+                                    <option selected disabled>Filtro Supervisor</option>
+                                    @foreach ($supervisores as $supervisor)
+                                    <option value="{{ $supervisor->cod_usuario }}">{{ $supervisor->nombre }}
+                                    </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-select" name="filtroEmpresa">
+                                    <option selected disabled>Filtro Planillero</option>
+                                    @foreach ($planilleros as $planillero)
+                                    <option value="{{ $planillero->cod_usuario }}">{{ $planillero->nombre }}
                                     </option>
                                     @endforeach
                                 </select>
@@ -98,7 +141,6 @@
                             <div class="col-md-3">
                                 <button type="submit" class="btn btn-primary">Filtrar</button>
                             </div>
-
                         </div>
                     </form>
                 </div>
@@ -109,34 +151,36 @@
 
 
         @if(count($planillas) > 0)
-        <table class="table table-hover">
-            <thead>
-                <tr>
-                    <th>Lote</th>
-                    <th>Fecha Turno</th>
-                    <th>Turno</th>
-                    <th>Empresa</th>
-                    <th>Proveedor</th>
-                    <th>Especie</th>
-                    <th>Supervisor</th>
-                    <th>Planillero</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($planillas as $planilla)
-                <tr class="table-row" onclick="window.location='{{ url('/planilla/' . $planilla->cod_planilla) }}';">
-                    <td>{{ $planilla->lote }}</td>
-                    <td>{{ date('d/m/Y', strtotime($planilla->fec_turno)) }}</td>
-                    <td>{{ $planilla->turno }}</td>
-                    <td>{{ $planilla->proveedor }}</td>
-                    <td>{{ $planilla->empresa }}</td>
-                    <td>{{ $planilla->especie }}</td>
-                    <td>{{ $planilla->supervisor_nombre }}</td>
-                    <td>{{ $planilla->planillero_nombre }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+        <div id="tabla-container">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Lote</th>
+                        <th>Fecha Turno</th>
+                        <th>Turno</th>
+                        <th>Proveedor</th>
+                        <th>Empresa</th>
+                        <th>Especie</th>
+                        <th>Supervisor</th>
+                        <th>Planillero</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($planillas as $planilla)
+                    <tr class="table-row" onclick="window.location='{{ url('/planilla/' . $planilla->cod_planilla) }}';">
+                        <td>{{ $planilla->lote }}</td>
+                        <td>{{ date('d/m/Y', strtotime($planilla->fec_turno)) }}</td>
+                        <td>{{ $planilla->turno }}</td>
+                        <td>{{ $planilla->proveedor }}</td>
+                        <td>{{ $planilla->empresa }}</td>
+                        <td>{{ $planilla->especie }}</td>
+                        <td>{{ $planilla->supervisor_nombre }}</td>
+                        <td>{{ $planilla->planillero_nombre }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
         @else
         <p>No hay datos de planilla disponibles.</p>
         @endif
@@ -323,6 +367,7 @@
     </script>
     <script>
         $(document).ready(function () {
+
             // Asociar el evento blur al campo de lote
             $('#codLote').on('blur', function () {
                 // Obtén el valor del campo de lote
@@ -359,6 +404,107 @@
             });
         });
     </script>
+    <script>
+    $(document).ready(function () {
+        $('#formularioFiltro').submit(function (event) {
+            event.preventDefault();
+
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('filtrar.tabla') }}',
+                data: $(this).serialize(),
+                dataType: 'json', // Indicar que esperamos un JSON como respuesta
+                success: function (response) {
+                    actualizarTabla(response.planillas);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error en la solicitud AJAX: ' + status + ' - ' + error);
+                }
+            });
+        });
+
+        function actualizarTabla(planillas) {
+            // Limpiar la tabla existente
+            $('#tabla-container  tbody').empty();
+
+            // Llenar la tabla con los nuevos datos
+            planillas.forEach(function (planilla) {
+                var fila = '<tr class="table-row" onclick="window.location=\'{{ url('/planilla/') }}/' + planilla.cod_planilla + '\';">' +
+                '<td>' + planilla.lote + '</td>' +
+                '<td>' + formatDate(planilla.fec_turno) + '</td>' +
+                '<td>' + planilla.turno + '</td>' +
+                '<td>' + planilla.proveedor + '</td>' +
+                '<td>' + planilla.empresa + '</td>' +
+                '<td>' + planilla.especie + '</td>' +
+                '<td>' + planilla.supervisor_nombre + '</td>' +
+                '<td>' + planilla.planillero_nombre + '</td>' +
+                '</tr>';
+            $('#tabla-container tbody').append(fila);
+            });
+        }
+        function formatDate(dateString) {
+            // Puedes usar una librería como moment.js para formatear la fecha, o simplemente hacerlo manualmente si prefieres
+            var date = new Date(dateString);
+            var day = date.getDate() + 1;
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+            return day + '/' + month + '/' + year;
+        }
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        $('#filtroLote').on('input', function () {
+            var filtroLoteValue = $(this).val().trim();
+
+            if (filtroLoteValue !== '') {
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ route('filtrar_lotes_en_tiempo_real') }}',
+                    data: {
+                        '_token': '{{ csrf_token() }}',
+                        'filtroLote': filtroLoteValue
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        actualizarTabla(response.planillas);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error en la solicitud AJAX: ' + status + ' - ' + error);
+                    }
+                });
+            }
+        });
+
+        function actualizarTabla(planillas) {
+            $('#tabla-container tbody').empty();
+
+            planillas.forEach(function (planilla) {
+                var fila = '<tr class="table-row" onclick="window.location=\'{{ url('/planilla/') }}/' + planilla.cod_planilla + '\';">' +
+                    '<td>' + planilla.lote + '</td>' +
+                    '<td>' + formatDate(planilla.fec_turno) + '</td>' +
+                    '<td>' + planilla.turno + '</td>' +
+                    '<td>' + planilla.proveedor + '</td>' +
+                    '<td>' + planilla.empresa + '</td>' +
+                    '<td>' + planilla.especie + '</td>' +
+                    '<td>' + planilla.supervisor_nombre + '</td>' +
+                    '<td>' + planilla.planillero_nombre + '</td>' +
+                    '</tr>';
+                $('#tabla-container tbody').append(fila);
+            });
+        }
+        function formatDate(dateString) {
+            // Puedes usar una librería como moment.js para formatear la fecha, o simplemente hacerlo manualmente si prefieres
+            var date = new Date(dateString);
+            var day = date.getDate() + 1;
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+            return day + '/' + month + '/' + year;
+        }
+    });
+</script>
+
+    
 
 </body>
 

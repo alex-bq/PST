@@ -25,24 +25,53 @@ class IndexController extends Controller
             ->select('*');
 
         // Aplicar filtros si existen
-        if ($filtroLote = request('filtroLote')) {
-            $planillas->where('lote', 'LIKE', '%' . $filtroLote . '%');
-        }
-
-        if ($filtroFecha = request('filtroFecha')) {
-            $planillas->whereDate('fec_turno', $filtroFecha);
-        }
-
-        if ($filtroTurno = request('filtroTurno')) {
-            $planillas->where('turno', $filtroTurno);
-        }
-
+        
         // Agrega más condiciones para otros filtros
 
         $planillas = $planillas->get() ?? collect();
 
         return view('index', compact('empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'planillas'));
     }
+
+
+    public function filtrarTabla(Request $request)
+{
+    $planillas = DB::table('pst.dbo.v_planilla_pst')
+        ->select('*');
+
+    // Aplicar filtros si existen
+    if ($filtroLote = $request->input('filtroLote')) {
+        $planillas->where('lote', 'LIKE', '%' . $filtroLote . '%');
+    }
+    if ($filtroFecha = request('filtroFecha')) {
+        $planillas->whereDate('fec_turno', $filtroFecha);
+    }
+
+    if ($filtroTurno = request('filtroTurno')) {
+        $planillas->where('turno', $filtroTurno);
+    }
+
+    if ($filtroProveedor = request('filtroProv')) {
+        $planillas->where('proveedor', $filtroProveedor);
+    }
+
+    if ($filtroEmpresa = request('filtroEmpresa')) {
+        $planillas->where('empresa', $filtroEmpresa);
+    }
+
+    if ($filtroEspecie = request('filtroEspecie')) {
+        $planillas->where('especie', $filtroEspecie);
+    }
+    if ($filtroSupervisor = request('filtroSupervisor')) {
+        $planillas->where('cod_supervisor', $filtroSupervisor);
+    }
+
+   
+
+    $planillas = $planillas->get() ?? collect();
+
+    return response()->json(['planillas' => $planillas]);
+}
 
     public function obtenerValores(Request $request)
     {
@@ -109,4 +138,15 @@ class IndexController extends Controller
             return response()->json(['error' => 'Error al crear la planilla.'], 422);
         }
     }
+    public function filtrarLotesEnTiempoReal(Request $request)
+{
+    $filtroLote = $request->input('filtroLote');
+
+    // Realiza la lógica de filtrado aquí y obtén los resultados
+    $resultados = DB::table('pst.dbo.v_planilla_pst')->where('lote', 'LIKE', '%' . $filtroLote . '%')->get();
+
+    // Devuelve los resultados en formato JSON
+    return response()->json(['planillas' => $resultados]);
+}
+
 }

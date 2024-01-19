@@ -13,12 +13,15 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/inicio', [IndexController::class, 'index'])->name('inicio');
 Route::post('/obtener-valores-lote', [IndexController::class, 'obtenerValores'])->name('obtener_valores_lote');
+Route::post('/filtrar-tabla', [IndexController::class, 'filtrarTabla'])->name('filtrar.tabla');
+Route::post('/filtrar-lotes-en-tiempo-real', [IndexController::class, 'filtrarLotesEnTiempoReal'])->name('filtrar_lotes_en_tiempo_real');
+
 Route::post('/procesar-formulario', [IndexController::class, 'procesarFormulario'])->name('procesar.formulario');
 Route::get('/planilla/{id}', [PlanillaController::class, 'mostrarPlanilla'])->name('planilla');
 Route::post('/agregar-registro', [PlanillaController::class, 'agregarRegistro'])->name('agregar-registro');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
-
+ 
 
 
 
