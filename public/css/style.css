@@ -1,6 +1,22 @@
+body {
+  
+  background-color: #f8f9fa;
+  
+}
+.navbar{
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+}
+
+.card {
+  margin-top: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
 .table-wrapper {
   height: 300px;
-  overflow-x: auto; /* Permite el desplazamiento horizontal */
+  overflow-x: auto;
 }
 
 thead.sticky-header th {
@@ -14,5 +30,5 @@ thead.sticky-header th {
 }
 
 .card-body p:last-child {
-  margin-right: 0; 
+  margin-right: 0;
 }

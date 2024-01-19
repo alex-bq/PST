@@ -43,7 +43,8 @@
             <div class="row d-flex justify-content-between align-items-center">
                 <h1 class="mb-4">Planillas</h1>
                 <div class="col-md-3">
-                    <input type="text" class="form-control" id="filtroLote" name="filtroLote" placeholder="Filtrar por Lote">
+                    <input type="text" class="form-control" id="filtroLote" name="filtroLote"
+                        placeholder="Filtrar por Lote">
                 </div>
 
                 <div class="col-md-6 text-end">
@@ -57,8 +58,6 @@
 
 
 
-
-
         <div class="mb-3">
             <div class="accordion-container">
 
@@ -66,9 +65,9 @@
                         class="toggle-icon"></span></a>
                 <div class="accordion-content">
 
-                    <form id="formularioFiltro"> 
+                    <form id="formularioFiltro">
                         @csrf
-                    
+
                         <div class="row">
 
                             <!-- Filtro por Fecha -->
@@ -105,7 +104,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                            
+
 
                         </div>
                         <br>
@@ -129,7 +128,7 @@
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <select class="form-select" name="filtroEmpresa">
+                                <select class="form-select" name="filtroPlanillero">
                                     <option selected disabled>Filtro Planillero</option>
                                     @foreach ($planilleros as $planillero)
                                     <option value="{{ $planillero->cod_usuario }}">{{ $planillero->nombre }}
@@ -163,11 +162,13 @@
                         <th>Especie</th>
                         <th>Supervisor</th>
                         <th>Planillero</th>
+                        <th>Guardado</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($planillas as $planilla)
-                    <tr class="table-row" onclick="window.location='{{ url('/planilla/' . $planilla->cod_planilla) }}';">
+                    <tr class="table-row"
+                        onclick="window.location='{{ url('/planilla/' . $planilla->cod_planilla) }}';">
                         <td>{{ $planilla->lote }}</td>
                         <td>{{ date('d/m/Y', strtotime($planilla->fec_turno)) }}</td>
                         <td>{{ $planilla->turno }}</td>
@@ -176,6 +177,23 @@
                         <td>{{ $planilla->especie }}</td>
                         <td>{{ $planilla->supervisor_nombre }}</td>
                         <td>{{ $planilla->planillero_nombre }}</td>
+                        <td>
+                            @if ($planilla->guardado == 1)
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="green"
+                                class="bi bi-floppy" viewBox="0 0 16 16">
+                                <path d="M11 2H9v3h2z" />
+                                <path
+                                    d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z" />
+                            </svg>
+                            @else
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red"
+                                class="bi bi-floppy" viewBox="0 0 16 16">
+                                <path d="M11 2H9v3h2z" />
+                                <path
+                                    d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z" />
+                            </svg>
+                            @endif
+                        </td>
                     </tr>
                     @endforeach
                 </tbody>
@@ -405,67 +423,15 @@
         });
     </script>
     <script>
-    $(document).ready(function () {
-        $('#formularioFiltro').submit(function (event) {
-            event.preventDefault();
+        $(document).ready(function () {
+            $('#formularioFiltro').submit(function (event) {
+                event.preventDefault();
 
-            $.ajax({
-                type: 'POST',
-                url: '{{ route('filtrar.tabla') }}',
-                data: $(this).serialize(),
-                dataType: 'json', // Indicar que esperamos un JSON como respuesta
-                success: function (response) {
-                    actualizarTabla(response.planillas);
-                },
-                error: function (xhr, status, error) {
-                    console.error('Error en la solicitud AJAX: ' + status + ' - ' + error);
-                }
-            });
-        });
-
-        function actualizarTabla(planillas) {
-            // Limpiar la tabla existente
-            $('#tabla-container  tbody').empty();
-
-            // Llenar la tabla con los nuevos datos
-            planillas.forEach(function (planilla) {
-                var fila = '<tr class="table-row" onclick="window.location=\'{{ url('/planilla/') }}/' + planilla.cod_planilla + '\';">' +
-                '<td>' + planilla.lote + '</td>' +
-                '<td>' + formatDate(planilla.fec_turno) + '</td>' +
-                '<td>' + planilla.turno + '</td>' +
-                '<td>' + planilla.proveedor + '</td>' +
-                '<td>' + planilla.empresa + '</td>' +
-                '<td>' + planilla.especie + '</td>' +
-                '<td>' + planilla.supervisor_nombre + '</td>' +
-                '<td>' + planilla.planillero_nombre + '</td>' +
-                '</tr>';
-            $('#tabla-container tbody').append(fila);
-            });
-        }
-        function formatDate(dateString) {
-            // Puedes usar una librería como moment.js para formatear la fecha, o simplemente hacerlo manualmente si prefieres
-            var date = new Date(dateString);
-            var day = date.getDate() + 1;
-            var month = date.getMonth() + 1;
-            var year = date.getFullYear();
-            return day + '/' + month + '/' + year;
-        }
-    });
-</script>
-<script>
-    $(document).ready(function () {
-        $('#filtroLote').on('input', function () {
-            var filtroLoteValue = $(this).val().trim();
-
-            if (filtroLoteValue !== '') {
                 $.ajax({
                     type: 'POST',
-                    url: '{{ route('filtrar_lotes_en_tiempo_real') }}',
-                    data: {
-                        '_token': '{{ csrf_token() }}',
-                        'filtroLote': filtroLoteValue
-                    },
-                    dataType: 'json',
+                    url: '{{ route('filtrar.tabla') }}',
+                    data: $(this).serialize(),
+                    dataType: 'json', // Indicar que esperamos un JSON como respuesta
                     success: function (response) {
                         actualizarTabla(response.planillas);
                     },
@@ -473,38 +439,100 @@
                         console.error('Error en la solicitud AJAX: ' + status + ' - ' + error);
                     }
                 });
+            });
+
+            function actualizarTabla(planillas) {
+                // Limpiar la tabla existente
+                $('#tabla-container  tbody').empty();
+
+                // Llenar la tabla con los nuevos datos
+                planillas.forEach(function (planilla) {
+                    var estadoIcono = planilla.guardado == 1 ? 'green' : 'red';
+                    var icono = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="' + estadoIcono + '" class="bi bi-floppy" viewBox="0 0 16 16">' +
+                        '<path d="M11 2H9v3h2z"/>' +
+                        '<path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>' +
+                        '</svg>';
+                    var fila = '<tr class="table-row" onclick="window.location=\'{{ url(' / planilla / ') }}/' + planilla.cod_planilla + '\';">' +
+                        '<td>' + planilla.lote + '</td>' +
+                        '<td>' + formatDate(planilla.fec_turno) + '</td>' +
+                        '<td>' + planilla.turno + '</td>' +
+                        '<td>' + planilla.proveedor + '</td>' +
+                        '<td>' + planilla.empresa + '<td>' + planilla.especie + '</td>' +
+                        '<td>' + planilla.supervisor_nombre + '</td>' +
+                        '<td>' + planilla.planillero_nombre + '</td>' +
+                        '<td>' + icono + '</td>' +
+                        '</tr>';
+                    $('#tabla-container tbody').append(fila);
+                });
+            }
+            function formatDate(dateString) {
+                // Puedes usar una librería como moment.js para formatear la fecha, o simplemente hacerlo manualmente si prefieres
+                var date = new Date(dateString);
+                var day = date.getDate() + 1;
+                var month = date.getMonth() + 1;
+                var year = date.getFullYear();
+                return day + '/' + month + '/' + year;
             }
         });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#filtroLote').on('input', function () {
+                var filtroLoteValue = $(this).val().trim();
 
-        function actualizarTabla(planillas) {
-            $('#tabla-container tbody').empty();
-
-            planillas.forEach(function (planilla) {
-                var fila = '<tr class="table-row" onclick="window.location=\'{{ url('/planilla/') }}/' + planilla.cod_planilla + '\';">' +
-                    '<td>' + planilla.lote + '</td>' +
-                    '<td>' + formatDate(planilla.fec_turno) + '</td>' +
-                    '<td>' + planilla.turno + '</td>' +
-                    '<td>' + planilla.proveedor + '</td>' +
-                    '<td>' + planilla.empresa + '</td>' +
-                    '<td>' + planilla.especie + '</td>' +
-                    '<td>' + planilla.supervisor_nombre + '</td>' +
-                    '<td>' + planilla.planillero_nombre + '</td>' +
-                    '</tr>';
-                $('#tabla-container tbody').append(fila);
+                if (filtroLoteValue !== '') {
+                    $.ajax({
+                        type: 'POST',
+                        url: '{{ route('filtrar_lotes_en_tiempo_real') }}',
+                        data: {
+                            '_token': '{{ csrf_token() }}',
+                            'filtroLote': filtroLoteValue
+                        },
+                        dataType: 'json',
+                        success: function (response) {
+                            actualizarTabla(response.planillas);
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error en la solicitud AJAX: ' + status + ' - ' + error);
+                        }
+                    });
+                }
             });
-        }
-        function formatDate(dateString) {
-            // Puedes usar una librería como moment.js para formatear la fecha, o simplemente hacerlo manualmente si prefieres
-            var date = new Date(dateString);
-            var day = date.getDate() + 1;
-            var month = date.getMonth() + 1;
-            var year = date.getFullYear();
-            return day + '/' + month + '/' + year;
-        }
-    });
-</script>
 
-    
+            function actualizarTabla(planillas) {
+                $('#tabla-container tbody').empty();
+
+                planillas.forEach(function (planilla) {
+                    var estadoIcono = planilla.guardado == 1 ? 'green' : 'red';
+                    var icono = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="' + estadoIcono + '" class="bi bi-floppy" viewBox="0 0 16 16">' +
+                        '<path d="M11 2H9v3h2z"/>' +
+                        '<path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>' +
+                        '</svg>';
+                    var fila = '<tr class="table-row" onclick="window.location=\'{{ url(' / planilla / ') }}/' + planilla.cod_planilla + '\';">' +
+                        '<td>' + planilla.lote + '</td>' +
+                        '<td>' + formatDate(planilla.fec_turno) + '</td>' +
+                        '<td>' + planilla.turno + '</td>' +
+                        '<td>' + planilla.proveedor + '</td>' +
+                        '<td>' + planilla.empresa + '<td>' + planilla.especie + '</td>' +
+                        '<td>' + planilla.supervisor_nombre + '</td>' +
+                        '<td>' + planilla.planillero_nombre + '</td>' +
+                        '<td>' + icono + '</td>' +
+                        '</tr>';
+                    $('#tabla-container tbody').append(fila);
+                });
+            }
+            function formatDate(dateString) {
+                // Puedes usar una librería como moment.js para formatear la fecha, o simplemente hacerlo manualmente si prefieres
+                var date = new Date(dateString);
+                var day = date.getDate() + 1;
+                var month = date.getMonth() + 1;
+                var year = date.getFullYear();
+                return day + '/' + month + '/' + year;
+            }
+        });
+    </script>
+
+
 
 </body>
 

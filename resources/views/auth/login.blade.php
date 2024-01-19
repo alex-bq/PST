@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,21 +8,26 @@
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="{{ asset('css/login.css') }}"> <!-- Agrega el archivo de estilos específico para el login si lo tienes -->
+    <link rel="stylesheet" href="{{ asset('css/login.css') }}">
+    <!-- Agrega el archivo de estilos específico para el login si lo tienes -->
 </head>
 
 
 <body class="bg-light">
 
     <div class="container">
+
         <div class="row justify-content-center align-items-center vh-100">
             <div class="col-md-6">
                 <div class="card">
                     <div class="card-body">
-                        <h2 class="text-center mb-4">Login</h2>
+                        <div style="display: flex; justify-content: center; align-items: center; height: 200px;">
+                            <img src="{{ url('http://192.168.1.122/img/logo.png') }}" alt="Logo" height="100">
+                        </div>
+
 
                         @if(session('error'))
-                            <p style="color: red;" class="text-center">{{ session('error') }}</p>
+                        <p style="color: red;" class="text-center">{{ session('error') }}</p>
                         @endif
 
                         <form method="post" action="{{ url('/login') }}" class="mb-3">
@@ -49,4 +55,5 @@
     <!-- Tus scripts adicionales -->
 
 </body>
+
 </html>
