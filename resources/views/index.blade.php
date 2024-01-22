@@ -6,9 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Página de Inicio</title>
 
-    <!-- Bootstrap CSS -->
+    <!-- Incluye Bootstrap CSS y Select2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
+
+
+    <!-- Incluye jQuery y Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Incluye Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- Tu archivo de estilos CSS -->
     <link rel="stylesheet" href="{{ asset('css/index.css') }}">
+    <script src="{{ asset('js/index.js') }}"></script>
+
 </head>
 
 <body>
@@ -61,7 +76,7 @@
         <div class="mb-3">
             <div class="accordion-container">
 
-                <a type="button" class="accordion-titulo btn btn-light btn-sm" href='#'>Mas filtros<span
+                <a type="button" class="accordion-titulo btn btn-light btn-sm">Mas filtros<span
                         class="toggle-icon"></span></a>
                 <div class="accordion-content">
 
@@ -78,8 +93,10 @@
 
                             <!-- Otros filtros aquí... -->
                             <div class="col-md-3">
-                                <select class="form-select" name="filtroTurno">
-                                    <option selected disabled>Filtro Turno </option>
+                                <select class="form-select js-example-basic-single " style="width: 100%"
+                                    name="filtroTurno">
+                                    <option value=" " selected disabled>Turno </option>
+                                    <option value=" ">Sin Filtro Turno</option>
                                     @foreach ($turnos as $turno)
                                     <option value="{{ $turno->NomTurno }}">{{ $turno->NomTurno }}</option>
                                     @endforeach
@@ -87,8 +104,10 @@
                             </div>
 
                             <div class="col-md-3">
-                                <select class="form-select" name="filtroProv">
-                                    <option selected disabled>Filtro Proveedor</option>
+                                <select class="form-select js-example-basic-single " style="width: 100%"
+                                    name="filtroProv">
+                                    <option selected disabled>Proveedor</option>
+                                    <option value=" ">Sin Filtro Proveedor</option>
                                     @foreach ($proveedores as $proveedor)
                                     <option value="{{ $proveedor->descripcion }}">{{ $proveedor->descripcion }}
                                     </option>
@@ -96,8 +115,11 @@
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <select class="form-select" name="filtroEmpresa">
+                                <select class="form-select js-example-basic-single " style="width: 100%"
+                                    name="filtroEmpresa">
                                     <option selected disabled>Filtro Empresa</option>
+                                    <option value=" ">Sin Filtro Empresa</option>
+
                                     @foreach ($empresas as $empresa)
                                     <option value="{{ $empresa->descripcion }}">{{ $empresa->descripcion }}
                                     </option>
@@ -110,8 +132,11 @@
                         <br>
                         <div class="row">
                             <div class="col-md-3">
-                                <select class="form-select" name="filtroEspecie">
+                                <select class="form-select js-example-basic-single " style="width: 100%"
+                                    name="filtroEspecie">
                                     <option selected disabled>Filtro Especie</option>
+                                    <option value=" ">Sin Filtro Especie</option>
+
                                     @foreach ($especies as $especie)
                                     <option value="{{ $especie->descripcion }}">{{ $especie->descripcion }}
                                     </option>
@@ -119,8 +144,11 @@
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <select class="form-select" name="filtroSupervisor">
+                                <select class="form-select js-example-basic-single " style="width: 100%"
+                                    name="filtroSupervisor">
                                     <option selected disabled>Filtro Supervisor</option>
+                                    <option value=" ">Sin Filtro Supervisor</option>
+
                                     @foreach ($supervisores as $supervisor)
                                     <option value="{{ $supervisor->cod_usuario }}">{{ $supervisor->nombre }}
                                     </option>
@@ -128,8 +156,11 @@
                                 </select>
                             </div>
                             <div class="col-md-3">
-                                <select class="form-select" name="filtroPlanillero">
+                                <select class="form-select js-example-basic-single " style="width: 100%"
+                                    name="filtroPlanillero">
                                     <option selected disabled>Filtro Planillero</option>
+                                    <option value=" ">Sin Filtro Planillero</option>
+
                                     @foreach ($planilleros as $planillero)
                                     <option value="{{ $planillero->cod_usuario }}">{{ $planillero->nombre }}
                                     </option>
@@ -232,11 +263,14 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
+
                                     <label for="codEmpresa">Empresa</label>
-                                    <select class="form-select" name="empresa">
-                                        <option selected disabled></option>
+                                    <select class="form-select modalSelect" style="width: 100%" name="empresa">
+                                        <option selected disabled>Seleccione Empresa</option>
+                                        <option value=" ">Sin Empresa</option>
                                         @foreach ($empresas as $empresa)
-                                        <option value="{{ $empresa->cod_empresa }}">{{ $empresa->descripcion }}</option>
+                                        <option value="{{ $empresa->cod_empresa }}">{{ $empresa->descripcion }}
+                                        </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -244,8 +278,9 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="proveedor">Proveedor</label>
-                                    <select class="form-select" name="proveedor">
-                                        <option selected disabled></option>
+                                    <select class="form-select modalSelect" style="width: 100%" name="proveedor">
+                                        <option selected disabled>Seleccione Proveedor</option>
+                                        <option value=" ">Sin Proveedor</option>
                                         @foreach ($proveedores as $proveedor)
                                         <option value="{{ $proveedor->cod_proveedor }}">{{ $proveedor->descripcion }}
                                         </option>
@@ -256,7 +291,7 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="codEspecie">Especie</label>
-                                    <select class="form-select" name="especie">
+                                    <select class="form-select modalSelect" style="width: 100%" name="especie">
                                         <option selected disabled></option>
                                         @foreach ($especies as $especie)
                                         <option value="{{ $especie->cod_especie }}">{{ $especie->descripcion }}</option>
@@ -277,7 +312,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="codTurno">Turno</label>
-                                    <select class="form-select" name="turno">
+                                    <select class="form-select modalSelect" style="width: 100%" name="turno">
                                         <option selected disabled>Seleccione un turno</option>
                                         @foreach ($turnos as $turno)
                                         <option value="{{ $turno->codTurno }}">{{ $turno->NomTurno }}</option>
@@ -291,8 +326,8 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="codSupervisor">Supervisor</label>
-                                    <select class="form-select" name="supervisor" @if(session('user')['cod_rol']==2)
-                                        disabled @endif>
+                                    <select class="form-select modalSelect" style="width: 100%" name="supervisor"
+                                        @if(session('user')['cod_rol']==2) disabled @endif>
                                         <option selected disabled>Seleccione un supervisor</option>
                                         @foreach ($supervisores as $supervisor)
                                         <option value="{{ $supervisor->cod_usuario }}" @if(session('user')['cod_rol']==2
@@ -358,6 +393,8 @@
         var baseUrl = "{{ url('/') }}";
 
         $(document).ready(function () {
+
+
             $('#formularioPlanilla').submit(function (event) {
                 event.preventDefault();
 
@@ -424,6 +461,8 @@
     </script>
     <script>
         $(document).ready(function () {
+
+
             $('#formularioFiltro').submit(function (event) {
                 event.preventDefault();
 
@@ -452,7 +491,7 @@
                         '<path d="M11 2H9v3h2z"/>' +
                         '<path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>' +
                         '</svg>';
-                    var fila = '<tr class="table-row" onclick="window.location=\'{{ url(' / planilla / ') }}/' + planilla.cod_planilla + '\';">' +
+                    var fila = '<tr class="table-row" onclick="window.location=\'' + '{{ url("/planilla/") }}/' + planilla.cod_planilla + '\';">' +
                         '<td>' + planilla.lote + '</td>' +
                         '<td>' + formatDate(planilla.fec_turno) + '</td>' +
                         '<td>' + planilla.turno + '</td>' +
@@ -477,10 +516,13 @@
     </script>
     <script>
         $(document).ready(function () {
+            var filtroLoteAnterior = '';
             $('#filtroLote').on('input', function () {
                 var filtroLoteValue = $(this).val().trim();
 
-                if (filtroLoteValue !== '') {
+
+
+                if (filtroLoteValue !== filtroLoteAnterior) {
                     $.ajax({
                         type: 'POST',
                         url: '{{ route('filtrar_lotes_en_tiempo_real') }}',
@@ -496,6 +538,7 @@
                             console.error('Error en la solicitud AJAX: ' + status + ' - ' + error);
                         }
                     });
+                    filtroLoteAnterior = filtroLoteValue;
                 }
             });
 
@@ -508,7 +551,7 @@
                         '<path d="M11 2H9v3h2z"/>' +
                         '<path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>' +
                         '</svg>';
-                    var fila = '<tr class="table-row" onclick="window.location=\'{{ url(' / planilla / ') }}/' + planilla.cod_planilla + '\';">' +
+                    var fila = '<tr class="table-row" onclick="window.location=\'' + '{{ url("/planilla/") }}/' + planilla.cod_planilla + '\';">' +
                         '<td>' + planilla.lote + '</td>' +
                         '<td>' + formatDate(planilla.fec_turno) + '</td>' +
                         '<td>' + planilla.turno + '</td>' +

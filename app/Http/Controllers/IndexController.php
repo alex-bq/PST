@@ -25,9 +25,7 @@ class IndexController extends Controller
             ->select('*')
             ->orderByDesc('fec_turno');
 
-        // Aplicar filtros si existen
 
-        // Agrega más condiciones para otros filtros
 
         $planillas = $planillas->get() ?? collect();
 
@@ -147,10 +145,15 @@ class IndexController extends Controller
     {
         $filtroLote = $request->input('filtroLote');
 
-        // Realiza la lógica de filtrado aquí y obtén los resultados
-        $resultados = DB::table('pst.dbo.v_planilla_pst')->where('lote', 'LIKE', '%' . $filtroLote . '%')->get();
+        $query = DB::table('pst.dbo.v_planilla_pst')->select('*')->orderByDesc('fec_turno');
 
-        // Devuelve los resultados en formato JSON
+
+        if (!empty($filtroLote)) {
+            $query->where('lote', 'LIKE', '%' . $filtroLote . '%');
+        }
+
+        $resultados = $query->get();
+
         return response()->json(['planillas' => $resultados]);
     }
 

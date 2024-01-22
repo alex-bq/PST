@@ -6,15 +6,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Planilla PST</title>
 
+    <!-- Incluye Bootstrap CSS y Select2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet"
-        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/css/bootstrap-datepicker.min.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" />
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+
+    <!-- Incluye jQuery y Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script
-        src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
+
+    <!-- Incluye Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <script src="{{ asset('js/planilla.js') }}"></script>
 </head>
 
 <body>
@@ -50,20 +54,21 @@
         @endif
 
         <div class="row">
-            <div class="col-md-4 mb-4">
+            <div class="col-lg-4 mb-4">
                 <div class="card" id="columna1">
                     <div class="card-header">
                         <ul class="nav nav-tabs card-header-tabs">
                             <li class="nav-item">
-                                <a class="nav-link active" aria-current="true" href="#">Principal</a>
+                                <a class="nav-link active" aria-current="true">Principal</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" href="#">Detalle</a>
+                                <a class="nav-link">Detalle</a>
                             </li>
 
                         </ul>
                     </div>
                     <div class="card-body">
+
                         <form id="form1" action="{{ url('/agregar-registro') }}" method="POST">
                             @csrf
                             <div class="row">
@@ -72,34 +77,44 @@
 
                                     <br>
                                     <h6>Corte Inicial</h6>
-                                    <select class="form-select form-select-sm" name="cInicial"
-                                        aria-label="Selecciona un corte inicial">
-                                        <option selected></option>
-                                        @foreach ($cortes as $corte)
-                                        <option value="{{ $corte->cod_corte }}">{{ $corte->nombre }}</option>
-                                        @endforeach
-                                    </select>
+                                    <div class="form-group">
+                                        <select class="form-select js-example-basic-single " style="width: 100%"
+                                            name="cInicial" aria-label="Selecciona un corte inicial">
+                                            <option selected></option>
+                                            @foreach ($cortes as $corte)
+                                            <option value="{{ $corte->cod_corte }}">{{ $corte->nombre }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
 
                                     <h6>Proceso</h6>
-                                    <select class="form-select form-select-sm" name="proceso"
-                                        aria-label="Selecciona un proceso">
-                                        <option selected></option>
-                                        @foreach ($procesos as $proceso)
-                                        <option value="{{ $proceso->cod_sproceso }}">{{ $proceso->nombre }}</option>
-                                        @endforeach
-                                    </select>
+                                    <div class="form-group">
+                                        <select class="form-select js-example-basic-single" style="width: 100%"
+                                            name="proceso" aria-label="Selecciona un proceso">
+                                            <option selected></option>
+                                            @foreach ($procesos as $proceso)
+                                            <option value="{{ $proceso->cod_sproceso }}">{{ $proceso->nombre }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
                                     <h6>Calibre</h6>
-                                    <select class="form-select form-select-sm" name="calibre"
-                                        aria-label="Selecciona un calibre">
-                                        <option selected></option>
-                                        @foreach ($calibres as $calibre)
-                                        <option value="{{ $calibre->cod_calib }}">{{ $calibre->nombre }}</option>
-                                        @endforeach
-                                    </select>
+                                    <div class="form-group">
+                                        <select class="form-select js-example-basic-single" style="width: 100%"
+                                            name="calibre" aria-label="Selecciona un calibre">
+                                            <option selected></option>
+                                            @foreach ($calibres as $calibre)
+                                            <option value="{{ $calibre->cod_calib }}">{{ $calibre->nombre }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
                                     <br />
                                     <h6>Piezas</h6>
-                                    <input type="number" class="form-control form-control-sm" name="piezas"
-                                        placeholder="123" />
+                                    <div class="form-group">
+                                        <input type="number" class="form-control form-control-sm" name="piezas"
+                                            placeholder="123" />
+                                    </div>
 
                                 </div>
 
@@ -108,42 +123,50 @@
                                     <br />
 
                                     <h6>Corte Final</h6>
-                                    <select class="form-select form-select-sm" name="cFinal"
-                                        aria-label="Selecciona un corte final">
-                                        <option selected></option>
-                                        @foreach ($cortes as $corte)
-                                        <option value="{{ $corte->cod_corte }}">{{ $corte->nombre }}</option>
-                                        @endforeach
-                                    </select>
+                                    <div class="form-group">
+                                        <select class="form-select js-example-basic-single" style="width: 100%"
+                                            name="cFinal" aria-label="Selecciona un corte final">
+                                            <option selected></option>
+                                            @foreach ($cortes as $corte)
+                                            <option value="{{ $corte->cod_corte }}">{{ $corte->nombre }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
                                     <h6>Destino</h6>
-                                    <select class="form-select form-select-sm" name="destino"
-                                        aria-label="Selecciona un destino">
-                                        <option selected></option>
-                                        <option value="1">Destino 1</option>
-                                        <option value="2">Destino 2</option>
-                                        <option value="3">Destino 3</option>
-                                    </select>
+                                    <div class="form-group">
+                                        <select class="form-select js-example-basic-single" style="width: 100%"
+                                            name="destino" aria-label="Selecciona un destino">
+                                            <option selected></option>
+                                            <option value="1">Destino 1</option>
+                                            <option value="2">Destino 2</option>
+                                            <option value="3">Destino 3</option>
+                                        </select>
+                                    </div>
 
                                     <h6>Calidad</h6>
-                                    <select class="form-select form-select-sm" name="calidad"
-                                        aria-label="Selecciona una calidad">
-                                        <option selected></option>
-                                        @foreach ($calidades as $calidad)
-                                        <option value="{{ $calidad->cod_cald }}">{{ $calidad->nombre }}</option>
-                                        @endforeach
-                                    </select>
+                                    <div class="form-group">
+                                        <select class="form-select js-example-basic-single" style="width: 100%"
+                                            name="calidad" aria-label="Selecciona una calidad">
+                                            <option selected></option>
+                                            @foreach ($calidades as $calidad)
+                                            <option value="{{ $calidad->cod_cald }}">{{ $calidad->nombre }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+
                                     <br />
 
                                     <h6>Kilos</h6>
-                                    <input type="number" class="form-control form-control-sm" name="kilos"
-                                        placeholder="123" />
+                                    <div class="form-group">
+                                        <input type="number" class="form-control form-control-sm" name="kilos"
+                                            placeholder="123" />
+                                    </div>
                                 </div>
                             </div>
 
-
                             <br />
-                            <input type="hidden" name="idPlanilla" value="{{ $idPlanilla }}">
-
+                            <input type="hidden" name="idPlanilla" value="{{ $idPlanilla }}" />
 
                             <div class="row">
                                 <div class="col-md-6">
@@ -158,9 +181,13 @@
                                 </div>
                             </div>
                         </form>
+
+
+
+
                         <div id="formularioPlanilla">
                             <div class='row'>
-                                <div class="col-md-4">
+                                <div class="col-lg-4">
                                     <div class="form-group">
                                         <div id="mensajeError" class="alert alert-danger" style="display: none;"></div>
                                         <p><strong>Lote</strong></p>
@@ -170,7 +197,7 @@
 
                                     </div>
                                 </div>
-                                <div class="col-md-8">
+                                <div class="col-lg-8">
                                     <div class="form-group">
                                         <p for="codEspecie"><strong>Especie</strong></p>
                                         <p>{{ $desc_planilla->especie }}</p>
@@ -305,11 +332,11 @@
             </div>
 
 
-            <div class="col-md-8 mb-4">
+            <div class="col-lg-8 mb-4">
                 <div class="card">
                     <div class="card-body">
                         <h1>Planilla Control De Proceso SG</h1>
-                        <div class="table-wrapper" id="tabla-registros">
+                        <div class="table-wrapper table-responsive" id="tabla-registros">
                             <table class="table table-striped">
                                 <thead class="sticky-header">
                                     <tr>
@@ -397,99 +424,20 @@
             </div>
         </div>
 
-        <script>
-            $(document).ready(function () {
-                $('form').submit(function (event) {
-                    event.preventDefault();
 
-                    $.ajax({
-                        type: 'POST',
-                        url: $(this).attr('action'),
-                        data: $(this).serialize(),
-                        dataType: 'json',
-                        success: function (response) {
-                            if (response.success) {
-
-                                actualizarTabla(response.planilla);
-
-                            } else {
-                                alert('Error al insertar el dato');
-                            }
-                        },
-                        error: function () {
-                            alert('Error al procesar la solicitud');
-                        }
-                    });
-                });
-
-
-
-                function actualizarTabla(planilla) {
-                    var tabla = $('#tabla-registros table tbody');
-                    tabla.empty();
-
-                    $.each(planilla, function (index, registro) {
-                        var nuevaFila = '<tr>' +
-                            '<th scope="row">' + (index + 1) + '</th>' +
-                            '<td>' + registro.cInicial + '</td>' +
-                            '<td>' + registro.cFinal + '</td>' +
-                            '<td>' + registro.proceso + '</td>' +
-                            '<td>xx</td>' + // falta el destino 
-                            '<td>' + registro.calibre + '</td>' +
-                            '<td>' + registro.calidad + '</td>' +
-                            '<td>' + registro.piezas + '</td>' +
-                            '<td>' + registro.kilos + '</td>' +
-                            '<td>' +
-                            '<div class="form-check">' +
-                            '<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />' +
-                            '<label class="form-check-label" for="flexCheckDefault"></label>' +
-                            '</div>' +
-                            '</td>' +
-                            '<td><a href="">editar</a></td>' +
-                            '</tr>';
-
-                        tabla.append(nuevaFila);
-                    });
-                }
-            });
-        </script>
-        <script>
-            $(document).ready(function () {
-                // Oculta el formulario inicial
-                $('#formularioPlanilla').hide();
-
-                // Maneja el cambio de pestañas
-                $('.nav-link').on('click', function () {
-                    // Remueve la clase 'active' de todas las pestañas
-                    $('.nav-link').removeClass('active');
-
-                    // Agrega la clase 'active' a la pestaña seleccionada
-                    $(this).addClass('active');
-
-                    // Verifica la opción seleccionada
-                    var opcionSeleccionada = $(this).text().trim();
-
-                    // Muestra u oculta el formulario correspondiente
-                    if (opcionSeleccionada === 'Principal') {
-                        $('#formularioPlanilla').hide();
-                        $('#form1').show();
-                    } else if (opcionSeleccionada === 'Detalle') {
-                        $('#form1').hide();
-                        $('#formularioPlanilla').show();
-                    }
-                });
-            });
-        </script>
-
-        <script>
-            function limpiarFormulario() {
-                document.getElementById('form1').reset();
-            }
-        </script>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"></script>
+
+        <script>
+            $(document).ready(function () {
+
+                function limpiarFormulario() {
+                    document.getElementById('form1').reset();
+                }
+            });
+        </script>
 </body>
 
 </html>
