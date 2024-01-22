@@ -22,7 +22,7 @@
                 <div class="card">
                     <div class="card-body">
                         <div style="display: flex; justify-content: center; align-items: center; height: 200px;">
-                            <img src="{{ url('http://192.168.1.122/img/logo.png') }}" alt="Logo" height="100">
+                            <img src="{{ asset('image/logo.png') }}" alt="Logo" height="100">
                         </div>
 
 

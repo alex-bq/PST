@@ -9,6 +9,9 @@
     <!-- Incluye Bootstrap CSS y Select2 CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
+
 
     <!-- Incluye jQuery y Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -17,6 +20,7 @@
     <!-- Incluye Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
+    <!-- Tu archivo de estilos CSS -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <script src="{{ asset('js/planilla.js') }}"></script>
 </head>
@@ -25,7 +29,7 @@
     <nav class="navbar sticky-top navbar-expand" style="background-color: #fdfdfd;">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url('/inicio') }}">
-                <img src="{{ url('http://192.168.1.122/img/logo.png') }}" alt="Logo" height="50">
+                <img src="{{ asset('image/logo.png') }}" alt="Logo" height="50">
             </a>
 
             <div class="collapse navbar-collapse justify-content" id="navbarNavAltMarkup">
@@ -80,7 +84,7 @@
                                     <div class="form-group">
                                         <select class="form-select js-example-basic-single " style="width: 100%"
                                             name="cInicial" aria-label="Selecciona un corte inicial">
-                                            <option selected></option>
+                                            <option disabled selected>Seleccione Corte Inicial</option>
                                             @foreach ($cortes as $corte)
                                             <option value="{{ $corte->cod_corte }}">{{ $corte->nombre }}</option>
                                             @endforeach
@@ -91,7 +95,7 @@
                                     <div class="form-group">
                                         <select class="form-select js-example-basic-single" style="width: 100%"
                                             name="proceso" aria-label="Selecciona un proceso">
-                                            <option selected></option>
+                                            <option disabled selected>Seleccione Proceso</option>
                                             @foreach ($procesos as $proceso)
                                             <option value="{{ $proceso->cod_sproceso }}">{{ $proceso->nombre }}</option>
                                             @endforeach
@@ -102,7 +106,7 @@
                                     <div class="form-group">
                                         <select class="form-select js-example-basic-single" style="width: 100%"
                                             name="calibre" aria-label="Selecciona un calibre">
-                                            <option selected></option>
+                                            <option disabled selected>Seleccione Calibre</option>
                                             @foreach ($calibres as $calibre)
                                             <option value="{{ $calibre->cod_calib }}">{{ $calibre->nombre }}</option>
                                             @endforeach
@@ -112,8 +116,7 @@
                                     <br />
                                     <h6>Piezas</h6>
                                     <div class="form-group">
-                                        <input type="number" class="form-control form-control-sm" name="piezas"
-                                            placeholder="123" />
+                                        <input type="number" class="form-control " name="piezas" placeholder="123" />
                                     </div>
 
                                 </div>
@@ -126,7 +129,7 @@
                                     <div class="form-group">
                                         <select class="form-select js-example-basic-single" style="width: 100%"
                                             name="cFinal" aria-label="Selecciona un corte final">
-                                            <option selected></option>
+                                            <option disabled selected>Seleccione Corte Final</option>
                                             @foreach ($cortes as $corte)
                                             <option value="{{ $corte->cod_corte }}">{{ $corte->nombre }}</option>
                                             @endforeach
@@ -137,7 +140,7 @@
                                     <div class="form-group">
                                         <select class="form-select js-example-basic-single" style="width: 100%"
                                             name="destino" aria-label="Selecciona un destino">
-                                            <option selected></option>
+                                            <option disabled selected>Seleccione Destino</option>
                                             <option value="1">Destino 1</option>
                                             <option value="2">Destino 2</option>
                                             <option value="3">Destino 3</option>
@@ -148,7 +151,7 @@
                                     <div class="form-group">
                                         <select class="form-select js-example-basic-single" style="width: 100%"
                                             name="calidad" aria-label="Selecciona una calidad">
-                                            <option selected></option>
+                                            <option disabled selected>Seleccione Calidad</option>
                                             @foreach ($calidades as $calidad)
                                             <option value="{{ $calidad->cod_cald }}">{{ $calidad->nombre }}</option>
                                             @endforeach
@@ -159,8 +162,8 @@
 
                                     <h6>Kilos</h6>
                                     <div class="form-group">
-                                        <input type="number" class="form-control form-control-sm" name="kilos"
-                                            placeholder="123" />
+                                        <input type="number" class="form-control" name="kilos" placeholder="1.55"
+                                            step="0.01" />
                                     </div>
                                 </div>
                             </div>
@@ -368,7 +371,7 @@
                                         <td>{{$i->calibre}}</td>
                                         <td>{{$i->calidad}}</td>
                                         <td>{{$i->piezas}}</td>
-                                        <td>{{$i->kilos}}</td>
+                                        <td>{{round($i->kilos,2)}}</td>
                                         <td>
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" value=""
@@ -414,8 +417,7 @@
                             </div>
                             <div class=col-4>
                                 <button type="submit" class="btn btn-success btn-lg">
-                                    Agregar
-                                </button>
+                                    Guardar </button>
                             </div>
 
                         </div>

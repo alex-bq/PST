@@ -4,7 +4,9 @@ $(document).ready(function () {
     
     $('.js-example-basic-single').select2({
         placeholder: 'Select an option',
-        width: 'resolve'
+        width: 'resolve',
+        theme: 'bootstrap4',
+
       });
     // Código para el manejo del formulario
     $('form').submit(function (event) {
@@ -45,7 +47,7 @@ $(document).ready(function () {
                             '<td>' + registro.calibre + '</td>' +
                             '<td>' + registro.calidad + '</td>' +
                             '<td>' + registro.piezas + '</td>' +
-                            '<td>' + registro.kilos + '</td>' +
+                            '<td>' + registro.kilos.toFixed(2) + '</td>' +
                             '<td>' +
                             '<div class="form-check">' +
                             '<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />' +

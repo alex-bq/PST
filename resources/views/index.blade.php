@@ -30,7 +30,7 @@
     <nav class="navbar sticky-top navbar-expand" style="background-color: #fdfdfd;">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url('/inicio') }}">
-                <img src="{{ url('http://192.168.1.122/img/logo.png') }}" alt="Logo" height="50">
+                <img src="{{ asset('image/logo.png') }}" alt="Logo" height="50">
             </a>
 
             <!-- <div class="collapse navbar-collapse justify-content" id="navbarNavAltMarkup">
@@ -264,7 +264,7 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="codEmpresa">Empresa</label>
-                                    <select class="form-control" style="width: 100%" name="empresa">
+                                    <select class="form-control" style="width: 100%" name="empresa" disabled>
                                         <option selected disabled></option>
                                         @foreach ($empresas as $empresa)
                                         <option value="{{ $empresa->cod_empresa }}">{{ $empresa->descripcion }}
@@ -276,7 +276,7 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="proveedor">Proveedor</label>
-                                    <select class="form-control" name="proveedor">
+                                    <select class="form-control" name="proveedor" disabled>
                                         <option selected disabled></option>
                                         @foreach ($proveedores as $proveedor)
                                         <option value="{{ $proveedor->cod_proveedor }}">{{ $proveedor->descripcion }}
@@ -288,7 +288,7 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="codEspecie">Especie</label>
-                                    <select class="form-control" name="especie">
+                                    <select class="form-control" name="especie" disabled>
                                         <option selected disabled></option>
                                         @foreach ($especies as $especie)
                                         <option value="{{ $especie->cod_especie }}">{{ $especie->descripcion }}</option>
@@ -394,11 +394,31 @@
 
             $('#formularioPlanilla').submit(function (event) {
                 event.preventDefault();
+                var codLote = $('#codLote').val();
+                var empresa = $('select[name="empresa"]').val();
+                var proveedor = $('select[name="proveedor"]').val();
+                var especie = $('select[name="especie"]').val();
+                var fechaTurno = $('#fechaTurno').val();
+                var turno = $('select[name="turno"]').val();
+                var supervisor = $('select[name="supervisor"]').val();
+                var planillero = $('select[name="planillero"]').val();
+
+                // Construye el objeto de datos
+                var datos = {
+                    codLote: codLote,
+                    empresa: empresa,
+                    proveedor: proveedor,
+                    especie: especie,
+                    fechaTurno: fechaTurno,
+                    turno: turno,
+                    supervisor: supervisor,
+                    planillero: planillero
+                };
 
                 $.ajax({
                     type: 'POST',
                     url: baseUrl + '/procesar-formulario',
-                    data: $(this).serialize(),
+                    data: datos,
                     success: function (response) {
                         if (response.redirect) {
                             window.location.href = baseUrl + response.redirect;
