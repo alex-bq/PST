@@ -3,13 +3,14 @@ jQuery(document).ready(function ($) {
         placeholder: 'Select an option',
         width: 'resolve',
         theme: 'bootstrap4',
+        
     });
 
-    // $('.modalSelect').select2({
-    //     placeholder: 'Select an option',
-    //     width: 'resolve',
-    //     theme: 'bootstrap4',
-    //     dropdownParent: $('#exampleModal')
-    // });
+    $('.modalSelect').select2({
+        placeholder: '______________',
+        width: 'resolve',
+        theme: 'bootstrap4',
+        dropdownParent: $('#exampleModal')
+    });
 
 });

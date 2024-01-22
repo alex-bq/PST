@@ -263,11 +263,9 @@
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
-
                                     <label for="codEmpresa">Empresa</label>
-                                    <select class="form-select modalSelect" style="width: 100%" name="empresa">
-                                        <option selected disabled>Seleccione Empresa</option>
-                                        <option value=" ">Sin Empresa</option>
+                                    <select class="form-control" style="width: 100%" name="empresa">
+                                        <option selected disabled></option>
                                         @foreach ($empresas as $empresa)
                                         <option value="{{ $empresa->cod_empresa }}">{{ $empresa->descripcion }}
                                         </option>
@@ -278,9 +276,8 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="proveedor">Proveedor</label>
-                                    <select class="form-select modalSelect" style="width: 100%" name="proveedor">
-                                        <option selected disabled>Seleccione Proveedor</option>
-                                        <option value=" ">Sin Proveedor</option>
+                                    <select class="form-control" name="proveedor">
+                                        <option selected disabled></option>
                                         @foreach ($proveedores as $proveedor)
                                         <option value="{{ $proveedor->cod_proveedor }}">{{ $proveedor->descripcion }}
                                         </option>
@@ -291,7 +288,7 @@
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="codEspecie">Especie</label>
-                                    <select class="form-select modalSelect" style="width: 100%" name="especie">
+                                    <select class="form-control" name="especie">
                                         <option selected disabled></option>
                                         @foreach ($especies as $especie)
                                         <option value="{{ $especie->cod_especie }}">{{ $especie->descripcion }}</option>
@@ -312,7 +309,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="codTurno">Turno</label>
-                                    <select class="form-select modalSelect" style="width: 100%" name="turno">
+                                    <select class="form-select modalSelect" name="turno">
                                         <option selected disabled>Seleccione un turno</option>
                                         @foreach ($turnos as $turno)
                                         <option value="{{ $turno->codTurno }}">{{ $turno->NomTurno }}</option>
@@ -326,7 +323,7 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="codSupervisor">Supervisor</label>
-                                    <select class="form-select modalSelect" style="width: 100%" name="supervisor"
+                                    <select class="form-select modalSelect" name="supervisor"
                                         @if(session('user')['cod_rol']==2) disabled @endif>
                                         <option selected disabled>Seleccione un supervisor</option>
                                         @foreach ($supervisores as $supervisor)
@@ -342,8 +339,8 @@
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="codPlanillero">Planillero</label>
-                                    <select class="form-select" name="planillero" @if(session('user')['cod_rol']==1)
-                                        disabled @endif>
+                                    <select class="form-select modalSelect" name="planillero"
+                                        @if(session('user')['cod_rol']==1) disabled @endif>
                                         <option selected disabled>Seleccione un planillero</option>
                                         @foreach ($planilleros as $planillero)
                                         <option value="{{ $planillero->cod_usuario }}" @if(session('user')['cod_rol']==1
@@ -409,10 +406,11 @@
                             console.log(response.message);
                         }
                     },
-                    error: function (xhr) {
+                    error: function (xhr, status, error) {
                         if (xhr.status === 419) {
                             console.error('Error CSRF');
                         } else {
+                            console.error(xhr.responseText);
                             $('#mensajeError').text('El lote no existe.').show();
                         }
                     }
