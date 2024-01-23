@@ -18,10 +18,11 @@ Route::post('/filtrar-lotes-en-tiempo-real', [IndexController::class, 'filtrarLo
 
 Route::post('/procesar-formulario', [IndexController::class, 'procesarFormulario'])->name('procesar.formulario');
 Route::get('/planilla/{id}', [PlanillaController::class, 'mostrarPlanilla'])->name('planilla');
+Route::post('/modificar-planilla/{id}', [PlanillaController::class, 'modificarPlanilla'])->name('modificar-planilla');
 Route::post('/agregar-registro', [PlanillaController::class, 'agregarRegistro'])->name('agregar-registro');
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
- 
+
 
 
 

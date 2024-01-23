@@ -4,6 +4,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Planilla PST</title>
 
     <!-- Incluye Bootstrap CSS y Select2 CSS -->
@@ -66,7 +67,7 @@
                                 <a class="nav-link active" aria-current="true">Principal</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link">Detalle</a>
+                                <a class="nav-link" id="detalleTab">Detalle</a>
                             </li>
 
                         </ul>
@@ -78,7 +79,6 @@
                             <div class="row">
                                 <h4>Lote : {{ $desc_planilla->lote }}</h4>
                                 <div class="col-md-6">
-
                                     <br>
                                     <h6>Corte Inicial</h6>
                                     <div class="form-group">
@@ -118,13 +118,10 @@
                                     <div class="form-group">
                                         <input type="number" class="form-control " name="piezas" placeholder="123" />
                                     </div>
-
                                 </div>
 
                                 <div class="col-md-6">
-
                                     <br />
-
                                     <h6>Corte Final</h6>
                                     <div class="form-group">
                                         <select class="form-select js-example-basic-single" style="width: 100%"
@@ -184,6 +181,7 @@
                                 </div>
                             </div>
                         </form>
+
 
 
 
@@ -262,7 +260,8 @@
 
                             @elseif(session('user')['cod_rol'] == 2 || session('user')['cod_rol'] == 3)
 
-                            <form action="{{ route('procesar.formulario') }}" method="post">
+                            <form action="{{ route('modificar-planilla', ['id' => $idPlanilla]) }}" id="form2"
+                                method="post">
                                 @csrf
 
 
@@ -277,7 +276,8 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="codTurno">Turno</label>
-                                            <select class="form-select" name="turno">
+                                            <select class="form-select js-example-basic-single" style="width: 100%"
+                                                name="turno">
 
                                                 @foreach ($turnos as $turno)
                                                 <option value="{{ $turno->codTurno }}" @if($desc_planilla->turno ==
@@ -294,9 +294,9 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="codSupervisor">Supervisor</label>
-                                            <select class="form-select" name="supervisor"
-                                                @if(session('user')['cod_rol']==2) disabled @endif>
-                                                <option selected disabled>Seleccione un supervisor</option>
+                                            <select class="form-select js-example-basic-single" style="width: 100%"
+                                                name="supervisor" @if(session('user')['cod_rol']==2) disabled @endif>
+
                                                 @foreach ($supervisores as $supervisor)
                                                 <option value="{{ $supervisor->cod_usuario }}" @if($desc_planilla->
                                                     supervisor_nombre ==
@@ -310,8 +310,9 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="codPlanillero">Planillero</label>
-                                            <select class="form-select" name="planillero">
-                                                <option selected disabled>Seleccione un planillero</option>
+                                            <select class="form-select js-example-basic-single" style="width: 100%"
+                                                name="planillero">
+
                                                 @foreach ($planilleros as $planillero)
                                                 <option value="{{ $planillero->cod_usuario }}" @if($desc_planilla->
                                                     planillero_nombre ==
@@ -326,7 +327,8 @@
 
                                 <br><br>
 
-                                <button type="submit" class="btn btn-primary">Modificar planilla</button>
+                                <button type="submit" class="btn btn-primary" id="btnModificar" disabled>Modificar
+                                    planilla</button>
                             </form>
                             @endif
                         </div>
@@ -415,7 +417,7 @@
                                 <input type="number" class="form-control form-control-sm" id="kilosRecepcion"
                                     placeholder="Kilos" />
                             </div>
-                            <div class=col-4>
+                            <div class="col-4">
                                 <button type="submit" class="btn btn-success btn-lg">
                                     Guardar </button>
                             </div>
@@ -432,14 +434,7 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"></script>
 
-        <script>
-            $(document).ready(function () {
 
-                function limpiarFormulario() {
-                    document.getElementById('form1').reset();
-                }
-            });
-        </script>
 </body>
 
 </html>

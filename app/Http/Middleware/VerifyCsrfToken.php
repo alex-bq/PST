@@ -14,5 +14,6 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         '/obtener-valores-lote',
         '/procesar-formulario',
+        'modificar-planilla/*',
     ];
 }
