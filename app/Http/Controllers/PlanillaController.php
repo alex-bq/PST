@@ -97,7 +97,7 @@ class PlanillaController extends Controller
         if ($codCorteIni === "nuevo") {
             $existingCorteIni = DB::table('pst.dbo.corte')
                 ->select('nombre')
-                ->whereRaw('LOWER(REPLACE(nombre, " ", "")) = ?', [strtolower(str_replace(' ', '', $newCorte))])
+                ->whereRaw("LOWER(REPLACE(nombre, ' ', '')) = ?", [strtolower(str_replace(' ', '', $newCorte))])
                 ->first();
 
             if (!$existingCorteIni) {
@@ -116,7 +116,7 @@ class PlanillaController extends Controller
         if ($codCorteFin === "nuevo") {
             $existingCorteFin = DB::table('pst.dbo.corte')
                 ->select('nombre')
-                ->whereRaw('LOWER(REPLACE(nombre, " ", "")) = ?', [strtolower(str_replace(' ', '', $newCorte))])
+                ->whereRaw("LOWER(REPLACE(nombre, ' ', '')) = ?", [strtolower(str_replace(' ', '', $newCorte))])
                 ->first();
 
             if (!$existingCorteFin) {
@@ -135,7 +135,7 @@ class PlanillaController extends Controller
         if ($codCalibre === "nuevo") {
             $existingCalibre = DB::table('pst.dbo.calibre')
                 ->select('nombre')
-                ->whereRaw('LOWER(REPLACE(nombre, " ", "")) = ?', [strtolower(str_replace(' ', '', $newCalibre))])
+                ->whereRaw("LOWER(REPLACE(nombre, ' ', '')) = ?", [strtolower(str_replace(' ', '', $newCalibre))])
                 ->first();
 
             if (!$existingCalibre) {
@@ -154,7 +154,7 @@ class PlanillaController extends Controller
         if ($codCalidad === "nuevo") {
             $existingCalidad = DB::table('pst.dbo.calidad')
                 ->select('nombre')
-                ->whereRaw("LOWER(REPLACE(nombre, ' ', ' ')) = ?", [strtolower(str_replace(' ', '', $newCalidad))])
+                ->whereRaw("LOWER(REPLACE(nombre, ' ', '')) = ?", [strtolower(str_replace(' ', '', $newCalidad))])
                 ->first();
 
             if (!$existingCalidad) {
