@@ -48,7 +48,7 @@
             </div>
         </div>
     </nav>
-    <br>
+    <div class="container-fluid"><a href="{{ url('/inicio') }}" class="btn btn-secondary mt-3">Volver</a></div>
 
     <div class="container-fluid align-text">
 
@@ -64,17 +64,20 @@
                     <div class="card-header">
                         <ul class="nav nav-tabs card-header-tabs">
                             <li class="nav-item">
-                                <a class="nav-link active" aria-current="true">Principal</a>
+                                <a class="nav-link active" aria-current="true">Registro</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link" id="detalleTab">Detalle</a>
+                                <a class="nav-link" id="detalleTab">Editar</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="entregaTab">Detalle</a>
                             </li>
 
                         </ul>
                     </div>
                     <div class="card-body">
 
-                        <form id="form1" action="{{ url('/agregar-registro') }}" method="POST">
+                        <form id="formPrincipal" action="{{ url('/agregar-registro') }}" method="POST">
                             @csrf
                             <div class="row">
 
@@ -245,7 +248,7 @@
 
 
 
-                        <div id="formularioPlanilla">
+                        <div id="formularioDetalle">
                             <div class='row'>
                                 <div class="col-lg-4">
                                     <div class="form-group">
@@ -384,6 +387,8 @@
                                     </div>
                                 </div>
 
+
+
                                 <br><br>
 
                                 <button type="submit" class="btn btn-primary" id="btnModificar" disabled>Modificar
@@ -391,6 +396,55 @@
                             </form>
                             @endif
                         </div>
+
+
+                        <form id='formEntrega' action="{{ route('guardar') }}" method="post" class="mt-3">
+                            @csrf
+                            <div class="row">
+                                <div class="col-6">
+                                    <h6>Entrega Frigorífico</h6>
+                                    <label for="cajasEntrega">Cajas:</label>
+                                    <input type="number" class="form-control form-control-sm" id="cajasEntrega"
+                                        name="cajas_entrega" placeholder="Cajas">
+                                    <label for="kilosEntrega">Kilos:</label>
+                                    <input type="number" class="form-control form-control-sm" id="kilosEntrega"
+                                        name="kilos_entrega" placeholder="Kilos">
+                                    <label for="piezasEntrega">Piezas:</label>
+                                    <input type="number" class="form-control form-control-sm" id="piezasEntrega"
+                                        name="piezas_entrega" placeholder="Piezas">
+                                </div>
+                                <div class="col-6">
+                                    <h6>Recepción Planta</h6>
+                                    <label for="cajasRecepcion">Cajas:</label>
+                                    <input type="number" class="form-control form-control-sm" id="cajasRecepcion"
+                                        name="cajas_recepcion" placeholder="Cajas">
+                                    <label for="kilosRecepcion">Kilos:</label>
+                                    <input type="number" class="form-control form-control-sm" id="kilosRecepcion"
+                                        name="kilos_recepcion" placeholder="Kilos">
+                                    <label for="piezasRecepcion">Piezas:</label>
+                                    <input type="number" class="form-control form-control-sm" id="piezasRecepcion"
+                                        name="piezas_recepcion" placeholder="Piezas">
+                                </div>
+                            </div>
+                            <div class="form-group mb-4">
+                                <label for="dotacion">Dotación:</label>
+                                <input type="number" class="form-control" name="dotacion" id="dotacion">
+                            </div>
+
+                            <div class="form-group mb-4">
+                                <label for="observacion">Observación:</label>
+                                <textarea class="form-control" name="observacion" id="observacion" rows="4"></textarea>
+                            </div>
+                            <input type="hidden" name="idPlanilla" value="{{ $idPlanilla }}" />
+
+                            <button type="submit" class="btn btn-primary">Guardar Planilla</button>
+                        </form>
+
+
+
+
+
+
                     </div>
                 </div>
             </div>
@@ -458,26 +512,9 @@
                         </div>
                         <div class="row mt-4">
 
+
                             <div class="col-4">
-                                <h6>Entrega Frigorífico</h6>
-                                <label for="cajasEntrega">Cajas:</label>
-                                <input type="number" class="form-control form-control-sm" id="cajasEntrega"
-                                    placeholder="Cajas" />
-                                <label for="kilosEntrega">Kilos:</label>
-                                <input type="number" class="form-control form-control-sm" id="kilosEntrega"
-                                    placeholder="Kilos" />
-                            </div>
-                            <div class="col-4">
-                                <h6>Recepción Planta</h6>
-                                <label for="cajasRecepcion">Cajas:</label>
-                                <input type="number" class="form-control form-control-sm" id="cajasRecepcion"
-                                    placeholder="Cajas" />
-                                <label for="kilosRecepcion">Kilos:</label>
-                                <input type="number" class="form-control form-control-sm" id="kilosRecepcion"
-                                    placeholder="Kilos" />
-                            </div>
-                            <div class="col-4">
-                                <button type="submit" class="btn btn-success btn-lg">
+                                <button type="submit" class="btn btn-success btn-lg" id="btnGuardar">
                                     Guardar </button>
                             </div>
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use DB;
+use Illuminate\Database\QueryException;
 
 class PlanillaController extends Controller
 {
@@ -94,43 +95,31 @@ class PlanillaController extends Controller
             }
         }
 
-        if ($codCorteIni === "nuevo") {
-            $existingCorteIni = DB::table('pst.dbo.corte')
+        if ($codCorteIni === "nuevo" || $codCorteFin === "nuevo") {
+            $existingCorte = DB::table('pst.dbo.corte')
                 ->select('nombre')
                 ->whereRaw("LOWER(REPLACE(nombre, ' ', '')) = ?", [strtolower(str_replace(' ', '', $newCorte))])
                 ->first();
 
-            if (!$existingCorteIni) {
-                $id_newCorteIni = DB::table('pst.dbo.corte')->insertGetId([
+            if (!$existingCorte) {
+                $id_newCorte = DB::table('pst.dbo.corte')->insertGetId([
                     'nombre' => $newCorte,
                     'inactivo' => 0,
                     'transito' => 1
                 ]);
-                $codCorteIni = $id_newCorteIni;
+                if ($codCorteIni === "nuevo") {
+                    $codCorteIni = $id_newCorte;
+                }
+                if ($codCorteFin === "nuevo") {
+                    $codCorteFin = $id_newCorte;
+                }
+
             } else {
                 $errorCorte = 'El corte ya existe en la base de datos';
                 $error = true;
             }
         }
 
-        if ($codCorteFin === "nuevo") {
-            $existingCorteFin = DB::table('pst.dbo.corte')
-                ->select('nombre')
-                ->whereRaw("LOWER(REPLACE(nombre, ' ', '')) = ?", [strtolower(str_replace(' ', '', $newCorte))])
-                ->first();
-
-            if (!$existingCorteFin) {
-                $id_newCorteFin = DB::table('pst.dbo.corte')->insertGetId([
-                    'nombre' => $newCorte,
-                    'inactivo' => 0,
-                    'transito' => 1
-                ]);
-                $codCorteFin = $id_newCorteFin;
-            } else {
-                $errorCorteFin = 'El corte ya existe en la base de datos';
-                $error = true;
-            }
-        }
 
         if ($codCalibre === "nuevo") {
             $existingCalibre = DB::table('pst.dbo.calibre')
@@ -169,7 +158,7 @@ class PlanillaController extends Controller
             }
         }
 
-        
+
         if ($error) {
             return response()->json(['success' => false, 'mensaje' => 'Ha ocurrido un error.', 'errores' => compact('errorDestino', 'errorCorte', 'errorCorteFin', 'errorCalibre', 'errorCalidad')]);
         }
@@ -246,6 +235,45 @@ class PlanillaController extends Controller
             return response()->json(['success' => true, 'mensaje' => 'Planilla actualizada exitosamente.']);
         } else {
             return response()->json(['success' => false, 'mensaje' => 'No se realizaron cambios en la planilla.']);
+        }
+    }
+
+    public function guardarPlanilla(Request $request)
+    {
+        try {
+            $cajasEntrega = $request->input('cajas_entrega');
+            $kilosEntrega = $request->input('kilos_entrega');
+            $piezasEntrega = $request->input('piezas_entrega');
+            $cajasRecepcion = $request->input('cajas_recepcion');
+            $kilosRecepcion = $request->input('kilos_recepcion');
+            $piezasRecepcion = $request->input('piezas_recepcion');
+            $dotacion = $request->input('dotacion');
+            $observacion = $request->input('observacion');
+
+            DB::table('pst.dbo.detalle_planilla_pst')->insert([
+                'cod_planilla' => $request->input('idPlanilla'),
+                'cajas_entrega' => $cajasEntrega,
+                'kilos_entrega' => $kilosEntrega,
+                'piezas_entrega' => $piezasEntrega,
+                'cajas_recepcion' => $cajasRecepcion,
+                'kilos_recepcion' => $kilosRecepcion,
+                'piezas_recepcion' => $piezasRecepcion,
+                'dotacion' => $dotacion,
+                'observacion' => $observacion,
+            ]);
+
+            DB::table('pst.dbo.planillas_pst')
+                ->where('cod_planilla', $request->input('idPlanilla'))
+                ->update(['guardado' => 1]);
+
+            DB::table('pst.dbo.registro_planilla_pst')
+                ->where('cod_planilla', $request->input('idPlanilla'))
+                ->update(['guardado' => 1]);
+
+            return redirect('/inicio');
+        } catch (QueryException $e) {
+            // Manejar la excepción de la consulta SQL
+            return redirect('/inicio')->with('error', 'Error al guardar la planilla.');
         }
     }
 

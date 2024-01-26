@@ -5,7 +5,7 @@ $(document).ready(function () {
         theme: "bootstrap4",
     });
 
-    $("#form1").submit(function (event) {
+    $("#formPrincipal").submit(function (event) {
         var cInicial = $('select[name="cInicial"]').val();
         var proceso = $('select[name="proceso"]').val();
         var calibre = $('select[name="calibre"]').val();
@@ -44,21 +44,8 @@ $(document).ready(function () {
             );
             event.preventDefault();
         } else {
-            if (destino === "nuevo") {
-                destino = newDestino;
-            } else if (cInicial === "nuevo") {
-                cInicial = newCorte;
-            } else if (cFinal === "nuevo") {
-                cFinal = newCorte;
-            } else if (calibre === "nuevo") {
-                calibre = newCalibre;
-            } else if (calidad === "nuevo") {
-                calidad = newCalidad;
-            }
-
             event.preventDefault();
 
-            // Continuar con la llamada AJAX solo si no hay campos vacíos
             $.ajax({
                 type: "POST",
                 url: $(this).attr("action"),
@@ -66,6 +53,15 @@ $(document).ready(function () {
                 dataType: "json",
                 success: function (response) {
                     if (response.success) {
+                        if (
+                            newDestino ||
+                            newCorte ||
+                            newCalibre ||
+                            newCalidad
+                        ) {
+                            limpiarFormulario();
+                        }
+
                         actualizarTabla(response.planilla);
                     } else {
                         alert("Error al insertar el dato: " + response.mensaje);
@@ -123,7 +119,8 @@ $(document).ready(function () {
         });
     }
 
-    $("#formularioPlanilla").hide();
+    $("#formularioDetalle").hide();
+    $("#formEntrega").hide();
 
     $(".nav-link").on("click", function () {
         $(".nav-link").removeClass("active");
@@ -131,13 +128,28 @@ $(document).ready(function () {
 
         var opcionSeleccionada = $(this).text().trim();
 
-        if (opcionSeleccionada === "Principal") {
-            $("#formularioPlanilla").hide();
-            $("#form1").show();
+        if (opcionSeleccionada === "Registro") {
+            $("#formularioDetalle").hide();
+            $("#formEntrega").hide();
+            $("#formPrincipal").show();
+        } else if (opcionSeleccionada === "Editar") {
+            $("#formPrincipal").hide();
+            $("#formEntrega").hide();
+            $("#formularioDetalle").show();
         } else if (opcionSeleccionada === "Detalle") {
-            $("#form1").hide();
-            $("#formularioPlanilla").show();
+            $("#formPrincipal").hide();
+            $("#formularioDetalle").hide();
+            $("#formEntrega").show();
         }
+    });
+    $("#btnGuardar").on("click", function () {
+        // Simplemente redirecciona a la opción "Detalle" al hacer clic en el botón "Guardar"
+        $(".nav-link").removeClass("active");
+        $("#formPrincipal").hide();
+        $("#formularioDetalle").hide();
+        $("#formEntrega").show();
+        // Aquí podrías agregar una redirección específica si es necesario
+        // window.location.href = "ruta_a_detalle.html";
     });
 
     var urlParams = new URLSearchParams(window.location.search);
@@ -148,13 +160,13 @@ $(document).ready(function () {
         $(".nav-link").removeClass("active");
         $("#detalleTab").addClass("active"); // Asegúrate de que el enlace de la pestaña de detalle tenga el ID 'detalleTab'
 
-        $("#form1").hide();
-        $("#formularioPlanilla").show();
+        $("#formPrincipal").hide();
+        $("#formularioDetalle").show();
     }
 });
 
 function limpiarFormulario() {
-    document.getElementById("form1").reset();
+    document.getElementById("formPrincipal").reset();
     $(".js-example-basic-single").val(null).trigger("change");
 }
 

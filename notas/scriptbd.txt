@@ -3,34 +3,37 @@ DROP TABLE dbo.registro_planilla_pst;
 DROP TABLE dbo.planillas_pst;
 DROP TABLE dbo.usuarios_pst;
 DROP TABLE dbo.corte;
-DROP TABLE dbo.subproceso;
+DROP TABLE dbo.subproceso; 
 DROP TABLE dbo.calibre;
 DROP TABLE dbo.calidad;
 DROP TABLE dbo.roles;
+DROP TABLE dbo.destino; 
+DROP TABLE dbo.detalle_planilla_pst;
+
 
 -- Tables
 CREATE TABLE dbo.corte (
-    cod_corte INT PRIMARY KEY,
+    cod_corte INT PRIMARY KEY  IDENTITY(1,1),
     nombre NVARCHAR(255),
     inactivo INT,
     transito INT
 );
 
 CREATE TABLE dbo.subproceso (
-    cod_sproceso INT PRIMARY KEY,
+    cod_sproceso INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(255),
     inactivo INT
 );
 
 CREATE TABLE dbo.calibre (
-    cod_calib INT PRIMARY KEY,
+    cod_calib INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(255),
     inactivo INT,
     transito INT
 );
 
 CREATE TABLE dbo.calidad (
-    cod_cald INT PRIMARY KEY,
+    cod_cald INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(255),
     inactivo INT
 );
@@ -50,7 +53,9 @@ CREATE TABLE dbo.planillas_pst (
     cod_especie SMALLINT,
     cod_planillero NUMERIC(18,0),
     cod_supervisor NUMERIC(18,0),
-	fec_crea_planilla DATETIME DEFAULT GETDATE(),
+    observacion NVARCHAR(700) NULL,
+	dotacion NUMERIC(18, 0) NULL,
+    fec_crea_planilla DATETIME DEFAULT GETDATE(),
     guardado NUMERIC(18,0),
     UNIQUE(cod_planilla) 
 );
@@ -78,6 +83,26 @@ CREATE TABLE dbo.usuarios_pst (
     cod_rol INT,
     FOREIGN KEY (cod_rol) REFERENCES dbo.roles(cod_rol)
 );
+
+CREATE TABLE dbo.destino (
+    cod_destino INT PRIMARY KEY IDENTITY(1,1),
+    nombre NVARCHAR(255),
+    inactivo INT
+);
+
+CREATE TABLE dbo.detalle_planilla_pst (
+    cod_detalle INT PRIMARY KEY IDENTITY(1,1),
+    cod_planilla SMALLINT,
+    cajas_entrega INT,
+    kilos_entrega FLOAT,
+    piezas_entrega INT,
+    cajas_recepcion INT,
+    kilos_recepcion FLOAT,
+    piezas_recepcion INT,
+    dotacion INT,
+    observacion NVARCHAR(MAX)
+);
+
 
 INSERT INTO dbo.roles (nombre_rol)
 VALUES
@@ -124,6 +149,8 @@ VALUES
     ('ana_martinez', '123', 'Ana', 'Martinez', 2),  
     ('luis_sanchez', '123', 'Luis', 'Sanchez', 1),  
     ('admin', 'admin', 'Admin', NULL, 3); 
+
+
 
 -- Inserciones adicionales para planillas_pst
 INSERT INTO dbo.planillas_pst (cod_lote, fec_turno, cod_turno, cod_empresa, cod_especie, cod_planillero, cod_supervisor, guardado)
