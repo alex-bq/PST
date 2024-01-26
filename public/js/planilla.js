@@ -15,6 +15,16 @@ $(document).ready(function () {
         var calidad = $('select[name="calidad"]').val();
         var kilos = $('input[name="kilos"]').val();
 
+        var newCorte = $('input[name="newCorte"]').val();
+        var newCalibre = $('input[name="newCalibre"]').val();
+        var newDestino = $('input[name="newDestino"]').val();
+        var newCalidad = $('input[name="newCalidad"]').val();
+
+        // var corteVisible = $("#input-container-destino").is(":visible");
+        // var calibreVisible = $("#input-container-calibre").is(":visible");
+        // var destinoVisible = $("#input-container-destino").is(":visible");
+        // var calidadVisible = $("#input-container-calidad").is(":visible");
+
         if (
             !cInicial ||
             !proceso ||
@@ -23,13 +33,29 @@ $(document).ready(function () {
             !cFinal ||
             !destino ||
             !calidad ||
-            !kilos
+            !kilos ||
+            (destino === "nuevo" && !newDestino) ||
+            ((cInicial === "nuevo" || cFinal === "nuevo") && !newCorte) ||
+            (calibre === "nuevo" && !newCalibre) ||
+            (calidad === "nuevo" && !newCalidad)
         ) {
             alert(
                 "Por favor, completa todos los campos antes de enviar el formulario."
             );
             event.preventDefault();
         } else {
+            if (destino === "nuevo") {
+                destino = newDestino;
+            } else if (cInicial === "nuevo") {
+                cInicial = newCorte;
+            } else if (cFinal === "nuevo") {
+                cFinal = newCorte;
+            } else if (calibre === "nuevo") {
+                calibre = newCalibre;
+            } else if (calidad === "nuevo") {
+                calidad = newCalidad;
+            }
+
             event.preventDefault();
 
             // Continuar con la llamada AJAX solo si no hay campos vacíos
@@ -42,7 +68,7 @@ $(document).ready(function () {
                     if (response.success) {
                         actualizarTabla(response.planilla);
                     } else {
-                        alert("Error al insertar el dato");
+                        alert("Error al insertar el dato: " + response.mensaje);
                     }
                 },
                 error: function () {

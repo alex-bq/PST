@@ -85,7 +85,7 @@
                                             style="width: 100%" name="cInicial"
                                             aria-label="Selecciona un corte inicial">
                                             <option disabled selected>Seleccione Corte Inicial</option>
-                                            <option value="boton">Nuevo corte</option>
+                                            <option value="nuevo">Nuevo corte</option>
 
                                             @foreach ($cortes as $corte)
                                             <option value="{{ $corte->cod_corte }}">{{ $corte->nombre }}</option>
@@ -101,7 +101,7 @@
                                             <select id="calibre" class="form-select js-example-basic-single"
                                                 style="width: 65%" name="calibre" aria-label="Selecciona un calibre">
                                                 <option disabled selected>Seleccione Calibre</option>
-                                                <option value="boton">Nuevo calibre</option>
+                                                <option value="nuevo">Nuevo calibre</option>
                                                 @foreach ($calibres as $calibre)
                                                 <option value="{{ $calibre->cod_calib }}">{{ $calibre->nombre }}
                                                 </option>
@@ -142,7 +142,7 @@
                                         <select id="cFinal" class="form-select js-example-basic-single"
                                             style="width: 100%" name="cFinal" aria-label="Selecciona un corte final">
                                             <option disabled selected>Seleccione Corte Final</option>
-                                            <option value="boton">Nuevo corte</option>
+                                            <option value="nuevo">Nuevo corte</option>
 
                                             @foreach ($cortes as $corte)
                                             <option value="{{ $corte->cod_corte }}">{{ $corte->nombre }}</option>
@@ -155,7 +155,7 @@
                                         <select id="calidad" class="form-select js-example-basic-single"
                                             style="width: 100%" name="calidad" aria-label="Selecciona una calidad">
                                             <option disabled selected>Seleccione Calidad</option>
-                                            <option value="boton">Nuevo calidad</option>
+                                            <option value="nuevo">Nuevo calidad</option>
                                             @foreach ($calidades as $calidad)
                                             <option value="{{ $calidad->cod_cald }}">{{ $calidad->nombre }}</option>
                                             @endforeach
@@ -167,7 +167,7 @@
                                         <select id="destino" class="form-select js-example-basic-single"
                                             style="width: 100%" name="destino" aria-label="Selecciona un destino">
                                             <option disabled selected>Seleccione Destino</option>
-                                            <option value="boton">Nuevo destino</option>
+                                            <option value="nuevo">Nuevo destino</option>
                                             <option value="1">Destino 1</option>
                                             <option value="2">Destino 2</option>
                                             <option value="3">Destino 3</option>
@@ -189,94 +189,43 @@
                             <br />
                             <input type="hidden" name="idPlanilla" value="{{ $idPlanilla }}" />
 
-                            <script>
-                                $(document).ready(function () {
-                                    $('#cInicial, #cFinal').on('change', function () {
-                                        var cInicialEsBoton = $('#cInicial').val() === 'boton';
-                                        var cFinalEsBoton = $('#cFinal').val() === 'boton';
 
-                                        // Mostrar u ocultar el contenedor según las condiciones
-                                        if (cInicialEsBoton || cFinalEsBoton) {
-                                            $('#input-container-corte').fadeIn(300);
-                                        } else {
-                                            $('#input-container-corte').fadeOut(300);
-                                        }
-
-                                        console.log('Selección cambiada para cInicial o cFinal');
-                                    });
-
-                                    $('#calibre').on('change', function () {
-                                        var calibreEsBoton = $(this).val() === 'boton';
-
-                                        // Mostrar u ocultar el contenedor según las condiciones
-                                        if (calibreEsBoton) {
-                                            $('#input-container-calibre').fadeIn(300);
-                                        } else {
-                                            $('#input-container-calibre').fadeOut(300);
-                                        }
-
-                                        console.log('Selección cambiada para calibre');
-                                    });
-
-                                    // Repite el mismo patrón para otros campos como calidad, destino, etc.
-
-                                    $('#calidad').on('change', function () {
-                                        var calidadEsBoton = $(this).val() === 'boton';
-
-                                        // Mostrar u ocultar el contenedor según las condiciones
-                                        if (calidadEsBoton) {
-                                            $('#input-container-calidad').fadeIn(300);
-                                        } else {
-                                            $('#input-container-calidad').fadeOut(300);
-                                        }
-
-                                        console.log('Selección cambiada para calidad');
-                                    });
-
-                                    $('#destino').on('change', function () {
-                                        var destinoEsBoton = $(this).val() === 'boton';
-
-                                        // Mostrar u ocultar el contenedor según las condiciones
-                                        if (destinoEsBoton) {
-                                            $('#input-container-destino').fadeIn(300);
-                                        } else {
-                                            $('#input-container-destino').fadeOut(300);
-                                        }
-
-                                        console.log('Selección cambiada para destino');
-                                    });
-                                });
-                            </script>
 
                             <div class="row">
 
                                 <div id="input-container-calibre" class="col-md-6" style="display: none;">
 
                                     <h6>Nuevo Calibre</h6>
-                                    <input type="text" class="form-control" placeholder="Ingrese nuevo valor">
+                                    <input type="text" name="newCalibre" class="form-control"
+                                        placeholder="Ingrese nuevo valor">
 
                                 </div>
                                 <div id="input-container-calidad" class="col-md-6" style="display: none;">
 
                                     <h6>Nueva Calidad</h6>
-                                    <input type="text" class="form-control" placeholder="Ingrese nuevo valor">
+                                    <input type="text" name="newCalidad" class="form-control"
+                                        placeholder="Ingrese nuevo valor">
 
                                 </div>
                                 <div id="input-container-destino" class="col-md-6" style="display: none;">
 
                                     <h6>Nuevo Destino</h6>
-                                    <input type="text" class="form-control" placeholder="Ingrese nuevo valor">
+                                    <input type="text" name="newDestino" class="form-control"
+                                        placeholder="Ingrese nuevo valor">
 
                                 </div>
                                 <div id="input-container-corte" class="col-md-6" style="display: none;">
 
                                     <h6>Nuevo Corte</h6>
-                                    <input type="text" class="form-control" placeholder="Ingrese nuevo valor">
+                                    <input type="text" name="newCorte" class="form-control"
+                                        placeholder="Ingrese nuevo valor">
 
                                 </div>
 
 
                             </div>
+
+
                             <br>
                             <div class="row">
                                 <div class="col-md-6">
@@ -544,7 +493,64 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"></script>
 
+        <script>
+            $(document).ready(function () {
+                $('#cInicial, #cFinal').on('change', function () {
+                    var cInicialEsnuevo = $('#cInicial').val() === 'nuevo';
+                    var cFinalEsnuevo = $('#cFinal').val() === 'nuevo';
 
+                    // Mostrar u ocultar el contenedor según las condiciones
+                    if (cInicialEsnuevo || cFinalEsnuevo) {
+                        $('#input-container-corte').fadeIn(300);
+                    } else {
+                        $('#input-container-corte').fadeOut(300);
+                    }
+
+                    console.log('Selección cambiada para cInicial o cFinal');
+                });
+
+                $('#calibre').on('change', function () {
+                    var calibreEsnuevo = $(this).val() === 'nuevo';
+
+                    // Mostrar u ocultar el contenedor según las condiciones
+                    if (calibreEsnuevo) {
+                        $('#input-container-calibre').fadeIn(300);
+                    } else {
+                        $('#input-container-calibre').fadeOut(300);
+                    }
+
+                    console.log('Selección cambiada para calibre');
+                });
+
+                // Repite el mismo patrón para otros campos como calidad, destino, etc.
+
+                $('#calidad').on('change', function () {
+                    var calidadEsnuevo = $(this).val() === 'nuevo';
+
+                    // Mostrar u ocultar el contenedor según las condiciones
+                    if (calidadEsnuevo) {
+                        $('#input-container-calidad').fadeIn(300);
+                    } else {
+                        $('#input-container-calidad').fadeOut(300);
+                    }
+
+                    console.log('Selección cambiada para calidad');
+                });
+
+                $('#destino').on('change', function () {
+                    var destinoEsnuevo = $(this).val() === 'nuevo';
+
+                    // Mostrar u ocultar el contenedor según las condiciones
+                    if (destinoEsnuevo) {
+                        $('#input-container-destino').fadeIn(300);
+                    } else {
+                        $('#input-container-destino').fadeOut(300);
+                    }
+
+                    console.log('Selección cambiada para destino');
+                });
+            });
+        </script>
 </body>
 
 </html>

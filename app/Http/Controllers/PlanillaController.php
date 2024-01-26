@@ -62,9 +62,119 @@ class PlanillaController extends Controller
         $codCorteFin = $request->input('cFinal');
         $codProceso = $request->input('proceso');
         $codCalibre = $request->input('calibre');
+        $codDestino = $request->input('destino');
         $codCalidad = $request->input('calidad');
         $piezas = $request->input('piezas');
         $kilos = $request->input('kilos');
+
+
+        $newCalibre = $request->input('newCalibre');
+        $newCalidad = $request->input('newCalidad');
+        $newDestino = $request->input('newDestino');
+        $newCorte = $request->input('newCorte');
+
+        $error = false;
+        $errorDestino = $errorCorte = $errorCorteFin = $errorCalibre = $errorCalidad = null;
+
+        if ($codDestino === "nuevo") {
+            $existingDestino = DB::table('pst.dbo.destino')
+                ->select('nombre')
+                ->whereRaw("LOWER(REPLACE(nombre, ' ', '')) = ?", [strtolower(str_replace(' ', '', $newDestino))])
+                ->first();
+
+            if (!$existingDestino) {
+                $id_newDestino = DB::table('pst.dbo.destino')->insertGetId([
+                    'nombre' => $newDestino,
+                    'inactivo' => 0,
+                ]);
+                $codDestino = $id_newDestino;
+            } else {
+                $errorDestino = 'El destino ya existe en la base de datos';
+                $error = true;
+            }
+        }
+
+        if ($codCorteIni === "nuevo") {
+            $existingCorteIni = DB::table('pst.dbo.corte')
+                ->select('nombre')
+                ->whereRaw('LOWER(REPLACE(nombre, " ", "")) = ?', [strtolower(str_replace(' ', '', $newCorte))])
+                ->first();
+
+            if (!$existingCorteIni) {
+                $id_newCorteIni = DB::table('pst.dbo.corte')->insertGetId([
+                    'nombre' => $newCorte,
+                    'inactivo' => 0,
+                    'transito' => 1
+                ]);
+                $codCorteIni = $id_newCorteIni;
+            } else {
+                $errorCorte = 'El corte ya existe en la base de datos';
+                $error = true;
+            }
+        }
+
+        if ($codCorteFin === "nuevo") {
+            $existingCorteFin = DB::table('pst.dbo.corte')
+                ->select('nombre')
+                ->whereRaw('LOWER(REPLACE(nombre, " ", "")) = ?', [strtolower(str_replace(' ', '', $newCorte))])
+                ->first();
+
+            if (!$existingCorteFin) {
+                $id_newCorteFin = DB::table('pst.dbo.corte')->insertGetId([
+                    'nombre' => $newCorte,
+                    'inactivo' => 0,
+                    'transito' => 1
+                ]);
+                $codCorteFin = $id_newCorteFin;
+            } else {
+                $errorCorteFin = 'El corte ya existe en la base de datos';
+                $error = true;
+            }
+        }
+
+        if ($codCalibre === "nuevo") {
+            $existingCalibre = DB::table('pst.dbo.calibre')
+                ->select('nombre')
+                ->whereRaw('LOWER(REPLACE(nombre, " ", "")) = ?', [strtolower(str_replace(' ', '', $newCalibre))])
+                ->first();
+
+            if (!$existingCalibre) {
+                $id_newCalibre = DB::table('pst.dbo.calibre')->insertGetId([
+                    'nombre' => $newCalibre,
+                    'inactivo' => 0,
+                    'transito' => 1
+                ]);
+                $codCalibre = $id_newCalibre;
+            } else {
+                $errorCalibre = 'El calibre ya existe en la base de datos';
+                $error = true;
+            }
+        }
+
+        if ($codCalidad === "nuevo") {
+            $existingCalidad = DB::table('pst.dbo.calidad')
+                ->select('nombre')
+                ->whereRaw("LOWER(REPLACE(nombre, ' ', ' ')) = ?", [strtolower(str_replace(' ', '', $newCalidad))])
+                ->first();
+
+            if (!$existingCalidad) {
+                $id_newCalidad = DB::table('pst.dbo.calidad')->insertGetId([
+                    'nombre' => $newCalidad,
+                    'inactivo' => 0,
+                ]);
+                $codCalidad = $id_newCalidad;
+            } else {
+                $errorCalidad = 'La calidad ya existe en la base de datos';
+                $error = true;
+            }
+        }
+
+        
+        if ($error) {
+            return response()->json(['success' => false, 'mensaje' => 'Ha ocurrido un error.', 'errores' => compact('errorDestino', 'errorCorte', 'errorCorteFin', 'errorCalibre', 'errorCalidad')]);
+        }
+
+
 
 
         DB::table('pst.dbo.registro_planilla_pst')->insert([
