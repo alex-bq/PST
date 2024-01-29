@@ -58,3 +58,10 @@ entrega caja,pieza,kilos y a recepcion
 
 poder crear destinos,cortes,calibres y calidades
 
+
+
+--
+
+- semana 1 modificar registros  validaciones y mensajes
+- semana 2 validaciones y mensajes, permisos de los usuarios_pst
+- semana 3  y 4 vista de administrador y generar pdf

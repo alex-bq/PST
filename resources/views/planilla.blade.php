@@ -24,6 +24,12 @@
     <!-- Tu archivo de estilos CSS -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
     <script src="{{ asset('js/planilla.js') }}"></script>
+    <!-- Toastr CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+
+    <!-- Toastr JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
 </head>
 
 <body>
@@ -48,7 +54,12 @@
             </div>
         </div>
     </nav>
-    <div class="container-fluid"><a href="{{ url('/inicio') }}" class="btn btn-secondary mt-3">Volver</a></div>
+    <br>
+    <div class="container-fluid">
+        <a href="{{ url('/inicio') }}" class="botonAtras">
+            <img src="{{ asset('image/atras.svg') }}" alt="atras" style="height: 35px;">
+        </a>
+    </div>
 
     <div class="container-fluid align-text">
 
@@ -171,9 +182,9 @@
                                             style="width: 100%" name="destino" aria-label="Selecciona un destino">
                                             <option disabled selected>Seleccione Destino</option>
                                             <option value="nuevo">Nuevo destino</option>
-                                            <option value="1">Destino 1</option>
-                                            <option value="2">Destino 2</option>
-                                            <option value="3">Destino 3</option>
+                                            @foreach ($destinos as $destino)
+                                            <option value="{{ $destino->cod_destino }}">{{ $destino->nombre }}</option>
+                                            @endforeach
                                         </select>
                                     </div>
 
@@ -482,7 +493,7 @@
                                         <td>{{$i->cInicial}}</td>
                                         <td>{{$i->cFinal}}</td>
                                         <td>{{$i->proceso}}</td>
-                                        <td>xx</td>
+                                        <td>{{$i->destino}}</td>
                                         <td>{{$i->calibre}}</td>
                                         <td>{{$i->calidad}}</td>
                                         <td>{{$i->piezas}}</td>

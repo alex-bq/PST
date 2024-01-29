@@ -22,11 +22,30 @@ FROM            dbo.planillas_pst LEFT OUTER JOIN
 
 v_registro_planilla_pst
 
-SELECT        dbo.registro_planilla_pst.cod_planilla, ini.nombre AS cInicial, fin.nombre AS cFinal, dbo.subproceso.nombre AS proceso, dbo.calibre.nombre AS calibre, dbo.calidad.nombre AS calidad, dbo.registro_planilla_pst.piezas, 
-                         dbo.registro_planilla_pst.kilos, dbo.registro_planilla_pst.guardado
-FROM            dbo.registro_planilla_pst LEFT OUTER JOIN
-                         dbo.corte AS ini ON dbo.registro_planilla_pst.cod_corte_ini = ini.cod_corte LEFT OUTER JOIN
-                         dbo.corte AS fin ON dbo.registro_planilla_pst.cod_corte_fin = fin.cod_corte LEFT OUTER JOIN
-                         dbo.subproceso ON dbo.registro_planilla_pst.cod_proceso = dbo.subproceso.cod_sproceso LEFT OUTER JOIN
-                         dbo.calibre ON dbo.registro_planilla_pst.cod_calibre = dbo.calibre.cod_calib LEFT OUTER JOIN
-                         dbo.calidad ON dbo.registro_planilla_pst.cod_calidad = dbo.calidad.cod_cald
+CREATE VIEW v_registro_planilla_pst AS 
+
+SELECT
+    rp.cod_planilla,
+    ini.nombre AS cInicial,
+    fin.nombre AS cFinal,
+    sp.nombre AS proceso,
+	de.nombre AS destino,
+    c.nombre AS calibre,
+    ca.nombre AS calidad,
+    rp.piezas,
+    rp.kilos,
+    rp.guardado
+FROM
+    dbo.registro_planilla_pst AS rp
+LEFT OUTER JOIN
+    dbo.corte AS ini ON rp.cod_corte_ini = ini.cod_corte
+LEFT OUTER JOIN
+    dbo.corte AS fin ON rp.cod_corte_fin = fin.cod_corte
+LEFT OUTER JOIN
+    dbo.subproceso AS sp ON rp.cod_proceso = sp.cod_sproceso
+LEFT OUTER JOIN
+    dbo.calibre AS c ON rp.cod_calibre = c.cod_calib
+LEFT OUTER JOIN
+    dbo.calidad AS ca ON rp.cod_calidad = ca.cod_cald
+LEFT OUTER JOIN 
+	dbo.destino AS de ON rp.cod_destino = de.cod_destino;

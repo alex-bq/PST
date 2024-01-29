@@ -4,6 +4,31 @@ $(document).ready(function () {
         width: "resolve",
         theme: "bootstrap4",
     });
+    toastr.options = {
+        positionClass: "toast-position",
+        containerId: "toast-container",
+    };
+    var newDestinoCreated = sessionStorage.getItem("newDestinoCreated");
+    var newCorteCreated = sessionStorage.getItem("newCorteCreated");
+    var newCalibreCreated = sessionStorage.getItem("newCalibreCreated");
+    var newCalidadCreated = sessionStorage.getItem("newCalidadCreated");
+
+    if (newDestinoCreated === "true") {
+        toastr.info("Nuevo destino creado");
+        sessionStorage.removeItem("newDestinoCreated");
+    }
+    if (newCorteCreated === "true") {
+        toastr.info("Nuevo corte creado");
+        sessionStorage.removeItem("newCorteCreated");
+    }
+    if (newCalibreCreated === "true") {
+        toastr.info("Nuevo calibre creado");
+        sessionStorage.removeItem("newCalibreCreated");
+    }
+    if (newCalidadCreated === "true") {
+        toastr.info("Nueva calidad creada");
+        sessionStorage.removeItem("newCalidadCreated");
+    }
 
     $("#formPrincipal").submit(function (event) {
         var cInicial = $('select[name="cInicial"]').val();
@@ -20,11 +45,6 @@ $(document).ready(function () {
         var newDestino = $('input[name="newDestino"]').val();
         var newCalidad = $('input[name="newCalidad"]').val();
 
-        // var corteVisible = $("#input-container-destino").is(":visible");
-        // var calibreVisible = $("#input-container-calibre").is(":visible");
-        // var destinoVisible = $("#input-container-destino").is(":visible");
-        // var calidadVisible = $("#input-container-calidad").is(":visible");
-
         if (
             !cInicial ||
             !proceso ||
@@ -39,7 +59,7 @@ $(document).ready(function () {
             (calibre === "nuevo" && !newCalibre) ||
             (calidad === "nuevo" && !newCalidad)
         ) {
-            alert(
+            toastr.error(
                 "Por favor, completa todos los campos antes de enviar el formulario."
             );
             event.preventDefault();
@@ -59,16 +79,53 @@ $(document).ready(function () {
                             newCalibre ||
                             newCalidad
                         ) {
-                            limpiarFormulario();
+                            if (newDestino) {
+                                sessionStorage.setItem(
+                                    "newDestinoCreated",
+                                    "true"
+                                );
+                            }
+                            if (newCorte) {
+                                sessionStorage.setItem(
+                                    "newCorteCreated",
+                                    "true"
+                                );
+                            }
+                            if (newCalibre) {
+                                sessionStorage.setItem(
+                                    "newCalibreCreated",
+                                    "true"
+                                );
+                            }
+                            if (newCalidad) {
+                                sessionStorage.setItem(
+                                    "newCalidadCreated",
+                                    "true"
+                                );
+                            }
+                            location.reload(true);
+                            toastr.success("Registro ingresado");
                         }
 
                         actualizarTabla(response.planilla);
-                    } else {
-                        alert("Error al insertar el dato: " + response.mensaje);
+                        toastr.success("Registro ingresado");
+                    } else if (response.errores) {
+                        if (response.errores.errorDestino) {
+                            toastr.error(response.errores.errorDestino);
+                        }
+                        if (response.errores.errorCorte) {
+                            toastr.error(response.errores.errorCorte);
+                        }
+                        if (response.errores.errorCalibre) {
+                            toastr.error(response.errores.errorCalibre);
+                        }
+                        if (response.errores.errorCalidad) {
+                            toastr.error(response.errores.errorCalidad);
+                        }
                     }
                 },
                 error: function () {
-                    alert("Error al procesar la solicitud");
+                    toastr.error("Error al procesar la solicitud");
                 },
             });
         }
@@ -93,7 +150,9 @@ $(document).ready(function () {
                 "<td>" +
                 registro.proceso +
                 "</td>" +
-                "<td>xx</td>" +
+                "<td>" +
+                registro.destino +
+                "</td>" +
                 "<td>" +
                 registro.calibre +
                 "</td>" +
@@ -252,7 +311,9 @@ document.addEventListener("DOMContentLoaded", function () {
                 dataType: "json",
                 success: function (response) {
                     if (response.success) {
-                        alert("CORRECTO!!!!!");
+                        toastr.success(
+                            "Se actualizo la planilla correctamente"
+                        );
                         var currentUrl = window.location.href;
                         var newUrl;
 
@@ -264,15 +325,15 @@ document.addEventListener("DOMContentLoaded", function () {
 
                         window.location.href = newUrl;
                     } else {
-                        alert("Error al insertar el dato");
+                        toastr.error("Error al insertar el dato");
                     }
                 },
                 error: function () {
-                    alert("Error al procesar la solicitud");
+                    toastr.error("Error al procesar la solicitud");
                 },
             });
         } else {
-            alert("No se han realizado cambios en el formulario.");
+            toastr.error("No se han realizado cambios en el formulario.");
         }
     });
 });
