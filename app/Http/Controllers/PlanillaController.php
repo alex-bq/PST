@@ -258,17 +258,19 @@ class PlanillaController extends Controller
             $dotacion = $request->input('dotacion');
             $observacion = $request->input('observacion');
 
-            DB::table('pst.dbo.detalle_planilla_pst')->insert([
-                'cod_planilla' => $request->input('idPlanilla'),
-                'cajas_entrega' => $cajasEntrega,
-                'kilos_entrega' => $kilosEntrega,
-                'piezas_entrega' => $piezasEntrega,
-                'cajas_recepcion' => $cajasRecepcion,
-                'kilos_recepcion' => $kilosRecepcion,
-                'piezas_recepcion' => $piezasRecepcion,
-                'dotacion' => $dotacion,
-                'observacion' => $observacion,
-            ]);
+            DB::table('pst.dbo.detalle_planilla_pst')
+                ->where('cod_planilla', $request->input('idPlanilla'))
+                ->update([
+                    'cajas_entrega' => $cajasEntrega,
+                    'kilos_entrega' => $kilosEntrega,
+                    'piezas_entrega' => $piezasEntrega,
+                    'cajas_recepcion' => $cajasRecepcion,
+                    'kilos_recepcion' => $kilosRecepcion,
+                    'piezas_recepcion' => $piezasRecepcion,
+                    'dotacion' => $dotacion,
+                    'observacion' => $observacion,
+                ]);
+
 
             DB::table('pst.dbo.planillas_pst')
                 ->where('cod_planilla', $request->input('idPlanilla'))
@@ -278,10 +280,13 @@ class PlanillaController extends Controller
                 ->where('cod_planilla', $request->input('idPlanilla'))
                 ->update(['guardado' => 1]);
 
-            return redirect('/inicio');
+            $_SESSION['planillaSave'] = true;
+
+            return response()->json(['success' => true]);
         } catch (QueryException $e) {
             // Manejar la excepción de la consulta SQL
-            return redirect('/inicio')->with('error', 'Error al guardar la planilla.');
+            $errorMessage = $e->getMessage();
+            return response()->json(['success' => false, 'error' => $errorMessage]);
         }
     }
 

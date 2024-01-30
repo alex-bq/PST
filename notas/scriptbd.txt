@@ -60,12 +60,27 @@ CREATE TABLE dbo.planillas_pst (
     UNIQUE(cod_planilla) 
 );
 
+CREATE TABLE dbo.detalle_planilla_pst (
+    cod_detalle INT PRIMARY KEY IDENTITY(1,1),
+    cod_planilla SMALLINT UNIQUE,  -- Clave externa única
+    cajas_entrega INT,
+    kilos_entrega FLOAT,
+    piezas_entrega INT,
+    cajas_recepcion INT,
+    kilos_recepcion FLOAT,
+    piezas_recepcion INT,
+    dotacion INT,
+    observacion NVARCHAR(MAX),
+    FOREIGN KEY (cod_planilla) REFERENCES dbo.planillas_pst(cod_planilla)
+);
+
 CREATE TABLE dbo.registro_planilla_pst (
     cod_reg SMALLINT PRIMARY KEY IDENTITY(1,1),
     cod_planilla SMALLINT,
     cod_corte_ini BIGINT,
     cod_corte_fin BIGINT,
     cod_proceso NUMERIC(18,0),
+    cod_destino NUMERIC(18,0),
     cod_calibre SMALLINT,
     cod_calidad SMALLINT,
     piezas NUMERIC(18,0),
@@ -90,18 +105,16 @@ CREATE TABLE dbo.destino (
     inactivo INT
 );
 
-CREATE TABLE dbo.detalle_planilla_pst (
-    cod_detalle INT PRIMARY KEY IDENTITY(1,1),
-    cod_planilla SMALLINT,
-    cajas_entrega INT,
-    kilos_entrega FLOAT,
-    piezas_entrega INT,
-    cajas_recepcion INT,
-    kilos_recepcion FLOAT,
-    piezas_recepcion INT,
-    dotacion INT,
-    observacion NVARCHAR(MAX)
-);
+CREATE TRIGGER trg_AfterInsert_planillas_pst
+ON dbo.planillas_pst
+AFTER INSERT
+AS
+BEGIN
+    INSERT INTO dbo.detalle_planilla_pst (cod_planilla)
+    SELECT cod_planilla
+    FROM inserted;
+END;
+
 
 
 INSERT INTO dbo.roles (nombre_rol)

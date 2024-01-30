@@ -6,23 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Página de Inicio</title>
 
-    <!-- Incluye Bootstrap CSS y Select2 CSS -->
+    <!-- Estilos CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <link rel="stylesheet" href="{{ asset('css/index.css') }}">
 
-
-    <!-- Incluye jQuery y Bootstrap JS -->
+    <!-- Scripts JS -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-
-    <!-- Incluye Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-    <!-- Tu archivo de estilos CSS -->
-    <link rel="stylesheet" href="{{ asset('css/index.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{ asset('js/index.js') }}"></script>
+
+
+
+
 
 </head>
 
@@ -51,6 +52,7 @@
             </div>
         </div>
     </nav>
+
     <div class="container">
 
 
@@ -368,6 +370,9 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+
+
+
     <script>
         $(function () {
             $(".accordion-titulo").click(function (e) {
@@ -392,6 +397,9 @@
         var baseUrl = "{{ url('/') }}";
 
         $(document).ready(function () {
+
+
+
 
 
             $('#formularioPlanilla').submit(function (event) {
@@ -442,6 +450,12 @@
     </script>
     <script>
         $(document).ready(function () {
+            var planillaSaved = sessionStorage.getItem("planillaSaved");
+
+            if (planillaSaved === "true") {
+                toastr.success("Planilla Guardada correctamente");
+                sessionStorage.removeItem("planillaSaved");
+            }
 
             // Asociar el evento blur al campo de lote
             $('#codLote').on('blur', function () {

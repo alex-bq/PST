@@ -30,7 +30,12 @@
     <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
+    <script>
+    var baseUrl = "{{ url('/') }}";
+    </script>
+
 </head>
+
 
 <body>
     <nav class="navbar sticky-top navbar-expand" style="background-color: #fdfdfd;">
@@ -448,7 +453,8 @@
                             </div>
                             <input type="hidden" name="idPlanilla" value="{{ $idPlanilla }}" />
 
-                            <button type="submit" class="btn btn-primary">Guardar Planilla</button>
+                            <button type="submit" class="btn btn-primary" id='btnGuardarPlanilla'>Guardar
+                                Planilla</button>
                         </form>
 
 
@@ -595,8 +601,7 @@
                         $('#input-container-destino').fadeOut(300);
                     }
 
-                    console.log('Selección cambiada para destino');
-                });
+                    console.log('Selección cambiada tin              });
             });
         </script>
 </body>

@@ -12,6 +12,7 @@ $(document).ready(function () {
     var newCorteCreated = sessionStorage.getItem("newCorteCreated");
     var newCalibreCreated = sessionStorage.getItem("newCalibreCreated");
     var newCalidadCreated = sessionStorage.getItem("newCalidadCreated");
+    var planillaModified = sessionStorage.getItem("planillaModified");
 
     if (newDestinoCreated === "true") {
         toastr.info("Nuevo destino creado");
@@ -28,6 +29,10 @@ $(document).ready(function () {
     if (newCalidadCreated === "true") {
         toastr.info("Nueva calidad creada");
         sessionStorage.removeItem("newCalidadCreated");
+    }
+    if (planillaModified === "true") {
+        toastr.success("Se actualizo la planilla correctamente");
+        sessionStorage.removeItem("planillaModified");
     }
 
     $("#formPrincipal").submit(function (event) {
@@ -227,6 +232,7 @@ $(document).ready(function () {
 function limpiarFormulario() {
     document.getElementById("formPrincipal").reset();
     $(".js-example-basic-single").val(null).trigger("change");
+    toastr.info("Formulario impiado");
 }
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -302,7 +308,6 @@ document.addEventListener("DOMContentLoaded", function () {
         var modifiedFields = getModifiedFields();
         modifiedFields._token = $('meta[name="csrf-token"]').attr("content");
 
-        // Verificar si hay campos modificados
         if (Object.keys(modifiedFields).length > 0) {
             $.ajax({
                 type: "POST",
@@ -311,9 +316,8 @@ document.addEventListener("DOMContentLoaded", function () {
                 dataType: "json",
                 success: function (response) {
                     if (response.success) {
-                        toastr.success(
-                            "Se actualizo la planilla correctamente"
-                        );
+                        sessionStorage.setItem("planillaModified", "true");
+
                         var currentUrl = window.location.href;
                         var newUrl;
 
@@ -335,5 +339,31 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             toastr.error("No se han realizado cambios en el formulario.");
         }
+    });
+
+    $("#btnGuardarPlanilla").on("click", function (event) {
+        event.preventDefault();
+
+        $.ajax({
+            type: "POST",
+            url: $("#formEntrega").attr("action"),
+            data: $("#formEntrega").serialize(),
+            dataType: "json",
+            success: function (response) {
+                if (response.success) {
+                    sessionStorage.setItem("planillaSaved", "true");
+
+                    window.location.href = baseUrl + "/inicio";
+                } else {
+                    toastr.error(
+                        "Error al guardar la planilla:",
+                        response.error
+                    );
+                }
+            },
+            error: function (xhr, status, error) {
+                toastr.error("Error en la solicitud:", error);
+            },
+        });
     });
 });

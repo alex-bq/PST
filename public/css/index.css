@@ -30,7 +30,19 @@ body {
 }
 
 
-
+/* Estilo personalizado para la posición del toast */
+.toast-position {
+	position: fixed;
+	top: 80px;
+	right: 10px;
+  }
+  
+  /* Estilo personalizado para el contenedor del toast */
+  #toast-container {
+	width: 300px;
+	height: auto;
+	overflow: hidden;
+  }
 
 
 
