@@ -74,7 +74,7 @@ poder crear destinos,cortes,calibres y calidades
 - filtro de planilla asc y desc
 - mover salas a dotacion y sala se guarda en detalle_planilla 
 - vista para planillas ya guardadas desde inicio
-- 
+- permisos para cada usuario 
 
 ---- detalles
 
