@@ -66,6 +66,52 @@ poder crear destinos,cortes,calibres y calidades
 - semana 2 validaciones y mensajes, permisos de los usuarios_pst
 - semana 3  y 4 vista de administrador y generar pdf
 
+
+
+SELECT TOP 1000 [N_Ano]
+      ,[N_Mes]
+      ,[N_FechaRecepcion]
+      ,[N_Lote]
+      ,[N_Empresa]
+      ,[N_MMPPOrigen]
+      ,[N_MPPDestino]
+      ,[N_FechaTransformacion]
+      ,[N_FechaElaboracion]
+      ,[N_FechaCosecha]
+      ,[N_FechaVencimiento]
+      ,[N_PlantaSG]
+      ,[N_TipoProceso]
+      ,[N_EstadoMMPP]
+      ,[N_Especie]
+      ,[N_Proveedor]
+      ,[N_CodigoCentro]
+      ,[N_Centro]
+      ,[N_Jaulas]
+      ,[N_GuiaDespacho]
+      ,[N_LotesRE]
+      ,[Restriccion]
+      ,[N_DeclaracionJurada]
+      ,[N_Observaciones]
+      ,[N_Supervisor]
+      ,[N_Cajas]
+      ,[N_Piezas]
+      ,[N_KgProceso]
+      ,[inactivo]
+      ,[IdLote]
+      ,[N_CertfASC]
+      ,[N_NumCerfASC]
+      ,[N_PlantaFaenamiento]
+      ,[N_BapEstrellas]
+      ,[N_Declaracion]
+      ,[TEXTO1]
+      ,[Bandejas]
+      ,[N_Fecha#]
+  FROM [bdsystem].[dbo].[v_registro_lotes]
+  where [N_Ano] = 2024;
+
+
+  
+
 --- puntos importantes para la funcionalidad
 
 - subtotal por corte y total de kilos y piezas de una planilla y guardar en detalle planilla
