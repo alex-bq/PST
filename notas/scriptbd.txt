@@ -1,14 +1,15 @@
 -- Drops
 DROP TABLE dbo.registro_planilla_pst;
+DROP TABLE dbo.detalle_planilla_pst;
 DROP TABLE dbo.planillas_pst;
 DROP TABLE dbo.usuarios_pst;
 DROP TABLE dbo.corte;
-DROP TABLE dbo.subproceso; 
+DROP TABLE dbo.sala; 
 DROP TABLE dbo.calibre;
 DROP TABLE dbo.calidad;
 DROP TABLE dbo.roles;
 DROP TABLE dbo.destino; 
-DROP TABLE dbo.detalle_planilla_pst;
+
 
 
 -- Tables
@@ -19,8 +20,8 @@ CREATE TABLE dbo.corte (
     transito INT
 );
 
-CREATE TABLE dbo.subproceso (
-    cod_sproceso INT PRIMARY KEY IDENTITY(1,1),
+CREATE TABLE dbo.sala (
+    cod_sala INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(255),
     inactivo INT
 );
@@ -131,12 +132,15 @@ VALUES
     ('TRIM D', 0, 1),
     ('TRIM E', 0, 1);
 
-INSERT INTO dbo.subproceso ( nombre, inactivo)
+INSERT INTO dbo.sala ( nombre, inactivo)
 VALUES
-    ('CONGELADO', 0),
-    ('AHUMADO', 0),
-    ('ENFRIADO REFRIGERADO', 0),
-    ('PESCA BLANCA', 0);
+    ('SALA 1', 0),
+    ('SALA 2', 0),
+    ('SALA 3', 0),
+    ('SALA 4', 0),
+	('SALA 5', 0),
+	('SALA 6', 0),
+	('SALA 7', 0);
 
 INSERT INTO dbo.calibre ( nombre, inactivo, transito)
 VALUES
@@ -184,7 +188,7 @@ INSERT INTO dbo.registro_planilla_pst (
     cod_planilla,
     cod_corte_ini,
     cod_corte_fin,
-    cod_proceso,
+    cod_sala,
     cod_calibre,
     cod_calidad,
     piezas,
