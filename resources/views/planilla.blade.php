@@ -100,10 +100,10 @@
                                 <div class="col-md-6">
                                     <h6>Corte Inicial</h6>
                                     <div class="form-group">
-                                        <select id="cInicial" class="form-select js-example-basic-single "
+                                        <select id="cInicial" class="form-select select2 "
                                             style="width: 100%" name="cInicial"
                                             aria-label="Selecciona un corte inicial">
-                                            <option disabled selected>Seleccione Corte Inicial</option>
+                                            <option></option>
                                             <option value="nuevo">Nuevo corte</option>
 
                                             @foreach ($cortes as $corte)
@@ -117,9 +117,9 @@
                                     <h6>Calibre</h6>
                                     <div class="form-group">
                                         <div class="input-group">
-                                            <select id="calibre" class="form-select js-example-basic-single"
-                                                style="width: 65%" name="calibre" aria-label="Selecciona un calibre">
-                                                <option disabled selected>Seleccione Calibre</option>
+                                            <select id="calibre" class="form-select select2"
+                                                style="width: 65%" name="calibre" aria-label="Selecciona un calibre" >
+                                                <option></option>
                                                 <option value="nuevo">Nuevo calibre</option>
                                                 @foreach ($calibres as $calibre)
                                                 <option value="{{ $calibre->cod_calib }}">{{ $calibre->nombre }}
@@ -139,9 +139,9 @@
 
                                     <h6>Linea Proceso</h6>
                                     <div class="form-group">
-                                        <select id="proceso" class="form-select js-example-basic-single"
+                                        <select id="proceso" class="form-select select2"
                                             style="width: 100%" name="proceso" aria-label="Selecciona un proceso">
-                                            <option disabled selected>Seleccione Linea</option>
+                                            <option></option>
                                             @foreach ($procesos as $proceso)
                                             <option value="{{ $proceso->cod_sproceso }}">{{ $proceso->nombre }}</option>
                                             @endforeach
@@ -158,9 +158,9 @@
                                 <div class="col-md-6">
                                     <h6>Corte Final</h6>
                                     <div class="form-group">
-                                        <select id="cFinal" class="form-select js-example-basic-single"
+                                        <select id="cFinal" class="form-select select2"
                                             style="width: 100%" name="cFinal" aria-label="Selecciona un corte final">
-                                            <option disabled selected>Seleccione Corte Final</option>
+                                            <option></option>
                                             <option value="nuevo">Nuevo corte</option>
 
                                             @foreach ($cortes as $corte)
@@ -171,9 +171,9 @@
 
                                     <h6>Calidad</h6>
                                     <div class="form-group">
-                                        <select id="calidad" class="form-select js-example-basic-single"
+                                        <select id="calidad" class="form-select select2"
                                             style="width: 100%" name="calidad" aria-label="Selecciona una calidad">
-                                            <option disabled selected>Seleccione Calidad</option>
+                                            <option></option>
                                             <option value="nuevo">Nuevo calidad</option>
                                             @foreach ($calidades as $calidad)
                                             <option value="{{ $calidad->cod_cald }}">{{ $calidad->nombre }}</option>
@@ -183,9 +183,9 @@
 
                                     <h6>Destino</h6>
                                     <div class="form-group">
-                                        <select id="destino" class="form-select js-example-basic-single"
+                                        <select id="destino" class="form-select select2"
                                             style="width: 100%" name="destino" aria-label="Selecciona un destino">
-                                            <option disabled selected>Seleccione Destino</option>
+                                            <option></option>
                                             <option value="nuevo">Nuevo destino</option>
                                             @foreach ($destinos as $destino)
                                             <option value="{{ $destino->cod_destino }}">{{ $destino->nombre }}</option>
@@ -354,7 +354,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="codTurno">Turno</label>
-                                            <select class="form-select js-example-basic-single" style="width: 100%"
+                                            <select class="form-select select2" style="width: 100%"
                                                 name="turno">
 
                                                 @foreach ($turnos as $turno)
@@ -372,7 +372,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="codSupervisor">Supervisor</label>
-                                            <select class="form-select js-example-basic-single" style="width: 100%"
+                                            <select class="form-select select2" style="width: 100%"
                                                 name="supervisor" @if(session('user')['cod_rol']==2) disabled @endif>
 
                                                 @foreach ($supervisores as $supervisor)
@@ -388,7 +388,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="codPlanillero">Planillero</label>
-                                            <select class="form-select js-example-basic-single" style="width: 100%"
+                                            <select class="form-select select2" style="width: 100%"
                                                 name="planillero">
 
                                                 @foreach ($planilleros as $planillero)
@@ -601,7 +601,8 @@
                         $('#input-container-destino').fadeOut(300);
                     }
 
-                    console.log('Selección cambiada tin              });
+                    console.log('Selección cambiada para destino');
+                });
             });
         </script>
 </body>

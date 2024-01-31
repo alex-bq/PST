@@ -1,6 +1,35 @@
 $(document).ready(function () {
-    $(".js-example-basic-single").select2({
-        placeholder: "Select an option",
+    $(".select2").select2({
+        width: "resolve",
+        theme: "bootstrap4",
+    });
+    $("#cInicial").select2({
+        placeholder : "Seleccione Corte",
+        width: "resolve",
+        theme: "bootstrap4",
+    });
+    $("#cFinal").select2({
+        placeholder : "Seleccione Corte",
+        width: "resolve",
+        theme: "bootstrap4",
+    });
+    $("#calibre").select2({
+        placeholder : "Seleccione Calibre",
+        width: "resolve",
+        theme: "bootstrap4",
+    });
+    $("#calidad").select2({
+        placeholder : "Seleccione Calidad",
+        width: "resolve",
+        theme: "bootstrap4",
+    });
+    $("#proceso").select2({
+        placeholder : "Seleccione Proceso",
+        width: "resolve",
+        theme: "bootstrap4",
+    });
+    $("#destino").select2({
+        placeholder : "Seleccione Destino",
         width: "resolve",
         theme: "bootstrap4",
     });
@@ -109,7 +138,6 @@ $(document).ready(function () {
                                 );
                             }
                             location.reload(true);
-                            toastr.success("Registro ingresado");
                         }
 
                         actualizarTabla(response.planilla);
@@ -231,7 +259,12 @@ $(document).ready(function () {
 
 function limpiarFormulario() {
     document.getElementById("formPrincipal").reset();
-    $(".js-example-basic-single").val(null).trigger("change");
+    $("#cInicial").val(null).trigger("change");
+    $("#cFinal").val(null).trigger("change");
+    $("#calibre").val(null).trigger("change");
+    $("#calidad").val(null).trigger("change");
+    $("#proceso").val(null).trigger("change");
+    $("#destino").val(null).trigger("change");
     toastr.info("Formulario impiado");
 }
 
