@@ -12,6 +12,8 @@
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet"
         href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@x.x.x/dist/select2-bootstrap4.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="path/to/font-awesome/css/font-awesome.min.css">
 
 
     <!-- Incluye jQuery y Bootstrap JS -->
@@ -31,7 +33,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
     <script>
-    var baseUrl = "{{ url('/') }}";
+        var baseUrl = "{{ url('/') }}";
     </script>
 
 </head>
@@ -99,10 +101,20 @@
 
                                 <div class="col-md-6">
                                     <h6>Corte Inicial</h6>
-                                    <div class="form-group">
-                                        <select id="cInicial" class="form-select select2 "
-                                            style="width: 100%" name="cInicial"
-                                            aria-label="Selecciona un corte inicial">
+                                    <div id="input-nuevo-corteIni" style="display: none;">
+                                        <div class="input-group position-relative d-inline-flex align-items-center">
+                                            <input placeholder="Nuevo valor" class="form-control " id="newCorteIni"
+                                                name="newCorteIni" formControlName="textInput" type="text" value="">
+                                            <i class="bi bi-x-lg position-absolute"
+                                                style="right: 10px; cursor: pointer; z-index: 100; top: 50%; transform: translateY(-50%);"
+                                                onclick='$("#cInicial").val(null).trigger("change"); $("#newCorteIni").val("");'>
+
+                                            </i>
+                                        </div>
+                                    </div>
+                                    <div id="input-corteIni" class="form-group">
+                                        <select id="cInicial" class="form-select select2 " style="width: 100%"
+                                            name="cInicial" aria-label="Selecciona un corte inicial">
                                             <option></option>
                                             <option value="nuevo">Nuevo corte</option>
 
@@ -115,10 +127,23 @@
 
 
                                     <h6>Calibre</h6>
-                                    <div class="form-group">
+                                    <div id="input-nuevo-calibre" style="display: none;">
+                                        <div class="input-group position-relative d-inline-flex align-items-center">
+                                            <input placeholder="Nuevo valor" class="form-control " id="newCalibre"
+                                                name="newCalibre" formControlName="textInput" type="text" value="">
+                                            <i class="bi bi-x-lg position-absolute"
+                                                style="right: 10px; cursor: pointer; z-index: 100; top: 50%; transform: translateY(-50%);"
+                                                onclick='$("#calibre").val(null).trigger("change"); $("#newCalibre").val("");'>
+
+                                            </i>
+                                        </div>
+                                    </div>
+
+
+                                    <div id="input-calibre" class="form-group">
                                         <div class="input-group">
-                                            <select id="calibre" class="form-select select2"
-                                                style="width: 65%" name="calibre" aria-label="Selecciona un calibre" >
+                                            <select id="calibre" class="form-select select2" style="width: 65%"
+                                                name="calibre" aria-label="Selecciona un calibre">
                                                 <option></option>
                                                 <option value="nuevo">Nuevo calibre</option>
                                                 @foreach ($calibres as $calibre)
@@ -137,13 +162,13 @@
 
 
 
-                                    <h6>Linea Proceso</h6>
+                                    <h6>Sala </h6>
                                     <div class="form-group">
-                                        <select id="proceso" class="form-select select2"
-                                            style="width: 100%" name="proceso" aria-label="Selecciona un proceso">
+                                        <select id="sala" class="form-select select2" style="width: 100%" name="sala"
+                                            aria-label="Selecciona un sala">
                                             <option></option>
-                                            @foreach ($procesos as $proceso)
-                                            <option value="{{ $proceso->cod_sproceso }}">{{ $proceso->nombre }}</option>
+                                            @foreach ($salas as $sala)
+                                            <option value="{{ $sala->cod_sala }}">{{ $sala->nombre }}</option>
                                             @endforeach
                                         </select>
                                     </div>
@@ -157,9 +182,20 @@
 
                                 <div class="col-md-6">
                                     <h6>Corte Final</h6>
-                                    <div class="form-group">
-                                        <select id="cFinal" class="form-select select2"
-                                            style="width: 100%" name="cFinal" aria-label="Selecciona un corte final">
+                                    <div id="input-nuevo-corteFin" style="display: none;">
+                                        <div class="input-group position-relative d-inline-flex align-items-center">
+                                            <input placeholder="Nuevo valor" class="form-control " id="newCorteFin"
+                                                name="newCorteFin" formControlName="textInput" type="text" value="">
+                                            <i class="bi bi-x-lg position-absolute"
+                                                style="right: 10px; cursor: pointer; z-index: 100; top: 50%; transform: translateY(-50%);"
+                                                onclick='$("#cFinal").val(null).trigger("change"); $("#newCorteFin").val("");'>
+
+                                            </i>
+                                        </div>
+                                    </div>
+                                    <div id="input-corteFin" class="form-group">
+                                        <select id="cFinal" class="form-select select2" style="width: 100%"
+                                            name="cFinal" aria-label="Selecciona un corte final">
                                             <option></option>
                                             <option value="nuevo">Nuevo corte</option>
 
@@ -170,9 +206,20 @@
                                     </div>
 
                                     <h6>Calidad</h6>
-                                    <div class="form-group">
-                                        <select id="calidad" class="form-select select2"
-                                            style="width: 100%" name="calidad" aria-label="Selecciona una calidad">
+                                    <div id="input-nuevo-calidad" style="display: none;">
+                                        <div class="input-group position-relative d-inline-flex align-items-center">
+                                            <input placeholder="Nuevo valor" class="form-control " id="newCalidad"
+                                                name="newCalidad" formControlName="textInput" type="text" value="">
+                                            <i class="bi bi-x-lg position-absolute"
+                                                style="right: 10px; cursor: pointer; z-index: 100; top: 50%; transform: translateY(-50%);"
+                                                onclick='$("#calidad").val(null).trigger("change"); $("#newCalidad").val("");'>
+
+                                            </i>
+                                        </div>
+                                    </div>
+                                    <div id="input-calidad" class="form-group">
+                                        <select id="calidad" class="form-select select2" style="width: 100%"
+                                            name="calidad" aria-label="Selecciona una calidad">
                                             <option></option>
                                             <option value="nuevo">Nuevo calidad</option>
                                             @foreach ($calidades as $calidad)
@@ -182,9 +229,20 @@
                                     </div>
 
                                     <h6>Destino</h6>
-                                    <div class="form-group">
-                                        <select id="destino" class="form-select select2"
-                                            style="width: 100%" name="destino" aria-label="Selecciona un destino">
+                                    <div id="input-nuevo-destino" style="display: none;">
+                                        <div class="input-group position-relative d-inline-flex align-items-center">
+                                            <input placeholder="Nuevo valor" class="form-control " id="newDestino"
+                                                name="newDestino" formControlName="textInput" type="text" value="">
+                                            <i class="bi bi-x-lg position-absolute"
+                                                style="right: 10px; cursor: pointer; z-index: 100; top: 50%; transform: translateY(-50%);"
+                                                onclick='$("#destino").val(null).trigger("change"); $("#newDestino").val("");'>
+
+                                            </i>
+                                        </div>
+                                    </div>
+                                    <div id="input-destino" class="form-group">
+                                        <select id="destino" class="form-select select2" style="width: 100%"
+                                            name="destino" aria-label="Selecciona un destino">
                                             <option></option>
                                             <option value="nuevo">Nuevo destino</option>
                                             @foreach ($destinos as $destino)
@@ -210,39 +268,7 @@
 
 
 
-                            <div class="row">
 
-                                <div id="input-container-calibre" class="col-md-6" style="display: none;">
-
-                                    <h6>Nuevo Calibre</h6>
-                                    <input type="text" name="newCalibre" class="form-control"
-                                        placeholder="Ingrese nuevo valor">
-
-                                </div>
-                                <div id="input-container-calidad" class="col-md-6" style="display: none;">
-
-                                    <h6>Nueva Calidad</h6>
-                                    <input type="text" name="newCalidad" class="form-control"
-                                        placeholder="Ingrese nuevo valor">
-
-                                </div>
-                                <div id="input-container-destino" class="col-md-6" style="display: none;">
-
-                                    <h6>Nuevo Destino</h6>
-                                    <input type="text" name="newDestino" class="form-control"
-                                        placeholder="Ingrese nuevo valor">
-
-                                </div>
-                                <div id="input-container-corte" class="col-md-6" style="display: none;">
-
-                                    <h6>Nuevo Corte</h6>
-                                    <input type="text" name="newCorte" class="form-control"
-                                        placeholder="Ingrese nuevo valor">
-
-                                </div>
-
-
-                            </div>
 
 
                             <br>
@@ -354,8 +380,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="codTurno">Turno</label>
-                                            <select class="form-select select2" style="width: 100%"
-                                                name="turno">
+                                            <select class="form-select select2" style="width: 100%" name="turno">
 
                                                 @foreach ($turnos as $turno)
                                                 <option value="{{ $turno->codTurno }}" @if($desc_planilla->turno ==
@@ -372,8 +397,8 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="codSupervisor">Supervisor</label>
-                                            <select class="form-select select2" style="width: 100%"
-                                                name="supervisor" @if(session('user')['cod_rol']==2) disabled @endif>
+                                            <select class="form-select select2" style="width: 100%" name="supervisor"
+                                                @if(session('user')['cod_rol']==2) disabled @endif>
 
                                                 @foreach ($supervisores as $supervisor)
                                                 <option value="{{ $supervisor->cod_usuario }}" @if($desc_planilla->
@@ -388,8 +413,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="codPlanillero">Planillero</label>
-                                            <select class="form-select select2" style="width: 100%"
-                                                name="planillero">
+                                            <select class="form-select select2" style="width: 100%" name="planillero">
 
                                                 @foreach ($planilleros as $planillero)
                                                 <option value="{{ $planillero->cod_usuario }}" @if($desc_planilla->
@@ -417,6 +441,10 @@
                         <form id='formEntrega' action="{{ route('guardar') }}" method="post" class="mt-3">
                             @csrf
                             <div class="row">
+                                <figcaption class="blockquote-footer">
+                                    Campos Opcionales
+                                </figcaption>
+
                                 <div class="col-6">
                                     <h6>Entrega Frigorífico</h6>
                                     <label for="cajasEntrega">Cajas:</label>
@@ -478,7 +506,7 @@
                                         <th scope="col"></th>
                                         <th scope="col">Corte Inicial</th>
                                         <th scope="col">Corte Final</th>
-                                        <th scope="col">Proceso</th>
+                                        <th scope="col">Sala</th>
                                         <th scope="col">Destino</th>
                                         <th scope="col">Calibre</th>
                                         <th scope="col">Calidad</th>
@@ -498,7 +526,7 @@
                                         <th>{{$contador}}</th>
                                         <td>{{$i->cInicial}}</td>
                                         <td>{{$i->cFinal}}</td>
-                                        <td>{{$i->proceso}}</td>
+                                        <td>{{$i->sala}}</td>
                                         <td>{{$i->destino}}</td>
                                         <td>{{$i->calibre}}</td>
                                         <td>{{$i->calidad}}</td>
@@ -549,18 +577,36 @@
 
         <script>
             $(document).ready(function () {
-                $('#cInicial, #cFinal').on('change', function () {
+                $('#cInicial').on('change', function () {
                     var cInicialEsnuevo = $('#cInicial').val() === 'nuevo';
+
+
+                    // Mostrar u ocultar el contenedor según las condiciones
+                    if (cInicialEsnuevo) {
+
+                        $('#input-corteIni').fadeOut(0);
+                        $('#input-nuevo-corteIni').fadeIn(300);
+                    } else {
+                        $('#input-nuevo-corteIni').fadeOut(0);
+                        $('#input-corteIni').fadeIn(300);
+                    }
+
+                    console.log('Selección cambiada para cInicial ');
+                });
+                $('#cFinal').on('change', function () {
                     var cFinalEsnuevo = $('#cFinal').val() === 'nuevo';
 
                     // Mostrar u ocultar el contenedor según las condiciones
-                    if (cInicialEsnuevo || cFinalEsnuevo) {
-                        $('#input-container-corte').fadeIn(300);
+                    if (cFinalEsnuevo) {
+                        $('#input-corteFin').fadeOut(0);
+                        $('#input-nuevo-corteFin').fadeIn(300);
+
                     } else {
-                        $('#input-container-corte').fadeOut(300);
+                        $('#input-nuevo-corteFin').fadeOut(0);
+                        $('#input-corteFin').fadeIn(300);
                     }
 
-                    console.log('Selección cambiada para cInicial o cFinal');
+                    console.log('Selección cambiada para cfinal');
                 });
 
                 $('#calibre').on('change', function () {
@@ -568,9 +614,12 @@
 
                     // Mostrar u ocultar el contenedor según las condiciones
                     if (calibreEsnuevo) {
-                        $('#input-container-calibre').fadeIn(300);
+                        $('#input-calibre').fadeOut(0);
+                        $('#input-nuevo-calibre').fadeIn(300);
+
                     } else {
-                        $('#input-container-calibre').fadeOut(300);
+                        $('#input-nuevo-calibre').fadeOut(0);
+                        $('#input-calibre').fadeIn(300);
                     }
 
                     console.log('Selección cambiada para calibre');
@@ -583,9 +632,12 @@
 
                     // Mostrar u ocultar el contenedor según las condiciones
                     if (calidadEsnuevo) {
-                        $('#input-container-calidad').fadeIn(300);
+                        $('#input-calidad').fadeOut(0);
+                        $('#input-nuevo-calidad').fadeIn(300);
+
                     } else {
-                        $('#input-container-calidad').fadeOut(300);
+                        $('#input-nuevo-calidad').fadeOut(0);
+                        $('#input-calidad').fadeIn(300);
                     }
 
                     console.log('Selección cambiada para calidad');
@@ -594,11 +646,13 @@
                 $('#destino').on('change', function () {
                     var destinoEsnuevo = $(this).val() === 'nuevo';
 
-                    // Mostrar u ocultar el contenedor según las condiciones
                     if (destinoEsnuevo) {
-                        $('#input-container-destino').fadeIn(300);
+                        $('#input-destino').fadeOut(0);
+                        $('#input-nuevo-destino').fadeIn(300);
+
                     } else {
-                        $('#input-container-destino').fadeOut(300);
+                        $('#input-nuevo-destino').fadeOut(0);
+                        $('#input-destino').fadeIn(300);
                     }
 
                     console.log('Selección cambiada para destino');

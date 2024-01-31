@@ -65,3 +65,18 @@ poder crear destinos,cortes,calibres y calidades
 - semana 1 modificar registros  validaciones y mensajes
 - semana 2 validaciones y mensajes, permisos de los usuarios_pst
 - semana 3  y 4 vista de administrador y generar pdf
+
+--- puntos importantes para la funcionalidad
+
+- subtotal por corte y total de kilos y piezas de una planilla y guardar en detalle planilla
+- editar registros de planilla 
+- eliminar registros de planilla
+- filtro de planilla asc y desc
+- mover salas a dotacion y sala se guarda en detalle_planilla 
+- vista para planillas ya guardadas desde inicio
+- 
+
+---- detalles
+
+- solucionar error de campos desactivados en Crear Nueva planilla
+- cambiar fecha de turno de date a datetime para ordenar por ultima planilla creada o tambien order by por la columna [fec_crea_planilla] de la tabla planillas_pst

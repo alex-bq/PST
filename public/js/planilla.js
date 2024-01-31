@@ -4,32 +4,32 @@ $(document).ready(function () {
         theme: "bootstrap4",
     });
     $("#cInicial").select2({
-        placeholder : "Seleccione Corte",
+        placeholder: "Seleccione Corte",
         width: "resolve",
         theme: "bootstrap4",
     });
     $("#cFinal").select2({
-        placeholder : "Seleccione Corte",
+        placeholder: "Seleccione Corte",
         width: "resolve",
         theme: "bootstrap4",
     });
     $("#calibre").select2({
-        placeholder : "Seleccione Calibre",
+        placeholder: "Seleccione Calibre",
         width: "resolve",
         theme: "bootstrap4",
     });
     $("#calidad").select2({
-        placeholder : "Seleccione Calidad",
+        placeholder: "Seleccione Calidad",
         width: "resolve",
         theme: "bootstrap4",
     });
-    $("#proceso").select2({
-        placeholder : "Seleccione Proceso",
+    $("#sala").select2({
+        placeholder: "Seleccione Sala",
         width: "resolve",
         theme: "bootstrap4",
     });
     $("#destino").select2({
-        placeholder : "Seleccione Destino",
+        placeholder: "Seleccione Destino",
         width: "resolve",
         theme: "bootstrap4",
     });
@@ -66,7 +66,7 @@ $(document).ready(function () {
 
     $("#formPrincipal").submit(function (event) {
         var cInicial = $('select[name="cInicial"]').val();
-        var proceso = $('select[name="proceso"]').val();
+        var Sala = $('select[name="sala"]').val();
         var calibre = $('select[name="calibre"]').val();
         var piezas = $('input[name="piezas"]').val();
         var cFinal = $('select[name="cFinal"]').val();
@@ -74,14 +74,15 @@ $(document).ready(function () {
         var calidad = $('select[name="calidad"]').val();
         var kilos = $('input[name="kilos"]').val();
 
-        var newCorte = $('input[name="newCorte"]').val();
+        var newCorteIni = $('input[name="newCorteIni"]').val();
+        var newCorteFin = $('input[name="newCorteFin"]').val();
         var newCalibre = $('input[name="newCalibre"]').val();
         var newDestino = $('input[name="newDestino"]').val();
         var newCalidad = $('input[name="newCalidad"]').val();
 
         if (
             !cInicial ||
-            !proceso ||
+            !sala ||
             !calibre ||
             !piezas ||
             !cFinal ||
@@ -89,7 +90,8 @@ $(document).ready(function () {
             !calidad ||
             !kilos ||
             (destino === "nuevo" && !newDestino) ||
-            ((cInicial === "nuevo" || cFinal === "nuevo") && !newCorte) ||
+            (cInicial === "nuevo" && !newCorteIni) ||
+            (cFinal === "nuevo" && !newCorteFin) ||
             (calibre === "nuevo" && !newCalibre) ||
             (calidad === "nuevo" && !newCalidad)
         ) {
@@ -109,7 +111,8 @@ $(document).ready(function () {
                     if (response.success) {
                         if (
                             newDestino ||
-                            newCorte ||
+                            newCorteIni ||
+                            newCorteFin ||
                             newCalibre ||
                             newCalidad
                         ) {
@@ -119,7 +122,7 @@ $(document).ready(function () {
                                     "true"
                                 );
                             }
-                            if (newCorte) {
+                            if (newCorteIni || newCorteFin) {
                                 sessionStorage.setItem(
                                     "newCorteCreated",
                                     "true"
@@ -181,7 +184,7 @@ $(document).ready(function () {
                 registro.cFinal +
                 "</td>" +
                 "<td>" +
-                registro.proceso +
+                registro.sala +
                 "</td>" +
                 "<td>" +
                 registro.destino +
@@ -263,7 +266,7 @@ function limpiarFormulario() {
     $("#cFinal").val(null).trigger("change");
     $("#calibre").val(null).trigger("change");
     $("#calidad").val(null).trigger("change");
-    $("#proceso").val(null).trigger("change");
+    $("#sala").val(null).trigger("change");
     $("#destino").val(null).trigger("change");
     toastr.info("Formulario impiado");
 }

@@ -17,7 +17,7 @@ class PlanillaController extends Controller
         }
 
         $cortes = DB::select('SELECT cod_corte,nombre FROM pst.dbo.corte WHERE inactivo = 0 AND transito = 1 GROUP BY nombre,cod_corte ORDER BY nombre ASC;');
-        $procesos = DB::select('SELECT cod_sproceso,nombre FROM pst.dbo.subproceso WHERE inactivo = 0 ORDER BY nombre ASC;');
+        $salas = DB::select('SELECT cod_sala,nombre FROM pst.dbo.sala WHERE inactivo = 0 ORDER BY nombre ASC;');
         $calibres = DB::select('SELECT cod_calib,nombre FROM pst.dbo.calibre WHERE inactivo = 0 AND transito = 1 ;');
         $calidades = DB::select('SELECT cod_cald,nombre FROM pst.dbo.calidad WHERE inactivo = 0 ORDER BY nombre ASC;');
         $destinos = DB::select('SELECT cod_destino,nombre FROM pst.dbo.destino WHERE inactivo = 0 ORDER BY nombre ASC;');
@@ -44,7 +44,7 @@ class PlanillaController extends Controller
 
 
         $planilla = DB::table("pst.dbo.v_registro_planilla_pst")
-            ->select('cInicial', 'cFinal', 'proceso', 'destino', 'calibre', 'calidad', 'piezas', 'kilos')
+            ->select('cInicial', 'cFinal', 'sala', 'destino', 'calibre', 'calidad', 'piezas', 'kilos')
             ->where('cod_planilla', $idPlanilla)
             ->get();
 
@@ -53,7 +53,7 @@ class PlanillaController extends Controller
 
 
 
-        return view('planilla', compact('planilla', 'destinos', 'cortes', 'procesos', 'calibres', 'calidades', 'idPlanilla', 'desc_planilla', 'empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros'));
+        return view('planilla', compact('planilla', 'destinos', 'cortes', 'salas', 'calibres', 'calidades', 'idPlanilla', 'desc_planilla', 'empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros'));
     }
 
 
@@ -62,7 +62,7 @@ class PlanillaController extends Controller
         $idPlanilla = $request->input('idPlanilla');
         $codCorteIni = $request->input('cInicial');
         $codCorteFin = $request->input('cFinal');
-        $codProceso = $request->input('proceso');
+        $codSala = $request->input('sala');
         $codCalibre = $request->input('calibre');
         $codDestino = $request->input('destino');
         $codCalidad = $request->input('calidad');
@@ -73,28 +73,21 @@ class PlanillaController extends Controller
         $newCalibre = $request->input('newCalibre');
         $newCalidad = $request->input('newCalidad');
         $newDestino = $request->input('newDestino');
-        $newCorte = $request->input('newCorte');
+        $newCorteIni = $request->input('newCorteIni');
+        $newCorteFin = $request->input('newCorteFin');
 
         $error = false;
-        $errorDestino = $errorCorte = $errorCorteFin = $errorCalibre = $errorCalidad = null;
+        $errorDestino = $errorCorteFin = $errorCorteIni = $errorCalibre = $errorCalidad = null;
 
-        $existingCalidad = DB::table('pst.dbo.calidad')
-            ->select('nombre')
-            ->whereRaw("LOWER(REPLACE(nombre, ' ', '')) = ?", [strtolower(str_replace(' ', '', $newCalidad))])
-            ->first();
+
+
+
+
+
         $existingDestino = DB::table('pst.dbo.destino')
             ->select('nombre')
             ->whereRaw("LOWER(REPLACE(nombre, ' ', '')) = ?", [strtolower(str_replace(' ', '', $newDestino))])
             ->first();
-        $existingCorte = DB::table('pst.dbo.corte')
-            ->select('nombre')
-            ->whereRaw("LOWER(REPLACE(nombre, ' ', '')) = ?", [strtolower(str_replace(' ', '', $newCorte))])
-            ->first();
-        $existingCalibre = DB::table('pst.dbo.calibre')
-            ->select('nombre')
-            ->whereRaw("LOWER(REPLACE(nombre, ' ', '')) = ?", [strtolower(str_replace(' ', '', $newCalibre))])
-            ->first();
-
 
         if ($codDestino === "nuevo") {
 
@@ -110,29 +103,57 @@ class PlanillaController extends Controller
                 $error = true;
             }
         }
+        $existingCorteIni = DB::table('pst.dbo.corte')
+            ->select('nombre')
+            ->whereRaw("LOWER(REPLACE(nombre, ' ', '')) = ?", [strtolower(str_replace(' ', '', $newCorteIni))])
+            ->first();
 
-        if ($codCorteIni === "nuevo" || $codCorteFin === "nuevo") {
+        if ($codCorteIni === "nuevo") {
 
 
-            if (!$existingCorte) {
-                $id_newCorte = DB::table('pst.dbo.corte')->insertGetId([
-                    'nombre' => $newCorte,
+            if (!$existingCorteIni) {
+                $id_newCorteIni = DB::table('pst.dbo.corte')->insertGetId([
+                    'nombre' => $newCorteIni,
                     'inactivo' => 0,
                     'transito' => 1
                 ]);
-                if ($codCorteIni === "nuevo") {
-                    $codCorteIni = $id_newCorte;
-                }
-                if ($codCorteFin === "nuevo") {
-                    $codCorteFin = $id_newCorte;
-                }
+
+                $codCorteIni = $id_newCorteIni;
+
+
 
             } else {
                 $errorCorte = 'El corte ya existe en la base de datos';
                 $error = true;
             }
         }
+        $existingCorteFin = DB::table('pst.dbo.corte')
+            ->select('nombre')
+            ->whereRaw("LOWER(REPLACE(nombre, ' ', '')) = ?", [strtolower(str_replace(' ', '', $newCorteFin))])
+            ->first();
+        if ($codCorteFin === "nuevo") {
 
+
+            if (!$existingCorteFin) {
+                $id_newCorteFin = DB::table('pst.dbo.corte')->insertGetId([
+                    'nombre' => $newCorteFin,
+                    'inactivo' => 0,
+                    'transito' => 1
+                ]);
+
+                $codCorteFin = $id_newCorteFin;
+
+
+
+            } else {
+                $errorCorte = 'El corte ya existe en la base de datos';
+                $error = true;
+            }
+        }
+        $existingCalibre = DB::table('pst.dbo.calibre')
+            ->select('nombre')
+            ->whereRaw("LOWER(REPLACE(nombre, ' ', '')) = ?", [strtolower(str_replace(' ', '', $newCalibre))])
+            ->first();
 
         if ($codCalibre === "nuevo") {
 
@@ -149,7 +170,10 @@ class PlanillaController extends Controller
                 $error = true;
             }
         }
-
+        $existingCalidad = DB::table('pst.dbo.calidad')
+            ->select('nombre')
+            ->whereRaw("LOWER(REPLACE(nombre, ' ', '')) = ?", [strtolower(str_replace(' ', '', $newCalidad))])
+            ->first();
         if ($codCalidad === "nuevo") {
 
 
@@ -177,7 +201,7 @@ class PlanillaController extends Controller
             'cod_planilla' => $idPlanilla,
             'cod_corte_ini' => $codCorteIni,
             'cod_corte_fin' => $codCorteFin,
-            'cod_proceso' => $codProceso,
+            'cod_sala' => $codSala,
             'cod_destino' => $codDestino,
             'cod_calibre' => $codCalibre,
             'cod_calidad' => $codCalidad,
@@ -189,7 +213,7 @@ class PlanillaController extends Controller
 
         $planillaActualizada = DB::table("pst.dbo.v_registro_planilla_pst")
             ->where('cod_planilla', $idPlanilla)
-            ->select('cInicial', 'cFinal', 'proceso', 'destino', 'calibre', 'calidad', 'piezas', 'kilos')
+            ->select('cInicial', 'cFinal', 'sala', 'destino', 'calibre', 'calidad', 'piezas', 'kilos')
             ->get();
 
         return response()->json(['success' => true, 'mensaje' => 'Registro agregado exitosamente', 'planilla' => $planillaActualizada]);
