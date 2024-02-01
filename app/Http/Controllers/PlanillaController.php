@@ -44,16 +44,28 @@ class PlanillaController extends Controller
 
 
         $planilla = DB::table("pst.dbo.v_registro_planilla_pst")
-            ->select('cInicial', 'cFinal', 'sala', 'destino', 'calibre', 'calidad', 'piezas', 'kilos')
+            ->select('*')
             ->where('cod_planilla', $idPlanilla)
             ->get();
 
+        $subtotal = DB::table('pst.dbo.registro_planilla_pst AS rp')
+            ->select('fin.nombre AS cFinal', DB::raw('SUM(rp.piezas) AS subtotalPiezas'), DB::raw('SUM(rp.kilos) AS subtotalKilos'))
+            ->leftJoin('pst.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
+            ->where('rp.cod_planilla', '=', $idPlanilla)
+            ->groupBy('fin.nombre', 'rp.cod_planilla')
+            ->orderBy('fin.nombre')
+            ->get();
+
+        $total = DB::table('pst.dbo.registro_planilla_pst AS rp')
+            ->select(DB::raw('SUM(rp.piezas) AS totalPiezas'), DB::raw('SUM(rp.kilos) AS totalKilos'))
+            ->leftJoin('pst.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
+            ->where('rp.cod_planilla', '=', $idPlanilla)
+            ->groupBy('rp.cod_planilla')
+            ->orderBy('rp.cod_planilla')
+            ->get();
 
 
-
-
-
-        return view('planilla', compact('planilla', 'destinos', 'cortes', 'salas', 'calibres', 'calidades', 'idPlanilla', 'desc_planilla', 'empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros'));
+        return view('planilla', compact('subtotal', 'total', 'planilla', 'destinos', 'cortes', 'salas', 'calibres', 'calidades', 'idPlanilla', 'desc_planilla', 'empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros'));
     }
 
 
@@ -216,7 +228,23 @@ class PlanillaController extends Controller
             ->select('cInicial', 'cFinal', 'sala', 'destino', 'calibre', 'calidad', 'piezas', 'kilos')
             ->get();
 
-        return response()->json(['success' => true, 'mensaje' => 'Registro agregado exitosamente', 'planilla' => $planillaActualizada]);
+        $subtotal = DB::table('pst.dbo.registro_planilla_pst AS rp')
+            ->select('fin.nombre AS cFinal', DB::raw('SUM(rp.piezas) AS subtotalPiezas'), DB::raw('SUM(rp.kilos) AS subtotalKilos'))
+            ->leftJoin('pst.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
+            ->where('rp.cod_planilla', '=', $idPlanilla)
+            ->groupBy('fin.nombre', 'rp.cod_planilla')
+            ->orderBy('fin.nombre')
+            ->get();
+
+        $total = DB::table('pst.dbo.registro_planilla_pst AS rp')
+            ->select(DB::raw('SUM(rp.piezas) AS totalPiezas'), DB::raw('SUM(rp.kilos) AS totalKilos'))
+            ->leftJoin('pst.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
+            ->where('rp.cod_planilla', '=', $idPlanilla)
+            ->groupBy('rp.cod_planilla')
+            ->orderBy('rp.cod_planilla')
+            ->get();
+
+        return response()->json(['success' => true, 'mensaje' => 'Registro agregado exitosamente', 'planilla' => $planillaActualizada, 'subtotal' => $subtotal, 'total' => $total]);
 
     }
 
@@ -312,6 +340,17 @@ class PlanillaController extends Controller
             $errorMessage = $e->getMessage();
             return response()->json(['success' => false, 'error' => $errorMessage]);
         }
+    }
+    public function obtenerDatosFila($id)
+    {
+        // Lógica para obtener los datos de la fila con el ID proporcionado
+        $datos = DB::table("pst.dbo.registro_planilla_pst")
+            ->select('*')
+            ->where('cod_reg', $id)
+            ->first();
+
+        // Devuelve los datos en formato JSON
+        return response()->json($datos);
     }
 
 }

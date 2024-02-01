@@ -63,9 +63,16 @@
     </nav>
     <br>
     <div class="container-fluid">
-        <a href="{{ url('/inicio') }}" class="botonAtras">
-            <img src="{{ asset('image/atras.svg') }}" alt="atras" style="height: 35px;">
-        </a>
+        <div class='row'>
+            <div class="col-lg-4 ">
+                <a href="{{ url('/inicio') }}" class="botonAtras">
+                    <img src="{{ asset('image/atras.svg') }}" alt="atras" style="height: 35px;">
+                </a>
+            </div>
+            <div class="col-lg-8 ">
+                <h1>Planilla Control De Proceso SG</h1>
+            </div>
+        </div>
     </div>
 
     <div class="container-fluid align-text">
@@ -498,7 +505,7 @@
             <div class="col-lg-8 mb-4">
                 <div class="card">
                     <div class="card-body">
-                        <h1>Planilla Control De Proceso SG</h1>
+                        <!-- <h1>Planilla Control De Proceso SG</h1> -->
                         <div class="table-wrapper table-responsive" id="tabla-registros">
                             <table class="table table-striped">
                                 <thead class="sticky-header">
@@ -540,7 +547,11 @@
                                                 </label>
                                             </div>
                                         </td>
-                                        <td><a href="">editar</a></td>
+                                        <td>
+                                            <a href="#" class="btn btn-primary btn-editar"
+                                                data-id="{{ $i->cod_reg }}">Editar</a>
+
+                                        </td>
                                     </tr>
                                     @php
                                     $contador++;
@@ -555,110 +566,297 @@
 
 
                         </div>
-                        <div class="row mt-4">
+
+                        <div class="container mt-4">
+                            <div class="col-md-3">
 
 
-                            <div class="col-4">
-                                <button type="submit" class="btn btn-success btn-lg" id="btnGuardar">
-                                    Guardar </button>
+                                <table id='totales' class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th class="small">
+
+                                            </th>
+                                            <th class="small">Piezas</th>
+                                            <th class="small">Kilos</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($subtotal as $x)
+                                        <tr>
+                                            <td>{{$x->cFinal}}</td>
+                                            <td>{{$x->subtotalPiezas}}</td>
+                                            <td>{{round($x->subtotalKilos,2)}}</td>
+                                        </tr>
+
+
+                                        @endforeach
+                                        @foreach($total as $a)
+                                        <tr id="filaTotal">
+                                            <th>Total</th>
+                                            <td>{{$a->totalPiezas}}</td>
+                                            <td>{{round($a->totalKilos,2)}}</td>
+                                        </tr>
+                                        @endforeach
+
+                                    </tbody>
+                                </table>
+
+
+                                <div class="row mt-4">
+
+
+                                    <div class="col-4">
+                                        <button type="submit" class="btn btn-success btn-lg" id="btnGuardar">
+                                            Guardar </button>
+                                    </div>
+
+                                </div>
+
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal fade" id="modalEditar" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+                    aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Editar Registro</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                    aria-label="Close"></button>
+
+                            </div>
+                            <div class="modal-body">
+                                <!-- Aquí colocarás tu formulario de edición -->
+                                <form id="formEditarReg" action="" method="POST">
+                                    @csrf
+                                    <div class="row">
+
+                                        <div class="col-md-6">
+                                            <h6>Corte Inicial</h6>
+
+                                            <div id="input-corteIniEditar" class="form-group">
+                                                <select id="cInicialEditar" class="form-select select2Modal "
+                                                    style="width: 100%" name="cInicialEditar"
+                                                    aria-label="Selecciona un corte inicial">
+
+
+                                                    @foreach ($cortes as $corte)
+                                                    <option value="{{ $corte->cod_corte }}">{{ $corte->nombre }}
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+
+
+                                            <h6>Calibre</h6>
+
+
+
+                                            <div id="input-calibreEditar" class="form-group">
+                                                <div class="input-group">
+                                                    <select id="calibreEditar" class="form-select select2Modal"
+                                                        style="width: 65%" name="calibreEditar"
+                                                        aria-label="Selecciona un calibre">
+
+                                                        @foreach ($calibres as $calibre)
+                                                        <option value="{{ $calibre->cod_calib }}">{{ $calibre->nombre }}
+                                                        </option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+
+
+                                            </div>
+                                            <h6>Sala </h6>
+                                            <div class="form-group">
+                                                <select id="salaEditar" class="form-select select2Modal"
+                                                    style="width: 100%" name="salaEditar"
+                                                    aria-label="Selecciona un sala">
+
+                                                    @foreach ($salas as $sala)
+                                                    <option value="{{ $sala->cod_sala }}">{{ $sala->nombre }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <br />
+                                            <h6>Piezas</h6>
+                                            <div class="form-group">
+                                                <input type="number" class="form-control " id="piezasEditar"
+                                                    placeholder="123" />
+                                            </div>
+                                        </div>
+
+                                        <div class="col-md-6">
+                                            <h6>Corte Final</h6>
+
+                                            <div id="input-corteFinEditar" class="form-group">
+                                                <select id="cFinalEditar" class="form-select select2Modal"
+                                                    style="width: 100%" name="cFinalEditar"
+                                                    aria-label="Selecciona un corte final">
+
+
+                                                    @foreach ($cortes as $corte)
+                                                    <option value="{{ $corte->cod_corte }}">{{ $corte->nombre }}
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <h6>Calidad</h6>
+
+                                            <div id="input-calidadEditar" class="form-group">
+                                                <select id="calidadEditar" class="form-select select2Modal"
+                                                    style="width: 100%" name="calidadEditar"
+                                                    aria-label="Selecciona una calidad">
+
+                                                    @foreach ($calidades as $calidad)
+                                                    <option value="{{ $calidad->cod_cald }}">{{ $calidad->nombre }}
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <h6>Destino</h6>
+
+                                            <div id="input-destinoEditar" class="form-group">
+                                                <select id="destinoEditar" class="form-select select2Modal"
+                                                    style="width: 100%" name="destinoEditar"
+                                                    aria-label="Selecciona un destino">
+
+                                                    @foreach ($destinos as $destino)
+                                                    <option value="{{ $destino->cod_destino }}">{{ $destino->nombre }}
+                                                    </option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+
+
+                                            <br />
+
+                                            <h6>Kilos</h6>
+                                            <div class="form-group">
+                                                <input type="number" class="form-control" id="kilosEditar"
+                                                    placeholder="1.55" step="0.01" />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <br />
+                                    <input type="hidden" name="idPlanilla" value="{{ $idPlanilla }}" />
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <button type="submit" class="btn btn-primary ">
+                                                Guardar Cambios
+                                            </button>
+                                        </div>
+
+                                    </div>
+                                </form>
                             </div>
 
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
 
 
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-            crossorigin="anonymous"></script>
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+                    integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+                    crossorigin="anonymous"></script>
 
-        <script>
-            $(document).ready(function () {
-                $('#cInicial').on('change', function () {
-                    var cInicialEsnuevo = $('#cInicial').val() === 'nuevo';
+                <script>
+                    $(document).ready(function () {
+                        $('#cInicial').on('change', function () {
+                            var cInicialEsnuevo = $('#cInicial').val() === 'nuevo';
 
 
-                    // Mostrar u ocultar el contenedor según las condiciones
-                    if (cInicialEsnuevo) {
+                            // Mostrar u ocultar el contenedor según las condiciones
+                            if (cInicialEsnuevo) {
 
-                        $('#input-corteIni').fadeOut(0);
-                        $('#input-nuevo-corteIni').fadeIn(300);
-                    } else {
-                        $('#input-nuevo-corteIni').fadeOut(0);
-                        $('#input-corteIni').fadeIn(300);
-                    }
+                                $('#input-corteIni').fadeOut(0);
+                                $('#input-nuevo-corteIni').fadeIn(300);
+                            } else {
+                                $('#input-nuevo-corteIni').fadeOut(0);
+                                $('#input-corteIni').fadeIn(300);
+                            }
 
-                    console.log('Selección cambiada para cInicial ');
-                });
-                $('#cFinal').on('change', function () {
-                    var cFinalEsnuevo = $('#cFinal').val() === 'nuevo';
+                            console.log('Selección cambiada para cInicial ');
+                        });
+                        $('#cFinal').on('change', function () {
+                            var cFinalEsnuevo = $('#cFinal').val() === 'nuevo';
 
-                    // Mostrar u ocultar el contenedor según las condiciones
-                    if (cFinalEsnuevo) {
-                        $('#input-corteFin').fadeOut(0);
-                        $('#input-nuevo-corteFin').fadeIn(300);
+                            // Mostrar u ocultar el contenedor según las condiciones
+                            if (cFinalEsnuevo) {
+                                $('#input-corteFin').fadeOut(0);
+                                $('#input-nuevo-corteFin').fadeIn(300);
 
-                    } else {
-                        $('#input-nuevo-corteFin').fadeOut(0);
-                        $('#input-corteFin').fadeIn(300);
-                    }
+                            } else {
+                                $('#input-nuevo-corteFin').fadeOut(0);
+                                $('#input-corteFin').fadeIn(300);
+                            }
 
-                    console.log('Selección cambiada para cfinal');
-                });
+                            console.log('Selección cambiada para cfinal');
+                        });
 
-                $('#calibre').on('change', function () {
-                    var calibreEsnuevo = $(this).val() === 'nuevo';
+                        $('#calibre').on('change', function () {
+                            var calibreEsnuevo = $(this).val() === 'nuevo';
 
-                    // Mostrar u ocultar el contenedor según las condiciones
-                    if (calibreEsnuevo) {
-                        $('#input-calibre').fadeOut(0);
-                        $('#input-nuevo-calibre').fadeIn(300);
+                            // Mostrar u ocultar el contenedor según las condiciones
+                            if (calibreEsnuevo) {
+                                $('#input-calibre').fadeOut(0);
+                                $('#input-nuevo-calibre').fadeIn(300);
 
-                    } else {
-                        $('#input-nuevo-calibre').fadeOut(0);
-                        $('#input-calibre').fadeIn(300);
-                    }
+                            } else {
+                                $('#input-nuevo-calibre').fadeOut(0);
+                                $('#input-calibre').fadeIn(300);
+                            }
 
-                    console.log('Selección cambiada para calibre');
-                });
+                            console.log('Selección cambiada para calibre');
+                        });
 
-                // Repite el mismo patrón para otros campos como calidad, destino, etc.
+                        // Repite el mismo patrón para otros campos como calidad, destino, etc.
 
-                $('#calidad').on('change', function () {
-                    var calidadEsnuevo = $(this).val() === 'nuevo';
+                        $('#calidad').on('change', function () {
+                            var calidadEsnuevo = $(this).val() === 'nuevo';
 
-                    // Mostrar u ocultar el contenedor según las condiciones
-                    if (calidadEsnuevo) {
-                        $('#input-calidad').fadeOut(0);
-                        $('#input-nuevo-calidad').fadeIn(300);
+                            // Mostrar u ocultar el contenedor según las condiciones
+                            if (calidadEsnuevo) {
+                                $('#input-calidad').fadeOut(0);
+                                $('#input-nuevo-calidad').fadeIn(300);
 
-                    } else {
-                        $('#input-nuevo-calidad').fadeOut(0);
-                        $('#input-calidad').fadeIn(300);
-                    }
+                            } else {
+                                $('#input-nuevo-calidad').fadeOut(0);
+                                $('#input-calidad').fadeIn(300);
+                            }
 
-                    console.log('Selección cambiada para calidad');
-                });
+                            console.log('Selección cambiada para calidad');
+                        });
 
-                $('#destino').on('change', function () {
-                    var destinoEsnuevo = $(this).val() === 'nuevo';
+                        $('#destino').on('change', function () {
+                            var destinoEsnuevo = $(this).val() === 'nuevo';
 
-                    if (destinoEsnuevo) {
-                        $('#input-destino').fadeOut(0);
-                        $('#input-nuevo-destino').fadeIn(300);
+                            if (destinoEsnuevo) {
+                                $('#input-destino').fadeOut(0);
+                                $('#input-nuevo-destino').fadeIn(300);
 
-                    } else {
-                        $('#input-nuevo-destino').fadeOut(0);
-                        $('#input-destino').fadeIn(300);
-                    }
+                            } else {
+                                $('#input-nuevo-destino').fadeOut(0);
+                                $('#input-destino').fadeIn(300);
+                            }
 
-                    console.log('Selección cambiada para destino');
-                });
-            });
-        </script>
+                            console.log('Selección cambiada para destino');
+                        });
+                    });
+                </script>
 </body>
 
 </html>

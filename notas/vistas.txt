@@ -25,6 +25,7 @@ v_registro_planilla_pst
 CREATE VIEW v_registro_planilla_pst AS 
 
 SELECT
+	rp.cod_reg,
     rp.cod_planilla,
     ini.nombre AS cInicial,
     fin.nombre AS cFinal,
@@ -42,7 +43,7 @@ LEFT OUTER JOIN
 LEFT OUTER JOIN
     dbo.corte AS fin ON rp.cod_corte_fin = fin.cod_corte
 LEFT OUTER JOIN
-    dbo.sala AS s ON rp.cod_proceso = s.cod_sala
+    dbo.sala AS s ON rp.cod_sala = s.cod_sala
 LEFT OUTER JOIN
     dbo.calibre AS c ON rp.cod_calibre = c.cod_calib
 LEFT OUTER JOIN

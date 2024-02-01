@@ -3,6 +3,11 @@ $(document).ready(function () {
         width: "resolve",
         theme: "bootstrap4",
     });
+    $(".select2Modal").select2({
+        width: "resolve",
+        theme: "bootstrap4",
+        dropdownParent: $("#modalEditar"),
+    });
     $("#cInicial").select2({
         placeholder: "Seleccione Corte",
         width: "resolve",
@@ -66,7 +71,7 @@ $(document).ready(function () {
 
     $("#formPrincipal").submit(function (event) {
         var cInicial = $('select[name="cInicial"]').val();
-        var Sala = $('select[name="sala"]').val();
+        var sala = $('select[name="sala"]').val();
         var calibre = $('select[name="calibre"]').val();
         var piezas = $('input[name="piezas"]').val();
         var cFinal = $('select[name="cFinal"]').val();
@@ -143,7 +148,11 @@ $(document).ready(function () {
                             location.reload(true);
                         }
 
-                        actualizarTabla(response.planilla);
+                        actualizarTabla(
+                            response.planilla,
+                            response.subtotal,
+                            response.total
+                        );
                         toastr.success("Registro ingresado");
                     } else if (response.errores) {
                         if (response.errores.errorDestino) {
@@ -167,7 +176,7 @@ $(document).ready(function () {
         }
     });
 
-    function actualizarTabla(planilla) {
+    function actualizarTabla(planilla, subtotales, total) {
         var tabla = $("#tabla-registros table tbody");
         tabla.empty();
 
@@ -212,6 +221,42 @@ $(document).ready(function () {
 
             tabla.append(nuevaFila);
         });
+        var cuerpoTabla = $("#totales tbody");
+
+        // Limpiar el contenido actual de la tabla
+        cuerpoTabla.empty();
+
+        // Agregar nuevas filas a la tabla con los datos actualizados
+        $.each(subtotales, function (index, subtotal) {
+            var nuevaFila =
+                "<tr>" +
+                "<td>" +
+                subtotal.cFinal +
+                "</td>" +
+                "<td>" +
+                subtotal.subtotalPiezas +
+                "</td>" +
+                "<td>" +
+                parseFloat(subtotal.subtotalKilos).toFixed(2) +
+                "</td>" +
+                "</tr>";
+
+            cuerpoTabla.append(nuevaFila);
+        });
+
+        // Agregar fila de total
+        var filaTotal =
+            '<tr id="filaTotal">' +
+            "<th>Total</th>" +
+            "<td>" +
+            total[0].totalPiezas +
+            "</td>" +
+            "<td>" +
+            parseFloat(total[0].totalKilos).toFixed(2) +
+            "</td>" +
+            "</tr>";
+
+        cuerpoTabla.append(filaTotal);
     }
 
     $("#formularioDetalle").hide();
@@ -257,6 +302,43 @@ $(document).ready(function () {
 
         $("#formPrincipal").hide();
         $("#formularioDetalle").show();
+    }
+
+    $(".btn-editar").on("click", function (e) {
+        e.preventDefault();
+
+        var filaId = $(this).data("id");
+
+        // Aquí puedes realizar la solicitud AJAX para obtener datos de la fila
+        $.ajax({
+            type: "GET",
+            url: baseUrl + "/obtener-datos-fila/" + filaId,
+            dataType: "json",
+            success: function (response) {
+                // Llenar el formulario de edición con los datos obtenidos
+                // Llenar el formulario de edición con los datos obtenidos
+                llenarFormularioEdicion(response);
+                // Mostrar el modal de edición
+                $("#modalEditar").modal("show");
+            },
+            error: function () {
+                // Manejar errores si es necesario
+            },
+        });
+    });
+    function llenarFormularioEdicion(response) {
+        // Llenar el formulario de edición con los datos obtenidos
+        // Aquí, debes seleccionar cada campo del formulario y asignarle el valor correspondiente desde 'datos'
+        // Ejemplo:
+        $("#cInicialEditar").val(response.cod_corte_ini).trigger("change");
+        $("#cFinalEditar").val(response.cod_corte_fin).trigger("change");
+        $("#salaEditar").val(response.cod_sala).trigger("change");
+        $("#destinoEditar").val(response.cod_destino).trigger("change");
+        $("#calibreEditar").val(response.cod_calibre).trigger("change");
+        $("#calidadEditar").val(response.cod_calidad).trigger("change");
+        $("#piezasEditar").val(response.piezas);
+        $("#kilosEditar").val(response.kilos);
+        // ... Continúa con los demás campos según sea necesario
     }
 });
 
