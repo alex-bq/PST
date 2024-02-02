@@ -258,6 +258,32 @@ $(document).ready(function () {
 
         cuerpoTabla.append(filaTotal);
     }
+    $('#formEditarReg').submit(function (e) {
+        e.preventDefault(); // Evitar el envío normal del formulario
+        var formData = $(this).serialize(); // Obtener datos del formulario
+    
+        // Realizar la solicitud Ajax
+        $.ajax({
+            type: 'POST',
+            url: $(this).attr('action'),
+            data: formData,
+            success: function (response) {
+                console.log(response);
+    
+                actualizarTabla(
+                    response.planilla,
+                    response.subtotal,
+                    response.total
+                );
+                $('#modalEditar').modal('hide');
+                toastr.success("Registro editado correctamente");
+                
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    });
 
     $("#formularioDetalle").hide();
     $("#formEntrega").hide();
@@ -305,6 +331,7 @@ $(document).ready(function () {
     }
 
     $(".btn-editar").on("click", function (e) {
+        
         e.preventDefault();
 
         var filaId = $(this).data("id");
@@ -315,10 +342,12 @@ $(document).ready(function () {
             url: baseUrl + "/obtener-datos-fila/" + filaId,
             dataType: "json",
             success: function (response) {
+                
                 // Llenar el formulario de edición con los datos obtenidos
                 // Llenar el formulario de edición con los datos obtenidos
+                
                 llenarFormularioEdicion(response);
-                // Mostrar el modal de edición
+                
                 $("#modalEditar").modal("show");
             },
             error: function () {
@@ -330,6 +359,7 @@ $(document).ready(function () {
         // Llenar el formulario de edición con los datos obtenidos
         // Aquí, debes seleccionar cada campo del formulario y asignarle el valor correspondiente desde 'datos'
         // Ejemplo:
+        $('#idRegistro').val(response.cod_reg);
         $("#cInicialEditar").val(response.cod_corte_ini).trigger("change");
         $("#cFinalEditar").val(response.cod_corte_fin).trigger("change");
         $("#salaEditar").val(response.cod_sala).trigger("change");

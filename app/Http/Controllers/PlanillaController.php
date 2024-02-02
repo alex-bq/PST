@@ -353,6 +353,58 @@ class PlanillaController extends Controller
         return response()->json($datos);
     }
 
+    public function editarRegistro(Request $request){
+        $idPlanilla = $request->input('idPlanilla');
+        $idRegistro = $request->input('idRegistro');
+        $codCorteIni = $request->input('cInicialEditar');
+        $codCorteFin = $request->input('cFinalEditar');
+        $codSala = $request->input('salaEditar');
+        $codCalibre = $request->input('calibreEditar');
+        $codDestino = $request->input('destinoEditar');
+        $codCalidad = $request->input('calidadEditar');
+        $piezas = $request->input('piezasEditar');
+        $kilos = $request->input('kilosEditar');
+
+        DB::table('pst.dbo.registro_planilla_pst')
+            ->where('cod_reg', $idRegistro)
+                ->update([
+                    'cod_corte_ini' => $codCorteIni,
+                    'cod_corte_fin' => $codCorteFin,
+                    'cod_sala' => $codSala,
+                    'cod_destino' => $codDestino,
+                    'cod_calibre' => $codCalibre,
+                    'cod_calidad' => $codCalidad,
+                    'piezas' => $piezas,
+                    'kilos' => $kilos
+                ]);
+
+            $planillaActualizada = DB::table("pst.dbo.v_registro_planilla_pst")
+                ->where('cod_planilla', $idPlanilla)
+                ->select('cInicial', 'cFinal', 'sala', 'destino', 'calibre', 'calidad', 'piezas', 'kilos')
+                ->get();
+    
+            $subtotal = DB::table('pst.dbo.registro_planilla_pst AS rp')
+                ->select('fin.nombre AS cFinal', DB::raw('SUM(rp.piezas) AS subtotalPiezas'), DB::raw('SUM(rp.kilos) AS subtotalKilos'))
+                ->leftJoin('pst.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
+                ->where('rp.cod_planilla', '=', $idPlanilla)
+                ->groupBy('fin.nombre', 'rp.cod_planilla')
+                ->orderBy('fin.nombre')
+                ->get();
+    
+            $total = DB::table('pst.dbo.registro_planilla_pst AS rp')
+                ->select(DB::raw('SUM(rp.piezas) AS totalPiezas'), DB::raw('SUM(rp.kilos) AS totalKilos'))
+                ->leftJoin('pst.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
+                ->where('rp.cod_planilla', '=', $idPlanilla)
+                ->groupBy('rp.cod_planilla')
+                ->orderBy('rp.cod_planilla')
+                ->get();
+    
+            return response()->json(['success' => true, 'mensaje' => 'Registro agregado exitosamente', 'planilla' => $planillaActualizada, 'subtotal' => $subtotal, 'total' => $total]);
+
+
+
+    }
+
 }
 
 
