@@ -71,7 +71,7 @@ $(document).ready(function () {
 
     $("#formPrincipal").submit(function (event) {
         var cInicial = $('select[name="cInicial"]').val();
-        var sala = $('select[name="sala"]').val();
+        // var sala = $('select[name="sala"]').val();
         var calibre = $('select[name="calibre"]').val();
         var piezas = $('input[name="piezas"]').val();
         var cFinal = $('select[name="cFinal"]').val();
@@ -87,7 +87,6 @@ $(document).ready(function () {
 
         if (
             !cInicial ||
-            !sala ||
             !calibre ||
             !piezas ||
             !cFinal ||
@@ -191,9 +190,6 @@ $(document).ready(function () {
                 "</td>" +
                 "<td>" +
                 registro.cFinal +
-                "</td>" +
-                "<td>" +
-                registro.sala +
                 "</td>" +
                 "<td>" +
                 registro.destino +
@@ -327,18 +323,16 @@ $(document).ready(function () {
         });
     });
     function llenarFormularioEdicion(response) {
-        // Llenar el formulario de edición con los datos obtenidos
-        // Aquí, debes seleccionar cada campo del formulario y asignarle el valor correspondiente desde 'datos'
-        // Ejemplo:
         $("#cInicialEditar").val(response.cod_corte_ini).trigger("change");
         $("#cFinalEditar").val(response.cod_corte_fin).trigger("change");
-        $("#salaEditar").val(response.cod_sala).trigger("change");
+
+        // $("#salaEditar").val(response.cod_sala).trigger("change");
+
         $("#destinoEditar").val(response.cod_destino).trigger("change");
         $("#calibreEditar").val(response.cod_calibre).trigger("change");
         $("#calidadEditar").val(response.cod_calidad).trigger("change");
         $("#piezasEditar").val(response.piezas);
         $("#kilosEditar").val(response.kilos);
-        // ... Continúa con los demás campos según sea necesario
     }
 });
 
@@ -348,7 +342,6 @@ function limpiarFormulario() {
     $("#cFinal").val(null).trigger("change");
     $("#calibre").val(null).trigger("change");
     $("#calidad").val(null).trigger("change");
-    $("#sala").val(null).trigger("change");
     $("#destino").val(null).trigger("change");
     toastr.info("Formulario impiado");
 }

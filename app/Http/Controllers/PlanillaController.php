@@ -74,7 +74,6 @@ class PlanillaController extends Controller
         $idPlanilla = $request->input('idPlanilla');
         $codCorteIni = $request->input('cInicial');
         $codCorteFin = $request->input('cFinal');
-        $codSala = $request->input('sala');
         $codCalibre = $request->input('calibre');
         $codDestino = $request->input('destino');
         $codCalidad = $request->input('calidad');
@@ -213,7 +212,6 @@ class PlanillaController extends Controller
             'cod_planilla' => $idPlanilla,
             'cod_corte_ini' => $codCorteIni,
             'cod_corte_fin' => $codCorteFin,
-            'cod_sala' => $codSala,
             'cod_destino' => $codDestino,
             'cod_calibre' => $codCalibre,
             'cod_calidad' => $codCalidad,
@@ -225,7 +223,7 @@ class PlanillaController extends Controller
 
         $planillaActualizada = DB::table("pst.dbo.v_registro_planilla_pst")
             ->where('cod_planilla', $idPlanilla)
-            ->select('cInicial', 'cFinal', 'sala', 'destino', 'calibre', 'calidad', 'piezas', 'kilos')
+            ->select('cInicial', 'cFinal', 'destino', 'calibre', 'calidad', 'piezas', 'kilos')
             ->get();
 
         $subtotal = DB::table('pst.dbo.registro_planilla_pst AS rp')
@@ -303,6 +301,7 @@ class PlanillaController extends Controller
         try {
             $cajasEntrega = $request->input('cajas_entrega');
             $kilosEntrega = $request->input('kilos_entrega');
+            $codSala = $request->input('sala');
             $piezasEntrega = $request->input('piezas_entrega');
             $cajasRecepcion = $request->input('cajas_recepcion');
             $kilosRecepcion = $request->input('kilos_recepcion');
@@ -320,6 +319,7 @@ class PlanillaController extends Controller
                     'kilos_recepcion' => $kilosRecepcion,
                     'piezas_recepcion' => $piezasRecepcion,
                     'dotacion' => $dotacion,
+                    'cod_sala' => $codSala,
                     'observacion' => $observacion,
                 ]);
 
