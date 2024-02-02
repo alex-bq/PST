@@ -632,7 +632,7 @@
                     </div>
                     <div class="modal-body">
                         <!-- Aquí colocarás tu formulario de edición -->
-                        <form id="formEditarReg" action="" method="POST">
+                        <form id="formEditarReg" action="{{ url('/modificar-registro') }}" method="POST">
                             @csrf
                             <div class="row">
 
@@ -687,7 +687,7 @@
                                     <br />
                                     <h6>Piezas</h6>
                                     <div class="form-group">
-                                        <input type="number" class="form-control " id="piezasEditar"
+                                        <input type="number" class="form-control " id="piezasEditar" name="piezasEditar"
                                             placeholder="123" />
                                     </div>
                                 </div>
@@ -739,14 +739,16 @@
 
                                     <h6>Kilos</h6>
                                     <div class="form-group">
-                                        <input type="number" class="form-control" id="kilosEditar" placeholder="1.55"
-                                            step="0.01" />
+                                        <input type="number" class="form-control" id="kilosEditar" name="kilosEditar"
+                                            placeholder="1.55" step="0.01" />
                                     </div>
                                 </div>
                             </div>
 
                             <br />
+                            <input type="hidden" name="idRegistro" id="idRegistro" />
                             <input type="hidden" name="idPlanilla" value="{{ $idPlanilla }}" />
+
                             <br>
                             <div class="row">
                                 <div class="col-md-6">
