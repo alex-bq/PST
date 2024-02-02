@@ -1,3 +1,39 @@
+$(document).on("click", ".btn-editar", function (e) {
+    e.preventDefault();
+
+    var filaId = $(this).data("id");
+
+    // Aquí puedes realizar la solicitud AJAX para obtener datos de la fila
+    $.ajax({
+        type: "GET",
+        url: baseUrl + "/obtener-datos-fila/" + filaId,
+        dataType: "json",
+        success: function (response) {
+            llenarFormularioEdicion(response);
+
+            $("#modalEditar").modal("show");
+        },
+        error: function () {
+            // Manejar errores si es necesario
+        },
+    });
+    function llenarFormularioEdicion(response) {
+        // Llenar el formulario de edición con los datos obtenidos
+        // Aquí, debes seleccionar cada campo del formulario y asignarle el valor correspondiente desde 'datos'
+        // Ejemplo:
+        $("#idRegistro").val(response.cod_reg);
+        $("#cInicialEditar").val(response.cod_corte_ini).trigger("change");
+        $("#cFinalEditar").val(response.cod_corte_fin).trigger("change");
+
+        // $("#salaEditar").val(response.cod_sala).trigger("change");
+
+        $("#destinoEditar").val(response.cod_destino).trigger("change");
+        $("#calibreEditar").val(response.cod_calibre).trigger("change");
+        $("#calidadEditar").val(response.cod_calidad).trigger("change");
+        $("#piezasEditar").val(response.piezas);
+        $("#kilosEditar").val(response.kilos);
+    }
+});
 $(document).ready(function () {
     $(".select2").select2({
         width: "resolve",
@@ -212,7 +248,9 @@ $(document).ready(function () {
                 '<label class="form-check-label" for="flexCheckDefault"></label>' +
                 "</div>" +
                 "</td>" +
-                '<td><a href="">editar</a></td>' +
+                '<td><a href="#" class="btn btn-primary btn-editar"data-id="' +
+                registro.cod_reg +
+                '">Editar</a></td>' +
                 "</tr>";
 
             tabla.append(nuevaFila);
@@ -312,6 +350,42 @@ $(document).ready(function () {
         // Aquí podrías agregar una redirección específica si es necesario
         // window.location.href = "ruta_a_detalle.html";
     });
+    $("#btnBorrarSeleccionados").on("click", function () {
+        var planillaId = $(this).data("planilla-id");
+        var checkboxesSeleccionados = $("input:checked", "tbody");
+
+        // Almacena los IDs de las filas seleccionadas
+        var idsAEliminar = checkboxesSeleccionados
+            .map(function () {
+                return $(this).data("id");
+            })
+            .get();
+
+        console.log(idsAEliminar);
+
+        var token = $('meta[name="csrf-token"]').attr("content");
+
+        // Agrega el token CSRF a los datos de la solicitud
+        var datosSolicitud = {
+            idPlanilla: planillaId,
+            ids: idsAEliminar,
+            _token: token,
+        };
+        // Realiza la solicitud AJAX para eliminar las filas en el servidor
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/eliminar-registro", // Reemplaza con la ruta correcta
+            data: datosSolicitud,
+            success: function (response) {
+                console.log(response);
+                location.reload();
+                // Actualiza la tabla después de eliminar las filas
+            },
+            error: function (error) {
+                console.log(error);
+            },
+        });
+    });
 
     var urlParams = new URLSearchParams(window.location.search);
     var tabParam = urlParams.get("tab");
@@ -323,46 +397,6 @@ $(document).ready(function () {
 
         $("#formPrincipal").hide();
         $("#formularioDetalle").show();
-    }
-
-    $(".btn-editar").on("click", function (e) {
-        e.preventDefault();
-
-        var filaId = $(this).data("id");
-
-        // Aquí puedes realizar la solicitud AJAX para obtener datos de la fila
-        $.ajax({
-            type: "GET",
-            url: baseUrl + "/obtener-datos-fila/" + filaId,
-            dataType: "json",
-            success: function (response) {
-                // Llenar el formulario de edición con los datos obtenidos
-                // Llenar el formulario de edición con los datos obtenidos
-
-                llenarFormularioEdicion(response);
-
-                $("#modalEditar").modal("show");
-            },
-            error: function () {
-                // Manejar errores si es necesario
-            },
-        });
-    });
-    function llenarFormularioEdicion(response) {
-        // Llenar el formulario de edición con los datos obtenidos
-        // Aquí, debes seleccionar cada campo del formulario y asignarle el valor correspondiente desde 'datos'
-        // Ejemplo:
-        $("#idRegistro").val(response.cod_reg);
-        $("#cInicialEditar").val(response.cod_corte_ini).trigger("change");
-        $("#cFinalEditar").val(response.cod_corte_fin).trigger("change");
-
-        // $("#salaEditar").val(response.cod_sala).trigger("change");
-
-        $("#destinoEditar").val(response.cod_destino).trigger("change");
-        $("#calibreEditar").val(response.cod_calibre).trigger("change");
-        $("#calidadEditar").val(response.cod_calidad).trigger("change");
-        $("#piezasEditar").val(response.piezas);
-        $("#kilosEditar").val(response.kilos);
     }
 });
 

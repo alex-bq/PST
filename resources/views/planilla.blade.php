@@ -35,6 +35,7 @@
     <script>
         var baseUrl = "{{ url('/') }}";
     </script>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 
 </head>
 
@@ -281,31 +282,22 @@
                             </div>
                         </form>
 
-
-
-
-
-
-
-
-
-
                         <div id="formularioDetalle">
                             <div class='row'>
-                                <div class="col-lg-4">
-                                    <div class="form-group">
-                                        <div id="mensajeError" class="alert alert-danger" style="display: none;"></div>
-                                        <p><strong>Lote</strong></p>
-
-                                        <p>{{ $desc_planilla->lote }}</p>
-
-
-                                    </div>
+                                <div id="mensajeError" class="alert alert-danger" style="display: none;"></div>
+                                <h5><strong>Lote </strong>
+                                    <p>{{ $desc_planilla->lote }}</p>
+                                </h5>
+                            </div>
+                            <div class='row'>
+                                <div class="col-md-6">
+                                    <p for="codEspecie"><strong>Especie</strong></p>
+                                    <p>{{ $desc_planilla->especie }}</p>
                                 </div>
-                                <div class="col-lg-8">
+                                <div class="col-md-6">
                                     <div class="form-group">
-                                        <p for="codEspecie"><strong>Especie</strong></p>
-                                        <p>{{ $desc_planilla->especie }}</p>
+                                        <p for="codProceso"><strong>Proceso</strong></p>
+                                        <p>{{ $desc_planilla->proceso }}</p>
                                     </div>
                                 </div>
                             </div>
@@ -506,8 +498,9 @@
             <div class="col-lg-8 mb-2">
                 <div class="card">
                     <div class="card-body">
-                        <!-- <h1>Planilla Control De Proceso SG</h1> -->
+
                         <div class="table-wrapper table-responsive" id="tabla-registros">
+
                             <table class="table table-striped">
                                 <thead class="sticky-header">
                                     <tr>
@@ -541,9 +534,8 @@
                                         <td>
                                             <div class="form-check">
                                                 <input class="form-check-input" type="checkbox" value=""
-                                                    id="flexCheckDefault" />
-                                                <label class="form-check-label" for="flexCheckDefault">
-                                                </label>
+                                                    data-id="{{ $i->cod_reg }}" />
+                                                <label class="form-check-label" for="flexCheckDefault"></label>
                                             </div>
                                         </td>
                                         <td>
@@ -602,20 +594,26 @@
                                 </table>
 
 
-                                <div class="row mt-4">
 
-
-                                    <div class="col-4">
-                                        <button type="submit" class="btn btn-success btn-lg" id="btnGuardar">
-                                            Guardar </button>
-                                    </div>
-
-                                </div>
 
 
 
 
                             </div>
+                        </div>
+                        <div class="row ">
+
+
+                            <div class="col-md-4">
+                                <button type="submit" class="btn btn-success btn-lg" id="btnGuardar">
+                                    Guardar </button>
+                            </div>
+                            <div class="col-md-4">
+                                <button id="btnBorrarSeleccionados" class="btn btn-danger "
+                                    data-planilla-id="{{ $idPlanilla }}">Borrar
+                                    Seleccionados</button>
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -772,6 +770,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>
+
 
     <script>
         $(document).ready(function () {

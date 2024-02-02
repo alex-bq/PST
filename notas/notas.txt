@@ -114,16 +114,15 @@ SELECT TOP 1000 [N_Ano]
 
 --- puntos importantes para la funcionalidad
 
-- editar registros de planilla 
 - eliminar registros de planilla
+
+
 - filtro de planilla asc y desc
-- mover salas a dotacion y sala se guarda en detalle_planilla 
-- proceso se muestra en la vista 
 - vista para planillas ya guardadas desde inicio
 - permisos para cada usuario 
 
 ---- detalles
 
-- solucionar error de campos desactivados en Crear Nueva planilla
 - error de nuevo corte 
+- solucionar error de campos desactivados en Crear Nueva planilla
 - cambiar fecha de turno de date a datetime para ordenar por ultima planilla creada o tambien order by por la columna [fec_crea_planilla] de la tabla planillas_pst

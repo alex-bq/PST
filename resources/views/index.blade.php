@@ -265,7 +265,7 @@
                         </div>
 
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="codEmpresa">Empresa</label>
                                     <select class="form-control" style="width: 100%" name="empresa" disabled>
@@ -277,7 +277,7 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="proveedor">Proveedor</label>
                                     <select class="form-control" name="proveedor" disabled>
@@ -289,7 +289,11 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+
+                        </div>
+                        <br>
+                        <div class="row">
+                            <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="codEspecie">Especie</label>
                                     <select class="form-control" name="especie" disabled>
@@ -300,6 +304,18 @@
                                     </select>
                                 </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="proceso">Proceso</label>
+                                    <select class="form-control" name="proceso" disabled>
+                                        <option selected disabled></option>
+                                        @foreach ($procesos as $proceso)
+                                        <option value="{{ $proceso->cod_sproceso }}">{{ $proceso->nombre }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
                         </div>
                         <br>
 
@@ -408,6 +424,7 @@
                 var empresa = $('select[name="empresa"]').val();
                 var proveedor = $('select[name="proveedor"]').val();
                 var especie = $('select[name="especie"]').val();
+                var proceso = $('select[name="proceso"]').val();
                 var fechaTurno = $('#fechaTurno').val();
                 var turno = $('select[name="turno"]').val();
                 var supervisor = $('select[name="supervisor"]').val();
@@ -419,6 +436,7 @@
                     empresa: empresa,
                     proveedor: proveedor,
                     especie: especie,
+                    proceso: proceso,
                     fechaTurno: fechaTurno,
                     turno: turno,
                     supervisor: supervisor,
@@ -477,6 +495,8 @@
                             $('select[name="empresa"]').val(response.cod_empresa)
                             $('select[name="proveedor"]').val(response.cod_proveedor)
                             $('select[name="especie"]').val(response.cod_especie)
+                            $('select[name="proceso"]').val(response.cod_sproceso)
+
                             $('#mensajeError').hide()
                         },
                         error: function (xhr) {

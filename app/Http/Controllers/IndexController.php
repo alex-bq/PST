@@ -15,6 +15,7 @@ class IndexController extends Controller
         }
 
         $empresas = DB::select('SELECT cod_empresa,descripcion FROM bdsystem.dbo.empresas WHERE inactivo=0 ORDER BY descripcion ASC;');
+        $procesos = DB::select('SELECT cod_sproceso,UPPER(nombre) as nombre FROM bdsystem.dbo.subproceso WHERE inactivo=0 ORDER BY nombre ASC;');
         $proveedores = DB::select('SELECT cod_proveedor,descripcion FROM bdsystem.dbo.proveedores WHERE inactivo=0 ORDER BY descripcion ASC;');
         $especies = DB::select('SELECT cod_especie,descripcion FROM bdsystem.dbo.especies WHERE inactivo=0 ORDER BY descripcion ASC;');
         $turnos = DB::select('SELECT codTurno,NomTurno FROM bdsystem.dbo.turno WHERE inactivo=0 ORDER BY NomTurno ASC;');
@@ -29,7 +30,7 @@ class IndexController extends Controller
 
         $planillas = $planillas->get() ?? collect();
 
-        return view('index', compact('empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'planillas'));
+        return view('index', compact('procesos', 'empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'planillas'));
     }
 
 
@@ -83,7 +84,7 @@ class IndexController extends Controller
         $result = DB::table('bdsystem.dbo.lotes')
             ->leftJoin('bdsystem.dbo.detalle_lote', 'bdsystem.dbo.lotes.cod_lote', '=', 'bdsystem.dbo.detalle_lote.cod_lote')
             ->where('nombre', $loteValue)
-            ->select('cod_empresa', 'bdsystem.dbo.detalle_lote.cod_proveedor', 'cod_especie')
+            ->select('cod_empresa', 'bdsystem.dbo.detalle_lote.cod_proveedor', 'cod_especie', 'cod_sproceso')
             ->first();
 
         if (!$result) {
@@ -103,6 +104,7 @@ class IndexController extends Controller
             'codLote' => 'required',
             'empresa' => 'required',
             'proveedor' => 'required',
+            'proceso' => 'required',
             'especie' => 'required',
             'fechaTurno' => 'required',
             'turno' => 'required',
@@ -130,6 +132,7 @@ class IndexController extends Controller
                 'cod_empresa' => $request->input('empresa'),
                 'cod_proveedor' => $request->input('proveedor'),
                 'cod_especie' => $request->input('especie'),
+                'cod_proceso' => $request->input('proceso'),
                 'cod_planillero' => $request->input('planillero'),
                 'cod_supervisor' => $request->input('supervisor'),
                 'guardado' => 0,
