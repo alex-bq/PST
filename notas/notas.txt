@@ -123,12 +123,7 @@ SELECT TOP 1000 [N_Ano]
 
 ---- detalles
 
-
-- responsividad de tabla de planillas para vista desde celular
-- eliminar registros de planilla(con errores)
-- error de nuevo corte 
 - solucionar error de campos desactivados en Crear Nueva planilla
-- cambiar fecha de turno de date a datetime para ordenar por ultima planilla creada o tambien order by por la columna [fec_crea_planilla] de la tabla planillas_pst
 - manejo de mensajes de errores en formulario de crea planillas 
 
 PRUEBA CP PLANILLA DIA 02/02/2024, TURNO NOCHE, PORCIONES

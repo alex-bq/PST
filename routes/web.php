@@ -4,6 +4,7 @@
 use App\Http\Controllers\IndexController;
 use App\Http\Controllers\PlanillaController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\adminController;
 
 // Ruta de inicio de sesión
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -24,6 +25,15 @@ Route::post('/modificar-planilla/{id}', [PlanillaController::class, 'modificarPl
 Route::post('/modificar-registro', [PlanillaController::class, 'editarRegistro'])->name('editarRegistro');
 Route::post('/eliminar-registro', [PlanillaController::class, 'eliminarRegistro'])->name('eliminarRegistro');
 Route::post('/agregar-registro', [PlanillaController::class, 'agregarRegistro'])->name('agregar-registro');
+
+
+Route::get('/admin', [adminController::class, 'admin'])->name('admin');
+
+Route::get('/mantenedor-corte', [adminController::class, 'mCorte'])->name('mCorte');
+Route::get('/mantenedor-calidad', [adminController::class, 'mCalidad'])->name('mCalidad');
+Route::get('/mantenedor-destino', [adminController::class, 'mDestino'])->name('mDestino');
+Route::get('/mantenedor-calibre', [adminController::class, 'mCalibre'])->name('mCalibre');
+
 
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 

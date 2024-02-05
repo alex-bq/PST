@@ -1,0 +1,88 @@
+body {
+    background-color: #f8f9fa;
+    
+}
+
+.navbar{
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 230px;
+    padding-top: 20px;
+    background-color: #ffffff;
+    transition: width 0.3s;
+    z-index: 1;
+    overflow-y: auto;
+}
+
+.sidebar a {
+    padding: 8px 8px 8px 32px;
+    text-decoration: none;
+    font-size: 18px;
+    color: #818181;
+    display: block;
+    transition: color 0.3s;
+}
+
+.sidebar a:hover {
+    color: #1d1c1c;
+}
+
+.container-fluid, .row, .sidebar, .content {
+    height: 100%;
+}
+
+.content {
+    padding-top: 10px;
+    padding-left: 250px;   
+    
+
+}
+
+/* iframe {
+    .content iframe {
+        width: 100%;
+        height: 100vh; 
+        border: 0;
+    }
+}
+
+.content {
+    width: 100%;
+    height: 100%;
+    padding: 20px; 
+    box-sizing: border-box; 
+} */
+
+.content iframe {
+    width: 100%;
+    height: 100vh; /* Ajusta al 100% del alto de la ventana */
+    border: 0;
+}
+
+
+
+/* Estilo personalizado para la posición del toast */
+.toast-position {
+	position: fixed;
+	top: 80px;
+	right: 10px;
+  }
+  
+  /* Estilo personalizado para el contenedor del toast */
+  #toast-container {
+	width: 300px;
+	height: auto;
+	overflow: hidden;
+  }
+
+  #tabla-container{
+	/* height: 320px; */
+	overflow-x: auto;
+  }

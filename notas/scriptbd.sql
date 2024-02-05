@@ -80,7 +80,6 @@ CREATE TABLE pst.dbo.registro_planilla_pst (
     cod_planilla SMALLINT,
     cod_corte_ini BIGINT,
     cod_corte_fin BIGINT,
-    cod_proceso NUMERIC(18,0),
     cod_destino NUMERIC(18,0),
     cod_calibre SMALLINT,
     cod_calidad SMALLINT,

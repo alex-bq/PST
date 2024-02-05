@@ -244,7 +244,9 @@ $(document).ready(function () {
                 "</td>" +
                 "<td>" +
                 '<div class="form-check">' +
-                '<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" />' +
+                '<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"data-id="' +
+                registro.cod_reg +
+                '" />' +
                 '<label class="form-check-label" for="flexCheckDefault"></label>' +
                 "</div>" +
                 "</td>" +
@@ -378,8 +380,8 @@ $(document).ready(function () {
             data: datosSolicitud,
             success: function (response) {
                 console.log(response);
+
                 location.reload();
-                // Actualiza la tabla después de eliminar las filas
             },
             error: function (error) {
                 console.log(error);
