@@ -44,7 +44,11 @@ body {
 	overflow: hidden;
   }
 
-
+  #tabla-container{
+	/* height: 320px; */
+	overflow-x: auto;
+  }
+  
 
 
 

@@ -174,7 +174,7 @@
 
         @if(count($planillas) > 0)
         <div id="tabla-container">
-            <table class="table table-hover">
+            <table class="table table-hover table-responsive">
                 <thead>
                     <tr>
                         <th>N°</th>

@@ -1,50 +1,50 @@
 -- Drops
-DROP TABLE dbo.registro_planilla_pst;
-DROP TABLE dbo.detalle_planilla_pst;
-DROP TABLE dbo.planillas_pst;
-DROP TABLE dbo.usuarios_pst;
-DROP TABLE dbo.corte;
-DROP TABLE dbo.sala; 
-DROP TABLE dbo.calibre;
-DROP TABLE dbo.calidad;
-DROP TABLE dbo.roles;
-DROP TABLE dbo.destino; 
+DROP TABLE pst.dbo.registro_planilla_pst;
+DROP TABLE pst.dbo.detalle_planilla_pst;
+DROP TABLE pst.dbo.planillas_pst;
+DROP TABLE pst.dbo.usuarios_pst;
+DROP TABLE pst.dbo.corte;
+DROP TABLE pst.dbo.sala; 
+DROP TABLE pst.dbo.calibre;
+DROP TABLE pst.dbo.calidad;
+DROP TABLE pst.dbo.roles;
+DROP TABLE pst.dbo.destino; 
 
 
 
 -- Tables
-CREATE TABLE dbo.corte (
+CREATE TABLE pst.dbo.corte (
     cod_corte INT PRIMARY KEY  IDENTITY(1,1),
     nombre NVARCHAR(255),
     inactivo INT,
     transito INT
 );
 
-CREATE TABLE dbo.sala (
+CREATE TABLE pst.dbo.sala (
     cod_sala INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(255),
     inactivo INT
 );
 
-CREATE TABLE dbo.calibre (
+CREATE TABLE pst.dbo.calibre (
     cod_calib INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(255),
     inactivo INT,
     transito INT
 );
 
-CREATE TABLE dbo.calidad (
+CREATE TABLE pst.dbo.calidad (
     cod_cald INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(255),
     inactivo INT
 );
 
-CREATE TABLE dbo.roles (
+CREATE TABLE pst.dbo.roles (
     cod_rol INT PRIMARY KEY IDENTITY(1,1),
     nombre_rol NVARCHAR(255)
 );
 
-CREATE TABLE dbo.planillas_pst (
+CREATE TABLE pst.dbo.planillas_pst (
     cod_planilla SMALLINT PRIMARY KEY IDENTITY(1,1),
     cod_lote BIGINT,
     fec_turno DATE,
@@ -52,18 +52,17 @@ CREATE TABLE dbo.planillas_pst (
     cod_empresa NUMERIC(18,0),
     cod_proveedor numeric(18,0),
     cod_especie SMALLINT,
+    cod_proceso SMALLINT,
     cod_planillero NUMERIC(18,0),
     cod_supervisor NUMERIC(18,0),
-    observacion NVARCHAR(700) NULL,
-	dotacion NUMERIC(18, 0) NULL,
     fec_crea_planilla DATETIME DEFAULT GETDATE(),
     guardado NUMERIC(18,0),
     UNIQUE(cod_planilla) 
 );
 
-CREATE TABLE dbo.detalle_planilla_pst (
+CREATE TABLE pst.dbo.detalle_planilla_pst (
     cod_detalle INT PRIMARY KEY IDENTITY(1,1),
-    cod_planilla SMALLINT UNIQUE,  -- Clave externa única
+    cod_planilla SMALLINT UNIQUE, 
     cajas_entrega INT,
     kilos_entrega FLOAT,
     piezas_entrega INT,
@@ -71,11 +70,12 @@ CREATE TABLE dbo.detalle_planilla_pst (
     kilos_recepcion FLOAT,
     piezas_recepcion INT,
     dotacion INT,
+    cod_sala INT,
     observacion NVARCHAR(MAX),
-    FOREIGN KEY (cod_planilla) REFERENCES dbo.planillas_pst(cod_planilla)
+    FOREIGN KEY (cod_planilla) REFERENCES pst.dbo.planillas_pst(cod_planilla)
 );
 
-CREATE TABLE dbo.registro_planilla_pst (
+CREATE TABLE pst.dbo.registro_planilla_pst (
     cod_reg SMALLINT PRIMARY KEY IDENTITY(1,1),
     cod_planilla SMALLINT,
     cod_corte_ini BIGINT,
@@ -87,44 +87,36 @@ CREATE TABLE dbo.registro_planilla_pst (
     piezas NUMERIC(18,0),
     kilos FLOAT,
     guardado NUMERIC(18,0),	
-    FOREIGN KEY (cod_planilla) REFERENCES dbo.planillas_pst(cod_planilla)
+    FOREIGN KEY (cod_planilla) REFERENCES pst.dbo.planillas_pst(cod_planilla)
 );
 
-CREATE TABLE dbo.usuarios_pst (
+CREATE TABLE pst.dbo.usuarios_pst (
     cod_usuario INT PRIMARY KEY IDENTITY(1,1),
     usuario NVARCHAR(255),
     pass NVARCHAR(255),
     nombre NVARCHAR(255),
     apellido NVARCHAR(255) NULL,
     cod_rol INT,
-    FOREIGN KEY (cod_rol) REFERENCES dbo.roles(cod_rol)
+    FOREIGN KEY (cod_rol) REFERENCES pst.dbo.roles(cod_rol)
 );
 
-CREATE TABLE dbo.destino (
+CREATE TABLE pst.dbo.destino (
     cod_destino INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(255),
     inactivo INT
 );
 
-CREATE TRIGGER trg_AfterInsert_planillas_pst
-ON dbo.planillas_pst
-AFTER INSERT
-AS
-BEGIN
-    INSERT INTO dbo.detalle_planilla_pst (cod_planilla)
-    SELECT cod_planilla
-    FROM inserted;
-END;
 
 
 
-INSERT INTO dbo.roles (nombre_rol)
+
+INSERT INTO pst.dbo.roles (nombre_rol)
 VALUES
     ('Planillero'),
     ('Supervisor'),
     ('Admin');
 
-INSERT INTO dbo.corte ( nombre, inactivo, transito)
+INSERT INTO pst.dbo.corte ( nombre, inactivo, transito)
 VALUES
     ('TRIM A', 0, 1),
     ('TRIM B', 0, 1),
@@ -132,7 +124,7 @@ VALUES
     ('TRIM D', 0, 1),
     ('TRIM E', 0, 1);
 
-INSERT INTO dbo.sala ( nombre, inactivo)
+INSERT INTO pst.dbo.sala ( nombre, inactivo)
 VALUES
     ('SALA 1', 0),
     ('SALA 2', 0),
@@ -142,7 +134,7 @@ VALUES
 	('SALA 6', 0),
 	('SALA 7', 0);
 
-INSERT INTO dbo.calibre ( nombre, inactivo, transito)
+INSERT INTO pst.dbo.calibre ( nombre, inactivo, transito)
 VALUES
     ( '2-3', 0, 1),
     ( '3-4', 0, 1),
@@ -150,15 +142,15 @@ VALUES
     ( '5-6', 0, 1),
     ( '6-7', 0, 1);
 
-INSERT INTO dbo.calidad ( nombre, inactivo)
+INSERT INTO pst.dbo.calidad ( nombre, inactivo)
 VALUES
     ( 'PREMIUM', 0),
     ( 'GRADO 1', 0),
     ( 'INDUSTRIAL A', 0),
-    ( 'INDUSTRIAL B', 0),
+    ( 'INDUSTRIAL B', 0),   
     ( 'SIN CALIDAD', 0);
 
-INSERT INTO dbo.usuarios_pst (usuario, pass, nombre, apellido, cod_rol)
+INSERT INTO pst.dbo.usuarios_pst (usuario, pass, nombre, apellido, cod_rol)
 VALUES
     ('juan_perez', '123', 'Juan', 'Perez', 2),   
     ('maria_gomez', '123', 'Maria', 'Gomez', 1),  
@@ -167,10 +159,9 @@ VALUES
     ('luis_sanchez', '123', 'Luis', 'Sanchez', 1),  
     ('admin', 'admin', 'Admin', NULL, 3); 
 
+-----------------------------------------------------------
 
-
--- Inserciones adicionales para planillas_pst
-INSERT INTO dbo.planillas_pst (cod_lote, fec_turno, cod_turno, cod_empresa, cod_especie, cod_planillero, cod_supervisor, guardado)
+INSERT INTO pst.dbo.planillas_pst (cod_lote, fec_turno, cod_turno, cod_empresa, cod_especie, cod_planillero, cod_supervisor, guardado)
 VALUES 
     (194134, '2024-01-12', 1, 78, 162, 2, 1, 1),
     (194135, '2024-01-12', 3, 79, 163, 3, 1, 1),
@@ -183,8 +174,7 @@ VALUES
     (194142, '2024-01-12', 2, 86, 170, 3, 4, 1),
     (194143, '2024-01-12', 1, 87, 171, 5, 4, 1);
 
--- Inserciones adicionales para registro_planilla_pst
-INSERT INTO dbo.registro_planilla_pst (
+INSERT INTO pst.dbo.registro_planilla_pst (
     cod_planilla,
     cod_corte_ini,
     cod_corte_fin,
