@@ -34,14 +34,7 @@
                 <img src="{{ asset('image/logo.png') }}" alt="Logo" height="50">
             </a>
 
-            <!-- <div class="collapse navbar-collapse justify-content" id="navbarNavAltMarkup">
-                <div class="navbar-nav d-flex align-items-center">
-                    <a class="nav-link active" aria-current="page" href="#">Home</a>
-                    <a class="nav-link" href="#">Features</a>
-                    <a class="nav-link" href="#">Pricing</a>
-                    <a class="nav-link disabled" aria-disabled="true">Disabled</a>
-                </div>
-            </div> -->
+
 
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <div class="navbar-nav d-flex align-items-center">
@@ -65,7 +58,6 @@
                 </div>
 
                 <div class="col-md-6 text-end">
-                    <!-- Utiliza la clase text-end para alinear el botón a la derecha -->
                     <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal"
                         data-bs-href="{{ url('/nueva-planilla') }}">Nueva Planilla</button>
                 </div>
@@ -87,13 +79,11 @@
 
                         <div class="row">
 
-                            <!-- Filtro por Fecha -->
                             <div class="col-md-3">
                                 <input type="date" class="form-control" name="filtroFecha"
                                     placeholder="Filtrar por Fecha">
                             </div>
 
-                            <!-- Otros filtros aquí... -->
                             <div class="col-md-3">
                                 <select class="form-select js-example-basic-single " style="width: 100%"
                                     name="filtroTurno">
@@ -430,7 +420,6 @@
                 var supervisor = $('select[name="supervisor"]').val();
                 var planillero = $('select[name="planillero"]').val();
 
-                // Construye el objeto de datos
                 var datos = {
                     codLote: codLote,
                     empresa: empresa,
@@ -474,15 +463,12 @@
                 toastr.success("Planilla Guardada correctamente");
                 sessionStorage.removeItem("planillaSaved");
             }
-
-            // Asociar el evento blur al campo de lote
             $('#codLote').on('blur', function () {
-                // Obtén el valor del campo de lote
+
                 var loteValue = $(this).val();
 
-                // Realiza la consulta AJAX solo si el campo de lote tiene un valor
                 if (loteValue.trim() !== '') {
-                    // Realiza la consulta AJAX
+
                     $.ajax({
                         type: 'POST',
                         url: '{{ route('obtener_valores_lote') }}',
@@ -491,7 +477,7 @@
                             'lote': loteValue
                         },
                         success: function (response) {
-                            // Actualiza los valores de los select con la respuesta del servidor
+
                             $('select[name="empresa"]').val(response.cod_empresa)
                             $('select[name="proveedor"]').val(response.cod_proveedor)
                             $('select[name="especie"]').val(response.cod_especie)
@@ -524,7 +510,7 @@
                     type: 'POST',
                     url: '{{ route('filtrar.tabla') }}',
                     data: $(this).serialize(),
-                    dataType: 'json', // Indicar que esperamos un JSON como respuesta
+                    dataType: 'json',
                     success: function (response) {
                         actualizarTabla(response.planillas);
                     },
@@ -535,10 +521,10 @@
             });
 
             function actualizarTabla(planillas) {
-                // Limpiar la tabla existente
+
                 $('#tabla-container  tbody').empty();
 
-                // Llenar la tabla con los nuevos datos
+
                 planillas.forEach(function (planilla) {
                     var estadoIcono = planilla.guardado == 1 ? 'green' : 'red';
                     var icono = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="' + estadoIcono + '" class="bi bi-floppy" viewBox="0 0 16 16">' +
@@ -560,7 +546,7 @@
                 });
             }
             function formatDate(dateString) {
-                // Puedes usar una librería como moment.js para formatear la fecha, o simplemente hacerlo manualmente si prefieres
+
                 var date = new Date(dateString);
                 var day = date.getDate() + 1;
                 var month = date.getMonth() + 1;
@@ -622,7 +608,7 @@
                 });
             }
             function formatDate(dateString) {
-                // Puedes usar una librería como moment.js para formatear la fecha, o simplemente hacerlo manualmente si prefieres
+
                 var date = new Date(dateString);
                 var day = date.getDate() + 1;
                 var month = date.getMonth() + 1;
