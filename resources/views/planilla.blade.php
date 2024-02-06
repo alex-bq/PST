@@ -46,6 +46,11 @@
             <a class="navbar-brand" href="{{ url('/inicio') }}">
                 <img src="{{ asset('image/logo.png') }}" alt="Logo" height="50">
             </a>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <a class="nav-item nav-link" href="{{ url('/admin') }}">Datos</a>
+                </ul>
+            </div>
 
             <div class="collapse navbar-collapse justify-content" id="navbarNavAltMarkup">
                 <div class="navbar-nav d-flex align-items-center">
@@ -122,7 +127,7 @@
                                         <select id="cInicial" class="form-select select2 " style="width: 100%"
                                             name="cInicial" aria-label="Selecciona un corte inicial">
                                             <option></option>
-                                            <option value="nuevo">Nuevo corte</option>
+                                            <!-- <option value="nuevo">Nuevo corte</option> -->
 
                                             @foreach ($cortes as $corte)
                                             <option value="{{ $corte->cod_corte }}">{{ $corte->nombre }}</option>
@@ -147,7 +152,7 @@
                                         <select id="cFinal" class="form-select select2" style="width: 100%"
                                             name="cFinal" aria-label="Selecciona un corte final">
                                             <option></option>
-                                            <option value="nuevo">Nuevo corte</option>
+                                            <!-- <option value="nuevo">Nuevo corte</option> -->
 
                                             @foreach ($cortes as $corte)
                                             <option value="{{ $corte->cod_corte }}">{{ $corte->nombre }}</option>
@@ -175,7 +180,7 @@
                                             <select id="calibre" class="form-select select2" style="width: 65%"
                                                 name="calibre" aria-label="Selecciona un calibre">
                                                 <option></option>
-                                                <option value="nuevo">Nuevo calibre</option>
+                                                <!-- <option value="nuevo">Nuevo calibre</option> -->
                                                 @foreach ($calibres as $calibre)
                                                 <option value="{{ $calibre->cod_calib }}">{{ $calibre->nombre }}
                                                 </option>
@@ -202,7 +207,7 @@
                                         <select id="calidad" class="form-select select2" style="width: 100%"
                                             name="calidad" aria-label="Selecciona una calidad">
                                             <option></option>
-                                            <option value="nuevo">Nuevo calidad</option>
+                                            <!-- <option value="nuevo">Nuevo calidad</option> -->
                                             @foreach ($calidades as $calidad)
                                             <option value="{{ $calidad->cod_cald }}">{{ $calidad->nombre }}</option>
                                             @endforeach
@@ -231,7 +236,7 @@
                                         <select id="destino" class="form-select select2" style="width: 100%"
                                             name="destino" aria-label="Selecciona un destino">
                                             <option></option>
-                                            <option value="nuevo">Nuevo destino</option>
+                                            <!-- <option value="nuevo">Nuevo destino</option> -->
                                             @foreach ($destinos as $destino)
                                             <option value="{{ $destino->cod_destino }}">{{ $destino->nombre }}</option>
                                             @endforeach

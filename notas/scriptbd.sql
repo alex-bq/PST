@@ -16,27 +16,27 @@ DROP TABLE pst.dbo.destino;
 CREATE TABLE pst.dbo.corte (
     cod_corte INT PRIMARY KEY  IDENTITY(1,1),
     nombre NVARCHAR(255),
-    inactivo INT,
-    transito INT
+    activo INT,
+
 );
 
 CREATE TABLE pst.dbo.sala (
     cod_sala INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(255),
-    inactivo INT
+    activo INT
 );
 
 CREATE TABLE pst.dbo.calibre (
     cod_calib INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(255),
-    inactivo INT,
-    transito INT
+    activo INT,
+
 );
 
 CREATE TABLE pst.dbo.calidad (
     cod_cald INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(255),
-    inactivo INT
+    activo INT
 );
 
 CREATE TABLE pst.dbo.roles (
@@ -102,7 +102,7 @@ CREATE TABLE pst.dbo.usuarios_pst (
 CREATE TABLE pst.dbo.destino (
     cod_destino INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(255),
-    inactivo INT
+    activo INT
 );
 
 
@@ -115,39 +115,39 @@ VALUES
     ('Supervisor'),
     ('Admin');
 
-INSERT INTO pst.dbo.corte ( nombre, inactivo, transito)
+INSERT INTO pst.dbo.corte ( nombre, activo)
 VALUES
-    ('TRIM A', 0, 1),
-    ('TRIM B', 0, 1),
-    ('TRIM C', 0, 1),
-    ('TRIM D', 0, 1),
-    ('TRIM E', 0, 1);
+    ('TRIM A', 1),
+    ('TRIM B', 1),
+    ('TRIM C', 1),
+    ('TRIM D', 1),
+    ('TRIM E', 1);
 
-INSERT INTO pst.dbo.sala ( nombre, inactivo)
+INSERT INTO pst.dbo.sala ( nombre, activo)
 VALUES
-    ('SALA 1', 0),
-    ('SALA 2', 0),
-    ('SALA 3', 0),
-    ('SALA 4', 0),
-	('SALA 5', 0),
-	('SALA 6', 0),
-	('SALA 7', 0);
+    ('SALA 1', 1),
+    ('SALA 2', 1),
+    ('SALA 3', 1),
+    ('SALA 4', 1),
+	('SALA 5', 1),
+	('SALA 6', 1),
+	('SALA 7', 1);
 
-INSERT INTO pst.dbo.calibre ( nombre, inactivo, transito)
+INSERT INTO pst.dbo.calibre ( nombre, activo)
 VALUES
-    ( '2-3', 0, 1),
-    ( '3-4', 0, 1),
-    ( '4-5', 0, 1),
-    ( '5-6', 0, 1),
-    ( '6-7', 0, 1);
+    ( '2-3', 1),
+    ( '3-4', 1),
+    ( '4-5', 1),
+    ( '5-6', 1),
+    ( '6-7', 1);
 
-INSERT INTO pst.dbo.calidad ( nombre, inactivo)
+INSERT INTO pst.dbo.calidad ( nombre, activo)
 VALUES
-    ( 'PREMIUM', 0),
-    ( 'GRADO 1', 0),
-    ( 'INDUSTRIAL A', 0),
-    ( 'INDUSTRIAL B', 0),   
-    ( 'SIN CALIDAD', 0);
+    ( 'PREMIUM', 1),
+    ( 'GRADO 1', 1),
+    ( 'INDUSTRIAL A', 1),
+    ( 'INDUSTRIAL B', 1),   
+    ( 'SIN CALIDAD', 1);
 
 INSERT INTO pst.dbo.usuarios_pst (usuario, pass, nombre, apellido, cod_rol)
 VALUES
@@ -157,6 +157,11 @@ VALUES
     ('ana_martinez', '123', 'Ana', 'Martinez', 2),  
     ('luis_sanchez', '123', 'Luis', 'Sanchez', 1),  
     ('admin', 'admin', 'Admin', NULL, 3); 
+
+-----------------------------------------------------------
+
+
+
 
 -----------------------------------------------------------
 

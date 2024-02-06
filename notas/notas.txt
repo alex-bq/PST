@@ -114,16 +114,19 @@ SELECT TOP 1000 [N_Ano]
 
 --- puntos importantes para la funcionalidad
 
-
-
-- mantenedor de registro planilla(corte, calibre, calidad, destino)
-- filtro de planilla asc y desc
 - vista para planillas ya guardadas desde inicio
+- filtro de planilla asc y desc
+- creacion de usuarios
 - permisos para cada usuario 
 
 ---- detalles
 
 - solucionar error de campos desactivados en Crear Nueva planilla
-- manejo de mensajes de errores en formulario de crea planillas 
+- manejo de mensajes de error en formulario de crea planillas 
 
 PRUEBA CP PLANILLA DIA 02/02/2024, TURNO NOCHE, PORCIONES
+
+
+dudas
+
+bines o piezas, elegir? o ambiguo

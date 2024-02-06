@@ -1,6 +1,6 @@
 body {
     background-color: #f8f9fa;
-    
+
 }
 
 .navbar{
@@ -62,8 +62,10 @@ body {
 
 .content iframe {
     width: 100%;
-    height: 100vh; /* Ajusta al 100% del alto de la ventana */
+    height: 85vh; /* Ajusta al 100% del alto de la ventana */
     border: 0;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 

@@ -16,11 +16,11 @@ class PlanillaController extends Controller
             return redirect('/login');
         }
 
-        $cortes = DB::select('SELECT cod_corte,nombre FROM pst.dbo.corte WHERE inactivo = 0 AND transito = 1 GROUP BY nombre,cod_corte ORDER BY nombre ASC;');
-        $salas = DB::select('SELECT cod_sala,nombre FROM pst.dbo.sala WHERE inactivo = 0 ORDER BY nombre ASC;');
-        $calibres = DB::select('SELECT cod_calib,nombre FROM pst.dbo.calibre WHERE inactivo = 0 AND transito = 1 ;');
-        $calidades = DB::select('SELECT cod_cald,nombre FROM pst.dbo.calidad WHERE inactivo = 0 ORDER BY nombre ASC;');
-        $destinos = DB::select('SELECT cod_destino,nombre FROM pst.dbo.destino WHERE inactivo = 0 ORDER BY nombre ASC;');
+        $cortes = DB::select('SELECT cod_corte,nombre FROM pst.dbo.corte WHERE activo = 1 GROUP BY nombre,cod_corte ORDER BY nombre ASC;');
+        $salas = DB::select('SELECT cod_sala,nombre FROM pst.dbo.sala WHERE activo = 1 ORDER BY nombre ASC;');
+        $calibres = DB::select('SELECT cod_calib,nombre FROM pst.dbo.calibre WHERE activo = 1  ;');
+        $calidades = DB::select('SELECT cod_cald,nombre FROM pst.dbo.calidad WHERE activo = 1 ORDER BY nombre ASC;');
+        $destinos = DB::select('SELECT cod_destino,nombre FROM pst.dbo.destino WHERE activo = 1 ORDER BY nombre ASC;');
 
         $empresas = DB::select('SELECT cod_empresa,descripcion FROM bdsystem.dbo.empresas WHERE inactivo=0 ORDER BY descripcion ASC;');
         $procesos = DB::select('SELECT cod_sproceso,UPPER(nombre) as nombre FROM bdsystem.dbo.subproceso WHERE inactivo=0 ORDER BY nombre ASC;');
@@ -107,7 +107,7 @@ class PlanillaController extends Controller
             if (!$existingDestino) {
                 $id_newDestino = DB::table('pst.dbo.destino')->insertGetId([
                     'nombre' => $newDestino,
-                    'inactivo' => 0,
+                    'activo' => 1,
                 ]);
                 $codDestino = $id_newDestino;
             } else {
@@ -126,8 +126,7 @@ class PlanillaController extends Controller
             if (!$existingCorteIni) {
                 $id_newCorteIni = DB::table('pst.dbo.corte')->insertGetId([
                     'nombre' => $newCorteIni,
-                    'inactivo' => 0,
-                    'transito' => 1
+                    'activo' => 1
                 ]);
 
                 $codCorteIni = $id_newCorteIni;
@@ -149,8 +148,7 @@ class PlanillaController extends Controller
             if (!$existingCorteFin) {
                 $id_newCorteFin = DB::table('pst.dbo.corte')->insertGetId([
                     'nombre' => $newCorteFin,
-                    'inactivo' => 0,
-                    'transito' => 1
+                    'activo' => 1,
                 ]);
 
                 $codCorteFin = $id_newCorteFin;
@@ -173,8 +171,7 @@ class PlanillaController extends Controller
             if (!$existingCalibre) {
                 $id_newCalibre = DB::table('pst.dbo.calibre')->insertGetId([
                     'nombre' => $newCalibre,
-                    'inactivo' => 0,
-                    'transito' => 1
+                    'activo' => 1
                 ]);
                 $codCalibre = $id_newCalibre;
             } else {
@@ -192,7 +189,7 @@ class PlanillaController extends Controller
             if (!$existingCalidad) {
                 $id_newCalidad = DB::table('pst.dbo.calidad')->insertGetId([
                     'nombre' => $newCalidad,
-                    'inactivo' => 0,
+                    'activo' => 1
                 ]);
                 $codCalidad = $id_newCalidad;
             } else {

@@ -15,5 +15,9 @@ class VerifyCsrfToken extends Middleware
         '/obtener-valores-lote',
         '/procesar-formulario',
         'modificar-planilla/*',
+        '/eliminar-corte',
+        '/eliminar-calidad',
+        '/eliminar-destino',
+        '/eliminar-calibre',
     ];
 }

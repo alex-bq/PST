@@ -34,7 +34,11 @@
                 <img src="{{ asset('image/logo.png') }}" alt="Logo" height="50">
             </a>
 
-
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <a class="nav-item nav-link" href="{{ url('/admin') }}">Datos</a>
+                </ul>
+            </div>
 
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <div class="navbar-nav d-flex align-items-center">

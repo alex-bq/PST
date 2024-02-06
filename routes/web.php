@@ -30,9 +30,28 @@ Route::post('/agregar-registro', [PlanillaController::class, 'agregarRegistro'])
 Route::get('/admin', [adminController::class, 'admin'])->name('admin');
 
 Route::get('/mantenedor-corte', [adminController::class, 'mCorte'])->name('mCorte');
+
+Route::post('/guardar-corte', [adminController::class, 'guardarCorte'])->name('guardarCorte');
+Route::post('/editar-corte', [adminController::class, 'editarCorte'])->name('editarCorte');
+Route::post('/eliminar-corte', [adminController::class, 'eliminarCorte'])->name('eliminarCorte');
+
 Route::get('/mantenedor-calidad', [adminController::class, 'mCalidad'])->name('mCalidad');
+
+Route::post('/guardar-calidad', [adminController::class, 'guardarCalidad'])->name('guardarCalidad');
+Route::post('/editar-calidad', [adminController::class, 'editarCalidad'])->name('editarCalidad');
+Route::post('/eliminar-calidad', [adminController::class, 'eliminarCalidad'])->name('eliminarCalidad');
+
 Route::get('/mantenedor-destino', [adminController::class, 'mDestino'])->name('mDestino');
+
+Route::post('/guardar-destino', [adminController::class, 'guardarDestino'])->name('guardarDestino');
+Route::post('/editar-destino', [adminController::class, 'editarDestino'])->name('editarDestino');
+Route::post('/eliminar-destino', [adminController::class, 'eliminarDestino'])->name('eliminarDestino');
+
 Route::get('/mantenedor-calibre', [adminController::class, 'mCalibre'])->name('mCalibre');
+
+Route::post('/guardar-calibre', [adminController::class, 'guardarCalibre'])->name('guardarCalibre');
+Route::post('/editar-calibre', [adminController::class, 'editarCalibre'])->name('editarCalibre');
+Route::post('/eliminar-calibre', [adminController::class, 'eliminarCalibre'])->name('eliminarCalibre');
 
 
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
