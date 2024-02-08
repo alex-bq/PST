@@ -169,8 +169,7 @@
 
                         <td>
                             <div class="d-flex justify-content-end">
-                                <button class="btn btn-light me-2" (idUsuario, snombre, sapellido, usuario, contra,
-                                    idRol, activo)
+                                <button class="btn btn-light me-2"
                                     onclick="modalEditarUsuario({{ $usuario->cod_usuario }},'{{ $usuario->snombre }}','{{ $usuario->sapellido}}','{{ $usuario->usuario}}','{{ $usuario->pass}}',{{ $usuario->cod_rol }},{{ $usuario->activo }})">Editar</button>
                                 <button class="btn btn-danger"
                                     onclick="eliminarUsuario({{ $usuario->cod_usuario }})">Eliminar</button>

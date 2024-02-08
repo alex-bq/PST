@@ -12,10 +12,10 @@ class AuthController extends Controller
         if (session('user')) {
             return redirect('/inicio');
         }
-        
+
         return view('auth.login');
 
-        
+
 
     }
 
@@ -24,19 +24,23 @@ class AuthController extends Controller
         $credentials = $request->only('usuario', 'pass');
 
         $user = DB::table('pst.dbo.v_data_usuario')
+            ->select('*')
             ->where('usuario', $credentials['usuario'])
             ->where('pass', $credentials['pass'])
+            ->where('activo', 1)
             ->first();
 
         if ($user) {
             // Autenticación exitosa
-            session(['user' => [
-                'cod_usuario' => $user->cod_usuario,
-                'usuario' => $user->usuario,
-                'nombre' => $user->nombre,
-                'cod_rol'=> $user->cod_rol,
-                'rol' => $user->rol,
-            ]]);
+            session([
+                'user' => [
+                    'cod_usuario' => $user->cod_usuario,
+                    'usuario' => $user->usuario,
+                    'nombre' => $user->nombre,
+                    'cod_rol' => $user->cod_rol,
+                    'rol' => $user->rol,
+                ]
+            ]);
 
             return redirect()->route('inicio');
         }
@@ -46,13 +50,13 @@ class AuthController extends Controller
     }
 
     public function logout()
-{
+    {
 
 
-    // Limpiar la sesión
-    session()->forget('user');
+        // Limpiar la sesión
+        session()->forget('user');
 
-    return redirect('/login')->with('message', 'Has cerrado sesión exitosamente.');
-}
+        return redirect('/login')->with('message', 'Has cerrado sesión exitosamente.');
+    }
 
 }

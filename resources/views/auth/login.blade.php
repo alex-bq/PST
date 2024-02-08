@@ -9,7 +9,6 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="{{ asset('css/login.css') }}">
-    <!-- Agrega el archivo de estilos específico para el login si lo tienes -->
 </head>
 
 
@@ -34,12 +33,12 @@
                             @csrf
                             <div class="mb-3">
                                 <label for="nombre_usuario" class="form-label">Nombre de Usuario:</label>
-                                <input type="text" name="usuario" class="form-control" required>
+                                <input type="text" name="usuario" class="form-control" autocomplete="nope" required>
                             </div>
 
                             <div class="mb-3">
                                 <label for="pass" class="form-label">Contraseña:</label>
-                                <input type="password" name="pass" class="form-control" required>
+                                <input type="password" name="pass" class="form-control" autocomplete="nope" required>
                             </div>
 
                             <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
