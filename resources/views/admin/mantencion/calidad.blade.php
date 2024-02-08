@@ -11,25 +11,131 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <style>
+        body {
+            background-color: #fff;
+        }
 
+        .container {
+            margin-top: 50px;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-custom th {
+            background-color: #222;
+            color: #fff;
+            padding: 12px;
+            text-align: left;
+            font-weight: normal;
+        }
+
+        .table-custom td {
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+
+
+
+        .table-custom tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .table-custom tbody tr:hover {
+            background-color: #e2e6ea;
+        }
+
+        /* Animación para las filas */
+        @keyframes fadeInRow {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Aplicar animación a las filas */
+        .table-custom tbody tr {
+            animation: fadeInRow 0.5s ease forwards;
+            margin-bottom: 10px;
+            /* Agrega separación entre filas */
+        }
+
+        /* Estilo para hacer la tabla responsiva */
+        @media (max-width: 767px) {
+            .table-custom {
+                overflow-x: auto;
+                display: block;
+            }
+
+            .table-custom thead,
+            .table-custom tbody,
+            .table-custom th,
+            .table-custom td,
+            .table-custom tr {
+                display: block;
+                width: 100%;
+            }
+
+            .table-custom thead tr {
+                position: absolute;
+                top: -9999px;
+                left: -9999px;
+            }
+
+            .table-custom tr {
+                margin-bottom: 15px;
+            }
+
+            .table-custom td {
+                border-bottom: none;
+                border-right: none;
+                position: relative;
+                padding-left: 50%;
+            }
+
+            .table-custom td:before {
+                position: absolute;
+                top: 6px;
+                left: 6px;
+                width: 45%;
+                padding-right: 10px;
+                white-space: nowrap;
+                content: attr(data-label);
+                font-weight: bold;
+            }
+        }
+    </style>
 
 </head>
 
 <body>
-    <div class="container mt-5">
-        <div class="row mb-3">
-            <div class="col-md-6">
-                <button id="btnNuevo" class="btn btn-primary">Nueva calidad</button>
-            </div>
+    <div class="container">
+        <h1>Calidades</h1>
+        <div class="d-flex justify-content-end">
+            <button id="btnNuevo" class="btn btn-success">Nueva calidad</button>
         </div>
+        <br>
         <div class="table-responsive">
-            <table class="table table-striped">
+            <table class="table table-striped table-custom">
                 <thead>
                     <tr>
                         <th>Código</th>
                         <th>Nombre</th>
                         <th>Activo</th>
-                        <th>Acciones</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody id="tablaCalidades">
@@ -39,11 +145,14 @@
                         <td>{{ $calidad->nombre }}</td>
                         <td>{{ $calidad->activo }}</td>
                         <td>
-                            <button class="btn btn-light"
-                                onclick="modalEditarCalidad({{ $calidad->cod_cald }}, '{{ $calidad->nombre }}', {{ $calidad->activo }})">Editar</button>
-                            <button class="btn btn-danger"
-                                onclick="eliminarCalidad({{ $calidad->cod_cald }})">Eliminar</button>
+                            <div class="d-flex justify-content-end">
 
+                                <button class="btn btn-light me-2"
+                                    onclick="modalEditarCalidad({{ $calidad->cod_cald }}, '{{ $calidad->nombre }}', {{ $calidad->activo }})">Editar</button>
+                                <button class="btn btn-danger"
+                                    onclick="eliminarCalidad({{ $calidad->cod_cald }})">Eliminar</button>
+
+                            </div>
 
                         </td>
                     </tr>

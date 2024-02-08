@@ -53,6 +53,12 @@ Route::post('/guardar-calibre', [adminController::class, 'guardarCalibre'])->nam
 Route::post('/editar-calibre', [adminController::class, 'editarCalibre'])->name('editarCalibre');
 Route::post('/eliminar-calibre', [adminController::class, 'eliminarCalibre'])->name('eliminarCalibre');
 
+Route::get('/mantenedor-sala', [adminController::class, 'mSala'])->name('mSala');
+
+Route::post('/guardar-sala', [adminController::class, 'guardarSala'])->name('guardarSala');
+Route::post('/editar-sala', [adminController::class, 'editarSala'])->name('editarSala');
+Route::post('/eliminar-sala', [adminController::class, 'eliminarSala'])->name('eliminarSala');
+
 
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 

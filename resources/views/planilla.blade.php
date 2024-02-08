@@ -274,11 +274,10 @@
                             <br>
                             <div class="row">
                                 <div class="col-md-6">
-                                    <button type="submit" class="btn btn-success btn-lg">
+                                    <button type="submit" class="btn btn-success btn-lg ">
                                         Agregar
                                     </button>
                                 </div>
-
                                 <div class="col-md-6">
                                     <button type="button" class="btn btn-warning btn-lg" onclick="limpiarFormulario()">
                                         Limpiar

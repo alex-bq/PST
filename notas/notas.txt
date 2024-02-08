@@ -123,6 +123,10 @@ SELECT TOP 1000 [N_Ano]
 
 - solucionar error de campos desactivados en Crear Nueva planilla
 - manejo de mensajes de error en formulario de crea planillas 
+- error al crear una planilla, se crea bien pero redirije a planilla incorrecta, revisar a fondo
+- kilos negativos
+-
+
 
 PRUEBA CP PLANILLA DIA 02/02/2024, TURNO NOCHE, PORCIONES
 

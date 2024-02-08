@@ -227,6 +227,57 @@ class adminController extends Controller
             return response()->json(['message' => 'Error al actualizar el calibre: ' . $e->getMessage(), 'error' => 1]);
         }
     }
+    public function mSala()
+    {
+        $salas = DB::table('pst.dbo.sala')->select('*')->get();
+        return view('admin.mantencion.sala', compact('salas'));
+    }
+
+    public function guardarSala(Request $request)
+    {
+        $salaExistente = DB::table('pst.dbo.sala')
+            ->where('nombre', $request->nombre)
+            ->first();
+
+        if ($salaExistente) {
+            return response()->json(['message' => 'La sala ya existe en la base de datos.', 'error' => 1]);
+        }
+        DB::table('pst.dbo.sala')->insert([
+            'nombre' => $request->nombre,
+            'activo' => $request->activo,
+        ]);
+        return response()->json(['message' => 'Sala guardada exitosamente.', 'error' => 0]);
+    }
+    public function eliminarSala(Request $request)
+    {
+        $idSala = $request->id;
+        $sala = DB::table('pst.dbo.sala')->where('cod_sala', $idSala);
+        if (!$sala) {
+            return response()->json(['message' => 'La sala no existe en la base de datos.']);
+        }
+        DB::table('pst.dbo.sala')->where('cod_sala', $idSala)->delete();
+        return response()->json(['message' => 'Sala eliminada exitosamente.']);
+    }
+    public function editarSala(Request $request)
+    {
+        try {
+            $affectedRows = DB::table('pst.dbo.sala')
+                ->where('cod_sala', $request->cod_sala)
+                ->update([
+                    'nombre' => $request->nombre,
+                    'activo' => $request->activo,
+                ]);
+
+            if ($affectedRows > 0) {
+                $salaActualizada = DB::table('pst.dbo.sala')->where('cod_sala', $request->id)->first();
+                return response()->json(['message' => 'Sala actualizada exitosamente.', 'sala' => $salaActualizada, 'error' => 0]);
+            } else {
+                return response()->json(['message' => 'No se encontró la sala a actualizar.', 'error' => 1]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al actualizar la calidad: ' . $e->getMessage(), 'error' => 1]);
+        }
+    }
 
 
 }

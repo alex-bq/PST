@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mantencion destino</title>
+    <title>Mantencion sala</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- jQuery -->
@@ -122,16 +122,15 @@
 </head>
 
 <body>
-    <div class="container ">
-        <h1>Destinos</h1>
-
+    <div class="container">
+        <h1>Salas</h1>
         <div class="d-flex justify-content-end">
-            <button id="btnNuevo" class="btn btn-success">Nuevo Destino</button>
+            <button id="btnNuevo" class="btn btn-success">Nueva sala</button>
         </div>
         <br>
         <div class="table-responsive">
             <table class="table table-striped table-custom">
-                <thead class="sticky-header">
+                <thead>
                     <tr>
                         <th>Código</th>
                         <th>Nombre</th>
@@ -139,19 +138,20 @@
                         <th></th>
                     </tr>
                 </thead>
-                <tbody id="tablaDestinos">
-                    @foreach($destinos as $destino)
+                <tbody id="tablaSalas">
+                    @foreach($salas as $sala)
                     <tr>
-                        <td>{{ $destino->cod_destino }}</td>
-                        <td>{{ $destino->nombre }}</td>
-                        <td>{{ $destino->activo }}</td>
+                        <td>{{ $sala->cod_sala }}</td>
+                        <td>{{ $sala->nombre }}</td>
+                        <td>{{ $sala->activo }}</td>
                         <td>
                             <div class="d-flex justify-content-end">
 
                                 <button class="btn btn-light me-2"
-                                    onclick="modalEditarDestino({{ $destino->cod_destino }}, '{{ $destino->nombre }}', {{ $destino->activo }})">Editar</button>
+                                    onclick="modalEditarSala({{ $sala->cod_sala }}, '{{ $sala->nombre }}', {{ $sala->activo }})">Editar</button>
                                 <button class="btn btn-danger"
-                                    onclick="eliminarDestino({{ $destino->cod_destino }})">Eliminar</button>
+                                    onclick="eliminarSala({{ $sala->cod_sala }})">Eliminar</button>
+
                             </div>
 
                         </td>
@@ -163,17 +163,17 @@
         </div>
     </div>
 
-    <div class="modal fade" id="modalDestino" tabindex="-1" aria-labelledby="modalDestinoLabel" aria-hidden="true">
+    <div class="modal fade" id="modalSala" tabindex="-1" aria-labelledby="modalSalaLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalDestinoLabel">Nuevo Destino</h5>
+                    <h5 class="modal-title" id="modalSalaLabel">Nuevo Sala</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="formDestino" action="" method="POST">
+                    <form id="formSala" action="" method="POST">
                         @csrf
-                        <input type="hidden" id="cod_destino" name="cod_destino">
+                        <input type="hidden" id="cod_sala" name="cod_sala">
                         <div class="mb-3">
                             <label for="nombre" class="form-label">Nombre:</label>
                             <input type="text" class="form-control" id="nombre" name="nombre" required>
@@ -207,20 +207,20 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        function eliminarDestino(idDestino) {
-            if (confirm('¿Estás seguro de que deseas eliminar este destino?')) {
+        function eliminarSala(idSala) {
+            if (confirm('¿Estás seguro de que deseas eliminar esta sala?')) {
 
                 $.ajax({
-                    url: '{{ route("eliminarDestino") }}',
+                    url: '{{ route("eliminarSala") }}',
                     method: 'POST',
-                    data: { id: idDestino },
+                    data: { id: idSala },
                     success: function (response) {
-                        alert('Destino eliminado exitosamente.');
+                        alert('Sala eliminada exitosamente.');
                         location.reload();
 
                     },
                     error: function (xhr, status, error) {
-                        alert('Error al eliminar el destino.');
+                        alert('Error al eliminar la sala.');
                         console.error(xhr.responseText);
                     }
                 });
@@ -229,32 +229,32 @@
 
 
         $("#btnNuevo").click(function () {
-            $("#cod_destino").val("");
+            $("#cod_sala").val("");
             $("#nombre").val("");
             $("#activo").val("");
-            $("#modalDestinoLabel").text("Nuevo Destino");
-            $("#modalDestino").modal("show");
+            $("#modalSalaLabel").text("Nueva Sala");
+            $("#modalSala").modal("show");
         });
 
-        function modalEditarDestino(idDestino, nombre, activo) {
-            $('#cod_destino').val(idDestino);
+        function modalEditarSala(idSala, nombre, activo) {
+            $('#cod_sala').val(idSala);
             $('#nombre').val(nombre);
             if (activo == 1) {
                 $('#activoSi').prop('checked', true);
             } else {
                 $('#activoNo').prop('checked', true);
             }
-            $('#modalDestinoLabel').text('Editar Destino');
-            $('#modalDestino').modal("show");
+            $('#modalSalaLabel').text('Editar Sala');
+            $('#modalSala').modal("show");
         }
 
 
-        $("#formDestino").submit(function (event) {
+        $("#formSala").submit(function (event) {
             event.preventDefault();
 
             var formData = $(this).serialize();
 
-            var url = $('#modalDestinoLabel').text() === 'Nuevo Destino' ? '{{ route("guardarDestino") }}' : '{{ route("editarDestino") }}';
+            var url = $('#modalSalaLabel').text() === 'Nueva Sala' ? '{{ route("guardarSala") }}' : '{{ route("editarSala") }}';
 
 
             $.ajax({
@@ -272,7 +272,7 @@
 
                 },
                 error: function (xhr, status, error) {
-                    alert('Error al guardar el destino.');
+                    alert('Error al guardar el sala.');
                     console.error(xhr.responseText);
                 }
             });
