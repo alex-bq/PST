@@ -26,6 +26,7 @@ Route::post('/modificar-registro', [PlanillaController::class, 'editarRegistro']
 Route::post('/eliminar-registro', [PlanillaController::class, 'eliminarRegistro'])->name('eliminarRegistro');
 Route::post('/agregar-registro', [PlanillaController::class, 'agregarRegistro'])->name('agregar-registro');
 
+Route::get('/ver-planilla/{id}', [PlanillaController::class, 'verPlanilla'])->name('verPlanilla');
 
 Route::get('/admin', [adminController::class, 'admin'])->name('admin');
 

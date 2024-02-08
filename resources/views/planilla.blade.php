@@ -636,6 +636,14 @@
                                     data-planilla-id="{{ $idPlanilla }}">Borrar
                                     Seleccionados</button>
                             </div>
+                            <div class="col-md-4">
+                                <div class="col-md-4">
+                                    <a href="{{ route('verPlanilla', ['id' => $idPlanilla]) }}" class="btn btn-dark">
+                                        Ver Planilla
+                                    </a>
+                                </div>
+
+                            </div>
 
                         </div>
                     </div>
@@ -787,6 +795,7 @@
         </div>
 
     </div>
+
 
 
 

@@ -9,6 +9,54 @@ use Illuminate\Database\QueryException;
 class PlanillaController extends Controller
 {
 
+    public function verPlanilla($idPlanilla)
+    {
+
+        if (!session('user')) {
+            return redirect('/login');
+        }
+
+        $detalle_planilla = DB::table('pst.dbo.detalle_planilla_pst ')
+            ->select('*')
+            ->where('cod_planilla', $idPlanilla)
+            ->first();
+
+        $desc_planilla = DB::table('pst.dbo.v_planilla_pst')
+            ->select('*')
+            ->where('cod_planilla', $idPlanilla)
+            ->first();
+
+        if (!$desc_planilla) {
+            // La planilla no existe, redirigir al usuario a la página de inicio
+            return redirect('/inicio')->with('error', 'La planilla no xiste.');
+        }
+
+
+        $planilla = DB::table("pst.dbo.v_registro_planilla_pst")
+            ->select('*')
+            ->where('cod_planilla', $idPlanilla)
+            ->get();
+
+        $subtotal = DB::table('pst.dbo.registro_planilla_pst AS rp')
+            ->select('fin.nombre AS cFinal', DB::raw('SUM(rp.piezas) AS subtotalPiezas'), DB::raw('SUM(rp.kilos) AS subtotalKilos'))
+            ->leftJoin('pst.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
+            ->where('rp.cod_planilla', '=', $idPlanilla)
+            ->groupBy('fin.nombre', 'rp.cod_planilla')
+            ->orderBy('fin.nombre')
+            ->get();
+
+        $total = DB::table('pst.dbo.registro_planilla_pst AS rp')
+            ->select(DB::raw('SUM(rp.piezas) AS totalPiezas'), DB::raw('SUM(rp.kilos) AS totalKilos'))
+            ->leftJoin('pst.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
+            ->where('rp.cod_planilla', '=', $idPlanilla)
+            ->groupBy('rp.cod_planilla')
+            ->orderBy('rp.cod_planilla')
+            ->get();
+
+
+        return view('vista-planilla', compact('subtotal', 'total', 'planilla', 'idPlanilla', 'detalle_planilla', 'desc_planilla'));
+    }
+
     public function mostrarPlanilla($idPlanilla)
     {
 
