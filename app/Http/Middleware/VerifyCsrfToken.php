@@ -20,5 +20,6 @@ class VerifyCsrfToken extends Middleware
         '/eliminar-destino',
         '/eliminar-calibre',
         '/eliminar-sala',
+        '/eliminar-usuario',
     ];
 }

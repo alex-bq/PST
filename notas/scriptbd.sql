@@ -96,6 +96,7 @@ CREATE TABLE pst.dbo.usuarios_pst (
     nombre NVARCHAR(255),
     apellido NVARCHAR(255) NULL,
     cod_rol INT,
+	activo INT,
     FOREIGN KEY (cod_rol) REFERENCES pst.dbo.roles(cod_rol)
 );
 
@@ -149,14 +150,14 @@ VALUES
     ( 'INDUSTRIAL B', 1),   
     ( 'SIN CALIDAD', 1);
 
-INSERT INTO pst.dbo.usuarios_pst (usuario, pass, nombre, apellido, cod_rol)
+INSERT INTO pst.dbo.usuarios_pst (usuario, pass, nombre, apellido, cod_rol,activo)
 VALUES
-    ('juan_perez', '123', 'Juan', 'Perez', 2),   
-    ('maria_gomez', '123', 'Maria', 'Gomez', 1),  
-    ('carla_rodriguez', '123', 'Carla', 'Rodriguez', 1),  
-    ('ana_martinez', '123', 'Ana', 'Martinez', 2),  
-    ('luis_sanchez', '123', 'Luis', 'Sanchez', 1),  
-    ('admin', 'admin', 'Admin', NULL, 3); 
+    ('juan_perez', '123', 'Juan', 'Perez', 2,1),   
+    ('maria_gomez', '123', 'Maria', 'Gomez', 1,1),  
+    ('carla_rodriguez', '123', 'Carla', 'Rodriguez', 1,1),  
+    ('ana_martinez', '123', 'Ana', 'Martinez', 2,1),  
+    ('luis_sanchez', '123', 'Luis', 'Sanchez', 1,1),  
+    ('admin', 'admin', 'Admin', NULL, 3,1); 
 
 -----------------------------------------------------------
 

@@ -48,7 +48,7 @@
             </a>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    <a class="nav-item nav-link" href="{{ url('/admin') }}">Datos</a>
+                    <a class="nav-item nav-link" href="{{ url('/admin') }}">Admin</a>
                 </ul>
             </div>
 
@@ -397,9 +397,11 @@
                                                 @if(session('user')['cod_rol']==2) disabled @endif>
 
                                                 @foreach ($supervisores as $supervisor)
-                                                <option value="{{ $supervisor->cod_usuario }}" @if($desc_planilla->
-                                                    supervisor_nombre ==
-                                                    $supervisor->nombre) selected @endif>
+                                                @php
+                                                $selected = ($desc_planilla->cod_supervisor ==
+                                                $supervisor->cod_usuario) ? 'selected' : '';
+                                                @endphp
+                                                <option value="{{ $supervisor->cod_usuario }}" {{ $selected }}>
                                                     {{ $supervisor->nombre }}
                                                 </option>
                                                 @endforeach
@@ -412,9 +414,11 @@
                                             <select class="form-select select2" style="width: 100%" name="planillero">
 
                                                 @foreach ($planilleros as $planillero)
-                                                <option value="{{ $planillero->cod_usuario }}" @if($desc_planilla->
-                                                    planillero_nombre ==
-                                                    $planillero->nombre) selected @endif>
+                                                @php
+                                                $selected = ($desc_planilla->cod_planillero ==
+                                                $planillero->cod_usuario) ? 'selected' : '';
+                                                @endphp
+                                                <option value="{{ $planillero->cod_usuario }}" {{ $selected }}>
                                                     {{ $planillero->nombre }}
                                                 </option>
                                                 @endforeach
@@ -441,25 +445,31 @@
                                     <h6>Entrega Frigorífico</h6>
                                     <label for="cajasEntrega">Cajas:</label>
                                     <input type="number" class="form-control form-control-sm" id="cajasEntrega"
-                                        name="cajas_entrega" placeholder="Cajas">
+                                        value="{{ $detalle_planilla->cajas_entrega }}" name="cajas_entrega"
+                                        placeholder="Cajas">
                                     <label for="kilosEntrega">Kilos:</label>
                                     <input type="number" class="form-control form-control-sm" id="kilosEntrega"
-                                        name="kilos_entrega" placeholder="Kilos">
+                                        value="{{ $detalle_planilla->kilos_entrega }}" name="kilos_entrega"
+                                        placeholder="Kilos">
                                     <label for="piezasEntrega">Piezas:</label>
                                     <input type="number" class="form-control form-control-sm" id="piezasEntrega"
-                                        name="piezas_entrega" placeholder="Piezas">
+                                        value="{{ $detalle_planilla->piezas_entrega }}" name="piezas_entrega"
+                                        placeholder="Piezas">
                                 </div>
                                 <div class="col-6">
                                     <h6>Recepción Planta</h6>
                                     <label for="cajasRecepcion">Cajas:</label>
                                     <input type="number" class="form-control form-control-sm" id="cajasRecepcion"
-                                        name="cajas_recepcion" placeholder="Cajas">
+                                        value="{{ $detalle_planilla->cajas_recepcion }}" name="cajas_recepcion"
+                                        placeholder="Cajas">
                                     <label for="kilosRecepcion">Kilos:</label>
                                     <input type="number" class="form-control form-control-sm" id="kilosRecepcion"
-                                        name="kilos_recepcion" placeholder="Kilos">
+                                        value="{{ $detalle_planilla->kilos_recepcion }}" name="kilos_recepcion"
+                                        placeholder="Kilos">
                                     <label for="piezasRecepcion">Piezas:</label>
                                     <input type="number" class="form-control form-control-sm" id="piezasRecepcion"
-                                        name="piezas_recepcion" placeholder="Piezas">
+                                        value="{{ $detalle_planilla->piezas_recepcion }}" name="piezas_recepcion"
+                                        placeholder="Piezas">
                                 </div>
                             </div>
                             <br>
@@ -469,24 +479,33 @@
                                     <h6>Sala </h6>
 
                                     <select id="sala" class="form-select select2" style="width: 100%" name="sala"
-                                        aria-label="Selecciona un sala">
+                                        aria-label="Selecciona una sala">
                                         <option></option>
                                         @foreach ($salas as $sala)
-                                        <option value="{{ $sala->cod_sala }}">{{ $sala->nombre }}</option>
+                                        @php
+                                        $selected = ($detalle_planilla && $sala->cod_sala ==
+                                        $detalle_planilla->cod_sala) ? 'selected' : '';
+                                        @endphp
+                                        <option value="{{ $sala->cod_sala }}" {{ $selected }}>{{ $sala->nombre }}
+                                        </option>
                                         @endforeach
                                     </select>
+
                                 </div>
 
                                 <div class="col-6">
                                     <h6>Dotación:</h6>
-                                    <input type="number" class="form-control" name="dotacion" id="dotacion">
+                                    <input type="number" class="form-control" name="dotacion" id="dotacion"
+                                        value="{{ $detalle_planilla->dotacion }}">
                                 </div>
                             </div>
 
                             <br>
                             <div class="form-group mb-4">
                                 <h6>Observación:</h6>
-                                <textarea class="form-control" name="observacion" id="observacion" rows="3"></textarea>
+                                <textarea class="form-control" name="observacion" id="observacion"
+                                    rows="3">{{ $detalle_planilla->observacion }}</textarea>
+
                             </div>
                             <input type="hidden" name="idPlanilla" value="{{ $idPlanilla }}" />
 

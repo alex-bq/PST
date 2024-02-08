@@ -4,13 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mantencion destino</title>
+    <title>Mantenimiento de Usuarios</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <style>
         body {
             background-color: #fff;
@@ -122,30 +122,35 @@
 </head>
 
 <body>
-    <div class="container ">
-        <h1>Destinos</h1>
-
+    <div class="container">
+        <h1>Usuarios</h1>
         <div class="d-flex justify-content-end">
-            <button id="btnNuevo" class="btn btn-success">Nuevo Destino</button>
+            <button id="btnNuevo" class="btn btn-success">Nuevo Usuario</button>
         </div>
         <br>
         <div class="table-responsive">
             <table class="table table-striped table-custom">
-                <thead class="sticky-header">
+                <thead>
                     <tr>
                         <th>Código</th>
+                        <th>Usuario</th>
                         <th>Nombre</th>
+                        <th>Apellido</th>
+                        <th>Rol</th>
                         <th>Activo</th>
                         <th></th>
                     </tr>
                 </thead>
-                <tbody id="tablaDestinos">
-                    @foreach($destinos as $destino)
+                <tbody id="tablaUsuarios">
+                    @foreach($usuarios as $usuario)
                     <tr>
-                        <td>{{ $destino->cod_destino }}</td>
-                        <td>{{ $destino->nombre }}</td>
+                        <td>{{ $usuario->cod_usuario }}</td>
+                        <td>{{ $usuario->usuario }}</td>
+                        <td>{{ $usuario->snombre }}</td>
+                        <td>{{ $usuario->sapellido }}</td>
+                        <td>{{ $usuario->rol }}</td>
                         <td>
-                            @if ($destino->activo == 1)
+                            @if ($usuario->activo == 1)
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="green"
                                 class="bi bi-check-circle" viewBox="0 0 16 16">
                                 <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16" />
@@ -160,142 +165,189 @@
                             </svg>
                             @endif
                         </td>
+
+
                         <td>
                             <div class="d-flex justify-content-end">
-
-                                <button class="btn btn-light me-2"
-                                    onclick="modalEditarDestino({{ $destino->cod_destino }}, '{{ $destino->nombre }}', {{ $destino->activo }})">Editar</button>
+                                <button class="btn btn-light me-2" (idUsuario, snombre, sapellido, usuario, contra,
+                                    idRol, activo)
+                                    onclick="modalEditarUsuario({{ $usuario->cod_usuario }},'{{ $usuario->snombre }}','{{ $usuario->sapellido}}','{{ $usuario->usuario}}','{{ $usuario->pass}}',{{ $usuario->cod_rol }},{{ $usuario->activo }})">Editar</button>
                                 <button class="btn btn-danger"
-                                    onclick="eliminarDestino({{ $destino->cod_destino }})">Eliminar</button>
+                                    onclick="eliminarUsuario({{ $usuario->cod_usuario }})">Eliminar</button>
                             </div>
-
                         </td>
                     </tr>
                     @endforeach
                 </tbody>
             </table>
-
         </div>
-    </div>
 
-    <div class="modal fade" id="modalDestino" tabindex="-1" aria-labelledby="modalDestinoLabel" aria-hidden="true">
+    </div>
+    <!-- Modal para Nuevo/Edit Usuario -->
+    <div class="modal fade" id="modalUsuario" tabindex="-1" aria-labelledby="modalUsuarioLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="modalDestinoLabel">Nuevo Destino</h5>
+                    <h5 class="modal-title" id="modalUsuarioLabel">Nuevo Usuario</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="formDestino" action="" method="POST">
+                    <form id="formUsuario" action="" method="POST">
                         @csrf
-                        <input type="hidden" id="cod_destino" name="cod_destino">
-                        <div class="mb-3">
-                            <label for="nombre" class="form-label">Nombre:</label>
-                            <input type="text" class="form-control" id="nombre" name="nombre" required>
+                        <input type="hidden" id="cod_usuario" name="cod_usuario">
+
+                        <div class="mb-3 row">
+                            <div class="col-md-6">
+                                <label for="nombre" class="form-label">Nombre:</label>
+                                <input type="text" class="form-control" id="nombre" name="nombre" autocomplete="nope"
+                                    required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="apellido" class="form-label">Apellido:</label>
+                                <input type="text" class="form-control" id="apellido" name="apellido"
+                                    autocomplete="nope" required>
+                            </div>
                         </div>
+
+                        <div class="mb-3 row">
+
+                            <div class="col-md-6">
+                                <label for="usuario" class="form-label">Usuario:</label>
+                                <input type="text" class="form-control" id="usuario" name="usuario" autocomplete="nope"
+                                    required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="contra" class="form-label">Contraseña:</label>
+                                <div class="input-group">
+                                    <input type="password" id="contra" name="contra" class="form-control"
+                                        autocomplete="nope" required>
+                                    <button class="btn btn-outline-secondary" type="button" id="togglePassword">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                            fill="currentColor" class="bi bi-eye" viewBox="0 0 16 16">
+                                            <path
+                                                d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8M1.173 8a13 13 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5s3.879 1.168 5.168 2.457A13 13 0 0 1 14.828 8q-.086.13-.195.288c-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5s-3.879-1.168-5.168-2.457A13 13 0 0 1 1.172 8z" />
+                                            <path
+                                                d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5M4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="rol" class="form-label">Rol:</label>
+                            <select id="rol" class="form-select" name="rol">
+                                <option value="" selected disabled hidden>Selecciona un rol</option>
+                                @foreach ($roles as $rol)
+                                <option value="{{ $rol->cod_rol }}">{{ $rol->nombre_rol }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
                         <div class="mb-3">
                             <label for="activo" class="form-label">Activo:</label>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="activo" id="activoSi" value="1"
                                     checked>
-                                <label class="form-check-label" for="activoSi">
-                                    Si
-                                </label>
+                                <label class="form-check-label" for="activoSi">Si</label>
                             </div>
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" name="activo" id="activoNo" value="0">
-                                <label class="form-check-label" for="activoNo">
-                                    No
-                                </label>
+                                <label class="form-check-label" for="activoNo">No</label>
                             </div>
-
                         </div>
+
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                             <button type="submit" class="btn btn-primary">Guardar</button>
                         </div>
                     </form>
+
                 </div>
             </div>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- JavaScript para manejar la interactividad -->
     <script>
-        function eliminarDestino(idDestino) {
-            if (confirm('¿Estás seguro de que deseas eliminar este destino?')) {
-
+        function eliminarUsuario(idUsuario) {
+            if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
                 $.ajax({
-                    url: '{{ route("eliminarDestino") }}',
+                    url: '{{ route("eliminarUsuario") }}',
                     method: 'POST',
-                    data: { id: idDestino },
+                    data: {
+                        id: idUsuario
+                    },
                     success: function (response) {
-                        alert('Destino eliminado exitosamente.');
+                        alert('Usuario eliminado exitosamente.');
                         location.reload();
-
                     },
                     error: function (xhr, status, error) {
-                        alert('Error al eliminar el destino.');
+                        alert('Error al eliminar el usuario.');
                         console.error(xhr.responseText);
                     }
                 });
             }
         }
-
-
         $("#btnNuevo").click(function () {
-            $("#cod_destino").val("");
+            $("#usuario").val("");
             $("#nombre").val("");
+            $("#apellido").val("");
+            $("#contra").val("");
             $("#activo").val("");
-            $("#modalDestinoLabel").text("Nuevo Destino");
-            $("#modalDestino").modal("show");
+            $("#modalUsuarioLabel").text("Nuevo Usuario");
+            $("#modalUsuario").modal("show");
         });
+        function modalEditarUsuario(idUsuario, snombre, sapellido, usuario, contra, idRol, activo) {
+            $('#cod_usuario').val(idUsuario);
+            $('#nombre').val(snombre);
+            $('#apellido').val(sapellido);
+            $('#usuario').val(usuario);
+            $('#contra').val(contra);
+            $('#rol').val(idRol);
 
-        function modalEditarDestino(idDestino, nombre, activo) {
-            $('#cod_destino').val(idDestino);
-            $('#nombre').val(nombre);
             if (activo == 1) {
                 $('#activoSi').prop('checked', true);
             } else {
                 $('#activoNo').prop('checked', true);
             }
-            $('#modalDestinoLabel').text('Editar Destino');
-            $('#modalDestino').modal("show");
+            $('#modalUsuarioLabel').text('Editar Usuario');
+            $('#modalUsuario').modal("show");
         }
-
-
-        $("#formDestino").submit(function (event) {
+        $("#formUsuario").submit(function (event) {
             event.preventDefault();
-
             var formData = $(this).serialize();
-
-            var url = $('#modalDestinoLabel').text() === 'Nuevo Destino' ? '{{ route("guardarDestino") }}' : '{{ route("editarDestino") }}';
-
+            var url = $('#modalUsuarioLabel').text() === 'Nuevo Usuario' ? '{{ route("guardarUsuario") }}' : '{{ route("editarUsuario") }}';
 
             $.ajax({
                 url: url,
                 method: "POST",
                 data: formData,
                 success: function (response) {
-
-
                     alert(response.message);
-
                     if (response.error === 0) {
                         location.reload();
                     }
-
                 },
                 error: function (xhr, status, error) {
-                    alert('Error al guardar el destino.');
+                    alert('E alr el usuario.');
                     console.error(xhr.responseText);
                 }
             });
         });
 
-
+        $(document).ready(function () {
+            $('#togglePassword').click(function () {
+                const tipo = $('#contra').attr('type');
+                if (tipo === 'password') {
+                    $('#contra').attr('type', 'text');
+                    $('#togglePassword i').removeClass('bi-eye').addClass('bi-eye-slash');
+                } else {
+                    $('#contra').attr('type', 'password');
+                    $('#togglePassword i').removeClass('bi-eye-slash').addClass('bi-eye');
+                }
+            });
+        });
     </script>
-
 </body>
 
 </html>

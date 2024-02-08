@@ -280,4 +280,76 @@ class adminController extends Controller
     }
 
 
+
+
+
+
+
+
+
+
+    public function mUsuario()
+    {
+        $usuarios = DB::table('pst.dbo.v_data_usuario')->select('*')->orderBy('cod_rol')->get();
+        $roles = DB::table('pst.dbo.roles')->select('*')->orderBy('nombre_rol')->get();
+
+
+        return view('admin.mantencion.usuario', compact('usuarios', 'roles'));
+    }
+    public function guardarUsuario(Request $request)
+    {
+        $usuarioExistente = DB::table('pst.dbo.usuarios_pst')
+            ->where('usuario', $request->usuario)
+            ->first();
+
+        if ($usuarioExistente) {
+            return response()->json(['message' => 'El usuario ya existe en la base de datos.', 'error' => 1]);
+        }
+        DB::table('pst.dbo.usuarios_pst')->insert([
+            'usuario' => $request->usuario,
+            'pass' => $request->contra,
+            'nombre' => $request->nombre,
+            'apellido' => $request->apellido,
+            'cod_rol' => $request->rol,
+            'activo' => $request->activo,
+        ]);
+        return response()->json(['message' => 'Usuario guardado exitosamente.', 'error' => 0]);
+    }
+    public function eliminarUsuario(Request $request)
+    {
+        $idUsuario = $request->id;
+        $usuario = DB::table('pst.dbo.usuarios_pst')->where('cod_usuario', $idUsuario);
+        if (!$usuario) {
+            return response()->json(['message' => 'El usuario no existe en la base de datos.']);
+        }
+        DB::table('pst.dbo.usuarios_pst')->where('cod_usuario', $idUsuario)->delete();
+        return response()->json(['message' => 'Usuario eliminado exitosamente.']);
+    }
+    public function editarUsuario(Request $request)
+    {
+        try {
+            $affectedRows = DB::table('pst.dbo.usuarios_pst')
+                ->where('cod_usuario', $request->cod_usuario)
+                ->update([
+                    'usuario' => $request->usuario,
+                    'pass' => $request->contra,
+                    'nombre' => $request->nombre,
+                    'apellido' => $request->apellido,
+                    'cod_rol' => $request->rol,
+                    'activo' => $request->activo,
+                ]);
+
+            if ($affectedRows > 0) {
+                $usuarioActualizado = DB::table('pst.dbo.usuarios_pst')->where('cod_usuario', $request->id)->first();
+                return response()->json(['message' => 'Usuario actualizado exitosamente.', 'corte' => $usuarioActualizado, 'error' => 0]);
+            } else {
+                return response()->json(['message' => 'No se encontró el usuario a actualizar.', 'error' => 1]);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al actualizar el usuario: ' . $e->getMessage(), 'error' => 1]);
+        }
+    }
+
+
+
 }

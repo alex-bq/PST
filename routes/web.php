@@ -59,6 +59,12 @@ Route::post('/guardar-sala', [adminController::class, 'guardarSala'])->name('gua
 Route::post('/editar-sala', [adminController::class, 'editarSala'])->name('editarSala');
 Route::post('/eliminar-sala', [adminController::class, 'eliminarSala'])->name('eliminarSala');
 
+Route::get('/mantenedor-usuario', [adminController::class, 'mUsuario'])->name('mUsuario');
+
+Route::post('/guardar-usuario', [adminController::class, 'guardarUsuario'])->name('guardarUsuario');
+Route::post('/editar-usuario', [adminController::class, 'editarUsuario'])->name('editarUsuario');
+Route::post('/eliminar-usuario', [adminController::class, 'eliminarUsuario'])->name('eliminarUsuario');
+
 
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 

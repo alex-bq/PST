@@ -7,90 +7,8 @@
     <title>Página con Navbar y Sidebar</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- <link rel="stylesheet" href="{{ asset('css/admin.css') }}"> -->
-    <style>
-        html,
-        body {
-            height: 100%;
-            overflow-x: hidden;
-        }
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
 
-        .navbar {
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-
-        #sidebar .nav-link {
-            transition: color 0.3s, background-color 0.3s;
-            color: #222;
-            background-color: #f8f9fa;
-        }
-
-        #sidebar .nav-link:hover {
-            background-color: #333;
-            color: #f8f9fa;
-        }
-
-        #sidebar .nav-item {
-            transition: color 0.3s, background-color 0.3s;
-            color: #222;
-            background-color: #f8f9fa;
-        }
-
-        #sidebar .nav-item.selected .btn-toggle {
-            background-color: #333;
-            color: #f8f9fa;
-
-        }
-
-        .bi-chevron-right {
-            transition: transform 0.3s ease;
-        }
-
-        .selected .bi-chevron-right {
-            transform: rotate(90deg);
-            transition: transform 0.3s ease;
-        }
-
-
-        #sidebar .nav-item:hover {
-            background-color: #333;
-            color: #f8f9fa;
-        }
-
-        #sidebar {
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            position: fixed;
-            top: 70px;
-            left: 0;
-            height: 100%;
-            width: 230px;
-            background-color: #ffff;
-            z-index: 1;
-        }
-
-        .main-content {
-            height: 87%;
-            margin-left: 230px;
-            margin-top: 0px;
-            z-index: 0;
-            position: relative;
-            overflow-y: hidden;
-        }
-
-        .main-content iframe {
-            width: 100%;
-            height: 100%;
-        }
-
-        .btn-toggle {
-            border: none;
-            outline: none;
-            width: 100%;
-            border-radius: 0 !important;
-            text-align: left;
-            padding-left: 5px;
-        }
-    </style>
 </head>
 
 <body>
@@ -103,7 +21,7 @@
             </a>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    <a class="nav-item nav-link" href="{{ url('/admin') }}">Datos</a>
+                    <a class="nav-item nav-link" href="{{ url('/admin') }}">Admin</a>
                 </ul>
             </div>
 
@@ -138,6 +56,7 @@
                                 <a class="nav-link" href="{{ route('mDestino') }}">Destino</a>
                                 <a class="nav-link" href="{{ route('mCalibre') }}">Calibre</a>
                                 <a class="nav-link" href="{{ route('mSala') }}">Sala</a>
+                                <a class="nav-link" href="{{ route('mUsuario') }}">Usuario</a>
                             </div>
                         </div>
                     </li>

@@ -9,9 +9,12 @@ SELECT
     pst.dbo.usuarios_pst.cod_usuario,
     pst.dbo.usuarios_pst.usuario,
     pst.dbo.usuarios_pst.nombre + ' ' + pst.dbo.usuarios_pst.apellido AS nombre,
+	pst.dbo.usuarios_pst.nombre AS snombre,
+	pst.dbo.usuarios_pst.apellido AS sapellido,
     pst.dbo.usuarios_pst.pass,
     pst.dbo.usuarios_pst.cod_rol,
-    pst.dbo.roles.nombre_rol AS rol
+    pst.dbo.roles.nombre_rol AS rol,
+	pst.dbo.usuarios_pst.activo
 FROM
     pst.dbo.usuarios_pst
 INNER JOIN

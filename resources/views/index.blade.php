@@ -36,7 +36,7 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
-                    <a class="nav-item nav-link" href="{{ url('/admin') }}">Datos</a>
+                    <a class="nav-item nav-link" href="{{ url('/admin') }}">Admin</a>
                 </ul>
             </div>
 
