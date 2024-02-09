@@ -121,49 +121,59 @@
 
 <body>
 
-    <div class="container">
-        <div class="code-section">
-            <p><strong>Código de Planilla:</strong> {{ $desc_planilla->cod_planilla }}</p>
+    <div class="container fluid">
+
+        <div class="row">
+            <div class="col-sm-3">
+                <img src="{{ asset('image/logo.png') }}" alt="Logo" height="50">
+            </div>
+            <div class="col-sm-6 text-center">
+                <h1>Planilla Control Proceso</h1>
+            </div>
+            <div class="col-sm-3 text-end">
+                <h6><strong>N°</strong> {{ $desc_planilla->cod_planilla }}</h6>
+            </div>
         </div>
-        <div class="title-section">
-            <h1>Planilla de Proceso</h1>
-        </div>
-        <hr class="section-divider">
-        <div class="header-section">
-            <div class="header-left">
+        <hr>
+
+        <div class="row">
+            <div class="col-sm-6">
                 <p><strong>Lote:</strong> {{ $desc_planilla->lote }}</p>
                 <p><strong>Fecha:</strong> {{ $desc_planilla->fec_turno }}</p>
                 <p><strong>Turno:</strong> {{ $desc_planilla->turno }}</p>
             </div>
-            <div class="header-middle">
-                <img src="{{ asset('image/logo.png') }}" alt="Logo" height="50">
-            </div>
-            <div class="header-right">
+
+            <div class="col-sm-6 text-end">
                 <p><strong>Supervisor:</strong> {{ $desc_planilla->supervisor_nombre }}</p>
                 <p><strong>Planillero:</strong> {{ $desc_planilla->planillero_nombre }}</p>
             </div>
         </div>
         <hr class="section-divider">
-        <div class="info-section">
-            <div class="info-left">
+        <div class="row">
+            <div class="col-sm-8">
                 <p><strong>Proveedor:</strong> {{ $desc_planilla->proveedor }}</p>
                 <p><strong>Empresa:</strong> {{ $desc_planilla->empresa }}</p>
                 <p><strong>Especie:</strong> {{ $desc_planilla->especie }}</p>
             </div>
-            <div class="info-middle">
-                <p><strong>Entrega Frigorífico</strong></p>
-                <p><strong>Cajas:</strong> {{ $detalle_planilla->cajas_entrega }}</p>
-                <p><strong>Kilos:</strong> {{ $detalle_planilla->kilos_entrega }}</p>
-                <p><strong>Piezas:</strong> {{ $detalle_planilla->piezas_entrega }}</p>
-            </div>
-            <div class="info-right">
-                <p><strong>Recepción Planta</strong></p>
-                <p><strong>Cajas:</strong> {{ $detalle_planilla->cajas_recepcion }}</p>
-                <p><strong>Kilos:</strong> {{ $detalle_planilla->kilos_recepcion }}</p>
-                <p><strong>Piezas:</strong> {{ $detalle_planilla->piezas_recepcion }}</p>
+            <div class="col-sm-4">
+                <div class="row">
+                    <div class="col-sm-6">
+                        <p><strong>Entrega Frigorífico</strong></p>
+                        <p><strong>Cajas:</strong> {{ $detalle_planilla->cajas_entrega }}</p>
+                        <p><strong>Kilos:</strong> {{ $detalle_planilla->kilos_entrega }}</p>
+                        <p><strong>Piezas:</strong> {{ $detalle_planilla->piezas_entrega }}</p>
+                    </div>
+                    <div class="col-sm-6">
+                        <p><strong>Recepción Planta</strong></p>
+                        <p><strong>Cajas:</strong> {{ $detalle_planilla->cajas_recepcion }}</p>
+                        <p><strong>Kilos:</strong> {{ $detalle_planilla->kilos_recepcion }}</p>
+                        <p><strong>Piezas:</strong> {{ $detalle_planilla->piezas_recepcion }}</p>
+                    </div>
+                </div>
             </div>
         </div>
-        <hr class="section-divider">
+
+
         <div class="data-section">
             <div class="table-container">
                 <table class="table">
@@ -209,7 +219,7 @@
                 <table class="table">
                     <thead>
                         <tr>
-                            <th>Total</th>
+                            <th></th>
                             <th>Piezas</th>
                             <th>Kilos</th>
                         </tr>

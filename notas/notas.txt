@@ -115,7 +115,7 @@ SELECT TOP 1000 [N_Ano]
 --- puntos importantes para la funcionalidad
 
 - vista para planillas ya guardadas desde inicio
-- filtro de planilla asc y desc
+- filtro de planilla asc y desc, la forma de ordenar las planillas
 - creacion de usuarios
 - permisos para cada usuario 
 
@@ -127,10 +127,10 @@ SELECT TOP 1000 [N_Ano]
 - kilos negativos
 -
 
+---- por agregar, pedido por usuarios
 
-PRUEBA CP PLANILLA DIA 02/02/2024, TURNO NOCHE, PORCIONES
+- seleccion de bines o cajas en detalle planilla
+- rendimientos 
+- calculo para lavado, cuadrar kilos (por preguntar) 
 
-
-dudas
-
-bines o piezas, elegir? o ambiguo
+----- 
