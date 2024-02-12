@@ -7,6 +7,12 @@ use Illuminate\Support\Facades\DB;
 
 class IndexController extends Controller
 {
+
+    public function plantilla()
+    {
+
+        return view('layouts.plantilla');
+    }
     public function index()
     {
         if (!session('user')) {

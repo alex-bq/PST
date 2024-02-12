@@ -8,17 +8,26 @@ use Illuminate\Support\Facades\DB;
 
 class adminController extends Controller
 {
+
     public function admin()
     {
         if (!session('user')) {
             return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
         }
-
 
         return view('admin.admin');
     }
+
     public function mCorte()
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
+
         $cortes = DB::table('pst.dbo.corte')->select('*')->get();
 
 
@@ -26,6 +35,11 @@ class adminController extends Controller
     }
     public function guardarCorte(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         $corteExistente = DB::table('pst.dbo.corte')
             ->where('nombre', $request->nombre)
             ->first();
@@ -41,6 +55,11 @@ class adminController extends Controller
     }
     public function eliminarCorte(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         $idCorte = $request->id;
         $corte = DB::table('pst.dbo.corte')->where('cod_corte', $idCorte);
         if (!$corte) {
@@ -51,6 +70,11 @@ class adminController extends Controller
     }
     public function editarCorte(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         try {
             $affectedRows = DB::table('pst.dbo.corte')
                 ->where('cod_corte', $request->cod_corte)
@@ -73,12 +97,22 @@ class adminController extends Controller
 
     public function mCalidad()
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         $calidades = DB::table('pst.dbo.calidad')->select('*')->get();
         return view('admin.mantencion.calidad', compact('calidades'));
     }
 
     public function guardarCalidad(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         $calidadExistente = DB::table('pst.dbo.calidad')
             ->where('nombre', $request->nombre)
             ->first();
@@ -94,6 +128,11 @@ class adminController extends Controller
     }
     public function eliminarCalidad(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         $idCalidad = $request->id;
         $calidad = DB::table('pst.dbo.calidad')->where('cod_cald', $idCalidad);
         if (!$calidad) {
@@ -104,6 +143,11 @@ class adminController extends Controller
     }
     public function editarCalidad(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         try {
             $affectedRows = DB::table('pst.dbo.calidad')
                 ->where('cod_cald', $request->cod_cald)
@@ -125,6 +169,11 @@ class adminController extends Controller
 
     public function mDestino()
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         $destinos = DB::table('pst.dbo.destino')->select('*')->get();
 
 
@@ -132,6 +181,11 @@ class adminController extends Controller
     }
     public function guardarDestino(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         $destinoExistente = DB::table('pst.dbo.destino')
             ->where('nombre', $request->nombre)
             ->first();
@@ -147,6 +201,11 @@ class adminController extends Controller
     }
     public function eliminarDestino(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         $idDestino = $request->id;
         $destino = DB::table('pst.dbo.destino')->where('cod_destino', $idDestino);
         if (!$destino) {
@@ -157,6 +216,11 @@ class adminController extends Controller
     }
     public function editarDestino(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         try {
             $affectedRows = DB::table('pst.dbo.destino')
                 ->where('cod_destino', $request->cod_destino)
@@ -177,6 +241,11 @@ class adminController extends Controller
     }
     public function mCalibre()
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         $calibres = DB::table('pst.dbo.calibre')->select('*')->get();
 
 
@@ -184,6 +253,11 @@ class adminController extends Controller
     }
     public function guardarCalibre(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         $calibreExistente = DB::table('pst.dbo.calibre')
             ->where('nombre', $request->nombre)
             ->first();
@@ -199,6 +273,11 @@ class adminController extends Controller
     }
     public function eliminarCalibre(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         $idCalibre = $request->id;
         $calibre = DB::table('pst.dbo.calibre')->where('cod_calib', $idCalibre);
         if (!$calibre) {
@@ -209,6 +288,11 @@ class adminController extends Controller
     }
     public function editarCalibre(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         try {
             $affectedRows = DB::table('pst.dbo.calibre')
                 ->where('cod_calib', $request->cod_calib)
@@ -229,12 +313,22 @@ class adminController extends Controller
     }
     public function mSala()
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         $salas = DB::table('pst.dbo.sala')->select('*')->get();
         return view('admin.mantencion.sala', compact('salas'));
     }
 
     public function guardarSala(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         $salaExistente = DB::table('pst.dbo.sala')
             ->where('nombre', $request->nombre)
             ->first();
@@ -250,6 +344,11 @@ class adminController extends Controller
     }
     public function eliminarSala(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         $idSala = $request->id;
         $sala = DB::table('pst.dbo.sala')->where('cod_sala', $idSala);
         if (!$sala) {
@@ -260,6 +359,11 @@ class adminController extends Controller
     }
     public function editarSala(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         try {
             $affectedRows = DB::table('pst.dbo.sala')
                 ->where('cod_sala', $request->cod_sala)
@@ -290,6 +394,11 @@ class adminController extends Controller
 
     public function mUsuario()
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         $usuarios = DB::table('pst.dbo.v_data_usuario')->select('*')->orderBy('cod_rol')->get();
         $roles = DB::table('pst.dbo.roles')->select('*')->orderBy('nombre_rol')->get();
 
@@ -298,6 +407,11 @@ class adminController extends Controller
     }
     public function guardarUsuario(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         $usuarioExistente = DB::table('pst.dbo.usuarios_pst')
             ->where('usuario', $request->usuario)
             ->first();
@@ -317,6 +431,11 @@ class adminController extends Controller
     }
     public function eliminarUsuario(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         $idUsuario = $request->id;
         $usuario = DB::table('pst.dbo.usuarios_pst')->where('cod_usuario', $idUsuario);
         if (!$usuario) {
@@ -327,6 +446,11 @@ class adminController extends Controller
     }
     public function editarUsuario(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/inicio');
+        }
         try {
             $affectedRows = DB::table('pst.dbo.usuarios_pst')
                 ->where('cod_usuario', $request->cod_usuario)
