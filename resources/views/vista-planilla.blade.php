@@ -160,13 +160,13 @@
                     <div class="col-sm-6">
                         <p><strong>Entrega Frigorífico</strong></p>
                         <p><strong>Cajas:</strong> {{ $detalle_planilla->cajas_entrega }}</p>
-                        <p><strong>Kilos:</strong> {{ $detalle_planilla->kilos_entrega }}</p>
+                        <p><strong>Kilos:</strong> {{ round($detalle_planilla->kilos_entrega,2) }}</p>
                         <p><strong>Piezas:</strong> {{ $detalle_planilla->piezas_entrega }}</p>
                     </div>
                     <div class="col-sm-6">
                         <p><strong>Recepción Planta</strong></p>
                         <p><strong>Cajas:</strong> {{ $detalle_planilla->cajas_recepcion }}</p>
-                        <p><strong>Kilos:</strong> {{ $detalle_planilla->kilos_recepcion }}</p>
+                        <p><strong>Kilos:</strong> {{ round($detalle_planilla->kilos_recepcion,2) }}</p>
                         <p><strong>Piezas:</strong> {{ $detalle_planilla->piezas_recepcion }}</p>
                     </div>
                 </div>

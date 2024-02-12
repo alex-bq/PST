@@ -367,7 +367,7 @@
                                     placeholder="Cajas">
                                 <label for="kilosEntrega">Kilos:</label>
                                 <input type="number" class="form-control form-control-sm" id="kilosEntrega"
-                                    value="{{ $detalle_planilla->kilos_entrega }}" name="kilos_entrega"
+                                    value="{{ round($detalle_planilla->kilos_entrega,2) }}" name="kilos_entrega"
                                     placeholder="Kilos">
                                 <label for="piezasEntrega">Piezas:</label>
                                 <input type="number" class="form-control form-control-sm" id="piezasEntrega"
@@ -382,7 +382,7 @@
                                     placeholder="Cajas">
                                 <label for="kilosRecepcion">Kilos:</label>
                                 <input type="number" class="form-control form-control-sm" id="kilosRecepcion"
-                                    value="{{ $detalle_planilla->kilos_recepcion }}" name="kilos_recepcion"
+                                    value="{{ round($detalle_planilla->kilos_recepcion,2) }}" name="kilos_recepcion"
                                     placeholder="Kilos">
                                 <label for="piezasRecepcion">Piezas:</label>
                                 <input type="number" class="form-control form-control-sm" id="piezasRecepcion"
