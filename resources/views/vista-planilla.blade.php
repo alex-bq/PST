@@ -137,108 +137,105 @@
         <hr>
 
         <div class="row">
-            <div class="col-sm-6">
-                <p><strong>Lote:</strong> {{ $desc_planilla->lote }}</p>
-                <p><strong>Fecha:</strong> {{ $desc_planilla->fec_turno }}</p>
-                <p><strong>Turno:</strong> {{ $desc_planilla->turno }}</p>
+            <div class="col-sm-12">
+                <strong>Lote:</strong> {{ $desc_planilla->lote }}
+                <strong>Fecha:</strong> {{ $desc_planilla->fec_turno }}
+                <strong>Turno:</strong> {{ $desc_planilla->turno }}
+                <strong>Supervisor:</strong> {{ $desc_planilla->supervisor_nombre }}
+                <strong>Planillero:</strong> {{ $desc_planilla->planillero_nombre }}
+
+            </div>
+            <hr class="section-divider">
+            <div class="row">
+                <div class="col-sm-8">
+                    <p><strong>Proveedor:</strong> {{ $desc_planilla->proveedor }}</p>
+                    <p><strong>Empresa:</strong> {{ $desc_planilla->empresa }}</p>
+                    <p><strong>Especie:</strong> {{ $desc_planilla->especie }}</p>
+                </div>
+                <div class="col-sm-4">
+                    <div class="row">
+                        <div class="col-sm-6">
+                            <p><strong>Entrega Frigorífico</strong></p>
+                            <p><strong>Cajas:</strong> {{ $detalle_planilla->cajas_entrega }}</p>
+                            <p><strong>Kilos:</strong> {{ round($detalle_planilla->kilos_entrega,2) }}</p>
+                            <p><strong>Piezas:</strong> {{ $detalle_planilla->piezas_entrega }}</p>
+                        </div>
+                        <div class="col-sm-6">
+                            <p><strong>Recepción Planta</strong></p>
+                            <p><strong>Cajas:</strong> {{ $detalle_planilla->cajas_recepcion }}</p>
+                            <p><strong>Kilos:</strong> {{ round($detalle_planilla->kilos_recepcion,2) }}</p>
+                            <p><strong>Piezas:</strong> {{ $detalle_planilla->piezas_recepcion }}</p>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="col-sm-6 text-end">
-                <p><strong>Supervisor:</strong> {{ $desc_planilla->supervisor_nombre }}</p>
-                <p><strong>Planillero:</strong> {{ $desc_planilla->planillero_nombre }}</p>
+
+            <div class="data-section">
+                <div class="table-container">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Corte Inicial</th>
+                                <th>Corte Final</th>
+                                <th>Destino</th>
+                                <th>Calibre</th>
+                                <th>Calidad</th>
+                                <th>Piezas</th>
+                                <th>Kilos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($planilla as $registro)
+                            <tr>
+                                <td>{{ $registro->cInicial }}</td>
+                                <td>{{ $registro->cFinal }}</td>
+                                <td>{{ $registro->destino }}</td>
+                                <td>{{ $registro->calibre }}</td>
+                                <td>{{ $registro->calidad }}</td>
+                                <td>{{ $registro->piezas }}</td>
+                                <td>{{ round($registro->kilos, 2) }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
-        <hr class="section-divider">
-        <div class="row">
-            <div class="col-sm-8">
-                <p><strong>Proveedor:</strong> {{ $desc_planilla->proveedor }}</p>
-                <p><strong>Empresa:</strong> {{ $desc_planilla->empresa }}</p>
-                <p><strong>Especie:</strong> {{ $desc_planilla->especie }}</p>
+            <hr class="section-divider">
+            <div class="totals-section">
+                <div class="totals-left">
+                    <p><strong>Dotación:</strong> {{ $detalle_planilla->dotacion }}</p>
+                </div>
+                <div class="totals-right">
+                    <p><strong>Observación:</strong> {{ $detalle_planilla->observacion }}</p>
+                </div>
             </div>
-            <div class="col-sm-4">
-                <div class="row">
-                    <div class="col-sm-6">
-                        <p><strong>Entrega Frigorífico</strong></p>
-                        <p><strong>Cajas:</strong> {{ $detalle_planilla->cajas_entrega }}</p>
-                        <p><strong>Kilos:</strong> {{ round($detalle_planilla->kilos_entrega,2) }}</p>
-                        <p><strong>Piezas:</strong> {{ $detalle_planilla->piezas_entrega }}</p>
-                    </div>
-                    <div class="col-sm-6">
-                        <p><strong>Recepción Planta</strong></p>
-                        <p><strong>Cajas:</strong> {{ $detalle_planilla->cajas_recepcion }}</p>
-                        <p><strong>Kilos:</strong> {{ round($detalle_planilla->kilos_recepcion,2) }}</p>
-                        <p><strong>Piezas:</strong> {{ $detalle_planilla->piezas_recepcion }}</p>
-                    </div>
+            <hr class="section-divider">
+            <div class="totals-section">
+                <div class="totals-left">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Piezas</th>
+                                <th>Kilos</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($total as $a)
+                            <tr>
+                                <th>Total</th>
+                                <td>{{ $a->totalPiezas }}</td>
+                                <td>{{ round($a->totalKilos, 2) }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-
-        <div class="data-section">
-            <div class="table-container">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th>Corte Inicial</th>
-                            <th>Corte Final</th>
-                            <th>Destino</th>
-                            <th>Calibre</th>
-                            <th>Calidad</th>
-                            <th>Piezas</th>
-                            <th>Kilos</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($planilla as $registro)
-                        <tr>
-                            <td>{{ $registro->cInicial }}</td>
-                            <td>{{ $registro->cFinal }}</td>
-                            <td>{{ $registro->destino }}</td>
-                            <td>{{ $registro->calibre }}</td>
-                            <td>{{ $registro->calidad }}</td>
-                            <td>{{ $registro->piezas }}</td>
-                            <td>{{ round($registro->kilos, 2) }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        <hr class="section-divider">
-        <div class="totals-section">
-            <div class="totals-left">
-                <p><strong>Dotación:</strong> {{ $detalle_planilla->dotacion }}</p>
-            </div>
-            <div class="totals-right">
-                <p><strong>Observación:</strong> {{ $detalle_planilla->observacion }}</p>
-            </div>
-        </div>
-        <hr class="section-divider">
-        <div class="totals-section">
-            <div class="totals-left">
-                <table class="table">
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Piezas</th>
-                            <th>Kilos</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($total as $a)
-                        <tr>
-                            <th>Total</th>
-                            <td>{{ $a->totalPiezas }}</td>
-                            <td>{{ round($a->totalKilos, 2) }}</td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>
