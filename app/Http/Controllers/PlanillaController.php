@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use DB;
 use Illuminate\Database\QueryException;
+use Dompdf\Dompdf;
+use Dompdf\Options;
 
 class PlanillaController extends Controller
 {
@@ -56,6 +58,7 @@ class PlanillaController extends Controller
 
         return view('vista-planilla', compact('subtotal', 'total', 'planilla', 'idPlanilla', 'detalle_planilla', 'desc_planilla'));
     }
+
 
     public function mostrarPlanilla($idPlanilla)
     {

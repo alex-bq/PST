@@ -110,27 +110,23 @@ SELECT TOP 1000 [N_Ano]
   where [N_Ano] = 2024;
 
 
-  
-
 --- puntos importantes para la funcionalidad
 
 - vista para planillas ya guardadas desde inicio
 - filtro de planilla asc y desc, la forma de ordenar las planillas
-- creacion de usuarios
 - permisos para cada usuario 
+- que no se puedan eliminar datos que dependan en mantencion de datos, solo se puedan desactivar
 
 ---- detalles
 
 - solucionar error de campos desactivados en Crear Nueva planilla
 - manejo de mensajes de error en formulario de crea planillas 
-- error al crear una planilla, se crea bien pero redirije a planilla incorrecta, revisar a fondo
 - kilos negativos
--
+- 
 
----- por agregar, pedido por usuarios
+---- por agregar, pedido 
 
 - seleccion de bines o cajas en detalle planilla
 - rendimientos 
-- calculo para lavado, cuadrar kilos (por preguntar) 
 
 ----- 

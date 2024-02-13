@@ -7,21 +7,26 @@
 @endsection
 
 @section('scripts')
+
 <script src="{{ asset('js/planilla.js') }}"></script>
+
 @endsection
 
 
 @section('content')
 
 <div class="container-fluid align-text">
-    <div class='row' style="margin-bottom: -30px;margin-top: 10px;">
+    <div class='row' style="margin-bottom: -30px;margin-top: -1px;">
         <div class="col-md-4">
             <a href="{{ url('/inicio') }}" class="botonAtras">
-                <img src="{{ asset('image/atras.svg') }}" alt="atras" style="height: 35px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24"
+                    style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;">
+                    <path d="M21 11H6.414l5.293-5.293-1.414-1.414L2.586 12l7.707 7.707 1.414-1.414L6.414 13H21z"></path>
+                </svg>
             </a>
         </div>
         <div class="col-md-8 ">
-            <h1>Planilla Control De Proceso SG</h1>
+            <h3>Planilla Control De Proceso SG</h3>
         </div>
     </div>
 
@@ -439,6 +444,11 @@
         <div class="col-lg-8 mb-2">
             <div class="card">
                 <div class="card-body">
+                    <div class="row">
+                        <div class="col-sm-12 text-end">
+
+                        </div>
+                    </div>
 
                     <div class="table-wrapper table-responsive" id="tabla-registros">
 
@@ -539,23 +549,24 @@
                     <div class="row ">
 
 
-                        <div class="col-md-4">
-                            <button type="submit" class="btn btn-success btn-lg" id="btnGuardar">
+                        <div class="col-sm-4">
+                            <button type="submit" class="btn btn-success" id="btnGuardar">
                                 Guardar </button>
                         </div>
-                        <div class="col-md-4">
+
+
+                        <div class="col-sm-8 text-end">
                             <button id="btnBorrarSeleccionados" class="btn btn-danger "
                                 data-planilla-id="{{ $idPlanilla }}">Borrar
                                 Seleccionados</button>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="col-md-4">
-                                <a href="{{ route('verPlanilla', ['id' => $idPlanilla]) }}" class="btn btn-dark">
-                                    Ver Planilla
-                                </a>
-                            </div>
+                            <a href="{{ route('verPlanilla', ['id' => $idPlanilla]) }}" class="btn btn-dark">
+                                Ver Planilla
+                            </a>
+
+
 
                         </div>
+
 
                     </div>
                 </div>
@@ -721,6 +732,32 @@
 
 
 @section('scripts2')
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+
+<script>
+    function descargarURLComoPDF(url) {
+        // URL de la página que deseas convertir a PDF
+
+        // Realizar una solicitud GET para obtener el contenido HTML de la URL
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                // Crear un objeto jsPDF
+                var doc = new jsPDF();
+
+                // Convertir el contenido HTML a PDF
+                doc.html(html, {
+                    callback: function (pdf) {
+                        // Guardar el PDF con un nombre específico
+                        pdf.save('contenido.pdf');
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error al obtener el contenido HTML:', error);
+            });
+    }
+</script>
 
 <script>
     $(document).ready(function () {
