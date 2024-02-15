@@ -36,18 +36,21 @@ thead.sticky-header th {
 
 
 
-/* Estilo personalizado para la posición del toast */
 .toast-position {
   position: fixed;
   top: 80px;
   right: 10px;
 }
 
-/* Estilo personalizado para el contenedor del toast */
 #toast-container {
   width: 300px;
   height: auto;
   overflow: hidden;
+}
+
+.botonAtras {
+  position: relative;
+  z-index: 9999; 
 }
 
 
@@ -57,12 +60,10 @@ thead.sticky-header th {
 }
 
 .clear-input-button {
-  /* button position */
   position: absolute;
   right: 4px;
   top: 4px;
   bottom: 0;
-  /* button appearane */
   justify-content: center;
   align-items: center;
   width: 16px;
@@ -78,7 +79,6 @@ thead.sticky-header th {
   color: white;
   font-size: 13px;
   cursor: pointer;
-  /* hide the button initially */
   display: none;
 }
 

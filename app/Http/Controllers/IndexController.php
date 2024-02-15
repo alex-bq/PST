@@ -130,7 +130,7 @@ class IndexController extends Controller
             ->value('cod_lote');
 
         try {
-            $idPlanilla = DB::table('pst.dbo.planillas_pst')->insertGetId([
+            DB::table('pst.dbo.planillas_pst')->insert([
                 'cod_lote' => $idLote,
                 'fec_turno' => $request->input('fechaTurno'),
                 'cod_turno' => $request->input('turno'),
@@ -142,8 +142,12 @@ class IndexController extends Controller
                 'cod_supervisor' => $request->input('supervisor'),
                 'guardado' => 0,
             ]);
+            $idPlanilla = DB::table('pst.dbo.planillas_pst')
+                ->orderBy('cod_planilla', 'desc')
+                ->value('cod_planilla');
 
-            return response()->json(['redirect' => '/planilla/' . $idPlanilla, 'message' => 'La planilla se creó correctamente.']);
+
+            return response()->json(['planilla' => $idPlanilla, 'message' => 'La planilla se creó correctamente.']);
         } catch (\Exception $e) {
             dd($e->getMessage());
             return response()->json(['error' => 'Error al crear la planilla.'], 422);

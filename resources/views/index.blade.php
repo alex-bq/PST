@@ -3,10 +3,12 @@
 @section('title', 'Página de inicio')
 
 @section('styles')
+
 <link rel="stylesheet" href="{{ asset('css/index.css') }}">
 @endsection
 
 @section('scripts')
+
 <script src="{{ asset('js/index.js') }}"></script>
 @endsection
 
@@ -134,25 +136,24 @@
 
     @if(count($planillas) > 0)
     <div id="tabla-container">
-        <table class="table table-hover table-responsive">
+        <table id="tablaPlanillas" class="table table-hover table-responsive">
             <thead>
                 <tr>
-                    <th>N°</th>
-                    <th>Lote</th>
-                    <th>Fecha Turno</th>
-                    <th>Turno</th>
-                    <th>Proveedor</th>
-                    <th>Empresa</th>
-                    <th>Especie</th>
-                    <th>Supervisor</th>
-                    <th>Planillero</th>
-                    <th>Guardado</th>
+                    <th scope="col" onclick="sortTable(0)">N°</th>
+                    <th scope="col" onclick="sortTable(1)">Lote</th>
+                    <th scope="col" onclick="sortTable(2)">Fecha Turno</th>
+                    <th scope="col" onclick="sortTable(3)">Turno</th>
+                    <th scope="col" onclick="sortTable(4)">Proveedor</th>
+                    <th scope="col" onclick="sortTable(5)">Empresa</th>
+                    <th scope="col" onclick="sortTable(6)">Especie</th>
+                    <th scope="col" onclick="sortTable(7)">Supervisor</th>
+                    <th scope="col" onclick="sortTable(8)">Planillero</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($planillas as $planilla)
-                <tr class="table-row" onclick="window.location='{{ url('/planilla/' . $planilla->cod_planilla) }}';">
-                    <td>{{ $planilla->cod_planilla}}</td>
+                <tr class="table-row" onclick="abrirModal('{{ $planilla->cod_planilla }}')">
+                    <td>{{ $planilla->cod_planilla }}</td>
                     <td>{{ $planilla->lote }}</td>
                     <td>{{ date('d/m/Y', strtotime($planilla->fec_turno)) }}</td>
                     <td>{{ $planilla->turno }}</td>
@@ -161,23 +162,7 @@
                     <td>{{ $planilla->especie }}</td>
                     <td>{{ $planilla->supervisor_nombre }}</td>
                     <td>{{ $planilla->planillero_nombre }}</td>
-                    <td>
-                        @if ($planilla->guardado == 1)
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="green" class="bi bi-floppy"
-                            viewBox="0 0 16 16">
-                            <path d="M11 2H9v3h2z" />
-                            <path
-                                d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z" />
-                        </svg>
-                        @else
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" class="bi bi-floppy"
-                            viewBox="0 0 16 16">
-                            <path d="M11 2H9v3h2z" />
-                            <path
-                                d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z" />
-                        </svg>
-                        @endif
-                    </td>
+
                 </tr>
                 @endforeach
             </tbody>
@@ -194,6 +179,18 @@
 
 
 @section('modal')
+
+<div class="modal fade" id="verPlanillaModal" tabindex="-1" aria-labelledby="verPlanillaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+
+            <div class="modal-body">
+                <!-- Aquí se mostrará la información de la planilla -->
+                <iframe id="iframePlanilla" style="width:100%;height:500px;" frameborder="0"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -279,7 +276,8 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label for="fechaTurno">Fecha de Turno</label>
-                                <input type="date" class="form-control" id="fechaTurno" name="fechaTurno" required>
+                                <input type="date" class="form-control" id="fechaTurno" name="fechaTurno"
+                                    min="2000-01-01" max="{{ date('Y-m-d') }}" required>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -346,6 +344,14 @@
 
 @section('scripts2')
 <script>
+
+
+
+    function abrirModal(codPlanilla) {
+        var url = "{{ url('/ver-planilla/') }}/" + codPlanilla;
+        document.getElementById("iframePlanilla").src = url;
+        $('#verPlanillaModal').modal('show');
+    }
     $(function () {
         $(".accordion-titulo").click(function (e) {
 
@@ -369,7 +375,6 @@
     var baseUrl = "{{ url('/') }}";
 
     $(document).ready(function () {
-
 
 
 
@@ -403,18 +408,14 @@
                 url: baseUrl + '/procesar-formulario',
                 data: datos,
                 success: function (response) {
-                    if (response.redirect) {
-                        window.location.href = baseUrl + response.redirect;
-                    } else {
-                        console.log(response.message);
-                    }
+                    window.location.href = baseUrl + '/planilla/' + response.planilla;
                 },
                 error: function (xhr, status, error) {
                     if (xhr.status === 419) {
                         console.error('Error CSRF');
                     } else {
                         console.error(xhr.responseText);
-                        $('#mensajeError').text('El lote no existe.').show();
+                        $('#mensajeError').text('Error en la creación').show();
                     }
                 }
             });
@@ -452,9 +453,10 @@
                         $('#mensajeError').hide()
                     },
                     error: function (xhr) {
-                        $('select[name="empresa"]').val('').prop('disabled', false);
-                        $('select[name="proveedor"]').val('').prop('disabled', false);
-                        $('select[name="especie"]').val('').prop('disabled', false);
+                        $('select[name="empresa"]').val('');
+                        $('select[name="proveedor"]').val('');
+                        $('select[name="especie"]').val('');
+                        $('select[name="proceso"]').val('');
                         $('#mensajeError').text('El lote no existe.').show();
 
                     }
@@ -486,17 +488,14 @@
             });
         });
 
+
         function actualizarTabla(planillas) {
 
             $('#tabla-container  tbody').empty();
 
 
             planillas.forEach(function (planilla) {
-                var estadoIcono = planilla.guardado == 1 ? 'green' : 'red';
-                var icono = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="' + estadoIcono + '" class="bi bi-floppy" viewBox="0 0 16 16">' +
-                    '<path d="M11 2H9v3h2z"/>' +
-                    '<path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>' +
-                    '</svg>';
+
                 var fila = '<tr class="table-row" onclick="window.location=\'' + '{{ url("/planilla/") }}/' + planilla.cod_planilla + '\';">' +
                     '<td>' + planilla.cod_planilla + '</td>' +
                     '<td>' + planilla.lote + '</td>' +
@@ -506,7 +505,6 @@
                     '<td>' + planilla.empresa + '<td>' + planilla.especie + '</td>' +
                     '<td>' + planilla.supervisor_nombre + '</td>' +
                     '<td>' + planilla.planillero_nombre + '</td>' +
-                    '<td>' + icono + '</td>' +
                     '</tr>';
                 $('#tabla-container tbody').append(fila);
             });
@@ -553,11 +551,7 @@
             $('#tabla-container tbody').empty();
 
             planillas.forEach(function (planilla) {
-                var estadoIcono = planilla.guardado == 1 ? 'green' : 'red';
-                var icono = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="' + estadoIcono + '" class="bi bi-floppy" viewBox="0 0 16 16">' +
-                    '<path d="M11 2H9v3h2z"/>' +
-                    '<path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>' +
-                    '</svg>';
+
                 var fila = '<tr class="table-row" onclick="window.location=\'' + '{{ url("/planilla/") }}/' + planilla.cod_planilla + '\';">' +
                     '<td>' + planilla.cod_planilla + '</td>' +
 
@@ -568,7 +562,6 @@
                     '<td>' + planilla.empresa + '<td>' + planilla.especie + '</td>' +
                     '<td>' + planilla.supervisor_nombre + '</td>' +
                     '<td>' + planilla.planillero_nombre + '</td>' +
-                    '<td>' + icono + '</td>' +
                     '</tr>';
                 $('#tabla-container tbody').append(fila);
             });

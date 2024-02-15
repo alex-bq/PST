@@ -55,14 +55,18 @@
     <div id="esconder" class="container">
         <div class="row">
             <div class="col-sm-6">
-                <button class="btn" onclick="window.history.back()">
-                    <img src="{{ asset('image/atras.svg') }}" alt="atras" style="height: 35px;">
-                </button>
+                <a title="Editar" class="btn" href="{{ url('/planilla/' . $desc_planilla->cod_planilla) }}"
+                    target="_top">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 24 24"
+                        style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;">
+                        <path d="m16 2.012 3 3L16.713 7.3l-3-3zM4 14v3h3l8.299-8.287-3-3zm0 6h16v2H4z"></path>
+                    </svg> </a>
 
             </div>
             <div class="col-sm-6 text-end">
-                <button class="btn" onclick="descargarPDF()"><svg xmlns="http://www.w3.org/2000/svg" width="35"
-                        height="35" viewBox="0 0 24 24" style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;">
+                <button title="Descargar PDF" class="btn" onclick="descargarPDF()"><svg
+                        xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 24 24"
+                        style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;">
                         <path d="M19 9h-4V3H9v6H5l7 8zM4 19h16v2H4z"></path>
                     </svg></button>
             </div>

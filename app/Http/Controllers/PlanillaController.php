@@ -384,7 +384,7 @@ class PlanillaController extends Controller
                 ->where('cod_planilla', $request->input('idPlanilla'))
                 ->update(['guardado' => 1]);
 
-            $_SESSION['planillaSave'] = true;
+            // $_SESSION['planillaSave'] = true;
 
             return response()->json(['success' => true]);
         } catch (QueryException $e) {

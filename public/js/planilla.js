@@ -294,6 +294,31 @@ $(document).ready(function () {
 
         cuerpoTabla.append(filaTotal);
     }
+    $("#btnGuardarPlanilla").on("click", function (event) {
+        event.preventDefault();
+
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/guardar-planilla",
+            data: $("#formEntrega").serialize(),
+            dataType: "json",
+            success: function (response) {
+                if (response.success) {
+                    sessionStorage.setItem("planillaSaved", "true");
+
+                    window.location.href = baseUrl + "/inicio";
+                } else {
+                    toastr.error(
+                        "Error al guardar la planilla:",
+                        response.error
+                    );
+                }
+            },
+            error: function (xhr, status, error) {
+                toastr.error("Error en la solicitud:", error);
+            },
+        });
+    });
     $("#formEditarReg").submit(function (e) {
         e.preventDefault(); // Evitar el envío normal del formulario
         var formData = $(this).serialize(); // Obtener datos del formulario
@@ -516,31 +541,5 @@ document.addEventListener("DOMContentLoaded", function () {
         } else {
             toastr.error("No se han realizado cambios en el formulario.");
         }
-    });
-
-    $("#btnGuardarPlanilla").on("click", function (event) {
-        event.preventDefault();
-
-        $.ajax({
-            type: "POST",
-            url: $("#formEntrega").attr("action"),
-            data: $("#formEntrega").serialize(),
-            dataType: "json",
-            success: function (response) {
-                if (response.success) {
-                    sessionStorage.setItem("planillaSaved", "true");
-
-                    window.location.href = baseUrl + "/inicio";
-                } else {
-                    toastr.error(
-                        "Error al guardar la planilla:",
-                        response.error
-                    );
-                }
-            },
-            error: function (xhr, status, error) {
-                toastr.error("Error en la solicitud:", error);
-            },
-        });
     });
 });

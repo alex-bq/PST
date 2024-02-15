@@ -8,14 +8,14 @@
 
 
 @section('content')
-<div class="container ">
+<div class="container">
     <h1>Calibres</h1>
     <div class="d-flex justify-content-end">
         <button id="btnNuevo" class="btn btn-success">Nuevo Calibre</button>
     </div>
     <br>
-    <div class="table-responsive">
-        <table class="table table-striped table-custom">
+    <div class="table">
+        <table class="table table-striped table-custom tablaOrdenable">
             <thead>
                 <tr>
                     <th>Código</th>

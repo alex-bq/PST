@@ -15,8 +15,8 @@
         <button id="btnNuevo" class="btn btn-success">Nuevo Destino</button>
     </div>
     <br>
-    <div class="table-responsive">
-        <table class="table table-striped table-custom">
+    <div class="table">
+        <table class="table table-striped table-custom tablaOrdenable">
             <thead class="sticky-header">
                 <tr>
                     <th>Código</th>

@@ -14,8 +14,8 @@
         <button id="btnNuevo" class="btn btn-success">Nuevo Usuario</button>
     </div>
     <br>
-    <div class="table-responsive">
-        <table class="table table-striped table-custom">
+    <div class="table">
+        <table class="table table-striped table-custom tablaOrdenable">
             <thead>
                 <tr>
                     <th>Código</th>

@@ -112,17 +112,11 @@ SELECT TOP 1000 [N_Ano]
 
 --- puntos importantes para la funcionalidad
 
-- vista para planillas ya guardadas desde inicio
-- filtro de planilla asc y desc, la forma de ordenar las planillas
 - permisos para cada usuario 
 - que no se puedan eliminar datos que dependan en mantencion de datos, solo se puedan desactivar
 
 ---- detalles
 
-- solucionar error de campos desactivados en Crear Nueva planilla
-- manejo de mensajes de error en formulario de crea planillas 
-- kilos negativos
-- 
 
 ---- por agregar, pedido 
 

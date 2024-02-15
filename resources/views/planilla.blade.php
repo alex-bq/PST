@@ -29,7 +29,7 @@
             <h3>Planilla Control De Proceso SG</h3>
         </div>
     </div>
-
+    <br>
     @if(session('mensaje'))
     <div class="alert alert-{{ session('mensaje')['tipo'] }}" role="alert">
         {{ session('mensaje')['texto'] }}
@@ -38,17 +38,18 @@
 
     <div class="row">
         <div class="col-lg-4 mb-2">
+
             <div class="card" id="columna1">
                 <div class="card-header">
                     <ul class="nav nav-tabs card-header-tabs">
                         <li class="nav-item">
-                            <a class="nav-link active" aria-current="true">Registro</a>
+                            <a class="nav-link active tabPlanilla" href aria-current="true">Registro</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="detalleTab">Editar</a>
+                            <a class="nav-link tabPlanilla" href id="detalleTab">Editar</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="entregaTab">Detalle</a>
+                            <a class="nav-link tabPlanilla" href id="entregaTab">Detalle</a>
                         </li>
 
                     </ul>
@@ -200,13 +201,14 @@
                             <div class="col-md-6">
                                 <h6>Piezas</h6>
                                 <div class="form-group">
-                                    <input type="number" class="form-control " name="piezas" placeholder="123" />
+                                    <input type="number" min="0" class="form-control " name="piezas"
+                                        placeholder="123" />
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <h6>Kilos</h6>
                                 <div class="form-group">
-                                    <input type="number" class="form-control" name="kilos" placeholder="1.55"
+                                    <input type="number" min="0" class="form-control" name="kilos" placeholder="1.55"
                                         step="0.01" />
                                 </div>
                             </div>
@@ -367,30 +369,30 @@
                             <div class="col-6">
                                 <h6>Entrega Frigorífico</h6>
                                 <label for="cajasEntrega">Cajas:</label>
-                                <input type="number" class="form-control form-control-sm" id="cajasEntrega"
+                                <input type="number" min="0" class="form-control form-control-sm" id="cajasEntrega"
                                     value="{{ $detalle_planilla->cajas_entrega }}" name="cajas_entrega"
                                     placeholder="Cajas">
                                 <label for="kilosEntrega">Kilos:</label>
-                                <input type="number" class="form-control form-control-sm" id="kilosEntrega"
+                                <input type="number" min="0" class="form-control form-control-sm" id="kilosEntrega"
                                     value="{{ round($detalle_planilla->kilos_entrega,2) }}" name="kilos_entrega"
                                     placeholder="Kilos">
                                 <label for="piezasEntrega">Piezas:</label>
-                                <input type="number" class="form-control form-control-sm" id="piezasEntrega"
+                                <input type="number" min="0" class="form-control form-control-sm" id="piezasEntrega"
                                     value="{{ $detalle_planilla->piezas_entrega }}" name="piezas_entrega"
                                     placeholder="Piezas">
                             </div>
                             <div class="col-6">
                                 <h6>Recepción Planta</h6>
                                 <label for="cajasRecepcion">Cajas:</label>
-                                <input type="number" class="form-control form-control-sm" id="cajasRecepcion"
+                                <input type="number" min="0" class="form-control form-control-sm" id="cajasRecepcion"
                                     value="{{ $detalle_planilla->cajas_recepcion }}" name="cajas_recepcion"
                                     placeholder="Cajas">
                                 <label for="kilosRecepcion">Kilos:</label>
-                                <input type="number" class="form-control form-control-sm" id="kilosRecepcion"
+                                <input type="number" min="0" class="form-control form-control-sm" id="kilosRecepcion"
                                     value="{{ round($detalle_planilla->kilos_recepcion,2) }}" name="kilos_recepcion"
                                     placeholder="Kilos">
                                 <label for="piezasRecepcion">Piezas:</label>
-                                <input type="number" class="form-control form-control-sm" id="piezasRecepcion"
+                                <input type="number" min="0" class="form-control form-control-sm" id="piezasRecepcion"
                                     value="{{ $detalle_planilla->piezas_recepcion }}" name="piezas_recepcion"
                                     placeholder="Piezas">
                             </div>
@@ -418,7 +420,7 @@
 
                             <div class="col-6">
                                 <h6>Dotación:</h6>
-                                <input type="number" class="form-control" name="dotacion" id="dotacion"
+                                <input type="number" min="0" class="form-control" name="dotacion" id="dotacion"
                                     value="{{ $detalle_planilla->dotacion }}">
                             </div>
                         </div>
@@ -612,44 +614,6 @@
                                     @endforeach
                                 </select>
                             </div>
-
-
-
-                            <h6>Calibre</h6>
-
-
-
-                            <div id="input-calibreEditar" class="form-group">
-                                <div class="input-group">
-                                    <select id="calibreEditar" class="form-select select2Modal" style="width: 65%"
-                                        name="calibreEditar" aria-label="Selecciona un calibre">
-
-                                        @foreach ($calibres as $calibre)
-                                        <option value="{{ $calibre->cod_calib }}">{{ $calibre->nombre }}
-                                        </option>
-                                        @endforeach
-                                    </select>
-                                </div>
-
-
-                            </div>
-                            <h6>Sala </h6>
-                            <div class="form-group">
-                                <select id="salaEditar" class="form-select select2Modal" style="width: 100%"
-                                    name="salaEditar" aria-label="Selecciona un sala">
-
-                                    @foreach ($salas as $sala)
-                                    <option value="{{ $sala->cod_sala }}">{{ $sala->nombre }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <br />
-                            <h6>Piezas</h6>
-                            <div class="form-group">
-                                <input type="number" class="form-control " id="piezasEditar" name="piezasEditar"
-                                    placeholder="123" />
-                            </div>
                         </div>
 
                         <div class="col-md-6">
@@ -666,7 +630,27 @@
                                     @endforeach
                                 </select>
                             </div>
+                        </div>
 
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Calibre</h6>
+
+                            <div id="input-calibreEditar" class="form-group">
+                                <div class="input-group">
+                                    <select id="calibreEditar" class="form-select select2Modal" style="width: 65%"
+                                        name="calibreEditar" aria-label="Selecciona un calibre">
+                                        @foreach ($calibres as $calibre)
+                                        <option value="{{ $calibre->cod_calib }}">{{ $calibre->nombre }}
+                                        </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-md-6">
                             <h6>Calidad</h6>
 
                             <div id="input-calidadEditar" class="form-group">
@@ -680,6 +664,11 @@
                                 </select>
                             </div>
 
+                        </div>
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-md-12">
                             <h6>Destino</h6>
 
                             <div id="input-destinoEditar" class="form-group">
@@ -692,20 +681,36 @@
                                     @endforeach
                                 </select>
                             </div>
+                        </div>
 
+                    </div>
+                    <br />
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Piezas</h6>
+                            <div class="form-group">
+                                <input type="number" min="0" class="form-control " id="piezasEditar" name="piezasEditar"
+                                    placeholder="123" />
+                            </div>
 
-
-                            <br />
-
+                        </div>
+                        <div class="col-md-6">
                             <h6>Kilos</h6>
                             <div class="form-group">
-                                <input type="number" class="form-control" id="kilosEditar" name="kilosEditar"
+                                <input type="number" min="0" class="form-control" id="kilosEditar" name="kilosEditar"
                                     placeholder="1.55" step="0.01" />
                             </div>
                         </div>
                     </div>
 
-                    <br />
+
+
+
+
+
+
+
+
                     <input type="hidden" name="idRegistro" id="idRegistro" />
                     <input type="hidden" name="idPlanilla" value="{{ $idPlanilla }}" />
 
@@ -732,8 +737,14 @@
 
 
 @section('scripts2')
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
 
+<script>
+    document.querySelectorAll(".tabPlanilla").forEach(function (enlace) {
+        enlace.addEventListener("click", function (event) {
+            event.preventDefault();
+        });
+    });
+</script>
 <script>
     function descargarURLComoPDF(url) {
         // URL de la página que deseas convertir a PDF
