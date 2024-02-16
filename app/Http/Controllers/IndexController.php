@@ -8,10 +8,13 @@ use Illuminate\Support\Facades\DB;
 class IndexController extends Controller
 {
 
-    public function plantilla()
+    public function iframe()
     {
-
-        return view('layouts.plantilla');
+        return view('layouts.main-iframe');
+    }
+    public function main()
+    {
+        return view('layouts.main');
     }
     public function index()
     {

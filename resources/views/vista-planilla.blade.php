@@ -56,7 +56,7 @@
         <div class="row">
             <div class="col-sm-6">
                 <a title="Editar" class="btn" href="{{ url('/planilla/' . $desc_planilla->cod_planilla) }}"
-                    target="_top">
+                    target="iframeContent">
                     <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 24 24"
                         style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;">
                         <path d="m16 2.012 3 3L16.713 7.3l-3-3zM4 14v3h3l8.299-8.287-3-3zm0 6h16v2H4z"></path>

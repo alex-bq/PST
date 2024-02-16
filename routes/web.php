@@ -10,7 +10,8 @@ use App\Http\Controllers\adminController;
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::get('/plantilla', [IndexController::class, 'plantilla'])->name('plantilla');
+Route::get('/main-iframe', [IndexController::class, 'mainIframe'])->name('mainIframe');
+Route::get('/main', [IndexController::class, 'main'])->name('main');
 
 
 // Rutas que requieren autenticación

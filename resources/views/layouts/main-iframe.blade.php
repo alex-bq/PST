@@ -4,9 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>
-        @yield('title','Inicio')
-    </title>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -16,13 +13,7 @@
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.css" />
 
 
-
-    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
     @yield('styles')
-
-
-
-
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
@@ -46,7 +37,7 @@
 <body>
 
     <!-- Navbar -->
-    <nav class="navbar sticky-top navbar-expand" style="background-color: #fdfdfd;">
+    <!-- <nav class="navbar sticky-top navbar-expand" style="background-color: #fdfdfd;">
         <div class="container-fluid">
             <a class="navbar-brand" href="{{ url('/inicio') }}">
                 <img src="{{ asset('image/logo.png') }}" alt="Logo" height="50">
@@ -72,11 +63,11 @@
                 </div>
             </div>
         </div>
-    </nav>
+    </nav> -->
 
     <!-- Sidebar -->
-    @if(session('user')['cod_rol'] == 3)
-    <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light ">
+    <!-- @if(session('user')['cod_rol'] == 3) -->
+    <!-- <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light ">
         <div class="position-sticky">
             <div class="pt-3">
                 <ul class="nav flex-column mb-2">
@@ -120,13 +111,12 @@
                 </ul>
             </div>
         </div>
-    </nav>
-    @endif
+    </nav> -->
+    <!-- @endif -->
 
     <!-- Contenido -->
-    <main class="main-content ">
-        @yield('content')
-    </main>
+
+    @yield('content')
 
     @yield('modal')
 

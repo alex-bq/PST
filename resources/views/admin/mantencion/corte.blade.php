@@ -1,4 +1,4 @@
-@extends('layouts.plantilla')
+@extends('layouts.main-iframe')
 
 @section('title', 'Mantencion Corte')
 
