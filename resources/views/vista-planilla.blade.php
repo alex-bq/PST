@@ -45,6 +45,15 @@
                 display: none;
             }
         }
+
+        @media (max-width: 576px) {
+
+            .text-end,
+            .text-center {
+                text-align: left !important;
+            }
+
+        }
     </style>
 
 

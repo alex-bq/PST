@@ -1,7 +1,12 @@
 
-.container-xl{
-    margin-top: 25px;
-	padding: 40px;
+body {
+    background-color: #ffffff;
+}
+
+.container {
+    background-color: #ffffff;
+    padding: 20px;
+    margin-top: 20px;
 }
 
 .table-row {

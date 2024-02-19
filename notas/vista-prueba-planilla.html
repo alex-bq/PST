@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Planilla</title>
+    <style>
+        /* Estilos CSS */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+            margin-top: 20px;
+        }
+
+        .panel,
+        .table {
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin: 10px;
+            padding: 20px;
+            box-sizing: border-box;
+            flex: 1 1 300px;
+        }
+
+        .panel {
+            max-width: 400px;
+        }
+
+        .panel h2,
+        .table h2 {
+            margin-top: 0;
+        }
+
+        .panel form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel label {
+            margin-bottom: 5px;
+        }
+
+        .panel input[type="text"] {
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .panel button {
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .panel button:hover {
+            background-color: #45a049;
+        }
+
+        .table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table th,
+        .table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .table th {
+            background-color: #f2f2f2;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        .table tbody tr:hover {
+            background-color: #ddd;
+        }
+
+        .back-button {
+            display: block;
+            width: 100px;
+            margin: 20px auto;
+            padding: 10px;
+            background-color: #337ab7;
+            color: #fff;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+        }
+
+        .back-button:hover {
+            background-color: #286090;
+        }
+
+        @media screen and (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .panel,
+            .table {
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="panel">
+            <!-- Panel para agregar datos y navegación -->
+            <h2>Agregar Datos</h2>
+            <form>
+                <!-- Campos para agregar datos -->
+                <label for="dato1">Dato 1:</label>
+                <input type="text" id="dato1" name="dato1">
+                <label for="dato2">Dato 2:</label>
+                <input type="text" id="dato2" name="dato2">
+                <!-- Botones para navegación dentro del panel -->
+                <button>Mostrar Otro Panel</button>
+            </form>
+        </div>
+        <div class="table">
+            <!-- Tabla con datos -->
+            <h2>Tabla de Datos</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Encabezado 1</th>
+                        <th>Encabezado 2</th>
+                        <!-- Agrega más encabezados según tus necesidades -->
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Dato 1</td>
+                        <td>Dato 2</td>
+                        <!-- Agrega más datos según tus necesidades -->
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <!-- Botón para ir hacia atrás -->
+    <a href="#" class="back-button">Ir hacia atrás</a>
+</body>
+
+</html>

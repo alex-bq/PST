@@ -1,0 +1,17 @@
+
+.card {
+    background-color: #000120; /* Cambiar color de fondo de la tarjeta */
+    color: #DFDFE3; /* Cambiar color de texto de la tarjeta */
+}
+
+
+
+.btn-dark {
+    background-color: #20213C; /* Cambiar color de fondo del botón */
+    border-color: #000120; /* Cambiar color del borde del botón */
+}
+
+.btn-dark:hover {
+    background-color: #000120; /* Cambiar color de fondo del botón al pasar el mouse */
+    border-color: #20213C; /* Cambiar color del borde del botón al pasar el mouse */
+}

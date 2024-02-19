@@ -12,7 +12,7 @@
 </head>
 
 
-<body class="bg-light">
+<body>
 
     <div class="container">
 
@@ -41,7 +41,7 @@
                                 <input type="password" name="pass" class="form-control" autocomplete="nope" required>
                             </div>
 
-                            <button type="submit" class="btn btn-primary w-100">Iniciar Sesión</button>
+                            <button type="submit" class="btn btn-dark w-100">Iniciar Sesión</button>
                         </form>
                     </div>
                 </div>

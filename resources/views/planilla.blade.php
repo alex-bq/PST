@@ -16,19 +16,6 @@
 @section('content')
 
 <div class="container-fluid align-text">
-    <div class='row' style="margin-bottom: -30px;margin-top: -1px;">
-        <div class="col-md-4">
-            <a href="{{ url('/inicio') }}" class="botonAtras">
-                <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24"
-                    style="fill: rgba(0, 0, 0, 1);transform: ;msFilter:;">
-                    <path d="M21 11H6.414l5.293-5.293-1.414-1.414L2.586 12l7.707 7.707 1.414-1.414L6.414 13H21z"></path>
-                </svg>
-            </a>
-        </div>
-        <div class="col-md-8 ">
-            <h3>Planilla Control De Proceso SG</h3>
-        </div>
-    </div>
     <br>
     @if(session('mensaje'))
     <div class="alert alert-{{ session('mensaje')['tipo'] }}" role="alert">
@@ -455,7 +442,7 @@
                     <div class="table-wrapper table-responsive" id="tabla-registros">
 
                         <table class="table table-striped">
-                            <thead class="sticky-header">
+                            <thead class="sticky-header" style="font-size: 13px;">
                                 <tr>
                                     <th scope="col"></th>
                                     <th scope="col">Corte Inicial</th>
@@ -469,7 +456,7 @@
                                     <th scope="col">Opción</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody style="font-size: 13px;">
                                 @php
                                 $contador = 1;
                                 @endphp
