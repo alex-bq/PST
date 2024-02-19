@@ -1,14 +1,7 @@
 
-body {
-    background-color: #f8f9fa;
-}
-
-.container {
-    background-color: #ffffff;
-    padding: 20px;
-    margin-top: 20px;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+.container-xl{
+    margin-top: 25px;
+	padding: 40px;
 }
 
 .table-row {

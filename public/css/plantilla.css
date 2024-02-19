@@ -57,7 +57,8 @@
     line-height: 1.5;
     color: #212529;
     text-align: left;
-    background-color: #fff; }
+    background-color: #fff;
+    overflow-y: hidden; }
   
   [tabindex="-1"]:focus {
     outline: 0 !important; }
@@ -365,6 +366,7 @@
     background-color: #fcf8e3; }
   
   .list-unstyled {
+    
     padding-left: 0;
     list-style: none; }
   
@@ -4854,6 +4856,29 @@
     width: 50px;
     height: 50px;
     overflow: scroll; }
+
+  .scrollsidebar::-webkit-scrollbar {
+    opacity: 0;
+    width: 6px; 
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  .scrollsidebar::-webkit-scrollbar-track {
+    background-color: rgba(0, 0, 0, 0.5); 
+  }
+
+  .scrollsidebar::-webkit-scrollbar-thumb {
+    background-color: #888; 
+    border-radius: 5px; 
+  }
+
+  .scrollsidebar::-webkit-scrollbar-thumb:hover {
+    background-color: #555;
+  }
+  .scrollsidebar:hover::-webkit-scrollbar {
+    opacity: 1;
+  }
+
   
   @media (min-width: 576px) {
     .modal-dialog {

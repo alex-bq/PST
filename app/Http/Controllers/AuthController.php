@@ -10,7 +10,7 @@ class AuthController extends Controller
     public function showLoginForm()
     {
         if (session('user')) {
-            return redirect('/inicio');
+            return redirect('/main');
         }
 
         return view('auth.login');
@@ -42,7 +42,7 @@ class AuthController extends Controller
                 ]
             ]);
 
-            return redirect()->route('inicio');
+            return redirect()->route('main');
         }
 
         // Autenticación fallida

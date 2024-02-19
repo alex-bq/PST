@@ -38,11 +38,11 @@
                     <span class="sr-only">Toggle Menu</span>
                 </button>
             </div>
-            <div class="p-4 pt-5">
+            <div class="p-4 pt-5 scrollsidebar d-flex flex-column" style="height: 100vh;">
                 <a class="navbar-brand" href="{{ url('/inicio') }}">
                     <img src="{{ asset('image/logo.png') }}" alt="Logo" height="85">
                 </a>
-                <ul class="list-unstyled components mb-5">
+                <ul class="list-unstyled components scrollsidebar" style="overflow-y: auto; margin-bottom: -10vh">
                     <li>
                         <a href="#" data-url="{{ route('inicio') }}">Inicio</a>
                     </li>
@@ -86,16 +86,14 @@
                 <div class="mb-5">
 
                 </div>
-
-                <div class="footer mt-auto">
-                    <p>
-                        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                        {{ session('user')['nombre'] }}<br>
-                        {{ session('user')['rol'] }}<br>
-                        <a type="button" class="btn btn-light btn-sm" href="{{ url('/logout') }}">Cerrar sesión</a>
-
-                        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-                    </p>
+                <div class="mt-auto">
+                    <div class="footer">
+                        <p>
+                            {{ session('user')['nombre'] }}<br>
+                            {{ session('user')['rol'] }}<br>
+                            <a type="button" class="btn btn-light btn-sm" href="{{ url('/logout') }}">Cerrar sesión</a>
+                        </p>
+                    </div>
                 </div>
             </div>
         </nav>

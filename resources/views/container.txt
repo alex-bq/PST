@@ -1,0 +1,159 @@
+<div class="container">
+
+
+    <div class="mb-3">
+        <div class="row d-flex justify-content-between align-items-center">
+            <h1 class="mb-4">Planillas</h1>
+            <div class="col-md-3">
+                <input type="text" class="form-control" id="filtroLote" name="filtroLote"
+                    placeholder="Filtrar por Lote">
+            </div>
+
+            <div class="col-md-6 text-end">
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal"
+                    data-bs-href="{{ url('/nueva-planilla') }}">Nueva Planilla</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="mb-3">
+        <div class="accordion-container">
+
+            <a type="button" class="accordion-titulo btn btn-light btn-sm">Mas filtros<span
+                    class="toggle-icon"></span></a>
+            <div class="accordion-content">
+
+                <form id="formularioFiltro">
+                    @csrf
+
+                    <div class="row">
+
+                        <div class="col-md-3">
+                            <input type="date" class="form-control" name="filtroFecha" placeholder="Filtrar por Fecha">
+                        </div>
+
+                        <div class="col-md-3">
+                            <select class="form-select js-example-basic-single " style="width: 100%" name="filtroTurno">
+                                <option value=" " selected disabled>Turno </option>
+                                <option value=" ">Sin Filtro Turno</option>
+                                @foreach ($turnos as $turno)
+                                <option value="{{ $turno->NomTurno }}">{{ $turno->NomTurno }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <select class="form-select js-example-basic-single " style="width: 100%" name="filtroProv">
+                                <option selected disabled>Proveedor</option>
+                                <option value=" ">Sin Filtro Proveedor</option>
+                                @foreach ($proveedores as $proveedor)
+                                <option value="{{ $proveedor->descripcion }}">{{ $proveedor->descripcion }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select js-example-basic-single " style="width: 100%"
+                                name="filtroEmpresa">
+                                <option selected disabled>Filtro Empresa</option>
+                                <option value=" ">Sin Filtro Empresa</option>
+
+                                @foreach ($empresas as $empresa)
+                                <option value="{{ $empresa->descripcion }}">{{ $empresa->descripcion }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <select class="form-select js-example-basic-single " style="width: 100%"
+                                name="filtroEspecie">
+                                <option selected disabled>Filtro Especie</option>
+                                <option value=" ">Sin Filtro Especie</option>
+
+                                @foreach ($especies as $especie)
+                                <option value="{{ $especie->descripcion }}">{{ $especie->descripcion }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select js-example-basic-single " style="width: 100%"
+                                name="filtroSupervisor">
+                                <option selected disabled>Filtro Supervisor</option>
+                                <option value=" ">Sin Filtro Supervisor</option>
+
+                                @foreach ($supervisores as $supervisor)
+                                <option value="{{ $supervisor->cod_usuario }}">{{ $supervisor->nombre }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select js-example-basic-single " style="width: 100%"
+                                name="filtroPlanillero">
+                                <option selected disabled>Filtro Planillero</option>
+                                <option value=" ">Sin Filtro Planillero</option>
+
+                                @foreach ($planilleros as $planillero)
+                                <option value="{{ $planillero->cod_usuario }}">{{ $planillero->nombre }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary">Filtrar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    @if(count($planillas) > 0)
+    <div id="tabla-container">
+        <table id="tablaPlanillas" class="table table-hover table-responsive">
+            <thead>
+                <tr>
+                    <th scope="col" onclick="sortTable(0)">N°</th>
+                    <th scope="col" onclick="sortTable(1)">Lote</th>
+                    <th scope="col" onclick="sortTable(2)">Fecha Turno</th>
+                    <th scope="col" onclick="sortTable(3)">Turno</th>
+                    <th scope="col" onclick="sortTable(4)">Proveedor</th>
+                    <th scope="col" onclick="sortTable(5)">Empresa</th>
+                    <th scope="col" onclick="sortTable(6)">Especie</th>
+                    <th scope="col" onclick="sortTable(7)">Supervisor</th>
+                    <th scope="col" onclick="sortTable(8)">Planillero</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach($planillas as $planilla)
+                <tr class="table-row" onclick="abrirModal('{{ $planilla->cod_planilla }}')">
+                    <td>{{ $planilla->cod_planilla }}</td>
+                    <td>{{ $planilla->lote }}</td>
+                    <td>{{ date('d/m/Y', strtotime($planilla->fec_turno)) }}</td>
+                    <td>{{ $planilla->turno }}</td>
+                    <td>{{ $planilla->proveedor }}</td>
+                    <td>{{ $planilla->empresa }}</td>
+                    <td>{{ $planilla->especie }}</td>
+                    <td>{{ $planilla->supervisor_nombre }}</td>
+                    <td>{{ $planilla->planillero_nombre }}</td>
+
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+    @else
+    <p>No hay datos de planilla disponibles.</p>
+    @endif
+</div>

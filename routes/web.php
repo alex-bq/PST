@@ -10,7 +10,7 @@ use App\Http\Controllers\adminController;
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 
-Route::get('/main-iframe', [IndexController::class, 'mainIframe'])->name('mainIframe');
+Route::get('/main-iframe', [IndexController::class, 'iframe'])->name('mainIframe');
 Route::get('/main', [IndexController::class, 'main'])->name('main');
 
 
