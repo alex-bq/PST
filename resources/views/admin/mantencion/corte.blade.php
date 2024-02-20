@@ -49,8 +49,8 @@
                         <div class="d-flex justify-content-end">
                             <button class="btn btn-light me-2"
                                 onclick="modalEditarCorte({{ $corte->cod_corte }}, '{{ $corte->nombre }}', {{ $corte->activo }})">Editar</button>
-                            <button class="btn btn-danger"
-                                onclick="eliminarCorte({{ $corte->cod_corte }})">Eliminar</button>
+
+
                         </div>
                     </td>
                 </tr>
@@ -113,25 +113,7 @@
 <script>
     $('#mantencion').addClass('show');
     $('#item-mantencion').addClass('selected');
-    function eliminarCorte(idCorte) {
-        if (confirm('¿Estás seguro de que deseas eliminar este corte?')) {
-            $.ajax({
-                url: '{{ route("eliminarCorte") }}',
-                method: 'POST',
-                data: {
-                    id: idCorte
-                },
-                success: function (response) {
-                    alert('Corte eliminado exitosamente.');
-                    location.reload();
-                },
-                error: function (xhr, status, error) {
-                    alert('Error al eliminar el corte.');
-                    console.error(xhr.responseText);
-                }
-            });
-        }
-    }
+
     $("#btnNuevo").click(function () {
         $("#cod_corte").val("");
         $("#nombre").val("");

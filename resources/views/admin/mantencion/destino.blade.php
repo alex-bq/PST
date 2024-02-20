@@ -51,8 +51,7 @@
 
                             <button class="btn btn-light me-2"
                                 onclick="modalEditarDestino({{ $destino->cod_destino }}, '{{ $destino->nombre }}', {{ $destino->activo }})">Editar</button>
-                            <button class="btn btn-danger"
-                                onclick="eliminarDestino({{ $destino->cod_destino }})">Eliminar</button>
+
                         </div>
 
                     </td>
@@ -118,25 +117,8 @@
 <script>
     $('#mantencion').addClass('show');
     $('#item-mantencion').addClass('selected');
-    function eliminarDestino(idDestino) {
-        if (confirm('¿Estás seguro de que deseas eliminar este destino?')) {
 
-            $.ajax({
-                url: '{{ route("eliminarDestino") }}',
-                method: 'POST',
-                data: { id: idDestino },
-                success: function (response) {
-                    alert('Destino eliminado exitosamente.');
-                    location.reload();
 
-                },
-                error: function (xhr, status, error) {
-                    alert('Error al eliminar el destino.');
-                    console.error(xhr.responseText);
-                }
-            });
-        }
-    }
 
 
     $("#btnNuevo").click(function () {

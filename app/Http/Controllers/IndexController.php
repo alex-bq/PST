@@ -4,16 +4,25 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
+
 
 class IndexController extends Controller
 {
 
     public function iframe()
     {
+        if (!session('user')) {
+            return redirect('/login');
+        }
+
         return view('layouts.main-iframe');
     }
     public function main()
     {
+        if (!session('user')) {
+            return redirect('/login');
+        }
         return view('layouts.main');
     }
     public function index()
@@ -30,13 +39,19 @@ class IndexController extends Controller
         $supervisores = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=2 AND activo = 1 ORDER BY nombre ASC;');
         $planilleros = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=1 AND activo = 1 ORDER BY nombre ASC;');
 
+
+        $fechaHace7Dias = Carbon::now()->subDays(7)->toDateString();
+
         $planillas = DB::table('pst.dbo.v_planilla_pst')
             ->select('*')
-            ->orderByDesc('fec_turno');
+            ->where(function ($query) {
+                $query->where('cod_planillero', session('user.cod_usuario'))
+                    ->orWhere('cod_supervisor', session('user.cod_usuario'));
+            })
+            ->whereDate('fec_turno', '>=', $fechaHace7Dias)
+            ->orderByDesc('fec_turno')
+            ->get();
 
-
-
-        $planillas = $planillas->get() ?? collect();
 
         return view('index', compact('procesos', 'empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'planillas'));
     }

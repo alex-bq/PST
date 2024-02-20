@@ -57,8 +57,7 @@
                         <div class="d-flex justify-content-end">
                             <button class="btn btn-light me-2"
                                 onclick="modalEditarUsuario({{ $usuario->cod_usuario }},'{{ $usuario->snombre }}','{{ $usuario->sapellido}}','{{ $usuario->usuario}}','{{ $usuario->pass}}',{{ $usuario->cod_rol }},{{ $usuario->activo }})">Editar</button>
-                            <button class="btn btn-danger"
-                                onclick="eliminarUsuario({{ $usuario->cod_usuario }})">Eliminar</button>
+
                         </div>
                     </td>
                 </tr>
@@ -161,25 +160,7 @@
 <script>
     $('#mantencion').addClass('show');
     $('#item-mantencion').addClass('selected');
-    function eliminarUsuario(idUsuario) {
-        if (confirm('¿Estás seguro de que deseas eliminar este usuario?')) {
-            $.ajax({
-                url: '{{ route("eliminarUsuario") }}',
-                method: 'POST',
-                data: {
-                    id: idUsuario
-                },
-                success: function (response) {
-                    alert('Usuario eliminado exitosamente.');
-                    location.reload();
-                },
-                error: function (xhr, status, error) {
-                    alert('Error al eliminar el usuario.');
-                    console.error(xhr.responseText);
-                }
-            });
-        }
-    }
+
     $("#btnNuevo").click(function () {
         $("#usuario").val("");
         $("#nombre").val("");

@@ -10,6 +10,8 @@
 @section('scripts')
 
 <script src="{{ asset('js/index.js') }}"></script>
+
+
 @endsection
 
 @section('content')
@@ -18,13 +20,16 @@
 
     <div class="mb-3">
         <div class="row d-flex justify-content-between align-items-center">
-            <h1 class="mb-4">Planillas</h1>
-            <div class="col-md-3">
-                <input type="text" class="form-control" id="filtroLote" name="filtroLote"
-                    placeholder="Filtrar por Lote">
+            <h1>Inicio</h1>
+            <p id="saludo" class="text-body-secondary"></p>
+            <hr><br><br>
+            <div class="col-md-6">
+                <h4>Últimos 7 días</h4>
+                <!-- <input type="text" class="form-control" id="filtroLote" name="filtroLote"
+                    placeholder="Filtrar por Lote"> -->
             </div>
 
-            <div class="col-md-6 text-end">
+            <div class="col-md-3 text-end">
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal"
                     data-bs-href="{{ url('/nueva-planilla') }}">Nueva Planilla</button>
             </div>
@@ -33,7 +38,7 @@
 
 
     <div class="mb-3">
-        <div class="accordion-container">
+        <!-- <div class="accordion-container">
 
             <a type="button" class="accordion-titulo btn btn-light btn-sm">Mas filtros<span
                     class="toggle-icon"></span></a>
@@ -129,14 +134,14 @@
                 </form>
             </div>
 
-        </div>
+        </div> -->
 
     </div>
 
 
     @if(count($planillas) > 0)
     <div id="tabla-container">
-        <table id="tablaPlanillas" class="table table-hover table-responsive">
+        <table id="tablaPlanillas" class="table table-hover table-responsive" style="font-size: 14px;">
             <thead>
                 <tr>
                     <th scope="col" onclick="sortTable(0)">N°</th>
@@ -374,6 +379,19 @@
 <script>
     var baseUrl = "{{ url('/') }}";
 
+    var hora = new Date().getHours();
+
+    var saludo = "";
+    if (hora >= 6 && hora < 12) {
+        saludo = "Buenos días";
+    } else if (hora >= 12 && hora < 18) {
+        saludo = "Buenas tardes";
+    } else {
+        saludo = "Buenas noches";
+    }
+    var saludoElemento = document.getElementById("saludo");
+    saludoElemento.textContent = saludo + " {{ session('user')['nombre'] }}";
+
     $(document).ready(function () {
 
 
@@ -496,7 +514,7 @@
 
             planillas.forEach(function (planilla) {
 
-                var fila = '<tr class="table-row" onclick="window.location=\'' + '{{ url("/planilla/") }}/' + planilla.cod_planilla + '\';">' +
+                var fila = '<tr class="table-row" onclick="window.location=\'' + '{{ url(" /planilla/") }}/' + planilla.cod_planilla + '\';">' +
                     '<td>' + planilla.cod_planilla + '</td>' +
                     '<td>' + planilla.lote + '</td>' +
                     '<td>' + formatDate(planilla.fec_turno) + '</td>' +
@@ -552,7 +570,7 @@
 
             planillas.forEach(function (planilla) {
 
-                var fila = '<tr class="table-row" onclick="window.location=\'' + '{{ url("/planilla/") }}/' + planilla.cod_planilla + '\';">' +
+                var fila = '<tr class="table-row" onclick="window.location=\'' + '{{ url(" /planilla/") }}/' + planilla.cod_planilla + '\';">' +
                     '<td>' + planilla.cod_planilla + '</td>' +
 
                     '<td>' + planilla.lote + '</td>' +

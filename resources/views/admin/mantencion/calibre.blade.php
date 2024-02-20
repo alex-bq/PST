@@ -50,8 +50,7 @@
 
                             <button class="btn btn-light me-2   "
                                 onclick="modalEditarCalibre({{ $calibre->cod_calib }}, '{{ $calibre->nombre }}', {{ $calibre->activo }})">Editar</button>
-                            <button class="btn btn-danger"
-                                onclick="eliminarCalibre({{ $calibre->cod_calib }})">Eliminar</button>
+
 
                         </div>
                     </td>
@@ -112,26 +111,6 @@
 <script>
     $('#mantencion').addClass('show');
     $('#item-mantencion').addClass('selected');
-
-    function eliminarCalibre(idCalibre) {
-        if (confirm('¿Estás seguro de que deseas eliminar este calibre?')) {
-
-            $.ajax({
-                url: '{{ route("eliminarCalibre") }}',
-                method: 'POST',
-                data: { id: idCalibre },
-                success: function (response) {
-                    alert('Calibre eliminado exitosamente.');
-                    location.reload();
-
-                },
-                error: function (xhr, status, error) {
-                    alert('Error al eliminar el calibre.');
-                    console.error(xhr.responseText);
-                }
-            });
-        }
-    }
 
 
     $("#btnNuevo").click(function () {

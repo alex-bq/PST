@@ -9,17 +9,6 @@ use Illuminate\Support\Facades\DB;
 class adminController extends Controller
 {
 
-    public function admin()
-    {
-        if (!session('user')) {
-            return redirect('/login');
-        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
-            return redirect('/inicio');
-        }
-
-        return view('admin.admin');
-    }
-
     public function mCorte()
     {
         if (!session('user')) {
@@ -53,21 +42,7 @@ class adminController extends Controller
         ]);
         return response()->json(['message' => 'Corte guardado exitosamente.', 'error' => 0]);
     }
-    public function eliminarCorte(Request $request)
-    {
-        if (!session('user')) {
-            return redirect('/login');
-        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
-            return redirect('/inicio');
-        }
-        $idCorte = $request->id;
-        $corte = DB::table('pst.dbo.corte')->where('cod_corte', $idCorte);
-        if (!$corte) {
-            return response()->json(['message' => 'El corte no existe en la base de datos.']);
-        }
-        DB::table('pst.dbo.corte')->where('cod_corte', $idCorte)->delete();
-        return response()->json(['message' => 'Corte eliminado exitosamente.']);
-    }
+
     public function editarCorte(Request $request)
     {
         if (!session('user')) {
@@ -126,21 +101,7 @@ class adminController extends Controller
         ]);
         return response()->json(['message' => 'Calidad guardada exitosamente.', 'error' => 0]);
     }
-    public function eliminarCalidad(Request $request)
-    {
-        if (!session('user')) {
-            return redirect('/login');
-        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
-            return redirect('/inicio');
-        }
-        $idCalidad = $request->id;
-        $calidad = DB::table('pst.dbo.calidad')->where('cod_cald', $idCalidad);
-        if (!$calidad) {
-            return response()->json(['message' => 'La calidad no existe en la base de datos.']);
-        }
-        DB::table('pst.dbo.calidad')->where('cod_cald', $idCalidad)->delete();
-        return response()->json(['message' => 'Calidad eliminada exitosamente.']);
-    }
+
     public function editarCalidad(Request $request)
     {
         if (!session('user')) {
@@ -199,21 +160,7 @@ class adminController extends Controller
         ]);
         return response()->json(['message' => 'Destino guardado exitosamente.', 'error' => 0]);
     }
-    public function eliminarDestino(Request $request)
-    {
-        if (!session('user')) {
-            return redirect('/login');
-        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
-            return redirect('/inicio');
-        }
-        $idDestino = $request->id;
-        $destino = DB::table('pst.dbo.destino')->where('cod_destino', $idDestino);
-        if (!$destino) {
-            return response()->json(['message' => 'El destino no existe en la base de datos.']);
-        }
-        DB::table('pst.dbo.destino')->where('cod_destino', $idDestino)->delete();
-        return response()->json(['message' => 'Destino eliminado exitosamente.']);
-    }
+
     public function editarDestino(Request $request)
     {
         if (!session('user')) {
@@ -271,21 +218,7 @@ class adminController extends Controller
         ]);
         return response()->json(['message' => 'Calibre guardado exitosamente.', 'error' => 0]);
     }
-    public function eliminarCalibre(Request $request)
-    {
-        if (!session('user')) {
-            return redirect('/login');
-        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
-            return redirect('/inicio');
-        }
-        $idCalibre = $request->id;
-        $calibre = DB::table('pst.dbo.calibre')->where('cod_calib', $idCalibre);
-        if (!$calibre) {
-            return response()->json(['message' => 'El calibre no existe en la base de datos.']);
-        }
-        DB::table('pst.dbo.calibre')->where('cod_calib', $idCalibre)->delete();
-        return response()->json(['message' => 'Calibre eliminado exitosamente.']);
-    }
+
     public function editarCalibre(Request $request)
     {
         if (!session('user')) {
@@ -342,21 +275,7 @@ class adminController extends Controller
         ]);
         return response()->json(['message' => 'Sala guardada exitosamente.', 'error' => 0]);
     }
-    public function eliminarSala(Request $request)
-    {
-        if (!session('user')) {
-            return redirect('/login');
-        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
-            return redirect('/inicio');
-        }
-        $idSala = $request->id;
-        $sala = DB::table('pst.dbo.sala')->where('cod_sala', $idSala);
-        if (!$sala) {
-            return response()->json(['message' => 'La sala no existe en la base de datos.']);
-        }
-        DB::table('pst.dbo.sala')->where('cod_sala', $idSala)->delete();
-        return response()->json(['message' => 'Sala eliminada exitosamente.']);
-    }
+
     public function editarSala(Request $request)
     {
         if (!session('user')) {
@@ -429,21 +348,7 @@ class adminController extends Controller
         ]);
         return response()->json(['message' => 'Usuario guardado exitosamente.', 'error' => 0]);
     }
-    public function eliminarUsuario(Request $request)
-    {
-        if (!session('user')) {
-            return redirect('/login');
-        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
-            return redirect('/inicio');
-        }
-        $idUsuario = $request->id;
-        $usuario = DB::table('pst.dbo.usuarios_pst')->where('cod_usuario', $idUsuario);
-        if (!$usuario) {
-            return response()->json(['message' => 'El usuario no existe en la base de datos.']);
-        }
-        DB::table('pst.dbo.usuarios_pst')->where('cod_usuario', $idUsuario)->delete();
-        return response()->json(['message' => 'Usuario eliminado exitosamente.']);
-    }
+
     public function editarUsuario(Request $request)
     {
         if (!session('user')) {

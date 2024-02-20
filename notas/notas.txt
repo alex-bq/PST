@@ -115,8 +115,6 @@ SELECT TOP 1000 [N_Ano]
 - permisos para cada usuario 
 - que no se puedan eliminar datos que dependan en mantencion de datos, solo se puedan desactivar
 
----- detalles
-
 
 ---- por agregar, pedido 
 

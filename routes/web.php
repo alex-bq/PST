@@ -33,43 +33,36 @@ Route::post('/agregar-registro', [PlanillaController::class, 'agregarRegistro'])
 Route::get('/ver-planilla/{id}', [PlanillaController::class, 'verPlanilla'])->name('verPlanilla');
 Route::get('/descargar-planilla/{id}', [PlanillaController::class, 'descargarPlanilla'])->name('descargarPlanilla');
 
-Route::get('/admin', [adminController::class, 'admin'])->name('admin');
 
 Route::get('/mantenedor-corte', [adminController::class, 'mCorte'])->name('mCorte');
 
 Route::post('/guardar-corte', [adminController::class, 'guardarCorte'])->name('guardarCorte');
 Route::post('/editar-corte', [adminController::class, 'editarCorte'])->name('editarCorte');
-Route::post('/eliminar-corte', [adminController::class, 'eliminarCorte'])->name('eliminarCorte');
 
 Route::get('/mantenedor-calidad', [adminController::class, 'mCalidad'])->name('mCalidad');
 
 Route::post('/guardar-calidad', [adminController::class, 'guardarCalidad'])->name('guardarCalidad');
 Route::post('/editar-calidad', [adminController::class, 'editarCalidad'])->name('editarCalidad');
-Route::post('/eliminar-calidad', [adminController::class, 'eliminarCalidad'])->name('eliminarCalidad');
 
 Route::get('/mantenedor-destino', [adminController::class, 'mDestino'])->name('mDestino');
 
 Route::post('/guardar-destino', [adminController::class, 'guardarDestino'])->name('guardarDestino');
 Route::post('/editar-destino', [adminController::class, 'editarDestino'])->name('editarDestino');
-Route::post('/eliminar-destino', [adminController::class, 'eliminarDestino'])->name('eliminarDestino');
 
 Route::get('/mantenedor-calibre', [adminController::class, 'mCalibre'])->name('mCalibre');
 
 Route::post('/guardar-calibre', [adminController::class, 'guardarCalibre'])->name('guardarCalibre');
 Route::post('/editar-calibre', [adminController::class, 'editarCalibre'])->name('editarCalibre');
-Route::post('/eliminar-calibre', [adminController::class, 'eliminarCalibre'])->name('eliminarCalibre');
 
 Route::get('/mantenedor-sala', [adminController::class, 'mSala'])->name('mSala');
 
 Route::post('/guardar-sala', [adminController::class, 'guardarSala'])->name('guardarSala');
 Route::post('/editar-sala', [adminController::class, 'editarSala'])->name('editarSala');
-Route::post('/eliminar-sala', [adminController::class, 'eliminarSala'])->name('eliminarSala');
 
 Route::get('/mantenedor-usuario', [adminController::class, 'mUsuario'])->name('mUsuario');
 
 Route::post('/guardar-usuario', [adminController::class, 'guardarUsuario'])->name('guardarUsuario');
 Route::post('/editar-usuario', [adminController::class, 'editarUsuario'])->name('editarUsuario');
-Route::post('/eliminar-usuario', [adminController::class, 'eliminarUsuario'])->name('eliminarUsuario');
 
 
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');

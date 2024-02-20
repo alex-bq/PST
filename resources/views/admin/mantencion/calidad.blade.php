@@ -50,8 +50,6 @@
 
                             <button class="btn btn-light me-2"
                                 onclick="modalEditarCalidad({{ $calidad->cod_cald }}, '{{ $calidad->nombre }}', {{ $calidad->activo }})">Editar</button>
-                            <button class="btn btn-danger"
-                                onclick="eliminarCalidad({{ $calidad->cod_cald }})">Eliminar</button>
 
                         </div>
 
@@ -123,25 +121,7 @@
 <script>
     $('#mantencion').addClass('show');
     $('#item-mantencion').addClass('selected');
-    function eliminarCalidad(idCalidad) {
-        if (confirm('¿Estás seguro de que deseas eliminar esta calidad?')) {
 
-            $.ajax({
-                url: '{{ route("eliminarCalidad") }}',
-                method: 'POST',
-                data: { id: idCalidad },
-                success: function (response) {
-                    alert('Calidad eliminada exitosamente.');
-                    location.reload();
-
-                },
-                error: function (xhr, status, error) {
-                    alert('Error al eliminar la calidad.');
-                    console.error(xhr.responseText);
-                }
-            });
-        }
-    }
 
 
     $("#btnNuevo").click(function () {

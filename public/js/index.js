@@ -1,11 +1,13 @@
 jQuery(document).ready(function ($) {
     $("#tablaPlanillas").DataTable({
-        paging: false,
-        searching: false,
+        paging: true,
+        searching: true,
         select: false,
         autoWidth: false,
         info: false,
         processing: false,
+        lengthChange: false,
+        lengthMenu: [[10], [1]],
         language: {
             decimal: "",
             emptyTable: "No hay información",

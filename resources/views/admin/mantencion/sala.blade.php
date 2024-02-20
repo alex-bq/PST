@@ -50,8 +50,6 @@
 
                             <button class="btn btn-light me-2"
                                 onclick="modalEditarSala({{ $sala->cod_sala }}, '{{ $sala->nombre }}', {{ $sala->activo }})">Editar</button>
-                            <button class="btn btn-danger"
-                                onclick="eliminarSala({{ $sala->cod_sala }})">Eliminar</button>
 
                         </div>
 
@@ -112,25 +110,7 @@
 <script>
     $('#mantencion').addClass('show');
     $('#item-mantencion').addClass('selected');
-    function eliminarSala(idSala) {
-        if (confirm('¿Estás seguro de que deseas eliminar esta sala?')) {
 
-            $.ajax({
-                url: '{{ route("eliminarSala") }}',
-                method: 'POST',
-                data: { id: idSala },
-                success: function (response) {
-                    alert('Sala eliminada exitosamente.');
-                    location.reload();
-
-                },
-                error: function (xhr, status, error) {
-                    alert('Error al eliminar la sala.');
-                    console.error(xhr.responseText);
-                }
-            });
-        }
-    }
 
 
     $("#btnNuevo").click(function () {

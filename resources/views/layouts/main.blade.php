@@ -3,7 +3,7 @@
 
 <head>
     <title>
-        Sistema Planillas
+        Sistema PST
     </title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
@@ -39,44 +39,43 @@
                 </button>
             </div>
             <div class="p-4 pt-5 scrollsidebar d-flex flex-column" style="height: 100vh;">
-                <a class="navbar-brand" href="{{ url('/inicio') }}">
+                <a class="navbar-brand" href="{{ url('/main') }}">
                     <img src="{{ asset('image/logo.png') }}" alt="Logo" height="85">
                 </a>
                 <ul class="list-unstyled components scrollsidebar" style="overflow-y: auto; margin-bottom: -10vh">
                     <li>
                         <a href="#" data-url="{{ route('inicio') }}">Inicio</a>
                     </li>
-                    @if(session('user')['cod_rol'] == 3)
-                    <li class="active">
-                        <a href="#adminMenu" data-toggle="collapse" aria-expanded="false"
-                            class="dropdown-toggle">Admin</a>
-                        <ul class="collapse list-unstyled" id="adminMenu">
+                    <li>
+                        <a href="#" data-url="{{ route('inicio') }}">Planillas</a>
+                    </li>
 
-                            <li class="active">
-                                <a href="#adminSubMenu" data-toggle="collapse" aria-expanded="false"
-                                    class="dropdown-toggle">Mantencion Datos</a>
-                                <ul class="collapse list-unstyled" id="adminSubMenu">
-                                    <li>
-                                        <a href="#" data-url="{{ route('mCorte') }}">Corte</a>
-                                    </li>
-                                    <li>
-                                        <a href="#" data-url="{{ route('mCalibre') }}">Calibre</a>
-                                    </li>
-                                    <li>
-                                        <a href="#" data-url="{{ route('mCalidad') }}">Calidad</a>
-                                    </li>
-                                    <li>
-                                        <a href="#" data-url="{{ route('mDestino') }}">Destino</a>
-                                    </li>
-                                    <li>
-                                        <a href="#" data-url="{{ route('mSala') }}">Sala</a>
-                                    </li>
-                                </ul>
+                    @if(session('user')['cod_rol'] == 3)
+                    <li>
+                        <a href="#" data-url="{{ route('mUsuario') }}">Usuarios</a>
+                    </li>
+                    <li class="active">
+                        <a href="#adminSubMenu" data-toggle="collapse" aria-expanded="false"
+                            class="dropdown-toggle">Mantencion Datos</a>
+                        <ul class="collapse list-unstyled" id="adminSubMenu">
                             <li>
-                                <a href="#" data-url="{{ route('mUsuario') }}">Usuarios</a>
+                                <a href="#" data-url="{{ route('mCorte') }}">Corte</a>
+                            </li>
+                            <li>
+                                <a href="#" data-url="{{ route('mCalibre') }}">Calibre</a>
+                            </li>
+                            <li>
+                                <a href="#" data-url="{{ route('mCalidad') }}">Calidad</a>
+                            </li>
+                            <li>
+                                <a href="#" data-url="{{ route('mDestino') }}">Destino</a>
+                            </li>
+                            <li>
+                                <a href="#" data-url="{{ route('mSala') }}">Sala</a>
                             </li>
                         </ul>
                     </li>
+
                     @endif
                 </ul>
 

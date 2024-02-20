@@ -126,6 +126,9 @@ class PlanillaController extends Controller
 
     public function agregarRegistro(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        }
         $idPlanilla = $request->input('idPlanilla');
         $codCorteIni = $request->input('cInicial');
         $codCorteFin = $request->input('cFinal');
@@ -300,6 +303,9 @@ class PlanillaController extends Controller
 
     public function modificarPlanilla(Request $request, $id)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        }
         $id = intval($id);
 
         // Recuperar los datos modificados del formulario
@@ -350,6 +356,9 @@ class PlanillaController extends Controller
 
     public function guardarPlanilla(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        }
         try {
             $cajasEntrega = $request->input('cajas_entrega');
             $kilosEntrega = $request->input('kilos_entrega');
