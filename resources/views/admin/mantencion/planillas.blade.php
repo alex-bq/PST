@@ -10,8 +10,6 @@
 @section('scripts')
 
 <script src="{{ asset('js/index.js') }}"></script>
-
-
 @endsection
 
 @section('content')
@@ -20,16 +18,13 @@
 
     <div class="mb-3">
         <div class="row d-flex justify-content-between align-items-center">
-            <h1>Inicio</h1>
-            <p id="saludo" class="text-body-secondary"></p>
-            <hr><br><br>
-            <div class="col-md-6">
-
-                <!-- <input type="text" class="form-control" id="filtroLote" name="filtroLote"
-                    placeholder="Filtrar por Lote"> -->
+            <h1 class="mb-4">Planillas</h1>
+            <div class="col-md-3">
+                <input type="text" class="form-control" id="filtroLote" name="filtroLote"
+                    placeholder="Filtrar por Lote">
             </div>
 
-            <div class="col-md-3 text-end">
+            <div class="col-md-6 text-end">
                 <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal"
                     data-bs-href="{{ url('/nueva-planilla') }}">Nueva Planilla</button>
             </div>
@@ -38,48 +33,110 @@
 
 
     <div class="mb-3">
-        <h4>Hoy</h4>
+        <div class="accordion-container">
 
-        <table id="tablaPlanillasHoy" class="table table-hover table-responsive" style="font-size: 13px;">
-            <thead>
-                <tr>
-                    <th scope="col" onclick="sortTable(0)">N°</th>
-                    <th scope="col" onclick="sortTable(1)">Lote</th>
-                    <th scope="col" onclick="sortTable(2)">Fecha Turno</th>
-                    <th scope="col" onclick="sortTable(3)">Turno</th>
-                    <th scope="col" onclick="sortTable(4)">Proveedor</th>
-                    <th scope="col" onclick="sortTable(5)">Empresa</th>
-                    <th scope="col" onclick="sortTable(6)">Especie</th>
-                    <th scope="col" onclick="sortTable(7)">Supervisor</th>
-                    <th scope="col" onclick="sortTable(8)">Planillero</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($planillasHoy as $planilla)
-                <tr class="table-row" onclick="abrirModal('{{ $planilla->cod_planilla }}')">
-                    <td>{{ $planilla->cod_planilla }}</td>
-                    <td>{{ $planilla->lote }}</td>
-                    <td>{{ date('Y-m-d', strtotime($planilla->fec_turno)) }}</td>
-                    <td>{{ $planilla->turno }}</td>
-                    <td>{{ $planilla->proveedor }}</td>
-                    <td>{{ $planilla->empresa }}</td>
-                    <td>{{ $planilla->especie }}</td>
-                    <td>{{ $planilla->supervisor_nombre }}</td>
-                    <td>{{ $planilla->planillero_nombre }}</td>
+            <a type="button" class="accordion-titulo btn btn-light btn-sm">Mas filtros<span
+                    class="toggle-icon"></span></a>
+            <div class="accordion-content">
 
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+                <form id="formularioFiltro">
+                    @csrf
 
+                    <div class="row">
+
+                        <div class="col-md-3">
+                            <input type="date" class="form-control" name="filtroFecha" placeholder="Filtrar por Fecha">
+                        </div>
+
+                        <div class="col-md-3">
+                            <select class="form-select js-example-basic-single " style="width: 100%" name="filtroTurno">
+                                <option value=" " selected disabled>Turno </option>
+                                <option value=" ">Sin Filtro Turno</option>
+                                @foreach ($turnos as $turno)
+                                <option value="{{ $turno->NomTurno }}">{{ $turno->NomTurno }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <select class="form-select js-example-basic-single " style="width: 100%" name="filtroProv">
+                                <option selected disabled>Proveedor</option>
+                                <option value=" ">Sin Filtro Proveedor</option>
+                                @foreach ($proveedores as $proveedor)
+                                <option value="{{ $proveedor->descripcion }}">{{ $proveedor->descripcion }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select js-example-basic-single " style="width: 100%"
+                                name="filtroEmpresa">
+                                <option selected disabled>Filtro Empresa</option>
+                                <option value=" ">Sin Filtro Empresa</option>
+
+                                @foreach ($empresas as $empresa)
+                                <option value="{{ $empresa->descripcion }}">{{ $empresa->descripcion }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+
+                    </div>
+                    <br>
+                    <div class="row">
+                        <div class="col-md-3">
+                            <select class="form-select js-example-basic-single " style="width: 100%"
+                                name="filtroEspecie">
+                                <option selected disabled>Filtro Especie</option>
+                                <option value=" ">Sin Filtro Especie</option>
+
+                                @foreach ($especies as $especie)
+                                <option value="{{ $especie->descripcion }}">{{ $especie->descripcion }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select js-example-basic-single " style="width: 100%"
+                                name="filtroSupervisor">
+                                <option selected disabled>Filtro Supervisor</option>
+                                <option value=" ">Sin Filtro Supervisor</option>
+
+                                @foreach ($supervisores as $supervisor)
+                                <option value="{{ $supervisor->cod_usuario }}">{{ $supervisor->nombre }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <select class="form-select js-example-basic-single " style="width: 100%"
+                                name="filtroPlanillero">
+                                <option selected disabled>Filtro Planillero</option>
+                                <option value=" ">Sin Filtro Planillero</option>
+
+                                @foreach ($planilleros as $planillero)
+                                <option value="{{ $planillero->cod_usuario }}">{{ $planillero->nombre }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <button type="submit" class="btn btn-primary">Filtrar</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+        </div>
 
     </div>
 
 
-    @if(count($planillas7dias) > 0)
+    @if(count($planillas) > 0)
     <div id="tabla-container">
-        <h4>Últimos 7 días</h4>
-        <table id="tablaPlanillas7dias" class="table table-hover table-responsive" style="font-size: 13px;">
+        <table id="tablaPlanillas" class="table table-hover table-responsive" style="font-size: 12px;">
             <thead>
                 <tr>
                     <th scope="col" onclick="sortTable(0)">N°</th>
@@ -91,10 +148,11 @@
                     <th scope="col" onclick="sortTable(6)">Especie</th>
                     <th scope="col" onclick="sortTable(7)">Supervisor</th>
                     <th scope="col" onclick="sortTable(8)">Planillero</th>
+                    <th scope="col" onclick="sortTable(9)">Guardado</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($planillas7dias as $planilla)
+                @foreach($planillas as $planilla)
                 <tr class="table-row" onclick="abrirModal('{{ $planilla->cod_planilla }}')">
                     <td>{{ $planilla->cod_planilla }}</td>
                     <td>{{ $planilla->lote }}</td>
@@ -105,6 +163,25 @@
                     <td>{{ $planilla->especie }}</td>
                     <td>{{ $planilla->supervisor_nombre }}</td>
                     <td>{{ $planilla->planillero_nombre }}</td>
+                    <td>
+                        @if ($planilla->guardado == 1)
+                        <div value=1>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="green"
+                                class="bi bi-floppy" viewBox="0 0 16 16">
+                                <path d="M11 2H9v3h2z" />
+                                <path
+                                    d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z" />
+                            </svg>
+                        </div>
+                        @else
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red" class="bi bi-floppy"
+                            viewBox="0 0 16 16">
+                            <path d="M11 2H9v3h2z" />
+                            <path
+                                d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z" />
+                        </svg>
+                        @endif
+                    </td>
 
                 </tr>
                 @endforeach
@@ -317,19 +394,6 @@
 <script>
     var baseUrl = "{{ url('/') }}";
 
-    var hora = new Date().getHours();
-
-    var saludo = "";
-    if (hora >= 6 && hora < 12) {
-        saludo = "Buenos días";
-    } else if (hora >= 12 && hora < 18) {
-        saludo = "Buenas tardes";
-    } else {
-        saludo = "Buenas noches";
-    }
-    var saludoElemento = document.getElementById("saludo");
-    saludoElemento.textContent = saludo + " {{ session('user')['nombre'] }}";
-
     $(document).ready(function () {
 
 
@@ -423,5 +487,126 @@
         });
     });
 </script>
+<script>
+    $(document).ready(function () {
 
+
+        $('#formularioFiltro').submit(function (event) {
+            event.preventDefault();
+
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('filtrar.tabla') }}',
+                data: $(this).serialize(),
+                dataType: 'json',
+                success: function (response) {
+                    actualizarTabla(response.planillas);
+                },
+                error: function (xhr, status, error) {
+                    console.error('Error en la solicitud AJAX: ' + status + ' - ' + error);
+                }
+            });
+        });
+
+
+        function actualizarTabla(planillas) {
+
+            $('#tabla-container  tbody').empty();
+
+
+            planillas.forEach(function (planilla) {
+
+                var estadoIcono = planilla.guardado == 1 ? 'green' : 'red';
+                var icono = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="' + estadoIcono + '" class="bi bi-floppy" viewBox="0 0 16 16">' +
+                    '<path d="M11 2H9v3h2z"/>' +
+                    '<path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>' +
+                    '</svg>';
+
+                var fila = '<tr class="table-row" onclick="window.location=\'' + '{{ url("/planilla/") }}/' + planilla.cod_planilla + '\';">' +
+                    '<td>' + planilla.cod_planilla + '</td>' +
+                    '<td>' + planilla.lote + '</td>' +
+                    '<td>' + formatDate(planilla.fec_turno) + '</td>' +
+                    '<td>' + planilla.turno + '</td>' +
+                    '<td>' + planilla.proveedor + '</td>' +
+                    '<td>' + planilla.empresa + '<td>' + planilla.especie + '</td>' +
+                    '<td>' + planilla.supervisor_nombre + '</td>' +
+                    '<td>' + planilla.planillero_nombre + '</td>' +
+                    '<td>' + icono + '</td>' +
+                    '</tr>';
+                $('#tabla-container tbody').append(fila);
+            });
+        }
+        function formatDate(dateString) {
+
+            var date = new Date(dateString);
+            var day = date.getDate() + 1;
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+            return day + '/' + month + '/' + year;
+        }
+    });
+</script>
+<script>
+    $(document).ready(function () {
+        var filtroLoteAnterior = '';
+        $('#filtroLote').on('input', function () {
+            var filtroLoteValue = $(this).val().trim();
+
+
+
+            if (filtroLoteValue !== filtroLoteAnterior) {
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ route('filtrar_lotes_en_tiempo_real') }}',
+                    data: {
+                        '_token': '{{ csrf_token() }}',
+                        'filtroLote': filtroLoteValue
+                    },
+                    dataType: 'json',
+                    success: function (response) {
+                        actualizarTabla(response.planillas);
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error en la solicitud AJAX: ' + status + ' - ' + error);
+                    }
+                });
+                filtroLoteAnterior = filtroLoteValue;
+            }
+        });
+
+        function actualizarTabla(planillas) {
+            $('#tabla-container tbody').empty();
+
+            planillas.forEach(function (planilla) {
+                var estadoIcono = planilla.guardado == 1 ? 'green' : 'red';
+                var icono = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="' + estadoIcono + '" class="bi bi-floppy" viewBox="0 0 16 16">' +
+                    '<path d="M11 2H9v3h2z"/>' +
+                    '<path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>' +
+                    '</svg>';
+
+                var fila = '<tr class="table-row" onclick="window.location=\'' + '{{ url("/planilla/") }}/' + planilla.cod_planilla + '\';">' +
+                    '<td>' + planilla.cod_planilla + '</td>' +
+
+                    '<td>' + planilla.lote + '</td>' +
+                    '<td>' + formatDate(planilla.fec_turno) + '</td>' +
+                    '<td>' + planilla.turno + '</td>' +
+                    '<td>' + planilla.proveedor + '</td>' +
+                    '<td>' + planilla.empresa + '<td>' + planilla.especie + '</td>' +
+                    '<td>' + planilla.supervisor_nombre + '</td>' +
+                    '<td>' + planilla.planillero_nombre + '</td>' +
+                    '<td>' + icono + '</td>' +
+                    '</tr>';
+                $('#tabla-container tbody').append(fila);
+            });
+        }
+        function formatDate(dateString) {
+
+            var date = new Date(dateString);
+            var day = date.getDate() + 1;
+            var month = date.getMonth() + 1;
+            var year = date.getFullYear();
+            return day + '/' + month + '/' + year;
+        }
+    });
+</script>
 @endsection

@@ -40,20 +40,73 @@ class IndexController extends Controller
         $planilleros = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=1 AND activo = 1 ORDER BY nombre ASC;');
 
 
-        $fechaHace7Dias = Carbon::now()->subDays(7)->toDateString();
+        $fechaHoy = Carbon::now()->format('Y-m-d');
+        $fechaHace7Dias = Carbon::now()->subDays(7)->format('Y-m-d');
 
-        $planillas = DB::table('pst.dbo.v_planilla_pst')
+        $planillas7dias = DB::table('pst.dbo.v_planilla_pst')
             ->select('*')
-            ->where(function ($query) {
+            ->where('guardado', 1);
+
+
+        if (session('user.cod_rol') != 3) {
+            $planillas7dias->where(function ($query) {
                 $query->where('cod_planillero', session('user.cod_usuario'))
                     ->orWhere('cod_supervisor', session('user.cod_usuario'));
-            })
-            ->whereDate('fec_turno', '>=', $fechaHace7Dias)
+            });
+        }
+
+        $planillas7dias = $planillas7dias->whereBetween('fec_turno', [$fechaHace7Dias, $fechaHoy])
             ->orderByDesc('fec_turno')
             ->get();
 
 
-        return view('index', compact('procesos', 'empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'planillas'));
+
+        $planillasHoy = DB::table('pst.dbo.v_planilla_pst')
+            ->select('*');
+
+        if (session('user.cod_rol') != 3) {
+            $planillasHoy->where(function ($query) {
+                $query->where('cod_planillero', session('user.cod_usuario'))
+                    ->orWhere('cod_supervisor', session('user.cod_usuario'));
+            });
+        }
+
+        $planillasHoy = $planillasHoy->whereDate('fec_turno', $fechaHoy)
+            ->orderByDesc('fec_turno')
+            ->get();
+
+
+
+
+
+        return view('index', compact('procesos', 'empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'planillasHoy', 'planillas7dias'));
+    }
+
+    public function planillas()
+    {
+        if (!session('user')) {
+            return redirect('/login');
+        }
+
+        $empresas = DB::select('SELECT cod_empresa,descripcion FROM bdsystem.dbo.empresas WHERE inactivo=0 ORDER BY descripcion ASC;');
+        $procesos = DB::select('SELECT cod_sproceso,UPPER(nombre) as nombre FROM bdsystem.dbo.subproceso WHERE inactivo=0 ORDER BY nombre ASC;');
+        $proveedores = DB::select('SELECT cod_proveedor,descripcion FROM bdsystem.dbo.proveedores WHERE inactivo=0 ORDER BY descripcion ASC;');
+        $especies = DB::select('SELECT cod_especie,descripcion FROM bdsystem.dbo.especies WHERE inactivo=0 ORDER BY descripcion ASC;');
+        $turnos = DB::select('SELECT codTurno,NomTurno FROM bdsystem.dbo.turno WHERE inactivo=0 ORDER BY NomTurno ASC;');
+        $supervisores = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=2 AND activo = 1 ORDER BY nombre ASC;');
+        $planilleros = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=1 AND activo = 1 ORDER BY nombre ASC;');
+
+        $planillas = DB::table('pst.dbo.v_planilla_pst')
+            ->select('*')
+            ->orderByDesc('fec_turno');
+
+        if (session('user.cod_rol') != 3) {
+            $planillas->where('guardado', 1);
+        }
+
+        $planillas = $planillas->get();
+
+        return view('admin.mantencion.planillas', compact('procesos', 'empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'planillas'));
     }
 
 

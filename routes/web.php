@@ -17,6 +17,7 @@ Route::get('/main', [IndexController::class, 'main'])->name('main');
 // Rutas que requieren autenticación
 
 Route::get('/inicio', [IndexController::class, 'index'])->name('inicio');
+Route::get('/planillas', [IndexController::class, 'planillas'])->name('planillas');
 Route::post('/obtener-valores-lote', [IndexController::class, 'obtenerValores'])->name('obtener_valores_lote');
 Route::post('/filtrar-tabla', [IndexController::class, 'filtrarTabla'])->name('filtrar.tabla');
 Route::post('/filtrar-lotes-en-tiempo-real', [IndexController::class, 'filtrarLotesEnTiempoReal'])->name('filtrar_lotes_en_tiempo_real');

@@ -47,7 +47,7 @@
                         <a href="#" data-url="{{ route('inicio') }}">Inicio</a>
                     </li>
                     <li>
-                        <a href="#" data-url="{{ route('inicio') }}">Planillas</a>
+                        <a href="#" data-url="{{ route('planillas') }}">Planillas</a>
                     </li>
 
                     @if(session('user')['cod_rol'] == 3)
