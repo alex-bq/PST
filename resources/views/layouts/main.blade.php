@@ -90,6 +90,7 @@
                         <p>
                             {{ session('user')['nombre'] }}<br>
                             {{ session('user')['rol'] }}<br>
+                            <a href="{{ url('/cambiar-contra') }}">Cambiar contraseña</a> <br>
                             <a type="button" class="btn btn-light btn-sm" href="{{ url('/logout') }}">Cerrar sesión</a>
                         </p>
                     </div>

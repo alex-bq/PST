@@ -108,6 +108,10 @@ class IndexController extends Controller
 
         return view('admin.mantencion.planillas', compact('procesos', 'empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'planillas'));
     }
+    public function eliminarPlanilla($idPlanillas)
+    {
+        $idPlanillas = 1;
+    }
 
 
     public function filtrarTabla(Request $request)

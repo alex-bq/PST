@@ -39,39 +39,41 @@
 
     <div class="mb-3">
         <h4>Hoy</h4>
+        <div id="tabla-container">
+            <table id="tablaPlanillasHoy" class="table table-hover table-responsive" style="font-size: 13px;">
+                <thead>
+                    <tr>
+                        <th scope="col" onclick="sortTable(0)">N°</th>
+                        <th scope="col" onclick="sortTable(1)">Lote</th>
+                        <th scope="col" onclick="sortTable(2)">Fecha Turno</th>
+                        <th scope="col" onclick="sortTable(3)">Turno</th>
+                        <th scope="col" onclick="sortTable(4)">Proveedor</th>
+                        <th scope="col" onclick="sortTable(5)">Empresa</th>
+                        <th scope="col" onclick="sortTable(6)">Especie</th>
+                        <th scope="col" onclick="sortTable(7)">Supervisor</th>
+                        <th scope="col" onclick="sortTable(8)">Planillero</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($planillasHoy as $planilla)
+                    <tr class="table-row" onclick="abrirModal('{{ $planilla->cod_planilla }}')">
+                        <td>{{ $planilla->cod_planilla }}</td>
+                        <td>{{ $planilla->lote }}</td>
+                        <td>{{ date('Y-m-d', strtotime($planilla->fec_turno)) }}</td>
+                        <td>{{ $planilla->turno }}</td>
+                        <td>{{ $planilla->proveedor }}</td>
+                        <td>{{ $planilla->empresa }}</td>
+                        <td>{{ $planilla->especie }}</td>
+                        <td>{{ $planilla->supervisor_nombre }}</td>
+                        <td>{{ $planilla->planillero_nombre }}</td>
 
-        <table id="tablaPlanillasHoy" class="table table-hover table-responsive" style="font-size: 13px;">
-            <thead>
-                <tr>
-                    <th scope="col" onclick="sortTable(0)">N°</th>
-                    <th scope="col" onclick="sortTable(1)">Lote</th>
-                    <th scope="col" onclick="sortTable(2)">Fecha Turno</th>
-                    <th scope="col" onclick="sortTable(3)">Turno</th>
-                    <th scope="col" onclick="sortTable(4)">Proveedor</th>
-                    <th scope="col" onclick="sortTable(5)">Empresa</th>
-                    <th scope="col" onclick="sortTable(6)">Especie</th>
-                    <th scope="col" onclick="sortTable(7)">Supervisor</th>
-                    <th scope="col" onclick="sortTable(8)">Planillero</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($planillasHoy as $planilla)
-                <tr class="table-row" onclick="abrirModal('{{ $planilla->cod_planilla }}')">
-                    <td>{{ $planilla->cod_planilla }}</td>
-                    <td>{{ $planilla->lote }}</td>
-                    <td>{{ date('Y-m-d', strtotime($planilla->fec_turno)) }}</td>
-                    <td>{{ $planilla->turno }}</td>
-                    <td>{{ $planilla->proveedor }}</td>
-                    <td>{{ $planilla->empresa }}</td>
-                    <td>{{ $planilla->especie }}</td>
-                    <td>{{ $planilla->supervisor_nombre }}</td>
-                    <td>{{ $planilla->planillero_nombre }}</td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
 
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
 
+        </div>
 
     </div>
 
