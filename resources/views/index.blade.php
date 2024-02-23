@@ -36,6 +36,51 @@
         </div>
     </div>
 
+    <div class="mb-3">
+        <h4>Sin Guardar</h4>
+        <div id="tabla-container">
+            <table id="tablaNoGuardado" class="table table-hover table-responsive" style="font-size: 13px;">
+                <thead>
+                    <tr>
+                        <th scope="col" onclick="sortTable(0)">N°</th>
+                        <th scope="col" onclick="sortTable(1)">Lote</th>
+                        <th scope="col" onclick="sortTable(2)">Fecha Turno</th>
+                        <th scope="col" onclick="sortTable(3)">Turno</th>
+                        <th scope="col" onclick="sortTable(4)">Proveedor</th>
+                        <th scope="col" onclick="sortTable(5)">Empresa</th>
+                        <th scope="col" onclick="sortTable(6)">Especie</th>
+                        <th scope="col" onclick="sortTable(7)">Supervisor</th>
+                        <th scope="col" onclick="sortTable(8)">Planillero</th>
+                        <th scope="col"></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($noGuardado as $planilla)
+                    <tr class="table-row" onclick="abrirModal('{{ $planilla->cod_planilla }}')">
+                        <td>{{ $planilla->cod_planilla }}</td>
+                        <td>{{ $planilla->lote }}</td>
+                        <td>{{ date('Y-m-d', strtotime($planilla->fec_turno)) }}</td>
+                        <td>{{ $planilla->turno }}</td>
+                        <td>{{ $planilla->proveedor }}</td>
+                        <td>{{ $planilla->empresa }}</td>
+                        <td>{{ $planilla->especie }}</td>
+                        <td>{{ $planilla->supervisor_nombre }}</td>
+                        <td>{{ $planilla->planillero_nombre }}</td>
+                        <td>
+                            <button class="btn btn-danger"
+                                onclick="eliminarPlanilla('{{ $planilla->cod_planilla }}'); event.stopPropagation();">Eliminar</button>
+                        </td>
+
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
+
+
+        </div>
+
+    </div>
+
 
     <div class="mb-3">
         <h4>Hoy</h4>
@@ -290,7 +335,25 @@
 @section('scripts2')
 <script>
 
-
+    function eliminarPlanilla(idPlanilla) {
+        if (confirm("¿Estás seguro de que quieres eliminar esta planilla?")) {
+            $.ajax({
+                url: "{{ url('/eliminar-planilla') }}/" + idPlanilla,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    console.log(response);
+                    location.reload();
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                    alert("Error al eliminar la planilla");
+                }
+            });
+        }
+    }
 
     function abrirModal(codPlanilla) {
         var url = "{{ url('/ver-planilla/') }}/" + codPlanilla;

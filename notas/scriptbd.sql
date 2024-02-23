@@ -56,6 +56,7 @@ CREATE TABLE pst.dbo.planillas_pst (
     cod_planillero NUMERIC(18,0),
     cod_supervisor NUMERIC(18,0),
     fec_crea_planilla DATETIME DEFAULT GETDATE(),
+    cod_usuario_crea_planilla INT,
     guardado NUMERIC(18,0),
     UNIQUE(cod_planilla) 
 );

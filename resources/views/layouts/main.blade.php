@@ -123,10 +123,17 @@
                 event.preventDefault(); // Prevenimos el comportamiento predeterminado del enlace
                 var url = $(this).data('url'); // Obtenemos la URL del atributo data-url del enlace
                 if (url !== undefined && url !== '') {
+                    sessionStorage.setItem('lastVisitedPage', url);
                     // Actualizamos la URL del iframe
                     $('#iframeContent').attr('src', url);
                 }
             });
+            // Verificamos si hay una URL guardada en la sesión
+            var lastVisitedPage = sessionStorage.getItem('lastVisitedPage');
+            if (lastVisitedPage !== null && lastVisitedPage !== '') {
+                // Cargamos la última página visitada en el iframe
+                $('#iframeContent').attr('src', lastVisitedPage);
+            }
         });
 
 

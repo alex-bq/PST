@@ -1,6 +1,7 @@
 DROP VIEW v_data_usuario;
 DROP VIEW v_planilla_pst;
 DROP VIEW v_registro_planilla_pst;
+DROP VIEW v_planillas_pst_excel;
 
 
 CREATE VIEW v_data_usuario AS
@@ -83,3 +84,52 @@ LEFT OUTER JOIN
     pst.dbo.calidad AS ca ON rp.cod_calidad = ca.cod_cald
 LEFT OUTER JOIN
     pst.dbo.destino AS de ON rp.cod_destino = de.cod_destino;
+
+
+
+CREATE VIEW v_planillas_pst_excel AS 
+
+
+SELECT DISTINCT TOP (100) PERCENT
+	pst.dbo.v_registro_planilla_pst.cod_reg,
+    pst.dbo.planillas_pst.cod_planilla,
+    bdsystem.dbo.lotes.nombre AS lote,
+    pst.dbo.planillas_pst.fec_turno,
+    bdsystem.dbo.turno.NomTurno AS turno,
+    bdsystem.dbo.empresas.descripcion AS empresa,
+    bdsystem.dbo.proveedores.descripcion AS proveedor,
+    bdsystem.dbo.especies.descripcion AS especie,
+    bdsystem.dbo.subproceso.nombre AS proceso,
+    planillero.nombre + ' ' + planillero.apellido AS planillero_nombre,
+    supervisor.nombre + ' ' + supervisor.apellido AS supervisor_nombre,
+    pst.dbo.planillas_pst.fec_crea_planilla,
+    pst.dbo.v_planilla_pst.usuario_crea,
+	pst.dbo.v_registro_planilla_pst.cInicial,
+	pst.dbo.v_registro_planilla_pst.cFinal,
+	pst.dbo.v_registro_planilla_pst.destino,
+	pst.dbo.v_registro_planilla_pst.calibre,
+	pst.dbo.v_registro_planilla_pst.calidad,
+	pst.dbo.v_registro_planilla_pst.piezas,
+	pst.dbo.v_registro_planilla_pst.kilos
+FROM
+    pst.dbo.planillas_pst
+INNER JOIN bdsystem.dbo.lotes ON pst.dbo.planillas_pst.cod_lote = bdsystem.dbo.lotes.cod_lote
+INNER JOIN bdsystem.dbo.turno ON pst.dbo.planillas_pst.cod_turno = bdsystem.dbo.turno.CodTurno
+INNER JOIN bdsystem.dbo.empresas ON pst.dbo.planillas_pst.cod_empresa = bdsystem.dbo.empresas.cod_empresa
+INNER JOIN bdsystem.dbo.detalle_lote ON pst.dbo.planillas_pst.cod_lote = bdsystem.dbo.detalle_lote.cod_lote
+INNER JOIN bdsystem.dbo.proveedores ON bdsystem.dbo.detalle_lote.cod_proveedor = bdsystem.dbo.proveedores.cod_proveedor
+INNER JOIN bdsystem.dbo.especies ON pst.dbo.planillas_pst.cod_especie = bdsystem.dbo.especies.cod_especie
+INNER JOIN bdsystem.dbo.subproceso ON pst.dbo.planillas_pst.cod_proceso = bdsystem.dbo.subproceso.cod_sproceso
+INNER JOIN pst.dbo.usuarios_pst AS planillero ON pst.dbo.planillas_pst.cod_planillero = planillero.cod_usuario
+INNER JOIN pst.dbo.usuarios_pst AS supervisor ON pst.dbo.planillas_pst.cod_supervisor = supervisor.cod_usuario
+
+INNER JOIN v_registro_planilla_pst ON pst.dbo.v_registro_planilla_pst.cod_planilla = pst.dbo.planillas_pst.cod_planilla
+INNER JOIN v_planilla_pst ON pst.dbo.v_planilla_pst.cod_planilla = pst.dbo.planillas_pst.cod_planilla
+
+WHERE pst.dbo.planillas_pst.guardado = 1
+-- Rango de fecha de planillas (Formato yyyy-mm-dd)
+AND pst.dbo.planillas_pst.fec_turno >= '2024-02-01' -- Fecha de inicio 
+AND pst.dbo.planillas_pst.fec_turno <= '2024-03-01' -- Fecha de fin
+ORDER BY
+    pst.dbo.planillas_pst.fec_turno,
+    pst.dbo.planillas_pst.fec_crea_planilla;

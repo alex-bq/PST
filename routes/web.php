@@ -30,6 +30,7 @@ Route::get('/obtener-datos-fila/{id}', [PlanillaController::class, 'obtenerDatos
 Route::get('/planilla/{id}', [PlanillaController::class, 'mostrarPlanilla'])->name('planilla');
 Route::post('/guardar-planilla', [PlanillaController::class, 'guardarPlanilla'])->name('guardar');
 Route::post('/modificar-planilla/{id}', [PlanillaController::class, 'modificarPlanilla'])->name('modificar-planilla');
+Route::post('/eliminar-planilla/{id}', [IndexController::class, 'eliminarPlanilla'])->name('eliminar-planilla');
 Route::post('/modificar-registro', [PlanillaController::class, 'editarRegistro'])->name('editarRegistro');
 Route::post('/eliminar-registro', [PlanillaController::class, 'eliminarRegistro'])->name('eliminarRegistro');
 Route::post('/agregar-registro', [PlanillaController::class, 'agregarRegistro'])->name('agregar-registro');

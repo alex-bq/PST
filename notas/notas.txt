@@ -133,10 +133,10 @@ SELECT TOP 1000 [N_Ano]
 
 --- por arreglar 
 
-- planillas no guardadas de usuarios (seccion inicio)
-- limitar a planillas solo guardadas en la vista general de planillas para no sobrecargar
+- agregar sala a vista de planilla
+- eliminar planillas para admin y para planillas propias de cada usuario
 - planificar filtrado de datos en ver planillas
-- filtro para planillero y supervisor trae planillas no guardadas
 - filtro de fecha por rango 
 - mensajes de validacion por cada acciones y mensajes de confirmacion segun el caso
 - arreglar repeticion de pagina cuando la sesion expira
+- dar permiso a supervisor de modificar supervisor planilla

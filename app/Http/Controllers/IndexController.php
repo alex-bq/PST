@@ -62,7 +62,8 @@ class IndexController extends Controller
 
 
         $planillasHoy = DB::table('pst.dbo.v_planilla_pst')
-            ->select('*');
+            ->select('*')
+            ->where('guardado', 1);
 
         if (session('user.cod_rol') != 3) {
             $planillasHoy->where(function ($query) {
@@ -75,11 +76,17 @@ class IndexController extends Controller
             ->orderByDesc('fec_turno')
             ->get();
 
+        $noGuardado = DB::table('pst.dbo.v_planilla_pst')
+            ->select('*')
+            ->where('guardado', 0)
+            ->where('cod_usuario_crea', session('user.cod_usuario'))
+            ->orderByDesc('fec_turno')
+            ->get();
 
 
 
 
-        return view('index', compact('procesos', 'empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'planillasHoy', 'planillas7dias'));
+        return view('index', compact('procesos', 'empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'planillasHoy', 'planillas7dias', 'noGuardado'));
     }
 
     public function planillas()
@@ -98,26 +105,33 @@ class IndexController extends Controller
 
         $planillas = DB::table('pst.dbo.v_planilla_pst')
             ->select('*')
+            ->where('guardado', 1)
             ->orderByDesc('fec_turno');
 
-        if (session('user.cod_rol') != 3) {
-            $planillas->where('guardado', 1);
-        }
+
 
         $planillas = $planillas->get();
 
         return view('admin.mantencion.planillas', compact('procesos', 'empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'planillas'));
     }
-    public function eliminarPlanilla($idPlanillas)
+    public function eliminarPlanilla($idPlanilla)
     {
-        $idPlanillas = 1;
+        DB::table('pst.dbo.registro_planilla_pst')->where('cod_planilla', $idPlanilla)->delete();
+
+        DB::table('pst.dbo.detalle_planilla_pst')->where('cod_planilla', $idPlanilla)->delete();
+
+        DB::table('pst.dbo.planillas_pst')->where('cod_planilla', $idPlanilla)->delete();
+
+        return response()->json(['message' => 'Planilla eliminada exitosamente']);
     }
+
 
 
     public function filtrarTabla(Request $request)
     {
         $planillas = DB::table('pst.dbo.v_planilla_pst')
             ->select('*')
+            ->where('guardado', 1)
             ->orderByDesc('fec_turno');
 
         // Aplicar filtros si existen
@@ -215,6 +229,7 @@ class IndexController extends Controller
                 'cod_proceso' => $request->input('proceso'),
                 'cod_planillero' => $request->input('planillero'),
                 'cod_supervisor' => $request->input('supervisor'),
+                'cod_usuario_crea_planilla' => session('user.cod_usuario'),
                 'guardado' => 0,
             ]);
             $idPlanilla = DB::table('pst.dbo.planillas_pst')
