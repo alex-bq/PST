@@ -297,6 +297,16 @@ $(document).ready(function () {
     $("#btnGuardarPlanilla").on("click", function (event) {
         event.preventDefault();
 
+        var salaValue = $("#sala").val();
+        var dotacionValue = $("#dotacion").val();
+
+        if (salaValue === null || salaValue === "" || dotacionValue === "") {
+            toastr.error(
+                "Por favor completa todos los campos sala y dotacion."
+            );
+            return; // Detener el envío del formulario si hay campos vacíos
+        }
+
         $.ajax({
             type: "POST",
             url: baseUrl + "/guardar-planilla",

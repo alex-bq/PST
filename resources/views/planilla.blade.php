@@ -305,8 +305,7 @@
                                 <div class="col-md-6">
                                     <div class="form-group">
                                         <label for="codSupervisor">Supervisor</label>
-                                        <select class="form-select select2" style="width: 100%" name="supervisor"
-                                            @if(session('user')['cod_rol']==2) disabled @endif>
+                                        <select class="form-select select2" style="width: 100%" name="supervisor">
 
                                             @foreach ($supervisores as $supervisor)
                                             @php
@@ -357,7 +356,7 @@
                                 <h6>Entrega Frigorífico</h6>
                                 <label for="cajasEntrega">Cajas:</label>
                                 <input type="number" min="0" class="form-control form-control-sm" id="cajasEntrega"
-                                    value="{{ $detalle_planilla->cajas_entrega }}" name="cajas_entrega"
+                                    value="{{ round($detalle_planilla->cajas_entrega) }}" name="cajas_entrega"
                                     placeholder="Cajas">
                                 <label for="kilosEntrega">Kilos:</label>
                                 <input type="number" min="0" class="form-control form-control-sm" id="kilosEntrega"
@@ -365,14 +364,14 @@
                                     placeholder="Kilos">
                                 <label for="piezasEntrega">Piezas:</label>
                                 <input type="number" min="0" class="form-control form-control-sm" id="piezasEntrega"
-                                    value="{{ $detalle_planilla->piezas_entrega }}" name="piezas_entrega"
+                                    value="{{ round($detalle_planilla->piezas_entrega) }}" name="piezas_entrega"
                                     placeholder="Piezas">
                             </div>
                             <div class="col-6">
                                 <h6>Recepción Planta</h6>
                                 <label for="cajasRecepcion">Cajas:</label>
                                 <input type="number" min="0" class="form-control form-control-sm" id="cajasRecepcion"
-                                    value="{{ $detalle_planilla->cajas_recepcion }}" name="cajas_recepcion"
+                                    value="{{ round($detalle_planilla->cajas_recepcion) }}" name="cajas_recepcion"
                                     placeholder="Cajas">
                                 <label for="kilosRecepcion">Kilos:</label>
                                 <input type="number" min="0" class="form-control form-control-sm" id="kilosRecepcion"
@@ -380,7 +379,7 @@
                                     placeholder="Kilos">
                                 <label for="piezasRecepcion">Piezas:</label>
                                 <input type="number" min="0" class="form-control form-control-sm" id="piezasRecepcion"
-                                    value="{{ $detalle_planilla->piezas_recepcion }}" name="piezas_recepcion"
+                                    value="{{ round($detalle_planilla->piezas_recepcion) }}" name="piezas_recepcion"
                                     placeholder="Piezas">
                             </div>
                         </div>
@@ -388,27 +387,24 @@
 
                         <div class="row">
                             <div class="col-6">
-                                <h6>Sala </h6>
-
+                                <h6>Sala</h6>
                                 <select id="sala" class="form-select select2" style="width: 100%" name="sala"
-                                    aria-label="Selecciona una sala">
-                                    <option></option>
+                                    aria-label="Selecciona una sala" required>
+                                    <option value="" selected disabled hidden>Selecciona una sala</option>
                                     @foreach ($salas as $sala)
                                     @php
-                                    $selected = ($detalle_planilla && $sala->cod_sala ==
-                                    $detalle_planilla->cod_sala) ? 'selected' : '';
+                                    $selected = ($detalle_planilla && $sala->cod_sala == $detalle_planilla->cod_sala) ?
+                                    'selected' : '';
                                     @endphp
-                                    <option value="{{ $sala->cod_sala }}" {{ $selected }}>{{ $sala->nombre }}
-                                    </option>
+                                    <option value="{{ $sala->cod_sala }}" {{ $selected }}>{{ $sala->nombre }}</option>
                                     @endforeach
                                 </select>
-
                             </div>
 
                             <div class="col-6">
-                                <h6>Dotación:</h6>
-                                <input type="number" min="0" class="form-control" name="dotacion" id="dotacion"
-                                    value="{{ $detalle_planilla->dotacion }}">
+                                <h6>Dotación</h6>
+                                <input type="number" min="1" class="form-control" name="dotacion" id="dotacion"
+                                    value="{{ $detalle_planilla->dotacion }}" required>
                             </div>
                         </div>
 
@@ -732,30 +728,7 @@
         });
     });
 </script>
-<script>
-    function descargarURLComoPDF(url) {
-        // URL de la página que deseas convertir a PDF
 
-        // Realizar una solicitud GET para obtener el contenido HTML de la URL
-        fetch(url)
-            .then(response => response.text())
-            .then(html => {
-                // Crear un objeto jsPDF
-                var doc = new jsPDF();
-
-                // Convertir el contenido HTML a PDF
-                doc.html(html, {
-                    callback: function (pdf) {
-                        // Guardar el PDF con un nombre específico
-                        pdf.save('contenido.pdf');
-                    }
-                });
-            })
-            .catch(error => {
-                console.error('Error al obtener el contenido HTML:', error);
-            });
-    }
-</script>
 
 <script>
     $(document).ready(function () {
@@ -779,8 +752,8 @@
             var cFinalEsnuevo = $('#cFinal').val() === 'nuevo';
 
             // Mostrar u ocultar el contenedor según las condiciones
-            if (cFinalEsnuevo) {
-                $('#input-corteFin').fadeOut(0);
+            if (cFinalEs
+        $('#input-corteFin').fadeOut(0);
                 $('#input-nuevo-corteFin').fadeIn(300);
 
             } else {
@@ -836,8 +809,7 @@
                 $('#input-nuevo-destino').fadeOut(0);
                 $('#input-destino').fadeIn(300);
             }
-
-            console.log('Selección cambiada para destino');
+     console.log('Selección cambiada para destino');
         });
     });
 </script>

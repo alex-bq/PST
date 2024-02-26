@@ -128,15 +128,25 @@ SELECT TOP 1000 [N_Ano]
 
 
 
-
-
-
 --- por arreglar 
 
-- agregar sala a vista de planilla
 - eliminar planillas para admin y para planillas propias de cada usuario
-- planificar filtrado de datos en ver planillas
-- filtro de fecha por rango 
 - mensajes de validacion por cada acciones y mensajes de confirmacion segun el caso
 - arreglar repeticion de pagina cuando la sesion expira
-- dar permiso a supervisor de modificar supervisor planilla
+- evitar creacion de mas de una planilla al dar clic mas de una vez en crear planilla
+- filtro de fecha por rango 
+- planificar filtrado de datos en ver planillas
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -19,7 +19,8 @@ class PlanillaController extends Controller
         }
 
         $detalle_planilla = DB::table('pst.dbo.detalle_planilla_pst ')
-            ->select('*')
+            ->select('*', 'pst.dbo.sala.nombre')
+            ->join('pst.dbo.sala', 'pst.dbo.sala.cod_sala', '=', 'pst.dbo.detalle_planilla_pst.cod_sala')
             ->where('cod_planilla', $idPlanilla)
             ->first();
 

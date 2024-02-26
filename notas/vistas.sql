@@ -40,7 +40,10 @@ SELECT DISTINCT TOP (100) PERCENT
     pst.dbo.planillas_pst.cod_supervisor,
     supervisor.nombre + ' ' + supervisor.apellido AS supervisor_nombre,
     pst.dbo.planillas_pst.guardado,
-    pst.dbo.planillas_pst.fec_crea_planilla
+    pst.dbo.planillas_pst.fec_crea_planilla,
+	user_crea.cod_usuario AS cod_usuario_crea,
+	user_crea.usuario AS usuario_crea
+
 FROM
     pst.dbo.planillas_pst
 LEFT OUTER JOIN bdsystem.dbo.lotes ON pst.dbo.planillas_pst.cod_lote = bdsystem.dbo.lotes.cod_lote
@@ -52,6 +55,7 @@ LEFT OUTER JOIN bdsystem.dbo.especies ON pst.dbo.planillas_pst.cod_especie = bds
 LEFT OUTER JOIN bdsystem.dbo.subproceso ON pst.dbo.planillas_pst.cod_proceso = bdsystem.dbo.subproceso.cod_sproceso
 LEFT OUTER JOIN pst.dbo.usuarios_pst AS planillero ON pst.dbo.planillas_pst.cod_planillero = planillero.cod_usuario
 LEFT OUTER JOIN pst.dbo.usuarios_pst AS supervisor ON pst.dbo.planillas_pst.cod_supervisor = supervisor.cod_usuario
+LEFT OUTER JOIN pst.dbo.usuarios_pst AS user_crea ON pst.dbo.planillas_pst.cod_usuario_crea_planilla = user_crea.cod_usuario
 ORDER BY
     pst.dbo.planillas_pst.fec_turno,
     pst.dbo.planillas_pst.fec_crea_planilla;
@@ -89,7 +93,6 @@ LEFT OUTER JOIN
 
 CREATE VIEW v_planillas_pst_excel AS 
 
-
 SELECT DISTINCT TOP (100) PERCENT
 	pst.dbo.v_registro_planilla_pst.cod_reg,
     pst.dbo.planillas_pst.cod_planilla,
@@ -110,7 +113,16 @@ SELECT DISTINCT TOP (100) PERCENT
 	pst.dbo.v_registro_planilla_pst.calibre,
 	pst.dbo.v_registro_planilla_pst.calidad,
 	pst.dbo.v_registro_planilla_pst.piezas,
-	pst.dbo.v_registro_planilla_pst.kilos
+	pst.dbo.v_registro_planilla_pst.kilos,
+	pst.dbo.detalle_planilla_pst.cajas_entrega AS cajas_ef,
+	pst.dbo.detalle_planilla_pst.piezas_entrega AS piezas_ef,
+	pst.dbo.detalle_planilla_pst.kilos_entrega AS kilos_ef, 
+	pst.dbo.detalle_planilla_pst.cajas_recepcion AS cajas_rp,
+	pst.dbo.detalle_planilla_pst.piezas_recepcion AS piezas_rp,
+	pst.dbo.detalle_planilla_pst.kilos_recepcion AS kilos_rp,
+	pst.dbo.detalle_planilla_pst.dotacion AS dotacion,
+	pst.dbo.sala.nombre AS sala,
+	pst.dbo.detalle_planilla_pst.observacion
 FROM
     pst.dbo.planillas_pst
 INNER JOIN bdsystem.dbo.lotes ON pst.dbo.planillas_pst.cod_lote = bdsystem.dbo.lotes.cod_lote
@@ -125,6 +137,8 @@ INNER JOIN pst.dbo.usuarios_pst AS supervisor ON pst.dbo.planillas_pst.cod_super
 
 INNER JOIN v_registro_planilla_pst ON pst.dbo.v_registro_planilla_pst.cod_planilla = pst.dbo.planillas_pst.cod_planilla
 INNER JOIN v_planilla_pst ON pst.dbo.v_planilla_pst.cod_planilla = pst.dbo.planillas_pst.cod_planilla
+INNER JOIN pst.dbo.detalle_planilla_pst ON pst.dbo.planillas_pst.cod_planilla = pst.dbo.detalle_planilla_pst.cod_planilla
+INNER JOIN pst.dbo.sala ON pst.dbo.detalle_planilla_pst.cod_sala = pst.dbo.sala.cod_sala
 
 WHERE pst.dbo.planillas_pst.guardado = 1
 -- Rango de fecha de planillas (Formato yyyy-mm-dd)
