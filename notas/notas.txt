@@ -1,71 +1,3 @@
-usuarios: admin, planillero, ...
-
-
-- vista de admin 
-
-ver filtrar, modificar, eliminar y agregar cualquier dato
-
-- vista de planillero 
-
-poder ver, ingresar, modificar y eliminar datos uno a uno
-
-- vista de busqueda 
-
-ver y filtrar 
-
-- log de registro modificaciones en la tabla (triggers)
-
--------
-recordatorios
-
-- ver como funciona el sistema de trazabilidad
-
-- crear carta gantt para registro de avances portafolio
-
-- 
-
-
---------
-dudas
-- en cortes salen tipos como atun,aros de calamar,tentaculos de jibia como se relaciona con la especie que le pertenece a la planilla
-se filtrara segun la especie?
-
-- un lote puede tener mas de una planilla? para cuando se agregue planillas (SI)
- 
----
-
-tablas
-
-planillas 
-
-registro producto
- 
-usuario
-
-
--- cambios 
-
-- kilos no se resgistran en decimal
-
-agregar destinos para supervisor
-
-filtro de planillas
-
-
-crear bd aparte   X
-
-entrega caja,pieza,kilos y a recepcion
-
-poder crear destinos,cortes,calibres y calidades
-
-
-
---
-
-- semana 1 modificar registros  validaciones y mensajes
-- semana 2 validaciones y mensajes, permisos de los usuarios_pst
-- semana 3  y 4 vista de administrador y generar pdf
-
 
 
 SELECT TOP 1000 [N_Ano]
@@ -110,23 +42,13 @@ SELECT TOP 1000 [N_Ano]
   where [N_Ano] = 2024;
 
 
---- puntos importantes para la funcionalidad
-
-- permisos para cada usuario 
-- que no se puedan eliminar datos que dependan en mantencion de datos, solo se puedan desactivar
 
 
----- por agregar, pedido 
 
-- seleccion de bines o cajas en detalle planilla
-- rendimientos 
-
------ 
 
 
 --- por arreglar 
 
-- mensajes de validacion por cada acciones y mensajes de confirmacion segun el caso
 - arreglar repeticion de pagina cuando la sesion expira
 - evitar creacion de mas de una planilla al dar clic mas de una vez en crear planilla
 - filtro de fecha por rango 
