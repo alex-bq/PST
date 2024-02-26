@@ -94,7 +94,7 @@
             </div>
             <div class="col-sm-3 text-end">
                 <h6><strong>N°</strong> {{ $desc_planilla->cod_planilla }}</h6>
-                <p>{{ $detalle_planilla->nombre }}</p>
+                <p>{{ $desc_planilla->sala }}</p>
             </div>
         </div>
         <hr class="section-divider">

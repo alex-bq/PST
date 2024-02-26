@@ -247,7 +247,7 @@ class IndexController extends Controller
     {
         $filtroLote = $request->input('filtroLote');
 
-        $query = DB::table('pst.dbo.v_planilla_pst')->select('*')->orderByDesc('fec_turno');
+        $query = DB::table('pst.dbo.v_planilla_pst')->select('*')->orderByDesc('fec_turno')->where('guardado', 1);
 
 
         if (!empty($filtroLote)) {

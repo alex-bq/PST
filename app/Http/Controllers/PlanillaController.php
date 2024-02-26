@@ -19,8 +19,7 @@ class PlanillaController extends Controller
         }
 
         $detalle_planilla = DB::table('pst.dbo.detalle_planilla_pst ')
-            ->select('*', 'pst.dbo.sala.nombre')
-            ->join('pst.dbo.sala', 'pst.dbo.sala.cod_sala', '=', 'pst.dbo.detalle_planilla_pst.cod_sala')
+            ->select('*')
             ->where('cod_planilla', $idPlanilla)
             ->first();
 
@@ -31,7 +30,7 @@ class PlanillaController extends Controller
 
         if (!$desc_planilla) {
             // La planilla no existe, redirigir al usuario a la página de inicio
-            return redirect('/inicio')->with('error', 'La planilla no xiste.');
+            return redirect('/inicio')->with('error', 'La planilla no existe.');
         }
 
 
@@ -95,33 +94,38 @@ class PlanillaController extends Controller
 
         if (!$desc_planilla) {
             // La planilla no existe, redirigir al usuario a la página de inicio
-            return redirect('/inicio')->withe('error', 'La planilla no xiste.');
+            return redirect('/main')->with('error', 'La planilla no existe.');
         }
 
-
-        $planilla = DB::table("pst.dbo.v_registro_planilla_pst")
-            ->select('*')
-            ->where('cod_planilla', $idPlanilla)
-            ->get();
-
-        $subtotal = DB::table('pst.dbo.registro_planilla_pst AS rp')
-            ->select('fin.nombre AS cFinal', DB::raw('SUM(rp.piezas) AS subtotalPiezas'), DB::raw('SUM(rp.kilos) AS subtotalKilos'))
-            ->leftJoin('pst.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
-            ->where('rp.cod_planilla', '=', $idPlanilla)
-            ->groupBy('fin.nombre', 'rp.cod_planilla')
-            ->orderBy('fin.nombre')
-            ->get();
-
-        $total = DB::table('pst.dbo.registro_planilla_pst AS rp')
-            ->select(DB::raw('SUM(rp.piezas) AS totalPiezas'), DB::raw('SUM(rp.kilos) AS totalKilos'))
-            ->leftJoin('pst.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
-            ->where('rp.cod_planilla', '=', $idPlanilla)
-            ->groupBy('rp.cod_planilla')
-            ->orderBy('rp.cod_planilla')
-            ->get();
+        if (($desc_planilla->cod_planillero == session('user.cod_usuario') && $desc_planilla->guardado == 0) || !(session('user.cod_rol') == 1)) {
 
 
-        return view('planilla', compact('subtotal', 'total', 'planilla', 'destinos', 'cortes', 'salas', 'calibres', 'calidades', 'idPlanilla', 'detalle_planilla', 'desc_planilla', 'empresas', 'procesos', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros'));
+            $planilla = DB::table("pst.dbo.v_registro_planilla_pst")
+                ->select('*')
+                ->where('cod_planilla', $idPlanilla)
+                ->get();
+
+            $subtotal = DB::table('pst.dbo.registro_planilla_pst AS rp')
+                ->select('fin.nombre AS cFinal', DB::raw('SUM(rp.piezas) AS subtotalPiezas'), DB::raw('SUM(rp.kilos) AS subtotalKilos'))
+                ->leftJoin('pst.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
+                ->where('rp.cod_planilla', '=', $idPlanilla)
+                ->groupBy('fin.nombre', 'rp.cod_planilla')
+                ->orderBy('fin.nombre')
+                ->get();
+
+            $total = DB::table('pst.dbo.registro_planilla_pst AS rp')
+                ->select(DB::raw('SUM(rp.piezas) AS totalPiezas'), DB::raw('SUM(rp.kilos) AS totalKilos'))
+                ->leftJoin('pst.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
+                ->where('rp.cod_planilla', '=', $idPlanilla)
+                ->groupBy('rp.cod_planilla')
+                ->orderBy('rp.cod_planilla')
+                ->get();
+
+
+            return view('planilla', compact('subtotal', 'total', 'planilla', 'destinos', 'cortes', 'salas', 'calibres', 'calidades', 'idPlanilla', 'detalle_planilla', 'desc_planilla', 'empresas', 'procesos', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros'));
+        } else {
+            return redirect('/inicio')->with('error', 'No tiene permiso para editar la planilla, indicar a su supervisor');
+        }
     }
 
 
@@ -467,39 +471,42 @@ class PlanillaController extends Controller
     }
     public function eliminarRegistro(Request $request)
     {
-        $idPlanilla = $request->input('idPlanilla');
 
-        $planillaActualizada = DB::table("pst.dbo.v_registro_planilla_pst")
-            ->where('cod_planilla', $idPlanilla)
-            ->select('*')
-            ->get();
-
-        $subtotal = DB::table('pst.dbo.registro_planilla_pst AS rp')
-            ->select('fin.nombre AS cFinal', DB::raw('SUM(rp.piezas) AS subtotalPiezas'), DB::raw('SUM(rp.kilos) AS subtotalKilos'))
-            ->leftJoin('pst.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
-            ->where('rp.cod_planilla', '=', $idPlanilla)
-            ->groupBy('fin.nombre', 'rp.cod_planilla')
-            ->orderBy('fin.nombre')
-            ->get();
-
-        $total = DB::table('pst.dbo.registro_planilla_pst AS rp')
-            ->select(DB::raw('SUM(rp.piezas) AS totalPiezas'), DB::raw('SUM(rp.kilos) AS totalKilos'))
-            ->leftJoin('pst.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
-            ->where('rp.cod_planilla', '=', $idPlanilla)
-            ->groupBy('rp.cod_planilla')
-            ->orderBy('rp.cod_planilla')
-            ->get();
         if ($request->has('ids')) {
             // Obtener los IDs de la solicitud
             $idsAEliminar = $request->input('ids');
 
             DB::table('pst.dbo.registro_planilla_pst')->whereIn('cod_reg', $idsAEliminar)->delete();
 
+            $idPlanilla = $request->input('idPlanilla');
+
+            $planillaActualizada = DB::table("pst.dbo.v_registro_planilla_pst")
+                ->where('cod_planilla', $idPlanilla)
+                ->select('*')
+                ->get();
+
+            $subtotal = DB::table('pst.dbo.registro_planilla_pst AS rp')
+                ->select('fin.nombre AS cFinal', DB::raw('SUM(rp.piezas) AS subtotalPiezas'), DB::raw('SUM(rp.kilos) AS subtotalKilos'))
+                ->leftJoin('pst.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
+                ->where('rp.cod_planilla', '=', $idPlanilla)
+                ->groupBy('fin.nombre', 'rp.cod_planilla')
+                ->orderBy('fin.nombre')
+                ->get();
+
+            $total = DB::table('pst.dbo.registro_planilla_pst AS rp')
+                ->select(DB::raw('SUM(rp.piezas) AS totalPiezas'), DB::raw('SUM(rp.kilos) AS totalKilos'))
+                ->leftJoin('pst.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
+                ->where('rp.cod_planilla', '=', $idPlanilla)
+                ->groupBy('rp.cod_planilla')
+                ->orderBy('rp.cod_planilla')
+                ->get();
+
 
             return response()->json(['success' => true, 'message' => 'Registros eliminados correctamente', 'planilla' => $planillaActualizada, 'subtotal' => $subtotal, 'total' => $total]);
         }
 
-        return response()->json(['success' => false, 'message' => 'No se proporcionaron IDs para eliminar', 'planilla' => $planillaActualizada, 'subtotal' => $subtotal, 'total' => $total]);
+
+        return response()->json(['success' => false, 'message' => 'No se proporcionaron IDs para eliminar']);
     }
 
 }

@@ -16,13 +16,22 @@
 @section('content')
 
 <div class="container-fluid align-text">
-    <br>
     @if(session('mensaje'))
     <div class="alert alert-{{ session('mensaje')['tipo'] }}" role="alert">
         {{ session('mensaje')['texto'] }}
     </div>
     @endif
-
+    <div class="text-end">
+        <br>
+        <a href="">
+            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
+                class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+                <path
+                    d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
+            </svg>
+        </a>
+    </div>
     <div class="row">
         <div class="col-lg-4 mb-2">
 
@@ -37,6 +46,24 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link tabPlanilla" href id="entregaTab">Detalle</a>
+                        </li>
+
+                        <li class="col text-end">
+                            @if($desc_planilla->guardado == 1)
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="green"
+                                class="bi bi-floppy" viewBox="0 0 16 16">
+                                <path d="M11 2H9v3h2z" />
+                                <path
+                                    d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z" />
+                            </svg>
+                            @else
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="red"
+                                class="bi bi-floppy" viewBox="0 0 16 16">
+                                <path d="M11 2H9v3h2z" />
+                                <path
+                                    d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z" />
+                            </svg>
+                            @endif
                         </li>
 
                     </ul>
@@ -226,9 +253,9 @@
 
                     <div id="formularioDetalle">
                         <div class='row'>
-                            <h5><strong>Lote </strong>
-                                <p>{{ $desc_planilla->lote }}</p>
-                            </h5>
+                            <p><strong>N°</strong>{{ $desc_planilla->cod_planilla }}</p>
+                            <p><strong>Lote </strong>{{ $desc_planilla->lote }}</p>
+
                             <p for="codEspecie"><strong>Especie : </strong>{{ $desc_planilla->especie }}</p>
                             <p for="codProceso"><strong>Proceso : </strong>{{ $desc_planilla->proceso }}</p>
                             <p for="proveedor"><strong>Proveedor : </strong>{{ $desc_planilla->proveedor }}</p>
@@ -722,97 +749,29 @@
 @section('scripts2')
 
 <script>
+    $(document).ready(function () {
+        var planillaCreada = sessionStorage.getItem("planillaCreada");
+
+        if (planillaCreada === "true") {
+            toastr.success("Planilla creada correctamente");
+            sessionStorage.removeItem("planillaCreada");
+        }
+    });
+</script>
+
+<script>
     document.querySelectorAll(".tabPlanilla").forEach(function (enlace) {
         enlace.addEventListener("click", function (event) {
             event.preventDefault();
         });
     });
-</script>
-
-
-<script>
-    $(document).ready(function () {
-        $('#cInicial').on('change', function () {
-            var cInicialEsnuevo = $('#cInicial').val() === 'nuevo';
-
-
-            // Mostrar u ocultar el contenedor según las condiciones
-            if (cInicialEsnuevo) {
-
-                $('#input-corteIni').fadeOut(0);
-                $('#input-nuevo-corteIni').fadeIn(300);
-            } else {
-                $('#input-nuevo-corteIni').fadeOut(0);
-                $('#input-corteIni').fadeIn(300);
-            }
-
-            console.log('Selección cambiada para cInicial ');
-        });
-        $('#cFinal').on('change', function () {
-            var cFinalEsnuevo = $('#cFinal').val() === 'nuevo';
-
-            // Mostrar u ocultar el contenedor según las condiciones
-            if (cFinalEs
-        $('#input-corteFin').fadeOut(0);
-                $('#input-nuevo-corteFin').fadeIn(300);
-
-            } else {
-                $('#input-nuevo-corteFin').fadeOut(0);
-                $('#input-corteFin').fadeIn(300);
-            }
-
-            console.log('Selección cambiada para cfinal');
-        });
-
-        $('#calibre').on('change', function () {
-            var calibreEsnuevo = $(this).val() === 'nuevo';
-
-            // Mostrar u ocultar el contenedor según las condiciones
-            if (calibreEsnuevo) {
-                $('#input-calibre').fadeOut(0);
-                $('#input-nuevo-calibre').fadeIn(300);
-
-            } else {
-                $('#input-nuevo-calibre').fadeOut(0);
-                $('#input-calibre').fadeIn(300);
-            }
-
-            console.log('Selección cambiada para calibre');
-        });
-
-        // Repite el mismo patrón para otros campos como calidad, destino, etc.
-
-        $('#calidad').on('change', function () {
-            var calidadEsnuevo = $(this).val() === 'nuevo';
-
-            // Mostrar u ocultar el contenedor según las condiciones
-            if (calidadEsnuevo) {
-                $('#input-calidad').fadeOut(0);
-                $('#input-nuevo-calidad').fadeIn(300);
-
-            } else {
-                $('#input-nuevo-calidad').fadeOut(0);
-                $('#input-calidad').fadeIn(300);
-            }
-
-            console.log('Selección cambiada para calidad');
-        });
-
-        $('#destino').on('change', function () {
-            var destinoEsnuevo = $(this).val() === 'nuevo';
-
-            if (destinoEsnuevo) {
-                $('#input-destino').fadeOut(0);
-                $('#input-nuevo-destino').fadeIn(300);
-
-            } else {
-                $('#input-nuevo-destino').fadeOut(0);
-                $('#input-destino').fadeIn(300);
-            }
-     console.log('Selección cambiada para destino');
-        });
+    document.getElementById('reloadButton').addEventListener('click', function () {
+        // Recarga la página
+        location.reload();
     });
 </script>
+
+
 @endsection
 </body>
 

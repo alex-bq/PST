@@ -148,6 +148,9 @@
                     <th scope="col" onclick="sortTable(6)">Especie</th>
                     <th scope="col" onclick="sortTable(7)">Supervisor</th>
                     <th scope="col" onclick="sortTable(8)">Planillero</th>
+                    @if(session('user')['cod_rol'] == 3)
+                    <th></th>
+                    @endif
 
                 </tr>
             </thead>
@@ -163,6 +166,12 @@
                     <td>{{ $planilla->especie }}</td>
                     <td>{{ $planilla->supervisor_nombre }}</td>
                     <td>{{ $planilla->planillero_nombre }}</td>
+                    @if(session('user')['cod_rol'] == 3)
+                    <td>
+                        <button class="btn btn-danger btn-sm"
+                            onclick="eliminarPlanilla('{{ $planilla->cod_planilla }}'); event.stopPropagation();">Eliminar</button>
+                    </td>
+                    @endif
 
 
                 </tr>
@@ -346,6 +355,25 @@
 
 @section('scripts2')
 <script>
+    function eliminarPlanilla(idPlanilla) {
+        if (confirm("¿Estás seguro de que quieres eliminar esta planilla?")) {
+            $.ajax({
+                url: "{{ url('/eliminar-planilla') }}/" + idPlanilla,
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    console.log(response);
+                    location.reload();
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                    alert("Error al eliminar la planilla");
+                }
+            });
+        }
+    }
 
 
 
@@ -556,11 +584,7 @@
             $('#tabla-container tbody').empty();
 
             planillas.forEach(function (planilla) {
-                var estadoIcono = planilla.guardado == 1 ? 'green' : 'red';
-                var icono = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="' + estadoIcono + '" class="bi bi-floppy" viewBox="0 0 16 16">' +
-                    '<path d="M11 2H9v3h2z"/>' +
-                    '<path d="M1.5 0h11.586a1.5 1.5 0 0 1 1.06.44l1.415 1.414A1.5 1.5 0 0 1 16 2.914V14.5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 0 14.5v-13A1.5 1.5 0 0 1 1.5 0M1 1.5v13a.5.5 0 0 0 .5.5H2v-4.5A1.5 1.5 0 0 1 3.5 9h9a1.5 1.5 0 0 1 1.5 1.5V15h.5a.5.5 0 0 0 .5-.5V2.914a.5.5 0 0 0-.146-.353l-1.415-1.415A.5.5 0 0 0 13.086 1H13v4.5A1.5 1.5 0 0 1 11.5 7h-7A1.5 1.5 0 0 1 3 5.5V1H1.5a.5.5 0 0 0-.5.5m3 4a.5.5 0 0 0 .5.5h7a.5.5 0 0 0 .5-.5V1H4zM3 15h10v-4.5a.5.5 0 0 0-.5-.5h-9a.5.5 0 0 0-.5.5z"/>' +
-                    '</svg>';
+
 
                 var fila = '<tr class="table-row" onclick="window.location=\'' + '{{ url("/planilla/") }}/' + planilla.cod_planilla + '\';">' +
                     '<td>' + planilla.cod_planilla + '</td>' +
@@ -572,7 +596,6 @@
                     '<td>' + planilla.empresa + '<td>' + planilla.especie + '</td>' +
                     '<td>' + planilla.supervisor_nombre + '</td>' +
                     '<td>' + planilla.planillero_nombre + '</td>' +
-                    '<td>' + icono + '</td>' +
                     '</tr>';
                 $('#tabla-container tbody').append(fila);
             });

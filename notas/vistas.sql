@@ -26,6 +26,7 @@ INNER JOIN
 
 CREATE VIEW v_planilla_pst AS
 
+
 SELECT DISTINCT TOP (100) PERCENT
     pst.dbo.planillas_pst.cod_planilla,
     bdsystem.dbo.lotes.nombre AS lote,
@@ -42,7 +43,8 @@ SELECT DISTINCT TOP (100) PERCENT
     pst.dbo.planillas_pst.guardado,
     pst.dbo.planillas_pst.fec_crea_planilla,
 	user_crea.cod_usuario AS cod_usuario_crea,
-	user_crea.usuario AS usuario_crea
+	user_crea.usuario AS usuario_crea,
+	pst.dbo.sala.nombre as sala
 
 FROM
     pst.dbo.planillas_pst
@@ -56,6 +58,8 @@ LEFT OUTER JOIN bdsystem.dbo.subproceso ON pst.dbo.planillas_pst.cod_proceso = b
 LEFT OUTER JOIN pst.dbo.usuarios_pst AS planillero ON pst.dbo.planillas_pst.cod_planillero = planillero.cod_usuario
 LEFT OUTER JOIN pst.dbo.usuarios_pst AS supervisor ON pst.dbo.planillas_pst.cod_supervisor = supervisor.cod_usuario
 LEFT OUTER JOIN pst.dbo.usuarios_pst AS user_crea ON pst.dbo.planillas_pst.cod_usuario_crea_planilla = user_crea.cod_usuario
+LEFT OUTER JOIN pst.dbo.detalle_planilla_pst AS detalle ON pst.dbo.planillas_pst.cod_planilla = detalle.cod_planilla
+LEFT OUTER JOIN pst.dbo.sala ON pst.dbo.sala.cod_sala = detalle.cod_sala
 ORDER BY
     pst.dbo.planillas_pst.fec_turno,
     pst.dbo.planillas_pst.fec_crea_planilla;

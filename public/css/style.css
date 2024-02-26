@@ -38,8 +38,8 @@ thead.sticky-header th {
 
 .toast-position {
   position: fixed;
-  top: 80px;
-  right: 10px;
+  top: 5px;
+  right: 5px;  
 }
 
 #toast-container {

@@ -135,6 +135,21 @@
                 $('#iframeContent').attr('src', lastVisitedPage);
             }
         });
+        // Obtener el iframe por su ID
+        var iframe = document.getElementById('iframeContent');
+
+        // Obtener la URL actual del iframe
+        var iframeUrl = iframe.contentWindow.location.href;
+
+        // URL que deseas evitar
+        var urlEvitar = "{{ route('main') }}";
+
+        // Comparar las URLs
+        if (iframeUrl === urlEvitar) {
+            // Redirigir a una URL diferente
+            window.location.href = "{{ route('inicio') }}";
+        }
+
 
 
     </script>

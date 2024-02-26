@@ -124,13 +124,8 @@ SELECT TOP 1000 [N_Ano]
 ----- 
 
 
-
-
-
-
 --- por arreglar 
 
-- eliminar planillas para admin y para planillas propias de cada usuario
 - mensajes de validacion por cada acciones y mensajes de confirmacion segun el caso
 - arreglar repeticion de pagina cuando la sesion expira
 - evitar creacion de mas de una planilla al dar clic mas de una vez en crear planilla

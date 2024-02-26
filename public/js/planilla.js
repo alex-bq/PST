@@ -107,7 +107,6 @@ $(document).ready(function () {
 
     $("#formPrincipal").submit(function (event) {
         var cInicial = $('select[name="cInicial"]').val();
-        // var sala = $('select[name="sala"]').val();
         var calibre = $('select[name="calibre"]').val();
         var piezas = $('input[name="piezas"]').val();
         var cFinal = $('select[name="cFinal"]').val();
@@ -317,6 +316,10 @@ $(document).ready(function () {
                     sessionStorage.setItem("planillaSaved", "true");
 
                     window.location.href = baseUrl + "/inicio";
+                    window.removeEventListener(
+                        "beforeunload",
+                        beforeUnloadHandler
+                    );
                 } else {
                     toastr.error(
                         "Error al guardar la planilla:",
@@ -384,8 +387,6 @@ $(document).ready(function () {
         $("#formPrincipal").hide();
         $("#formularioDetalle").hide();
         $("#formEntrega").show();
-        // Aquí podrías agregar una redirección específica si es necesario
-        // window.location.href = "ruta_a_detalle.html";
     });
     $("#btnBorrarSeleccionados").on("click", function () {
         var planillaId = $(this).data("planilla-id");
@@ -416,7 +417,18 @@ $(document).ready(function () {
             success: function (response) {
                 console.log(response);
 
-                location.reload();
+                if (response.success) {
+                    actualizarTabla(
+                        response.planilla,
+                        response.subtotal,
+                        response.total
+                    );
+                    toastr.success(
+                        "Registros seleccionados eliminados correctamente"
+                    );
+                } else {
+                    toastr.error("No hay registros seleccionados");
+                }
             },
             error: function (error) {
                 console.log(error);

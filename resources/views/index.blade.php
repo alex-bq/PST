@@ -51,12 +51,13 @@
                         <th scope="col" onclick="sortTable(6)">Especie</th>
                         <th scope="col" onclick="sortTable(7)">Supervisor</th>
                         <th scope="col" onclick="sortTable(8)">Planillero</th>
-                        <th scope="col"></th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($noGuardado as $planilla)
-                    <tr class="table-row" onclick="abrirModal('{{ $planilla->cod_planilla }}')">
+                    <tr class="table-row"
+                        onclick="window.location='{{ url('/planilla/' . $planilla->cod_planilla) }}';">
                         <td>{{ $planilla->cod_planilla }}</td>
                         <td>{{ $planilla->lote }}</td>
                         <td>{{ date('Y-m-d', strtotime($planilla->fec_turno)) }}</td>
@@ -429,6 +430,7 @@
                 url: baseUrl + '/procesar-formulario',
                 data: datos,
                 success: function (response) {
+                    sessionStorage.setItem("planillaCreada", "true");
                     window.location.href = baseUrl + '/planilla/' + response.planilla;
                 },
                 error: function (xhr, status, error) {
