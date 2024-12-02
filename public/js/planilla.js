@@ -314,7 +314,6 @@ $(document).ready(function () {
             success: function (response) {
                 if (response.success) {
                     sessionStorage.setItem("planillaSaved", "true");
-
                     window.location.href = baseUrl + "/inicio";
                     window.removeEventListener(
                         "beforeunload",
