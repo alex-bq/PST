@@ -1,53 +1,56 @@
--- Drops
-DROP TABLE pst.dbo.registro_planilla_pst;
-DROP TABLE pst.dbo.detalle_planilla_pst;
-DROP TABLE pst.dbo.planillas_pst;
-DROP TABLE pst.dbo.usuarios_pst;
-DROP TABLE pst.dbo.corte;
-DROP TABLE pst.dbo.sala; 
-DROP TABLE pst.dbo.calibre;
-DROP TABLE pst.dbo.calidad;
-DROP TABLE pst.dbo.roles;
-DROP TABLE pst.dbo.destino; 
+-- Drops en orden correcto (primero las tablas que tienen foreign keys)
+DROP TABLE pst_2.dbo.registro_planilla_pst;      -- Depende de planillas_pst
+DROP TABLE pst_2.dbo.tiempos_muertos;            -- Depende de planillas_pst
+DROP TABLE pst_2.dbo.detalle_planilla_pst;       -- Depende de planillas_pst
+DROP TABLE pst_2.dbo.planillas_pst;              -- Tabla principal
+DROP TABLE pst_2.dbo.usuarios_pst;               -- Depende de roles
+DROP TABLE pst_2.dbo.corte;                      -- Tabla independiente
+DROP TABLE pst_2.dbo.sala;                       -- Tabla independiente
+DROP TABLE pst_2.dbo.calibre;                    -- Tabla independiente
+DROP TABLE pst_2.dbo.calidad;                    -- Tabla independiente
+DROP TABLE pst_2.dbo.destino;                    -- Tabla independiente
+DROP TABLE pst_2.dbo.roles;                      -- Tabla referenciada por usuarios_pst
 
 
 
 -- Tables
-CREATE TABLE pst.dbo.corte (
+CREATE TABLE pst_2.dbo.corte (
     cod_corte INT PRIMARY KEY  IDENTITY(1,1),
     nombre NVARCHAR(255),
     activo INT,
 
 );
 
-CREATE TABLE pst.dbo.sala (
+CREATE TABLE pst_2.dbo.sala (
     cod_sala INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(255),
     activo INT
 );
 
-CREATE TABLE pst.dbo.calibre (
+CREATE TABLE pst_2.dbo.calibre (
     cod_calib INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(255),
     activo INT,
 
 );
 
-CREATE TABLE pst.dbo.calidad (
+CREATE TABLE pst_2.dbo.calidad (
     cod_cald INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(255),
     activo INT
 );
 
-CREATE TABLE pst.dbo.roles (
+CREATE TABLE pst_2.dbo.roles (
     cod_rol INT PRIMARY KEY IDENTITY(1,1),
     nombre_rol NVARCHAR(255)
 );
 
-CREATE TABLE pst.dbo.planillas_pst (
+CREATE TABLE pst_2.dbo.planillas_pst (
     cod_planilla SMALLINT PRIMARY KEY IDENTITY(1,1),
     cod_lote BIGINT,
     fec_turno DATE,
+    hora_inicio TIME,
+    hora_termino TIME,
     cod_turno SMALLINT,
     cod_empresa NUMERIC(18,0),
     cod_proveedor numeric(18,0),
@@ -61,7 +64,7 @@ CREATE TABLE pst.dbo.planillas_pst (
     UNIQUE(cod_planilla) 
 );
 
-CREATE TABLE pst.dbo.detalle_planilla_pst (
+CREATE TABLE pst_2.dbo.detalle_planilla_pst (
     cod_detalle INT PRIMARY KEY IDENTITY(1,1),
     cod_planilla SMALLINT UNIQUE, 
     cajas_entrega INT,
@@ -73,10 +76,10 @@ CREATE TABLE pst.dbo.detalle_planilla_pst (
     dotacion INT,
     cod_sala INT,
     observacion NVARCHAR(MAX),
-    FOREIGN KEY (cod_planilla) REFERENCES pst.dbo.planillas_pst(cod_planilla)
+    FOREIGN KEY (cod_planilla) REFERENCES pst_2.dbo.planillas_pst(cod_planilla)
 );
 
-CREATE TABLE pst.dbo.registro_planilla_pst (
+CREATE TABLE pst_2.dbo.registro_planilla_pst (
     cod_reg SMALLINT PRIMARY KEY IDENTITY(1,1),
     cod_planilla SMALLINT,
     cod_corte_ini BIGINT,
@@ -87,10 +90,10 @@ CREATE TABLE pst.dbo.registro_planilla_pst (
     piezas NUMERIC(18,0),
     kilos FLOAT,
     guardado NUMERIC(18,0),	
-    FOREIGN KEY (cod_planilla) REFERENCES pst.dbo.planillas_pst(cod_planilla)
+    FOREIGN KEY (cod_planilla) REFERENCES pst_2.dbo.planillas_pst(cod_planilla)
 );
 
-CREATE TABLE pst.dbo.usuarios_pst (
+CREATE TABLE pst_2.dbo.usuarios_pst (
     cod_usuario INT PRIMARY KEY IDENTITY(1,1),
     usuario NVARCHAR(255),
     pass NVARCHAR(255),
@@ -98,26 +101,37 @@ CREATE TABLE pst.dbo.usuarios_pst (
     apellido NVARCHAR(255) NULL,
     cod_rol INT,
 	activo INT,
-    FOREIGN KEY (cod_rol) REFERENCES pst.dbo.roles(cod_rol)
+    FOREIGN KEY (cod_rol) REFERENCES pst_2.dbo.roles(cod_rol)
 );
 
-CREATE TABLE pst.dbo.destino (
+CREATE TABLE pst_2.dbo.destino (
     cod_destino INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(255),
     activo INT
 );
 
+-- Crear tabla simplificada para tiempos muertos
+CREATE TABLE pst_2.dbo.tiempos_muertos (
+    cod_tiempo_muerto INT PRIMARY KEY IDENTITY(1,1),
+    cod_planilla SMALLINT,
+    causa NVARCHAR(MAX),
+    hora_inicio TIME,
+    hora_termino TIME,
+    duracion_minutos INT,
+    FOREIGN KEY (cod_planilla) REFERENCES pst_2.dbo.planillas_pst(cod_planilla)
+);
 
 
 
 
-INSERT INTO pst.dbo.roles (nombre_rol)
+
+INSERT INTO pst_2.dbo.roles (nombre_rol)
 VALUES
     ('Planillero'),
     ('Supervisor'),
     ('Admin');
 
-INSERT INTO pst.dbo.corte ( nombre, activo)
+INSERT INTO pst_2.dbo.corte ( nombre, activo)
 VALUES
     ('TRIM A', 1),
     ('TRIM B', 1),
@@ -125,7 +139,7 @@ VALUES
     ('TRIM D', 1),
     ('TRIM E', 1);
 
-INSERT INTO pst.dbo.sala ( nombre, activo)
+INSERT INTO pst_2.dbo.sala ( nombre, activo)
 VALUES
     ('SALA 1', 1),
     ('SALA 2', 1),
@@ -135,7 +149,7 @@ VALUES
 	('SALA 6', 1),
 	('SALA 7', 1);
 
-INSERT INTO pst.dbo.calibre ( nombre, activo)
+INSERT INTO pst_2.dbo.calibre ( nombre, activo)
 VALUES
     ( '2-3', 1),
     ( '3-4', 1),
@@ -143,7 +157,7 @@ VALUES
     ( '5-6', 1),
     ( '6-7', 1);
 
-INSERT INTO pst.dbo.calidad ( nombre, activo)
+INSERT INTO pst_2.dbo.calidad ( nombre, activo)
 VALUES
     ( 'PREMIUM', 1),
     ( 'GRADO 1', 1),
@@ -151,7 +165,7 @@ VALUES
     ( 'INDUSTRIAL B', 1),   
     ( 'SIN CALIDAD', 1);
 
-INSERT INTO pst.dbo.usuarios_pst (usuario, pass, nombre, apellido, cod_rol,activo)
+INSERT INTO pst_2.dbo.usuarios_pst (usuario, pass, nombre, apellido, cod_rol,activo)
 VALUES
     ('juan_perez', '123', 'Juan', 'Perez', 2,1),   
     ('maria_gomez', '123', 'Maria', 'Gomez', 1,1),  
@@ -167,58 +181,58 @@ VALUES
 
 -----------------------------------------------------------
 
-INSERT INTO pst.dbo.planillas_pst (cod_lote, fec_turno, cod_turno, cod_empresa, cod_especie, cod_planillero, cod_supervisor, guardado)
-VALUES 
-    (194134, '2024-01-12', 1, 78, 162, 2, 1, 1),
-    (194135, '2024-01-12', 3, 79, 163, 3, 1, 1),
-    (194136, '2024-01-12', 2, 80, 164, 2, 1, 1),
-    (194137, '2024-01-12', 1, 81, 165, 2, 1, 1),
-    (194138, '2024-01-12', 3, 82, 166, 3, 1, 1),
-    (194139, '2024-01-12', 2, 83, 167, 5, 4, 1),
-    (194140, '2024-01-12', 1, 84, 168, 3, 4, 1),
-    (194141, '2024-01-12', 3, 85, 169, 5, 4, 1),
-    (194142, '2024-01-12', 2, 86, 170, 3, 4, 1),
-    (194143, '2024-01-12', 1, 87, 171, 5, 4, 1);
-
-INSERT INTO pst.dbo.registro_planilla_pst (
-    cod_planilla,
-    cod_corte_ini,
-    cod_corte_fin,
-    cod_sala,
-    cod_calibre,
-    cod_calidad,
-    piezas,
-    kilos,
-    guardado
+-- Inserts para planillas_pst
+INSERT INTO pst_2.dbo.planillas_pst (
+    cod_lote, fec_turno, hora_inicio, hora_termino, 
+    cod_turno, cod_empresa, cod_proveedor, cod_especie, 
+    cod_proceso, cod_planillero, cod_supervisor, 
+    cod_usuario_crea_planilla, guardado
 )
+VALUES
+    (194134, '2024-03-01', '08:00', '16:00', 1, 1, 1, 1, 1, 2, 1, 6, 1),
+    (194135, '2024-03-02', '16:00', '00:00', 2, 2, 2, 2, 2, 3, 4, 6, 1),
+    (194136, '2024-03-03', '00:00', '08:00', 3, 3, 3, 1, 3, 5, 1, 6, 1),
+    (194137, '2024-03-04', '08:00', '16:00', 1, 1, 4, 2, 1, 2, 4, 6, 1),
+    (194138, '2024-03-05', '16:00', '00:00', 2, 2, 5, 1, 2, 3, 1, 6, 1),
+    (194139, '2024-03-06', '00:00', '08:00', 3, 3, 1, 2, 3, 5, 4, 6, 1),
+    (194140, '2024-03-07', '08:00', '16:00', 1, 1, 2, 1, 1, 2, 1, 6, 1),
+    (194141, '2024-03-08', '16:00', '00:00', 2, 2, 3, 2, 2, 3, 4, 6, 1),
+    (194142, '2024-03-09', '00:00', '08:00', 3, 3, 4, 1, 3, 5, 1, 6, 1),
+    (194143, '2024-03-10', '08:00', '16:00', 1, 1, 5, 2, 1, 2, 4, 6, 1);
+
+-- Inserts para registro_planilla_pst
+INSERT INTO pst_2.dbo.registro_planilla_pst (cod_planilla, cod_corte_ini, cod_corte_fin, cod_destino, cod_calibre, cod_calidad, piezas, kilos, guardado)
 VALUES
     (1, 3, 5, 1, 1, 2, 90, 45.0, 1),
     (1, 1, 4, 2, 2, 3, 110, 55.2, 1),
-    (1, 2, 5, 3, 3, 4, 120, 60.8, 1),
-    (2, 4, 1, 4, 4, 5, 70, 35.1, 1),
-    (2, 5, 2, 1, 5, 1, 100, 50.0, 1),
-    (2, 1, 3, 2, 1, 2, 85, 42.2, 1),
-    (3, 2, 4, 3, 2, 3, 130, 65.7, 1),
-    (3, 3, 5, 4, 3, 4, 140, 70.3, 1),
-    (3, 4, 1, 1, 4, 5, 75, 37.5, 1),
-    (4, 5, 2, 2, 5, 1, 95, 47.5, 1),
-    (4, 6, 3, 3, 1, 2, 105, 52.8, 1),
-    (4, 7, 4, 4, 2, 3, 115, 57.3, 1),
-    (5, 8, 5, 1, 3, 4, 125, 62.5, 1),
-    (5, 9, 1, 2, 4, 5, 135, 67.8, 1),
-    (5, 10, 2, 3, 5, 1, 145, 72.3, 1),
-    (6, 11, 3, 4, 1, 2, 155, 77.5, 1),
-    (6, 12, 4, 1, 2, 3, 80, 40.0, 1),
-    (6, 13, 5, 2, 3, 4, 90, 45.0, 1),
-    (7, 14, 1, 3, 4, 5, 100, 50.0, 1),
-    (7, 15, 2, 4, 5, 1, 110, 55.0, 1),
-    (7, 16, 3, 1, 1, 2, 120, 60.0, 1),
-    (8, 17, 4, 2, 2, 3, 130, 65.0, 1),
-    (8, 18, 5, 3, 3, 4, 140, 70.0, 1),
-    (8, 19, 1, 4, 4, 5, 150, 75.0, 1),
-    (9, 20, 2, 1, 5, 1, 160, 80.0, 1),
-    (9, 21, 3, 2, 1, 2, 170, 85.0, 1),
-    (9, 22, 4, 3, 2, 3, 180, 90.0, 1),
-    (10, 23, 5, 4, 3, 4, 190, 95.0, 1),
-	(10, 1, 3, 1, 1, 2, 100, 50.5, 1),
-    (10, 2, 4, 2, 2, 3, 120, 60.2, 1);
+    (2, 2, 3, 3, 3, 4, 100, 50.0, 1),
+    (2, 4, 1, 4, 4, 5, 95, 47.5, 1),
+    (3, 5, 2, 1, 5, 1, 105, 52.5, 1),
+    (3, 3, 5, 2, 1, 2, 115, 57.5, 1),
+    (4, 1, 4, 3, 2, 3, 85, 42.5, 1),
+    (4, 2, 3, 4, 3, 4, 120, 60.0, 1),
+    (5, 4, 1, 1, 4, 5, 130, 65.0, 1),
+    (5, 5, 2, 2, 5, 1, 140, 70.0, 1),
+    (6, 3, 5, 3, 1, 2, 150, 75.0, 1),
+    (6, 1, 4, 4, 2, 3, 160, 80.0, 1),
+    (7, 2, 3, 1, 3, 4, 170, 85.0, 1),
+    (7, 4, 1, 2, 4, 5, 180, 90.0, 1),
+    (8, 5, 2, 3, 5, 1, 190, 95.0, 1),
+    (8, 3, 5, 4, 1, 2, 200, 100.0, 1),
+    (9, 1, 4, 1, 2, 3, 210, 105.0, 1),
+    (9, 2, 3, 2, 3, 4, 220, 110.0, 1),
+    (10, 4, 1, 3, 4, 5, 230, 115.0, 1),
+    (10, 5, 2, 4, 5, 1, 240, 120.0, 1);
+-- Inserts para detalle_planilla_pst
+INSERT INTO pst_2.dbo.detalle_planilla_pst (cod_planilla, cajas_entrega, kilos_entrega, piezas_entrega, cajas_recepcion, kilos_recepcion, piezas_recepcion, dotacion, cod_sala, observacion)
+VALUES
+    (1, 50, 250.5, 500, 48, 240.0, 480, 10, 1, 'Proceso normal'),
+    (2, 60, 300.0, 600, 59, 295.0, 590, 12, 2, 'Leve retraso por mantenimiento'),
+    (3, 40, 200.0, 400, 40, 200.0, 400, 8, 3, 'Sin novedad'),
+    (4, 55, 275.5, 550, 54, 270.0, 540, 11, 4, 'Calidad excepcional'),
+    (5, 70, 350.0, 700, 68, 340.0, 680, 14, 5, 'Alta productividad'),
+    (6, 45, 225.0, 450, 44, 220.0, 440, 9, 1, 'Proceso estándar'),
+    (7, 65, 325.5, 650, 63, 315.0, 630, 13, 2, 'Buena jornada'),
+    (8, 52, 260.0, 520, 51, 255.0, 510, 10, 3, 'Sin incidentes'),
+    (9, 58, 290.0, 580, 57, 285.0, 570, 12, 4, 'Producto de alta calidad'),
+    (10, 48, 240.0, 480, 47, 235.0, 470, 10, 5, 'Proceso eficiente');

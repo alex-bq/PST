@@ -1,0 +1,99 @@
+/* Estilos para la tabla */
+.sticky-header {
+    font-size: 13px;
+}
+
+.table-wrapper tbody {
+    font-size: 13px;
+}
+
+.card {
+    width: 100% !important;
+}
+
+.table-wrapper {
+    width: 100% !important;
+}
+
+.table {
+    width: 100% !important;
+}
+
+/* Estilos para inputs y selects */
+#cInicial, #cFinal {
+    width: 100%;
+}
+
+#calibre {
+    width: 65%;
+}
+
+/* Estilos para elementos con posicionamiento absoluto */
+.bi-x-lg {
+    right: 10px;
+    cursor: pointer;
+    z-index: 100;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+/* Ajustes de márgenes */
+.col-lg-8.mb-2 {
+    margin-bottom: 0px !important;
+}
+
+/* Estilos para elementos ocultos por defecto */
+#input-nuevo-corteIni,
+#input-nuevo-corteFin,
+#input-nuevo-calibre,
+#input-nuevo-calidad,
+#input-nuevo-destino {
+    display: none;
+}
+
+/* Estilos para la tabla de totales */
+#totales th.small,
+#totales td.small {
+    font-size: small;
+}
+
+/* Contenedor principal */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* Columnas principales */
+.col-lg-4.mb-2,
+.col-lg-8.mb-2 {
+    margin-bottom: 0 !important;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Cards dentro de las columnas */
+.col-lg-4.mb-2 .card,
+.col-lg-8.mb-2 .card {
+    width: 100% !important;
+    height: 100% !important; /* Asegura que las cards ocupen todo el alto disponible */
+    display: flex;
+    flex-direction: column;
+}
+
+.card{
+    flex: 1;
+}
+/* Contenido de las cards */
+.card-body {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+
+/* Tabla wrapper */
+.table-wrapper {
+    flex: 1 1 auto;
+    overflow: auto;
+    min-height: 0;
+}

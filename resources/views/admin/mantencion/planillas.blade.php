@@ -53,7 +53,7 @@
                                 <option value=" " selected disabled>Turno </option>
                                 <option value=" ">Sin Filtro Turno</option>
                                 @foreach ($turnos as $turno)
-                                <option value="{{ $turno->NomTurno }}">{{ $turno->NomTurno }}</option>
+                                    <option value="{{ $turno->NomTurno }}">{{ $turno->NomTurno }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -63,8 +63,8 @@
                                 <option selected disabled>Proveedor</option>
                                 <option value=" ">Sin Filtro Proveedor</option>
                                 @foreach ($proveedores as $proveedor)
-                                <option value="{{ $proveedor->descripcion }}">{{ $proveedor->descripcion }}
-                                </option>
+                                    <option value="{{ $proveedor->descripcion }}">{{ $proveedor->descripcion }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -75,8 +75,8 @@
                                 <option value=" ">Sin Filtro Empresa</option>
 
                                 @foreach ($empresas as $empresa)
-                                <option value="{{ $empresa->descripcion }}">{{ $empresa->descripcion }}
-                                </option>
+                                    <option value="{{ $empresa->descripcion }}">{{ $empresa->descripcion }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -92,8 +92,8 @@
                                 <option value=" ">Sin Filtro Especie</option>
 
                                 @foreach ($especies as $especie)
-                                <option value="{{ $especie->descripcion }}">{{ $especie->descripcion }}
-                                </option>
+                                    <option value="{{ $especie->descripcion }}">{{ $especie->descripcion }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -104,8 +104,8 @@
                                 <option value=" ">Sin Filtro Supervisor</option>
 
                                 @foreach ($supervisores as $supervisor)
-                                <option value="{{ $supervisor->cod_usuario }}">{{ $supervisor->nombre }}
-                                </option>
+                                    <option value="{{ $supervisor->cod_usuario }}">{{ $supervisor->nombre }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -116,8 +116,8 @@
                                 <option value=" ">Sin Filtro Planillero</option>
 
                                 @foreach ($planilleros as $planillero)
-                                <option value="{{ $planillero->cod_usuario }}">{{ $planillero->nombre }}
-                                </option>
+                                    <option value="{{ $planillero->cod_usuario }}">{{ $planillero->nombre }}
+                                    </option>
                                 @endforeach
                             </select>
                         </div>
@@ -135,52 +135,52 @@
 
 
     @if(count($planillas) > 0)
-    <div id="tabla-container">
-        <table id="tablaPlanillas" class="table table-hover table-responsive" style="font-size: 12px;">
-            <thead>
-                <tr>
-                    <th scope="col" onclick="sortTable(0)">N°</th>
-                    <th scope="col" onclick="sortTable(1)">Lote</th>
-                    <th scope="col" onclick="sortTable(2)">Fecha Turno</th>
-                    <th scope="col" onclick="sortTable(3)">Turno</th>
-                    <th scope="col" onclick="sortTable(4)">Proveedor</th>
-                    <th scope="col" onclick="sortTable(5)">Empresa</th>
-                    <th scope="col" onclick="sortTable(6)">Especie</th>
-                    <th scope="col" onclick="sortTable(7)">Supervisor</th>
-                    <th scope="col" onclick="sortTable(8)">Planillero</th>
-                    @if(session('user')['cod_rol'] == 3)
-                    <th></th>
-                    @endif
+        <div id="tabla-container">
+            <table id="tablaPlanillas" class="table table-hover table-responsive" style="font-size: 12px;">
+                <thead>
+                    <tr>
+                        <th scope="col" onclick="sortTable(0)">N°</th>
+                        <th scope="col" onclick="sortTable(1)">Lote</th>
+                        <th scope="col" onclick="sortTable(2)">Fecha Turno</th>
+                        <th scope="col" onclick="sortTable(3)">Turno</th>
+                        <th scope="col" onclick="sortTable(4)">Proveedor</th>
+                        <th scope="col" onclick="sortTable(5)">Empresa</th>
+                        <th scope="col" onclick="sortTable(6)">Especie</th>
+                        <th scope="col" onclick="sortTable(7)">Supervisor</th>
+                        <th scope="col" onclick="sortTable(8)">Planillero</th>
+                        @if(session('user')['cod_rol'] == 3)
+                            <th></th>
+                        @endif
 
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($planillas as $planilla)
-                <tr class="table-row" onclick="abrirModal('{{ $planilla->cod_planilla }}')">
-                    <td>{{ $planilla->cod_planilla }}</td>
-                    <td>{{ $planilla->lote }}</td>
-                    <td>{{ date('Y-m-d', strtotime($planilla->fec_turno)) }}</td>
-                    <td>{{ $planilla->turno }}</td>
-                    <td>{{ $planilla->proveedor }}</td>
-                    <td>{{ $planilla->empresa }}</td>
-                    <td>{{ $planilla->especie }}</td>
-                    <td>{{ $planilla->supervisor_nombre }}</td>
-                    <td>{{ $planilla->planillero_nombre }}</td>
-                    @if(session('user')['cod_rol'] == 3)
-                    <td>
-                        <button class="btn btn-danger btn-sm"
-                            onclick="eliminarPlanilla('{{ $planilla->cod_planilla }}'); event.stopPropagation();">Eliminar</button>
-                    </td>
-                    @endif
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($planillas as $planilla)
+                        <tr class="table-row" onclick="abrirModal('{{ $planilla->cod_planilla }}')">
+                            <td>{{ $planilla->cod_planilla }}</td>
+                            <td>{{ $planilla->lote }}</td>
+                            <td>{{ date('Y-m-d', strtotime($planilla->fec_turno)) }}</td>
+                            <td>{{ $planilla->turno }}</td>
+                            <td>{{ $planilla->proveedor }}</td>
+                            <td>{{ $planilla->empresa }}</td>
+                            <td>{{ $planilla->especie }}</td>
+                            <td>{{ $planilla->supervisor_nombre }}</td>
+                            <td>{{ $planilla->planillero_nombre }}</td>
+                            @if(session('user')['cod_rol'] == 3)
+                                <td>
+                                    <button class="btn btn-danger btn-sm"
+                                        onclick="eliminarPlanilla('{{ $planilla->cod_planilla }}'); event.stopPropagation();">Eliminar</button>
+                                </td>
+                            @endif
 
 
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
-    </div>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     @else
-    <p>No hay datos de planilla disponibles.</p>
+        <p>No hay datos de planilla disponibles.</p>
     @endif
 </div>
 
@@ -235,8 +235,8 @@
                                 <select class="form-control" style="width: 100%" name="empresa" disabled>
                                     <option selected disabled></option>
                                     @foreach ($empresas as $empresa)
-                                    <option value="{{ $empresa->cod_empresa }}">{{ $empresa->descripcion }}
-                                    </option>
+                                        <option value="{{ $empresa->cod_empresa }}">{{ $empresa->descripcion }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -247,8 +247,8 @@
                                 <select class="form-control" name="proveedor" disabled>
                                     <option selected disabled></option>
                                     @foreach ($proveedores as $proveedor)
-                                    <option value="{{ $proveedor->cod_proveedor }}">{{ $proveedor->descripcion }}
-                                    </option>
+                                        <option value="{{ $proveedor->cod_proveedor }}">{{ $proveedor->descripcion }}
+                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -263,7 +263,7 @@
                                 <select class="form-control" name="especie" disabled>
                                     <option selected disabled></option>
                                     @foreach ($especies as $especie)
-                                    <option value="{{ $especie->cod_especie }}">{{ $especie->descripcion }}</option>
+                                        <option value="{{ $especie->cod_especie }}">{{ $especie->descripcion }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -274,7 +274,7 @@
                                 <select class="form-control" name="proceso" disabled>
                                     <option selected disabled></option>
                                     @foreach ($procesos as $proceso)
-                                    <option value="{{ $proceso->cod_sproceso }}">{{ $proceso->nombre }}</option>
+                                        <option value="{{ $proceso->cod_sproceso }}">{{ $proceso->nombre }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -284,20 +284,26 @@
                     <br>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="fechaTurno">Fecha de Turno</label>
                                 <input type="date" class="form-control" id="fechaTurno" name="fechaTurno"
                                     min="2000-01-01" max="{{ date('Y-m-d') }}" required>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="horaInicio">Hora de Inicio</label>
+                                <input type="time" class="form-control" id="horaInicio" name="horaInicio" required>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="codTurno">Turno</label>
                                 <select class="form-select modalSelect" name="turno">
                                     <option selected disabled>Seleccione un turno</option>
                                     @foreach ($turnos as $turno)
-                                    <option value="{{ $turno->codTurno }}">{{ $turno->NomTurno }}</option>
+                                        <option value="{{ $turno->codTurno }}">{{ $turno->NomTurno }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -309,14 +315,15 @@
                             <div class="form-group">
                                 <label for="codSupervisor">Supervisor</label>
                                 <select class="form-select modalSelect" name="supervisor"
-                                    @if(session('user')['cod_rol']==2) disabled @endif>
+                                    @if(session('user')['cod_rol'] == 2) disabled @endif>
                                     <option selected disabled>Seleccione un supervisor</option>
                                     @foreach ($supervisores as $supervisor)
-                                    <option value="{{ $supervisor->cod_usuario }}" @if(session('user')['cod_rol']==2 &&
-                                        session('user')['cod_usuario']==$supervisor->cod_usuario) selected
-                                        @endif>
-                                        {{ $supervisor->nombre }}
-                                    </option>
+                                                                        <option value="{{ $supervisor->cod_usuario }}" @if(
+                                                                            session('user')['cod_rol'] == 2 &&
+                                                                            session('user')['cod_usuario'] == $supervisor->cod_usuario
+                                                                        ) selected @endif>
+                                                                            {{ $supervisor->nombre }}
+                                                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -325,14 +332,15 @@
                             <div class="form-group">
                                 <label for="codPlanillero">Planillero</label>
                                 <select class="form-select modalSelect" name="planillero"
-                                    @if(session('user')['cod_rol']==1) disabled @endif>
+                                    @if(session('user')['cod_rol'] == 1) disabled @endif>
                                     <option selected disabled>Seleccione un planillero</option>
                                     @foreach ($planilleros as $planillero)
-                                    <option value="{{ $planillero->cod_usuario }}" @if(session('user')['cod_rol']==1 &&
-                                        session('user')['cod_usuario']==$planillero->cod_usuario) selected
-                                        @endif>
-                                        {{ $planillero->nombre }}
-                                    </option>
+                                                                        <option value="{{ $planillero->cod_usuario }}" @if(
+                                                                            session('user')['cod_rol'] == 1 &&
+                                                                            session('user')['cod_usuario'] == $planillero->cod_usuario
+                                                                        ) selected @endif>
+                                                                            {{ $planillero->nombre }}
+                                                                        </option>
                                     @endforeach
                                 </select>
                             </div>
@@ -417,6 +425,7 @@
             var especie = $('select[name="especie"]').val();
             var proceso = $('select[name="proceso"]').val();
             var fechaTurno = $('#fechaTurno').val();
+            var horaInicio = $('#horaInicio').val();
             var turno = $('select[name="turno"]').val();
             var supervisor = $('select[name="supervisor"]').val();
             var planillero = $('select[name="planillero"]').val();
@@ -428,6 +437,7 @@
                 especie: especie,
                 proceso: proceso,
                 fechaTurno: fechaTurno,
+                horaInicio: horaInicio,
                 turno: turno,
                 supervisor: supervisor,
                 planillero: planillero

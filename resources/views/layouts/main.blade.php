@@ -52,30 +52,30 @@
                     </li>
 
                     @if(session('user')['cod_rol'] == 3)
-                    <li>
-                        <a href="#" data-url="{{ route('mUsuario') }}">Usuarios</a>
-                    </li>
-                    <li class="active">
-                        <a href="#adminSubMenu" data-toggle="collapse" aria-expanded="false"
-                            class="dropdown-toggle">Mantencion Datos</a>
-                        <ul class="collapse list-unstyled" id="adminSubMenu">
-                            <li>
-                                <a href="#" data-url="{{ route('mCorte') }}">Corte</a>
-                            </li>
-                            <li>
-                                <a href="#" data-url="{{ route('mCalibre') }}">Calibre</a>
-                            </li>
-                            <li>
-                                <a href="#" data-url="{{ route('mCalidad') }}">Calidad</a>
-                            </li>
-                            <li>
-                                <a href="#" data-url="{{ route('mDestino') }}">Destino</a>
-                            </li>
-                            <li>
-                                <a href="#" data-url="{{ route('mSala') }}">Sala</a>
-                            </li>
-                        </ul>
-                    </li>
+                        <li>
+                            <a href="#" data-url="{{ route('mUsuario') }}">Usuarios</a>
+                        </li>
+                        <li class="active">
+                            <a href="#adminSubMenu" data-toggle="collapse" aria-expanded="false"
+                                class="dropdown-toggle">Mantencion Datos</a>
+                            <ul class="collapse list-unstyled" id="adminSubMenu">
+                                <li>
+                                    <a href="#" data-url="{{ route('mCorte') }}">Corte</a>
+                                </li>
+                                <li>
+                                    <a href="#" data-url="{{ route('mCalibre') }}">Calibre</a>
+                                </li>
+                                <li>
+                                    <a href="#" data-url="{{ route('mCalidad') }}">Calidad</a>
+                                </li>
+                                <li>
+                                    <a href="#" data-url="{{ route('mDestino') }}">Destino</a>
+                                </li>
+                                <li>
+                                    <a href="#" data-url="{{ route('mSala') }}">Sala</a>
+                                </li>
+                            </ul>
+                        </li>
 
                     @endif
                 </ul>
@@ -103,7 +103,7 @@
         <div id="content">
 
             <iframe id="iframeContent" name="iframeContent" src="{{ route('inicio') }}" width="100%" height="100%"
-                width="100%" frameborder="0"></iframe>
+                width="100%" frameborder="0" style="transition: opacity 0.1s ease-in-out;"></iframe>
         </div>
 
     </div>
@@ -121,38 +121,34 @@
         $(document).ready(function () {
             // Capturamos el evento de clic en los enlaces del menú
             $('ul.components a').on('click', function (event) {
-                event.preventDefault(); // Prevenimos el comportamiento predeterminado del enlace
-                var url = $(this).data('url'); // Obtenemos la URL del atributo data-url del enlace
+                event.preventDefault();
+                var url = $(this).data('url');
                 if (url !== undefined && url !== '') {
                     sessionStorage.setItem('lastVisitedPage', url);
-                    // Actualizamos la URL del iframe
-                    $('#iframeContent').attr('src', url);
+
+                    // Obtener el iframe
+                    var iframe = document.getElementById('iframeContent');
+
+                    // Mostrar loading antes de cambiar la URL
+                    iframe.style.opacity = '0';
+
+                    // Cambiar la URL del iframe
+                    iframe.src = url;
+
+                    // Cuando el iframe termine de cargar
+                    iframe.onload = function () {
+                        // Mostrar el contenido con una transición suave
+                        iframe.style.opacity = '1';
+                    };
                 }
             });
+
             // Verificamos si hay una URL guardada en la sesión
             var lastVisitedPage = sessionStorage.getItem('lastVisitedPage');
             if (lastVisitedPage !== null && lastVisitedPage !== '') {
-                // Cargamos la última página visitada en el iframe
                 $('#iframeContent').attr('src', lastVisitedPage);
             }
         });
-        // Obtener el iframe por su ID
-        var iframe = document.getElementById('iframeContent');
-
-        // Obtener la URL actual del iframe
-        var iframeUrl = iframe.contentWindow.location.href;
-
-        // URL que deseas evitar
-        var urlEvitar = "{{ route('main') }}";
-
-        // Comparar las URLs
-        if (iframeUrl === urlEvitar) {
-            // Redirigir a una URL diferente
-            window.location.href = "{{ route('inicio') }}";
-        }
-
-
-
     </script>
 
 

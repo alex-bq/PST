@@ -141,12 +141,14 @@ $(document).ready(function () {
         } else {
             event.preventDefault();
 
+            Toast.show("Guardando registro...");
             $.ajax({
                 type: "POST",
                 url: $(this).attr("action"),
                 data: $(this).serialize(),
                 dataType: "json",
                 success: function (response) {
+                    Toast.hide();
                     if (response.success) {
                         if (
                             newDestino ||
@@ -204,6 +206,7 @@ $(document).ready(function () {
                     }
                 },
                 error: function () {
+                    Toast.hide();
                     toastr.error("Error al procesar la solicitud");
                 },
             });
@@ -292,27 +295,95 @@ $(document).ready(function () {
             "</tr>";
 
         cuerpoTabla.append(filaTotal);
+
+        // Agregar la actualización de los campos de recepción
+        if (total && total.length > 0) {
+            const totalPiezas = total[0].totalPiezas;
+            const totalKilos = total[0].totalKilos;
+            console.log(totalKilos + " este es el total de kilos ");
+            console.log(totalPiezas + " este es el total de piezas ");
+            // Actualizar campos de recepción según el tipo de conteo
+            const tipoConteo = $('input[name="tipo_conteo"]:checked').val();
+            // Siempre actualizar kilos y deshabilitarlo
+            $("#kilosRecepcion").val(totalKilos).prop("disabled", true);
+
+            if (tipoConteo === "piezas") {
+                $("#piezasRecepcion").val(totalPiezas).prop("disabled", true);
+                $("#cajasRecepcion").val("").prop("disabled", true);
+            } else if (tipoConteo === "cajas") {
+                $("#cajasRecepcion").prop("disabled", false);
+                $("#piezasRecepcion").val("").prop("disabled", true);
+            }
+        }
     }
     $("#btnGuardarPlanilla").on("click", function (event) {
         event.preventDefault();
 
         var salaValue = $("#sala").val();
         var dotacionValue = $("#dotacion").val();
+        var tipoConteo = $('input[name="tipo_conteo"]:checked').val();
+        var kilosEntrega = parseFloat($("#kilosEntrega").val()) || 0;
+        var kilosRecepcion = parseFloat($("#kilosRecepcion").val()) || 0;
+        var cajasEntrega = parseInt($("#cajasEntrega").val()) || 0;
+        var cajasRecepcion = parseInt($("#cajasRecepcion").val()) || 0;
+        var piezasEntrega = parseInt($("#piezasEntrega").val()) || 0;
+        var piezasRecepcion = parseInt($("#piezasRecepcion").val()) || 0;
+        const horaTermino = $("#hora_termino").val();
+        var errores = [];
 
-        if (salaValue === null || salaValue === "" || dotacionValue === "") {
-            toastr.error(
-                "Por favor completa todos los campos sala y dotacion."
-            );
-            return; // Detener el envío del formulario si hay campos vacíos
+        // Primera validación: hora de término
+        if (!horaTermino) {
+            errores.push("Por favor, ingrese la hora de término");
         }
 
+        // Validar sala y dotación
+        if (!salaValue) {
+            errores.push("Debe seleccionar una sala");
+        }
+        if (!dotacionValue) {
+            errores.push("Debe ingresar la dotación");
+        }
+
+        // Validar tipo de conteo
+        if (!tipoConteo) {
+            errores.push("Debe seleccionar un tipo de conteo (Cajas o Piezas)");
+        }
+
+        // Validar kilos (siempre requeridos y no pueden ser 0)
+        if (kilosEntrega <= 0 || kilosRecepcion <= 0) {
+            errores.push("Los kilos deben ser mayores a 0");
+        }
+
+        // Validar según tipo de conteo
+        if (tipoConteo === "cajas") {
+            if (cajasEntrega <= 0 || cajasRecepcion <= 0) {
+                errores.push("Las cajas deben ser mayores a 0");
+            }
+        } else if (tipoConteo === "piezas") {
+            if (piezasEntrega <= 0 || piezasRecepcion <= 0) {
+                errores.push("Las piezas deben ser mayores a 0");
+            }
+        }
+
+        // Si hay errores, mostrarlos y detener el envío
+        if (errores.length > 0) {
+            errores.forEach(function (error) {
+                toastr.error(error);
+            });
+            return;
+        }
+
+        // Si pasa todas las validaciones, enviar el formulario
+        Toast.show("Guardando planilla...");
         $.ajax({
             type: "POST",
             url: baseUrl + "/guardar-planilla",
             data: $("#formEntrega").serialize(),
             dataType: "json",
             success: function (response) {
+                Toast.hide();
                 if (response.success) {
+                    toastr.success("Planilla guardada correctamente");
                     sessionStorage.setItem("planillaSaved", "true");
                     window.location.href = baseUrl + "/inicio";
                     window.removeEventListener(
@@ -321,13 +392,13 @@ $(document).ready(function () {
                     );
                 } else {
                     toastr.error(
-                        "Error al guardar la planilla:",
-                        response.error
+                        "Error al guardar la planilla: " + response.mensaje
                     );
                 }
             },
             error: function (xhr, status, error) {
-                toastr.error("Error en la solicitud:", error);
+                Toast.hide();
+                toastr.error("Error en la solicitud: " + error);
             },
         });
     });
@@ -335,12 +406,17 @@ $(document).ready(function () {
         e.preventDefault(); // Evitar el envío normal del formulario
         var formData = $(this).serialize(); // Obtener datos del formulario
 
+        // Mostrar el toast de carga
+        Toast.show("Editando registro...");
+
         // Realizar la solicitud Ajax
         $.ajax({
             type: "POST",
             url: $(this).attr("action"),
             data: formData,
             success: function (response) {
+                // Ocultar el toast de carga
+                Toast.hide();
                 console.log(response);
 
                 actualizarTabla(
@@ -352,13 +428,15 @@ $(document).ready(function () {
                 toastr.success("Registro editado correctamente");
             },
             error: function (error) {
+                // Ocultar el toast de carga en caso de error
+                Toast.hide();
                 console.log(error);
+                toastr.error("Error al editar el registro");
             },
         });
     });
 
     $("#formularioDetalle").hide();
-    $("#formEntrega").hide();
 
     $(".nav-link").on("click", function () {
         $(".nav-link").removeClass("active");
@@ -368,24 +446,11 @@ $(document).ready(function () {
 
         if (opcionSeleccionada === "Registro") {
             $("#formularioDetalle").hide();
-            $("#formEntrega").hide();
             $("#formPrincipal").show();
         } else if (opcionSeleccionada === "Editar") {
             $("#formPrincipal").hide();
-            $("#formEntrega").hide();
             $("#formularioDetalle").show();
-        } else if (opcionSeleccionada === "Detalle") {
-            $("#formPrincipal").hide();
-            $("#formularioDetalle").hide();
-            $("#formEntrega").show();
         }
-    });
-    $("#btnGuardar").on("click", function () {
-        // Simplemente redirecciona a la opción "Detalle" al hacer clic en el botón "Guardar"
-        $(".nav-link").removeClass("active");
-        $("#formPrincipal").hide();
-        $("#formularioDetalle").hide();
-        $("#formEntrega").show();
     });
     $("#btnBorrarSeleccionados").on("click", function () {
         var planillaId = $(this).data("planilla-id");
@@ -409,11 +474,13 @@ $(document).ready(function () {
             _token: token,
         };
         // Realiza la solicitud AJAX para eliminar las filas en el servidor
+        Toast.show("Eliminando registros...");
         $.ajax({
             type: "POST",
             url: baseUrl + "/eliminar-registro", // Reemplaza con la ruta correcta
             data: datosSolicitud,
             success: function (response) {
+                Toast.hide();
                 console.log(response);
 
                 if (response.success) {
@@ -430,6 +497,7 @@ $(document).ready(function () {
                 }
             },
             error: function (error) {
+                Toast.hide();
                 console.log(error);
             },
         });
@@ -446,6 +514,352 @@ $(document).ready(function () {
         $("#formPrincipal").hide();
         $("#formularioDetalle").show();
     }
+
+    // Ocultar solo los contenedores de recepción y entrega inicialmente
+    $("#contenedor-entrega, #contenedor-recepcion").hide();
+
+    // Si hay un tipo de conteo seleccionado al cargar, mostrar los contenedores
+    const tipoConteoInicial = $('input[name="tipo_conteo"]:checked').val();
+    if (tipoConteoInicial) {
+        $("#contenedor-entrega, #contenedor-recepcion").show();
+        const totalPiezas = $("#totales tr#filaTotal td:eq(0)").text().trim();
+        const totalKilos = $("#totales tr#filaTotal td:eq(1)").text().trim();
+
+        if (tipoConteoInicial === "cajas") {
+            $("#entrega_cajas, #recepcion_cajas").show();
+            $("#entrega_piezas, #recepcion_piezas").hide();
+            $("#cajasRecepcion").prop("disabled", false);
+            $("#piezasRecepcion").val("").prop("disabled", true);
+        } else {
+            $("#entrega_cajas, #recepcion_cajas").hide();
+            $("#entrega_piezas, #recepcion_piezas").show();
+            $("#piezasRecepcion").val(totalPiezas).prop("disabled", true);
+        }
+        $("#kilosRecepcion").val(totalKilos).prop("disabled", true);
+    }
+
+    // Manejar el cambio en los radio buttons
+    $('input[name="tipo_conteo"]').change(function () {
+        const tipo = $(this).val();
+        $("#contenedor-entrega, #contenedor-recepcion").show(); // Mostrar los contenedores
+
+        const totalPiezas = $("#totales tr#filaTotal td:eq(0)").text().trim();
+        const totalKilos = $("#totales tr#filaTotal td:eq(1)").text().trim();
+
+        if (tipo === "cajas") {
+            $("#entrega_cajas, #recepcion_cajas").show();
+            $("#entrega_piezas, #recepcion_piezas").hide();
+            $("#cajasRecepcion").prop("disabled", false);
+            $("#piezasRecepcion").val("").prop("disabled", true);
+        } else {
+            $("#entrega_cajas, #recepcion_cajas").hide();
+            $("#entrega_piezas, #recepcion_piezas").show();
+            $("#piezasRecepcion").val(totalPiezas).prop("disabled", true);
+        }
+        $("#kilosRecepcion").val(totalKilos).prop("disabled", true);
+    });
+
+    // Validación del formulario
+    $("#formEntrega").submit(function (e) {
+        e.preventDefault();
+
+        // Si todas las validaciones pasan, enviamos el formulario
+        $.ajax({
+            type: "POST",
+            url: $(this).attr("action"),
+            data: $(this).serialize(),
+            dataType: "json",
+            success: function (response) {
+                if (response.success) {
+                    toastr.success("Planilla guardada correctamente");
+                    window.location.href = baseUrl + "/inicio";
+                } else {
+                    if (response.mensaje) {
+                        toastr.error(response.mensaje);
+                    } else if (response.message) {
+                        toastr.error(response.message);
+                    } else {
+                        toastr.error("Error al guardar la planilla");
+                    }
+                }
+            },
+            error: function (xhr, status, error) {
+                // Mejorado el manejo de errores
+                if (
+                    xhr.responseJSON &&
+                    (xhr.responseJSON.mensaje || xhr.responseJSON.message)
+                ) {
+                    toastr.error(
+                        xhr.responseJSON.mensaje || xhr.responseJSON.message
+                    );
+                } else {
+                    toastr.error("Error en el servidor");
+                }
+            },
+        });
+    });
+
+    // Función para cargar los tiempos muertos
+    function cargarTiemposMuertos() {
+        const idPlanilla = $('input[name="idPlanilla"]').val();
+
+        Toast.show("Cargando tiempos muertos...");
+        $.ajax({
+            type: "GET",
+            url: baseUrl + "/obtener-tiempos-muertos/" + idPlanilla,
+            success: function (response) {
+                Toast.hide();
+                if (response.success) {
+                    let html = `
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered table-hover">
+                                <thead class="table-light sticky-top bg-light">
+                                    <tr>
+                                        <th style="width: 35%">Causa</th>
+                                        <th style="width: 20%">Inicio</th>
+                                        <th style="width: 20%">Término</th>
+                                        <th style="width: 15%">Duración (min)</th>
+                                        <th style="width: 10%">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                    `;
+
+                    if (
+                        response.tiemposMuertos &&
+                        response.tiemposMuertos.length > 0
+                    ) {
+                        response.tiemposMuertos.forEach(function (tiempo) {
+                            html += `
+                                <tr>
+                                    <td>${tiempo.causa || ""}</td>
+                                    <td>${
+                                        formatearHora(tiempo.hora_inicio) || ""
+                                    }</td>
+                                    <td>${
+                                        formatearHora(tiempo.hora_termino) || ""
+                                    }</td>
+                                    <td class="text-end">${
+                                        tiempo.duracion_minutos || ""
+                                    }</td>
+                                    <td class="text-center">
+                                        <button type="button" class="btn btn-danger btn-sm eliminar-tiempo" 
+                                                data-id="${
+                                                    tiempo.cod_tiempo_muerto
+                                                }" 
+                                                title="Eliminar">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    } else {
+                        html +=
+                            '<tr><td colspan="5" class="text-center">No hay tiempos muertos registrados</td></tr>';
+                    }
+
+                    html += "</tbody></table></div>";
+                    $("#listaTiemposMuertos").html(html);
+                }
+            },
+            error: function () {
+                Toast.hide();
+                toastr.error("Error al cargar los tiempos muertos");
+            },
+        });
+    }
+
+    // Manejador para eliminar tiempo muerto
+    $(document).on("click", ".eliminar-tiempo", function () {
+        const idTiempoMuerto = $(this).data("id");
+        console.log("ID a eliminar:", idTiempoMuerto); // Para debug
+
+        if (confirm("¿Está seguro de eliminar este tiempo muerto?")) {
+            $.ajax({
+                type: "DELETE",
+                url: `${baseUrl}/eliminar-tiempo-muerto/${idTiempoMuerto}`,
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr("content"),
+                },
+                success: function (response) {
+                    if (response.success) {
+                        toastr.success("Tiempo muerto eliminado correctamente");
+                        cargarTiemposMuertos();
+                    } else {
+                        toastr.error(
+                            response.message ||
+                                "Error al eliminar el tiempo muerto"
+                        );
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error:", error); // Para debug
+                    toastr.error("Error al procesar la solicitud");
+                },
+            });
+        }
+    });
+
+    // Función para formatear la hora
+    function formatearHora(horaSQL) {
+        if (!horaSQL) return "";
+        try {
+            // Asumiendo que horaSQL viene en formato "HH:mm:ss" o "HH:mm:ss.000"
+            return horaSQL.split(".")[0].substring(0, 5); // Toma solo HH:mm
+        } catch (e) {
+            console.error("Error al formatear hora:", e);
+            return horaSQL;
+        }
+    }
+
+    // Manejar el modal
+    $("#modalTiemposMuertos").on("show.bs.modal", function () {
+        cargarTiemposMuertos();
+    });
+
+    // Manejar el formulario de tiempos muertos
+    $("#formTiemposMuertos").on("submit", function (e) {
+        e.preventDefault();
+
+        const horaInicio = $("#horaInicio").val();
+        const horaTermino = $("#horaTermino").val();
+
+        // Calcular duración en minutos
+        const inicio = new Date(`2000/01/01 ${horaInicio}`);
+        const termino = new Date(`2000/01/01 ${horaTermino}`);
+        let duracionMinutos = Math.round((termino - inicio) / (1000 * 60));
+
+        if (duracionMinutos < 0) {
+            duracionMinutos += 24 * 60;
+        }
+
+        const formData =
+            $(this).serialize() + `&duracion_minutos=${duracionMinutos}`;
+
+        $.ajax({
+            type: "POST",
+            url: baseUrl + "/guardar-tiempo-muerto",
+            data: formData,
+            success: function (response) {
+                if (response.success) {
+                    toastr.success("Tiempo muerto registrado correctamente");
+                    $("#formTiemposMuertos")[0].reset();
+                    cargarTiemposMuertos();
+                } else {
+                    toastr.error(
+                        response.message ||
+                            "Error al registrar el tiempo muerto"
+                    );
+                }
+            },
+            error: function () {
+                toastr.error("Error al procesar la solicitud");
+            },
+        });
+    });
+
+    // Función para calcular el tiempo total trabajado en horas
+    function calcularTiempoTrabajado() {
+        const planillaData = document.getElementById("planillaData");
+        const horaInicioPlanilla = planillaData.dataset.horaInicio;
+        const horaTerminoPlanilla = planillaData.dataset.horaTermino;
+        console.log(
+            horaInicioPlanilla + "-|separacion|-" + horaTerminoPlanilla
+        );
+        // Si no hay horas registradas, retornar null
+        if (!horaInicioPlanilla || !horaTerminoPlanilla) {
+            return null;
+        }
+
+        // Convertir horas de la planilla a minutos (removiendo los milisegundos)
+        const horaInicio = horaInicioPlanilla.split(".")[0]; // Remover milisegundos
+        const horaTermino = horaTerminoPlanilla.split(".")[0];
+
+        const [horaInicioHH, horaInicioMM, horaInicioSS] =
+            horaInicio.split(":");
+        const [horaFinHH, horaFinMM, horaFinSS] = horaTermino.split(":");
+
+        let minutosInicio =
+            parseInt(horaInicioHH) * 60 + parseInt(horaInicioMM);
+        let minutosFin = parseInt(horaFinHH) * 60 + parseInt(horaFinMM);
+
+        // Si la hora fin es menor que inicio, agregar 24 horas
+        if (minutosFin < minutosInicio) {
+            minutosFin += 24 * 60;
+        }
+
+        // Calcular tiempo total del turno en minutos
+        const tiempoTotalMinutos = minutosFin - minutosInicio;
+
+        // Sumar todos los tiempos muertos
+        let tiempoMuertoTotal = 0;
+        $("#listaTiemposMuertos tbody tr").each(function () {
+            const duracionMinutos =
+                parseFloat($(this).find("td:eq(3)").text()) || 0;
+            tiempoMuertoTotal += duracionMinutos;
+        });
+
+        // Calcular tiempo efectivo trabajado en horas
+        const tiempoEfectivoMinutos = tiempoTotalMinutos - tiempoMuertoTotal;
+        return tiempoEfectivoMinutos / 60;
+    }
+
+    // Función para calcular y actualizar los indicadores
+    function actualizarIndicadores() {
+        // Obtener valores necesarios
+        const kilosEntrega = parseFloat($("#kilosEntrega").val()) || 0;
+        const kilosRecepcion = parseFloat($("#kilosRecepcion").val()) || 0;
+        const dotacion = parseInt($("#dotacion").val()) || 1;
+        const tiempoTrabajado = calcularTiempoTrabajado();
+
+        // Calcular Rendimiento General
+        if (kilosEntrega > 0) {
+            const rendimiento = (kilosRecepcion / kilosEntrega) * 100;
+            $("#rendimientoGeneral").text(rendimiento.toFixed(2) + "%");
+        } else {
+            $("#rendimientoGeneral").text("0%");
+        }
+
+        // Calcular Productividad
+        if (dotacion > 0 && tiempoTrabajado > 0) {
+            const productividad = kilosRecepcion / (dotacion * tiempoTrabajado);
+            $("#productividad").text(
+                productividad.toFixed(2) + " kg/persona/hora"
+            );
+        } else {
+            $("#productividad").text("0 kg/persona/hora");
+        }
+    }
+
+    // Agregar listeners para todos los eventos que afectan los indicadores
+    $(document).ready(function () {
+        // Eventos de cambio en inputs directos
+        $("#kilosEntrega, #kilosRecepcion, #dotacion, #hora_termino").on(
+            "change input",
+            function () {
+                actualizarIndicadores();
+            }
+        );
+
+        // Evento para cuando se agrega o elimina un tiempo muerto
+        $("#listaTiemposMuertos").on("DOMSubtreeModified", function () {
+            actualizarIndicadores();
+        });
+
+        // Evento para cuando se modifica un tiempo muerto existente
+        $(document).on("change", ".tiempo-muerto-duracion", function () {
+            actualizarIndicadores();
+        });
+
+        // Actualizar cuando cambia el tipo de conteo
+        $('input[name="tipo_conteo"]').on("change", function () {
+            actualizarIndicadores();
+        });
+
+        // Actualizar al cargar la página
+        actualizarIndicadores();
+    });
 });
 
 function limpiarFormulario() {

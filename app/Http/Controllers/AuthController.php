@@ -21,7 +21,7 @@ class AuthController extends Controller
     {
         $credentials = $request->only('pass', 'usuario');
 
-        $user = DB::table('pst.dbo.v_data_usuario')
+        $user = DB::table('pst_2.dbo.v_data_usuario')
             ->select('*')
             ->where('usuario', $credentials['usuario'])
             ->where('pass', $credentials['pass'])
@@ -57,7 +57,7 @@ class AuthController extends Controller
     {
         $credentials = $request->only('current_password', 'new_password', 'confirm_password');
 
-        $user = DB::table('pst.dbo.v_data_usuario')
+        $user = DB::table('pst_2.dbo.v_data_usuario')
             ->select('*')
             ->where('usuario', session('user.usuario'))
             ->where('pass', $credentials['current_password'])
@@ -70,7 +70,7 @@ class AuthController extends Controller
                 return redirect()->back()->with('error', 'Las contraseñas no coinciden');
             }
 
-            DB::table('pst.dbo.v_data_usuario')
+            DB::table('pst_2.dbo.v_data_usuario')
                 ->where('usuario', session('user.usuario'))
                 ->update(['pass' => $credentials['new_password']]);
 

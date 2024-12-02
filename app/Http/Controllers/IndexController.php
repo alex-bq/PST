@@ -36,14 +36,14 @@ class IndexController extends Controller
         $proveedores = DB::select('SELECT cod_proveedor,descripcion FROM bdsystem.dbo.proveedores WHERE inactivo=0 ORDER BY descripcion ASC;');
         $especies = DB::select('SELECT cod_especie,descripcion FROM bdsystem.dbo.especies WHERE inactivo=0 ORDER BY descripcion ASC;');
         $turnos = DB::select('SELECT codTurno,NomTurno FROM bdsystem.dbo.turno WHERE inactivo=0 ORDER BY NomTurno ASC;');
-        $supervisores = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=2 AND activo = 1 ORDER BY nombre ASC;');
-        $planilleros = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=1 AND activo = 1 ORDER BY nombre ASC;');
+        $supervisores = DB::select('SELECT cod_usuario,nombre FROM pst_2.dbo.v_data_usuario WHERE cod_rol=2 AND activo = 1 ORDER BY nombre ASC;');
+        $planilleros = DB::select('SELECT cod_usuario,nombre FROM pst_2.dbo.v_data_usuario WHERE cod_rol=1 AND activo = 1 ORDER BY nombre ASC;');
 
 
         $fechaHoy = Carbon::now()->format('Y-m-d');
         $fechaHace7Dias = Carbon::now()->subDays(7)->format('Y-m-d');
 
-        $planillas7dias = DB::table('pst.dbo.v_planilla_pst')
+        $planillas7dias = DB::table('pst_2.dbo.v_planilla_pst')
             ->select('*')
             ->where('guardado', 1);
 
@@ -61,7 +61,7 @@ class IndexController extends Controller
 
 
 
-        $planillasHoy = DB::table('pst.dbo.v_planilla_pst')
+        $planillasHoy = DB::table('pst_2.dbo.v_planilla_pst')
             ->select('*')
             ->where('guardado', 1);
 
@@ -76,7 +76,7 @@ class IndexController extends Controller
             ->orderByDesc('fec_turno')
             ->get();
 
-        $noGuardado = DB::table('pst.dbo.v_planilla_pst')
+        $noGuardado = DB::table('pst_2.dbo.v_planilla_pst')
             ->select('*')
             ->where('guardado', 0)
             ->where('cod_usuario_crea', session('user.cod_usuario'))
@@ -100,10 +100,10 @@ class IndexController extends Controller
         $proveedores = DB::select('SELECT cod_proveedor,descripcion FROM bdsystem.dbo.proveedores WHERE inactivo=0 ORDER BY descripcion ASC;');
         $especies = DB::select('SELECT cod_especie,descripcion FROM bdsystem.dbo.especies WHERE inactivo=0 ORDER BY descripcion ASC;');
         $turnos = DB::select('SELECT codTurno,NomTurno FROM bdsystem.dbo.turno WHERE inactivo=0 ORDER BY NomTurno ASC;');
-        $supervisores = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=2 AND activo = 1 ORDER BY nombre ASC;');
-        $planilleros = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=1 AND activo = 1 ORDER BY nombre ASC;');
+        $supervisores = DB::select('SELECT cod_usuario,nombre FROM pst_2.dbo.v_data_usuario WHERE cod_rol=2 AND activo = 1 ORDER BY nombre ASC;');
+        $planilleros = DB::select('SELECT cod_usuario,nombre FROM pst_2.dbo.v_data_usuario WHERE cod_rol=1 AND activo = 1 ORDER BY nombre ASC;');
 
-        $planillas = DB::table('pst.dbo.v_planilla_pst')
+        $planillas = DB::table('pst_2.dbo.v_planilla_pst')
             ->select('*')
             ->where('guardado', 1)
             ->orderByDesc('fec_turno');
@@ -116,11 +116,11 @@ class IndexController extends Controller
     }
     public function eliminarPlanilla($idPlanilla)
     {
-        DB::table('pst.dbo.registro_planilla_pst')->where('cod_planilla', $idPlanilla)->delete();
+        DB::table('pst_2.dbo.registro_planilla_pst')->where('cod_planilla', $idPlanilla)->delete();
 
-        DB::table('pst.dbo.detalle_planilla_pst')->where('cod_planilla', $idPlanilla)->delete();
+        DB::table('pst_2.dbo.detalle_planilla_pst')->where('cod_planilla', $idPlanilla)->delete();
 
-        DB::table('pst.dbo.planillas_pst')->where('cod_planilla', $idPlanilla)->delete();
+        DB::table('pst_2.dbo.planillas_pst')->where('cod_planilla', $idPlanilla)->delete();
 
         return response()->json(['message' => 'Planilla eliminada exitosamente']);
     }
@@ -129,7 +129,7 @@ class IndexController extends Controller
 
     public function filtrarTabla(Request $request)
     {
-        $planillas = DB::table('pst.dbo.v_planilla_pst')
+        $planillas = DB::table('pst_2.dbo.v_planilla_pst')
             ->select('*')
             ->where('guardado', 1)
             ->orderByDesc('fec_turno');
@@ -201,6 +201,7 @@ class IndexController extends Controller
             'proceso' => 'required',
             'especie' => 'required',
             'fechaTurno' => 'required',
+            'horaInicio' => 'required',
             'turno' => 'required',
             'supervisor' => 'required',
             'planillero' => 'required',
@@ -219,9 +220,10 @@ class IndexController extends Controller
             ->value('cod_lote');
 
         try {
-            DB::table('pst.dbo.planillas_pst')->insert([
+            DB::table('pst_2.dbo.planillas_pst')->insert([
                 'cod_lote' => $idLote,
                 'fec_turno' => $request->input('fechaTurno'),
+                'hora_inicio' => $request->input('horaInicio'),
                 'cod_turno' => $request->input('turno'),
                 'cod_empresa' => $request->input('empresa'),
                 'cod_proveedor' => $request->input('proveedor'),
@@ -232,7 +234,7 @@ class IndexController extends Controller
                 'cod_usuario_crea_planilla' => session('user.cod_usuario'),
                 'guardado' => 0,
             ]);
-            $idPlanilla = DB::table('pst.dbo.planillas_pst')
+            $idPlanilla = DB::table('pst_2.dbo.planillas_pst')
                 ->orderBy('cod_planilla', 'desc')
                 ->value('cod_planilla');
 
@@ -247,7 +249,7 @@ class IndexController extends Controller
     {
         $filtroLote = $request->input('filtroLote');
 
-        $query = DB::table('pst.dbo.v_planilla_pst')->select('*')->orderByDesc('fec_turno')->where('guardado', 1);
+        $query = DB::table('pst_2.dbo.v_planilla_pst')->select('*')->orderByDesc('fec_turno')->where('guardado', 1);
 
 
         if (!empty($filtroLote)) {

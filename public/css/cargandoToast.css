@@ -1,0 +1,37 @@
+.vY {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    font-family: 'Google Sans', Roboto, Arial, sans-serif;
+    font-size: 13px;
+}
+
+.vX {
+    background-color: #1a237e;
+    border: 1px solid #0d47a1;
+    border-radius: 0 0 2px 2px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, .2);
+    color: white;
+    padding: 6px 10px;
+}
+
+.vh {
+    display: flex;
+    align-items: center;
+}
+
+.vZ {
+    display: flex;
+    align-items: center;
+}
+
+.loader {
+    width: 16px;
+    height: 16px;
+    margin-right: 12px;
+    font-family: monospace;
+    display: inline-block;
+    color: white;
+}
