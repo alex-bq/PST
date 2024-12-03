@@ -184,7 +184,7 @@ class IndexController extends Controller
         if (!$result) {
             // Muestra un mensaje en el terminal
 
-            return response()->json(['error' => 'El lote no existe.'], 422, $result);
+            return response()->json(['error' => 'El lote no existe.'], 422);
         }
 
 

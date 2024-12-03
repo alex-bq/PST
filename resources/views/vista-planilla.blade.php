@@ -145,15 +145,15 @@
                     </thead>
                     <tbody>
                         @foreach($planilla as $registro)
-                        <tr>
-                            <td>{{ $registro->cInicial }}</td>
-                            <td>{{ $registro->cFinal }}</td>
-                            <td>{{ $registro->destino }}</td>
-                            <td>{{ $registro->calibre }}</td>
-                            <td>{{ $registro->calidad }}</td>
-                            <td>{{ $registro->piezas }}</td>
-                            <td>{{ round($registro->kilos, 2) }}</td>
-                        </tr>
+                            <tr>
+                                <td>{{ $registro->cInicial }}</td>
+                                <td>{{ $registro->cFinal }}</td>
+                                <td>{{ $registro->destino }}</td>
+                                <td>{{ $registro->calibre }}</td>
+                                <td>{{ $registro->calidad }}</td>
+                                <td>{{ $registro->piezas }}</td>
+                                <td>{{ round($registro->kilos, 2) }}</td>
+                            </tr>
                         @endforeach
                     </tbody>
                 </table>
@@ -166,44 +166,51 @@
                     <div class="col-sm-6">
                         <p><strong>Entrega Frigorífico</strong></p>
                         <p><strong>Cajas:</strong> {{ $detalle_planilla->cajas_entrega }}</p>
-                        <p><strong>Kilos:</strong> {{ round($detalle_planilla->kilos_entrega,2) }}</p>
+                        <p><strong>Kilos:</strong> {{ round($detalle_planilla->kilos_entrega, 2) }}</p>
                         <p><strong>Piezas:</strong> {{ $detalle_planilla->piezas_entrega }}</p>
                     </div>
                     <div class="col-sm-6">
                         <p><strong>Recepción Planta</strong></p>
                         <p><strong>Cajas:</strong> {{ $detalle_planilla->cajas_recepcion }}</p>
-                        <p><strong>Kilos:</strong> {{ round($detalle_planilla->kilos_recepcion,2) }}</p>
+                        <p><strong>Kilos:</strong> {{ round($detalle_planilla->kilos_recepcion, 2) }}</p>
                         <p><strong>Piezas:</strong> {{ $detalle_planilla->piezas_recepcion }}</p>
                     </div>
                 </div>
             </div>
             <div class="col-sm-6">
-                <table style="font-size: 11px; line-height: 1;" class="table">
-                    <thead>
+                <table id='totales' class="table table-sm table-hover mb-0">
+                    <thead class="table-light">
                         <tr>
-                            <th></th>
-                            <th>Piezas</th>
-                            <th>Kilos</th>
+                            <th class="small text-nowrap px-3">Corte Final</th>
+                            <th class="small px-3">Calidad</th>
+                            <th class="small text-end px-3">Piezas</th>
+                            <th class="small text-end px-3">Kilos</th>
+                            <th class="small text-end px-3">%</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($subtotal as $x)
-                        <tr>
-                            <td>{{$x->cFinal}}</td>
-                            <td>{{$x->subtotalPiezas}}</td>
-                            <td>{{round($x->subtotalKilos,2)}}</td>
-                        </tr>
-
-
+                            <tr>
+                                <td class="px-3">{{$x->corte_final}}</td>
+                                <td class="px-3">{{$x->calidad}}</td>
+                                <td class="text-end px-3">{{number_format($x->total_piezas, 0, '.', ',')}}</td>
+                                <td class="text-end px-3">{{number_format($x->total_kilos, 2, '.', ',')}}</td>
+                                <td class="text-end px-3">
+                                    {{number_format($x->porcentaje_del_total, 2, '.', ',')}}%
+                                </td>
+                            </tr>
                         @endforeach
                         @foreach($total as $a)
-                        <tr>
-                            <th>Total</th>
-                            <td>{{$a->totalPiezas}}</td>
-                            <td>{{round($a->totalKilos,2)}}</td>
-                        </tr>
+                            <tr id="filaTotal" class="table-secondary fw-bold">
+                                <th class="px-3">{{$a->corte_final}}</th>
+                                <th class="px-3">{{$a->calidad}}</th>
+                                <td class="text-end px-3">{{number_format($a->total_piezas, 0, '.', ',')}}</td>
+                                <td class="text-end px-3">{{number_format($a->total_kilos, 2, '.', ',')}}</td>
+                                <td class="text-end px-3">
+                                    {{number_format($a->porcentaje_del_total, 2, '.', ',')}}%
+                                </td>
+                            </tr>
                         @endforeach
-
                     </tbody>
                 </table>
 

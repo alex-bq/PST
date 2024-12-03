@@ -40,17 +40,120 @@
             {{ session('mensaje')['texto'] }}
         </div>
     @endif
-    <div class="text-end">
-        <br>
-        <a href="">
-            <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor"
-                class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
-                <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
-                <path
-                    d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
-            </svg>
-        </a>
+    <div class="text-end" style="margin-top: 5px;margin-bottom: 5px;">
+
+        <div class="row align-items-center justify-content-end">
+            <div class="col-auto">
+
+                <a href="">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor"
+                        class="bi bi-arrow-clockwise" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2z" />
+                        <path
+                            d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466" />
+                    </svg>
+                </a>
+            </div>
+        </div>
     </div>
+
+
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas-header border-bottom py-3">
+            <h5 class="offcanvas-title" id="offcanvasRightLabel">
+                <i class="bi bi-graph-up"></i> Dashboard de Producción
+            </h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <!-- Indicadores en cards -->
+            <div class="px-3 pt-3">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-2">
+                                            <i class="bi bi-speedometer2 me-2"></i>Productividad
+                                        </h6>
+                                        <h4 class="mb-0" id="productividad">0 kg/persona/hora</h4>
+                                    </div>
+                                    <div class="fs-1 text-primary">
+                                        <i class="bi bi-graph-up-arrow"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-2">
+                                            <i class="bi bi-percent me-2"></i>Rendimiento
+                                        </h6>
+                                        <h4 class="mb-0" id="rendimientoGeneral">0%</h4>
+                                    </div>
+                                    <div class="fs-1 text-success">
+                                        <i class="bi bi-bar-chart-fill"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla con título -->
+            <div class="mt-4">
+                <div class="px-3 pb-2 border-bottom">
+                    <h6 class="mb-0">
+                        <i class="bi bi-table me-2"></i>Detalle por Corte y Calidad
+                    </h6>
+                </div>
+                <div class="table-responsive">
+                    <table id='totales' class="table table-sm table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="small text-nowrap px-3">Corte Final</th>
+                                <th class="small px-3">Calidad</th>
+                                <th class="small text-end px-3">Piezas</th>
+                                <th class="small text-end px-3">Kilos</th>
+                                <th class="small text-end px-3">%</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($subtotal as $x)
+                                <tr>
+                                    <td class="px-3">{{$x->corte_final}}</td>
+                                    <td class="px-3">{{$x->calidad}}</td>
+                                    <td class="text-end px-3">{{number_format($x->total_piezas, 0, '.', ',')}}</td>
+                                    <td class="text-end px-3">{{number_format($x->total_kilos, 2, '.', ',')}}</td>
+                                    <td class="text-end px-3">{{number_format($x->porcentaje_del_total, 2, '.', ',')}}%</td>
+                                </tr>
+                            @endforeach
+                            @foreach($total as $a)
+                                <tr id="filaTotal" class="table-secondary fw-bold">
+                                    <th class="px-3">{{$a->corte_final}}</th>
+                                    <th class="px-3">{{$a->calidad}}</th>
+                                    <td class="text-end px-3" id="totalPiezas">
+                                        {{number_format($a->total_piezas, 0, '.', ',')}}</td>
+                                    <td class="text-end px-3" id="totalKilos">
+                                        {{number_format($a->total_kilos, 2, '.', ',')}}</td>
+                                    <td class="text-end px-3" id="totalPorcentaje">
+                                        {{number_format($a->porcentaje_del_total, 2, '.', ',')}}%</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
     <div class="row">
         <div class="col-lg-4 mb-2">
 
@@ -346,7 +449,7 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="row">
+                                                <div class="row" style=" margin-bottom: 1rem;">
                                                     <div class="col-md-6">
                                                         <div class="form-group">
                                                             <label for="codSupervisor">Supervisor</label>
@@ -385,7 +488,7 @@
 
 
 
-                                                <br><br>
+
 
                                                 <button type="submit" class="btn btn-primary" id="btnModificar" disabled>Modificar
                                                     planilla</button>
@@ -469,43 +572,7 @@
 
                     </div>
 
-                    <div class="container mt-4">
-                        <div class="col-md-3">
 
-
-                            <table id='totales' class="table table-sm w-100">
-                                <thead>
-                                    <tr>
-                                        <th class="small">
-
-                                        </th>
-                                        <th class="small">Piezas</th>
-                                        <th class="small">Kilos</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($subtotal as $x)
-                                        <tr>
-                                            <td>{{$x->cFinal}}</td>
-                                            <td>{{$x->subtotalPiezas}}</td>
-                                            <td>{{round($x->subtotalKilos, 2)}}</td>
-                                        </tr>
-
-
-                                    @endforeach
-                                    @foreach($total as $a)
-                                        <tr id="filaTotal">
-                                            <th>Total</th>
-                                            <td>{{$a->totalPiezas}}</td>
-                                            <td>{{round($a->totalKilos, 2)}}</td>
-                                        </tr>
-                                    @endforeach
-
-                                </tbody>
-                            </table>
-
-                        </div>
-                    </div>
                     <div class="row ">
 
 
@@ -514,10 +581,15 @@
                                 data-bs-target="#modalTiemposMuertos">
                                 Tiempos Muertos
                             </button>
+
                         </div>
 
 
                         <div class="col-sm-8 text-end">
+                            <button class="btn btn-primary btn-sm me-2" type="button" data-bs-toggle="offcanvas"
+                                data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                                <i class="bi bi-bar-chart-fill me-1"></i> Ver Totales
+                            </button>
                             <button id="btnBorrarSeleccionados" class="btn btn-danger "
                                 data-planilla-id="{{ $idPlanilla }}">Borrar
                                 Seleccionados</button>
@@ -672,37 +744,7 @@
             </div>
         </div>
 
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0">Indicadores de Producción</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row justify-content-center">
-                            <!-- Productividad -->
-                            <div class="col-md-4">
-                                <div class="card bg-light">
-                                    <div class="card-body text-center">
-                                        <h6 class="card-title">Productividad</h6>
-                                        <p class="card-text h4" id="productividad">0 kg/persona/hora</p>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Rendimiento General -->
-                            <div class="col-md-4">
-                                <div class="card bg-light">
-                                    <div class="card-body text-center">
-                                        <h6 class="card-title">Rendimiento General</h6>
-                                        <p class="card-text h4" id="rendimientoGeneral">0%</p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
 
 
 

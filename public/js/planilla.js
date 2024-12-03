@@ -214,96 +214,75 @@ $(document).ready(function () {
     });
 
     function actualizarTabla(planilla, subtotales, total) {
-        var tabla = $("#tabla-registros table tbody");
+        var tabla = $("#totales tbody");
         tabla.empty();
 
-        $.each(planilla, function (index, registro) {
-            var nuevaFila =
-                "<tr>" +
-                '<th scope="row">' +
-                (index + 1) +
-                "</th>" +
-                "<td>" +
-                registro.cInicial +
-                "</td>" +
-                "<td>" +
-                registro.cFinal +
-                "</td>" +
-                "<td>" +
-                registro.destino +
-                "</td>" +
-                "<td>" +
-                registro.calibre +
-                "</td>" +
-                "<td>" +
-                registro.calidad +
-                "</td>" +
-                "<td>" +
-                registro.piezas +
-                "</td>" +
-                "<td>" +
-                parseFloat(registro.kilos).toFixed(2) +
-                "</td>" +
-                "<td>" +
-                '<div class="form-check">' +
-                '<input class="form-check-input" type="checkbox" value="" id="flexCheckDefault"data-id="' +
-                registro.cod_reg +
-                '" />' +
-                '<label class="form-check-label" for="flexCheckDefault"></label>' +
-                "</div>" +
-                "</td>" +
-                '<td><a href="#" class="btn btn-primary btn-editar"data-id="' +
-                registro.cod_reg +
-                '">Editar</a></td>' +
-                "</tr>";
-
-            tabla.append(nuevaFila);
-        });
-        var cuerpoTabla = $("#totales tbody");
-
-        // Limpiar el contenido actual de la tabla
-        cuerpoTabla.empty();
-
-        // Agregar nuevas filas a la tabla con los datos actualizados
+        // Agregar filas de subtotales
         $.each(subtotales, function (index, subtotal) {
-            var nuevaFila =
-                "<tr>" +
-                "<td>" +
-                subtotal.cFinal +
-                "</td>" +
-                "<td>" +
-                subtotal.subtotalPiezas +
-                "</td>" +
-                "<td>" +
-                parseFloat(subtotal.subtotalKilos).toFixed(2) +
-                "</td>" +
-                "</tr>";
-
-            cuerpoTabla.append(nuevaFila);
+            var nuevaFila = `
+                <tr>
+                    <td class="px-3">${subtotal.corte_final}</td>
+                    <td class="px-3">${subtotal.calidad}</td>
+                    <td class="text-end px-3">${number_format(
+                        subtotal.total_piezas,
+                        0,
+                        ".",
+                        ","
+                    )}</td>
+                    <td class="text-end px-3">${number_format(
+                        subtotal.total_kilos,
+                        2,
+                        ".",
+                        ","
+                    )}</td>
+                    <td class="text-end px-3">${number_format(
+                        subtotal.porcentaje_del_total,
+                        2,
+                        ".",
+                        ","
+                    )}%</td>
+                </tr>
+            `;
+            tabla.append(nuevaFila);
         });
 
         // Agregar fila de total
-        var filaTotal =
-            '<tr id="filaTotal">' +
-            "<th>Total</th>" +
-            "<td>" +
-            total[0].totalPiezas +
-            "</td>" +
-            "<td>" +
-            parseFloat(total[0].totalKilos).toFixed(2) +
-            "</td>" +
-            "</tr>";
-
-        cuerpoTabla.append(filaTotal);
-
-        // Agregar la actualización de los campos de recepción
         if (total && total.length > 0) {
-            const totalPiezas = total[0].totalPiezas;
-            const totalKilos = total[0].totalKilos;
+            var filaTotalHtml = `
+                <tr id="filaTotal" class="table-secondary fw-bold">
+                    <th class="px-3">${total[0].corte_final}</th>
+                    <th class="px-3">${total[0].calidad}</th>
+                    <td class="text-end px-3">${number_format(
+                        total[0].total_piezas,
+                        0,
+                        ".",
+                        ","
+                    )}</td>
+                    <td class="text-end px-3">${number_format(
+                        total[0].total_kilos,
+                        2,
+                        ".",
+                        ","
+                    )}</td>
+                    <td class="text-end px-3">${number_format(
+                        total[0].porcentaje_del_total,
+                        2,
+                        ".",
+                        ","
+                    )}%</td>
+                </tr>
+            `;
+            tabla.append(filaTotalHtml);
+
+            // Actualizar campos de recepción
+            const totalPiezas = total[0].total_piezas;
+            const totalKilos = total[0].total_kilos;
             console.log(totalKilos + " este es el total de kilos ");
             console.log(totalPiezas + " este es el total de piezas ");
+
             // Actualizar campos de recepción según el tipo de conteo
             const tipoConteo = $('input[name="tipo_conteo"]:checked').val();
+
             // Siempre actualizar kilos y deshabilitarlo
             $("#kilosRecepcion").val(totalKilos).prop("disabled", true);
 
@@ -316,6 +295,30 @@ $(document).ready(function () {
             }
         }
     }
+
+    // Función auxiliar para formatear números
+    function number_format(number, decimals, dec_point, thousands_sep) {
+        number = (number + "").replace(/[^0-9+\-Ee.]/g, "");
+        var n = !isFinite(+number) ? 0 : +number,
+            prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+            sep = typeof thousands_sep === "undefined" ? "," : thousands_sep,
+            dec = typeof dec_point === "undefined" ? "." : dec_point,
+            s = "",
+            toFixedFix = function (n, prec) {
+                var k = Math.pow(10, prec);
+                return "" + Math.round(n * k) / k;
+            };
+        s = (prec ? toFixedFix(n, prec) : "" + Math.round(n)).split(".");
+        if (s[0].length > 3) {
+            s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
+        }
+        if ((s[1] || "").length < prec) {
+            s[1] = s[1] || "";
+            s[1] += new Array(prec - s[1].length + 1).join("0");
+        }
+        return s.join(dec);
+    }
+
     $("#btnGuardarPlanilla").on("click", function (event) {
         event.preventDefault();
 
@@ -522,8 +525,14 @@ $(document).ready(function () {
     const tipoConteoInicial = $('input[name="tipo_conteo"]:checked').val();
     if (tipoConteoInicial) {
         $("#contenedor-entrega, #contenedor-recepcion").show();
-        const totalPiezas = $("#totales tr#filaTotal td:eq(0)").text().trim();
-        const totalKilos = $("#totales tr#filaTotal td:eq(1)").text().trim();
+        // Usar los IDs específicos
+        const totalPiezas = $("#totalPiezas").text().trim().replace(/,/g, "");
+        const totalKilos = $("#totalKilos").text().trim().replace(/,/g, "");
+
+        console.log("Texto piezas:", $("#totalPiezas").text());
+        console.log("Texto kilos:", $("#totalKilos").text());
+        console.log("Total piezas después de limpieza:", totalPiezas);
+        console.log("Total kilos después de limpieza:", totalKilos);
 
         if (tipoConteoInicial === "cajas") {
             $("#entrega_cajas, #recepcion_cajas").show();
@@ -543,8 +552,14 @@ $(document).ready(function () {
         const tipo = $(this).val();
         $("#contenedor-entrega, #contenedor-recepcion").show(); // Mostrar los contenedores
 
-        const totalPiezas = $("#totales tr#filaTotal td:eq(0)").text().trim();
-        const totalKilos = $("#totales tr#filaTotal td:eq(1)").text().trim();
+        const totalPiezas = $("#totales tr#filaTotal td:eq(2)")
+            .text()
+            .trim()
+            .replace(/,/g, "");
+        const totalKilos = $("#totales tr#filaTotal td:eq(3)")
+            .text()
+            .trim()
+            .replace(/,/g, "");
 
         if (tipo === "cajas") {
             $("#entrega_cajas, #recepcion_cajas").show();

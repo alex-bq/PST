@@ -41,19 +41,30 @@ class PlanillaController extends Controller
             ->get();
 
         $subtotal = DB::table('pst_2.dbo.registro_planilla_pst AS rp')
-            ->select('fin.nombre AS cFinal', DB::raw('SUM(rp.piezas) AS subtotalPiezas'), DB::raw('SUM(rp.kilos) AS subtotalKilos'))
-            ->leftJoin('pst_2.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
-            ->where('rp.cod_planilla', '=', $idPlanilla)
-            ->groupBy('fin.nombre', 'rp.cod_planilla')
-            ->orderBy('fin.nombre')
+            ->select(
+                'c.nombre AS corte_final',
+                'cal.nombre AS calidad',
+                DB::raw('SUM(rp.piezas) AS total_piezas'),
+                DB::raw('SUM(rp.kilos) AS total_kilos'),
+                DB::raw('CAST(ROUND((SUM(rp.kilos) * 100.0 / (SELECT SUM(kilos) FROM pst_2.dbo.registro_planilla_pst WHERE cod_planilla = ' . $idPlanilla . ')), 2) AS DECIMAL(10,2)) AS porcentaje_del_total')
+            )
+            ->join('pst_2.dbo.corte AS c', 'rp.cod_corte_fin', '=', 'c.cod_corte')
+            ->join('pst_2.dbo.calidad AS cal', 'rp.cod_calidad', '=', 'cal.cod_cald')
+            ->where('rp.cod_planilla', $idPlanilla)
+            ->groupBy('c.nombre', 'cal.nombre')
+            ->orderBy('c.nombre', 'asc')
+            ->orderBy('cal.nombre', 'asc')
             ->get();
 
         $total = DB::table('pst_2.dbo.registro_planilla_pst AS rp')
-            ->select(DB::raw('SUM(rp.piezas) AS totalPiezas'), DB::raw('SUM(rp.kilos) AS totalKilos'))
-            ->leftJoin('pst_2.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
-            ->where('rp.cod_planilla', '=', $idPlanilla)
-            ->groupBy('rp.cod_planilla')
-            ->orderBy('rp.cod_planilla')
+            ->select(
+                DB::raw("' ' as corte_final"),
+                DB::raw("'Total' as calidad"),
+                DB::raw('SUM(rp.piezas) AS total_piezas'),
+                DB::raw('SUM(rp.kilos) AS total_kilos'),
+                DB::raw('100.0 AS porcentaje_del_total')
+            )
+            ->where('rp.cod_planilla', $idPlanilla)
             ->get();
 
 
@@ -107,19 +118,30 @@ class PlanillaController extends Controller
                 ->get();
 
             $subtotal = DB::table('pst_2.dbo.registro_planilla_pst AS rp')
-                ->select('fin.nombre AS cFinal', DB::raw('SUM(rp.piezas) AS subtotalPiezas'), DB::raw('SUM(rp.kilos) AS subtotalKilos'))
-                ->leftJoin('pst_2.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
-                ->where('rp.cod_planilla', '=', $idPlanilla)
-                ->groupBy('fin.nombre', 'rp.cod_planilla')
-                ->orderBy('fin.nombre')
+                ->select(
+                    'c.nombre AS corte_final',
+                    'cal.nombre AS calidad',
+                    DB::raw('SUM(rp.piezas) AS total_piezas'),
+                    DB::raw('SUM(rp.kilos) AS total_kilos'),
+                    DB::raw('CAST(ROUND((SUM(rp.kilos) * 100.0 / (SELECT SUM(kilos) FROM pst_2.dbo.registro_planilla_pst WHERE cod_planilla = ' . $idPlanilla . ')), 2) AS DECIMAL(10,2)) AS porcentaje_del_total')
+                )
+                ->join('pst_2.dbo.corte AS c', 'rp.cod_corte_fin', '=', 'c.cod_corte')
+                ->join('pst_2.dbo.calidad AS cal', 'rp.cod_calidad', '=', 'cal.cod_cald')
+                ->where('rp.cod_planilla', $idPlanilla)
+                ->groupBy('c.nombre', 'cal.nombre')
+                ->orderBy('c.nombre', 'asc')
+                ->orderBy('cal.nombre', 'asc')
                 ->get();
 
             $total = DB::table('pst_2.dbo.registro_planilla_pst AS rp')
-                ->select(DB::raw('SUM(rp.piezas) AS totalPiezas'), DB::raw('SUM(rp.kilos) AS totalKilos'))
-                ->leftJoin('pst_2.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
-                ->where('rp.cod_planilla', '=', $idPlanilla)
-                ->groupBy('rp.cod_planilla')
-                ->orderBy('rp.cod_planilla')
+                ->select(
+                    DB::raw("' ' as corte_final"),
+                    DB::raw("'Total' as calidad"),
+                    DB::raw('SUM(rp.piezas) AS total_piezas'),
+                    DB::raw('SUM(rp.kilos) AS total_kilos'),
+                    DB::raw('100.0 AS porcentaje_del_total')
+                )
+                ->where('rp.cod_planilla', $idPlanilla)
                 ->get();
 
 
@@ -288,19 +310,30 @@ class PlanillaController extends Controller
             ->get();
 
         $subtotal = DB::table('pst_2.dbo.registro_planilla_pst AS rp')
-            ->select('fin.nombre AS cFinal', DB::raw('SUM(rp.piezas) AS subtotalPiezas'), DB::raw('SUM(rp.kilos) AS subtotalKilos'))
-            ->leftJoin('pst_2.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
-            ->where('rp.cod_planilla', '=', $idPlanilla)
-            ->groupBy('fin.nombre', 'rp.cod_planilla')
-            ->orderBy('fin.nombre')
+            ->select(
+                'c.nombre AS corte_final',
+                'cal.nombre AS calidad',
+                DB::raw('SUM(rp.piezas) AS total_piezas'),
+                DB::raw('SUM(rp.kilos) AS total_kilos'),
+                DB::raw('CAST(ROUND((SUM(rp.kilos) * 100.0 / (SELECT SUM(kilos) FROM pst_2.dbo.registro_planilla_pst WHERE cod_planilla = ' . $idPlanilla . ')), 2) AS DECIMAL(10,2)) AS porcentaje_del_total')
+            )
+            ->join('pst_2.dbo.corte AS c', 'rp.cod_corte_fin', '=', 'c.cod_corte')
+            ->join('pst_2.dbo.calidad AS cal', 'rp.cod_calidad', '=', 'cal.cod_cald')
+            ->where('rp.cod_planilla', $idPlanilla)
+            ->groupBy('c.nombre', 'cal.nombre')
+            ->orderBy('c.nombre', 'asc')
+            ->orderBy('cal.nombre', 'asc')
             ->get();
 
         $total = DB::table('pst_2.dbo.registro_planilla_pst AS rp')
-            ->select(DB::raw('SUM(rp.piezas) AS totalPiezas'), DB::raw('SUM(rp.kilos) AS totalKilos'))
-            ->leftJoin('pst_2.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
-            ->where('rp.cod_planilla', '=', $idPlanilla)
-            ->groupBy('rp.cod_planilla')
-            ->orderBy('rp.cod_planilla')
+            ->select(
+                DB::raw("' ' as corte_final"),
+                DB::raw("'Total' as calidad"),
+                DB::raw('SUM(rp.piezas) AS total_piezas'),
+                DB::raw('SUM(rp.kilos) AS total_kilos'),
+                DB::raw('100.0 AS porcentaje_del_total')
+            )
+            ->where('rp.cod_planilla', $idPlanilla)
             ->get();
 
         return response()->json(['success' => true, 'mensaje' => 'Registro agregado exitosamente', 'planilla' => $planillaActualizada, 'subtotal' => $subtotal, 'total' => $total]);
@@ -470,19 +503,30 @@ class PlanillaController extends Controller
             ->get();
 
         $subtotal = DB::table('pst_2.dbo.registro_planilla_pst AS rp')
-            ->select('fin.nombre AS cFinal', DB::raw('SUM(rp.piezas) AS subtotalPiezas'), DB::raw('SUM(rp.kilos) AS subtotalKilos'))
-            ->leftJoin('pst_2.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
-            ->where('rp.cod_planilla', '=', $idPlanilla)
-            ->groupBy('fin.nombre', 'rp.cod_planilla')
-            ->orderBy('fin.nombre')
+            ->select(
+                'c.nombre AS corte_final',
+                'cal.nombre AS calidad',
+                DB::raw('SUM(rp.piezas) AS total_piezas'),
+                DB::raw('SUM(rp.kilos) AS total_kilos'),
+                DB::raw('CAST(ROUND((SUM(rp.kilos) * 100.0 / (SELECT SUM(kilos) FROM pst_2.dbo.registro_planilla_pst WHERE cod_planilla = ' . $idPlanilla . ')), 2) AS DECIMAL(10,2)) AS porcentaje_del_total')
+            )
+            ->join('pst_2.dbo.corte AS c', 'rp.cod_corte_fin', '=', 'c.cod_corte')
+            ->join('pst_2.dbo.calidad AS cal', 'rp.cod_calidad', '=', 'cal.cod_cald')
+            ->where('rp.cod_planilla', $idPlanilla)
+            ->groupBy('c.nombre', 'cal.nombre')
+            ->orderBy('c.nombre', 'asc')
+            ->orderBy('cal.nombre', 'asc')
             ->get();
 
         $total = DB::table('pst_2.dbo.registro_planilla_pst AS rp')
-            ->select(DB::raw('SUM(rp.piezas) AS totalPiezas'), DB::raw('SUM(rp.kilos) AS totalKilos'))
-            ->leftJoin('pst_2.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
-            ->where('rp.cod_planilla', '=', $idPlanilla)
-            ->groupBy('rp.cod_planilla')
-            ->orderBy('rp.cod_planilla')
+            ->select(
+                DB::raw("' ' as corte_final"),
+                DB::raw("'Total' as calidad"),
+                DB::raw('SUM(rp.piezas) AS total_piezas'),
+                DB::raw('SUM(rp.kilos) AS total_kilos'),
+                DB::raw('100.0 AS porcentaje_del_total')
+            )
+            ->where('rp.cod_planilla', $idPlanilla)
             ->get();
 
         return response()->json(['success' => true, 'mensaje' => 'Registro agregado exitosamente', 'planilla' => $planillaActualizada, 'subtotal' => $subtotal, 'total' => $total]);
@@ -507,19 +551,30 @@ class PlanillaController extends Controller
                 ->get();
 
             $subtotal = DB::table('pst_2.dbo.registro_planilla_pst AS rp')
-                ->select('fin.nombre AS cFinal', DB::raw('SUM(rp.piezas) AS subtotalPiezas'), DB::raw('SUM(rp.kilos) AS subtotalKilos'))
-                ->leftJoin('pst_2.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
-                ->where('rp.cod_planilla', '=', $idPlanilla)
-                ->groupBy('fin.nombre', 'rp.cod_planilla')
-                ->orderBy('fin.nombre')
+                ->select(
+                    'c.nombre AS corte_final',
+                    'cal.nombre AS calidad',
+                    DB::raw('SUM(rp.piezas) AS total_piezas'),
+                    DB::raw('SUM(rp.kilos) AS total_kilos'),
+                    DB::raw('CAST(ROUND((SUM(rp.kilos) * 100.0 / (SELECT SUM(kilos) FROM pst_2.dbo.registro_planilla_pst WHERE cod_planilla = ' . $idPlanilla . ')), 2) AS DECIMAL(10,2)) AS porcentaje_del_total')
+                )
+                ->join('pst_2.dbo.corte AS c', 'rp.cod_corte_fin', '=', 'c.cod_corte')
+                ->join('pst_2.dbo.calidad AS cal', 'rp.cod_calidad', '=', 'cal.cod_cald')
+                ->where('rp.cod_planilla', $idPlanilla)
+                ->groupBy('c.nombre', 'cal.nombre')
+                ->orderBy('c.nombre', 'asc')
+                ->orderBy('cal.nombre', 'asc')
                 ->get();
 
             $total = DB::table('pst_2.dbo.registro_planilla_pst AS rp')
-                ->select(DB::raw('SUM(rp.piezas) AS totalPiezas'), DB::raw('SUM(rp.kilos) AS totalKilos'))
-                ->leftJoin('pst_2.dbo.corte AS fin', 'rp.cod_corte_fin', '=', 'fin.cod_corte')
-                ->where('rp.cod_planilla', '=', $idPlanilla)
-                ->groupBy('rp.cod_planilla')
-                ->orderBy('rp.cod_planilla')
+                ->select(
+                    DB::raw("' ' as corte_final"),
+                    DB::raw("'Total' as calidad"),
+                    DB::raw('SUM(rp.piezas) AS total_piezas'),
+                    DB::raw('SUM(rp.kilos) AS total_kilos'),
+                    DB::raw('100.0 AS porcentaje_del_total')
+                )
+                ->where('rp.cod_planilla', $idPlanilla)
                 ->get();
 
 

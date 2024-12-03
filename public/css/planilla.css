@@ -9,6 +9,7 @@
 
 .card {
     width: 100% !important;
+    margin-top: 0px !important;
 }
 
 .table-wrapper {
@@ -85,7 +86,7 @@
 }
 /* Contenido de las cards */
 .card-body {
-    flex: 1 1 auto;
+    flex: 1 1 auto; 
     display: flex;
     flex-direction: column;
     overflow: auto;
@@ -97,3 +98,48 @@
     overflow: auto;
     min-height: 0;
 }
+
+#seccionEntrega{
+    margin-top: 0.4rem !important;
+}   
+
+
+.offcanvas-end {
+    width: 50vw !important;
+}
+
+.offcanvas-body {
+    display: flex;
+    flex-direction: column;
+}
+
+
+
+.card {
+    transition: transform 0.2s;
+}
+
+
+
+/* Media queries */
+@media (max-width: 768px) {
+    .offcanvas-end {
+        width: 100vw !important;
+    }
+}
+
+/* Estilos para la tabla */
+#totales thead th {
+    position: sticky;
+    top: 0;
+    background: #f8f9fa;
+    z-index: 1;
+}
+
+#filaTotal td, #filaTotal th {
+    position: sticky;
+    bottom: 0;
+    background: #e9ecef;
+    z-index: 1;
+}
+
