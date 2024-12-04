@@ -52,8 +52,9 @@ class PlanillaController extends Controller
             ->join('pst_2.dbo.calidad AS cal', 'rp.cod_calidad', '=', 'cal.cod_cald')
             ->where('rp.cod_planilla', $idPlanilla)
             ->groupBy('c.nombre', 'cal.nombre')
-            ->orderBy('c.nombre', 'asc')
+            ->orderByRaw('CAST(ROUND((SUM(rp.kilos) * 100.0 / (SELECT SUM(kilos) FROM pst_2.dbo.registro_planilla_pst WHERE cod_planilla = ' . $idPlanilla . ')), 2) AS DECIMAL(10,2)) DESC')
             ->orderBy('cal.nombre', 'asc')
+            ->orderBy('c.nombre', 'asc')
             ->get();
 
         $total = DB::table('pst_2.dbo.registro_planilla_pst AS rp')
@@ -129,8 +130,9 @@ class PlanillaController extends Controller
                 ->join('pst_2.dbo.calidad AS cal', 'rp.cod_calidad', '=', 'cal.cod_cald')
                 ->where('rp.cod_planilla', $idPlanilla)
                 ->groupBy('c.nombre', 'cal.nombre')
-                ->orderBy('c.nombre', 'asc')
+                ->orderByRaw('CAST(ROUND((SUM(rp.kilos) * 100.0 / (SELECT SUM(kilos) FROM pst_2.dbo.registro_planilla_pst WHERE cod_planilla = ' . $idPlanilla . ')), 2) AS DECIMAL(10,2)) DESC')
                 ->orderBy('cal.nombre', 'asc')
+                ->orderBy('c.nombre', 'asc')
                 ->get();
 
             $total = DB::table('pst_2.dbo.registro_planilla_pst AS rp')
@@ -321,8 +323,9 @@ class PlanillaController extends Controller
             ->join('pst_2.dbo.calidad AS cal', 'rp.cod_calidad', '=', 'cal.cod_cald')
             ->where('rp.cod_planilla', $idPlanilla)
             ->groupBy('c.nombre', 'cal.nombre')
-            ->orderBy('c.nombre', 'asc')
+            ->orderByRaw('CAST(ROUND((SUM(rp.kilos) * 100.0 / (SELECT SUM(kilos) FROM pst_2.dbo.registro_planilla_pst WHERE cod_planilla = ' . $idPlanilla . ')), 2) AS DECIMAL(10,2)) DESC')
             ->orderBy('cal.nombre', 'asc')
+            ->orderBy('c.nombre', 'asc')
             ->get();
 
         $total = DB::table('pst_2.dbo.registro_planilla_pst AS rp')
@@ -420,31 +423,24 @@ class PlanillaController extends Controller
                 ]);
             }
 
-            // Resto del código existente para guardar
-            $cajasEntrega = $request->input('cajas_entrega');
-            $kilosEntrega = $request->input('kilos_entrega');
-            $codSala = $request->input('sala');
-            $piezasEntrega = $request->input('piezas_entrega');
-            $cajasRecepcion = $request->input('cajas_recepcion');
-            $kilosRecepcion = $request->input('kilos_recepcion');
-            $piezasRecepcion = $request->input('piezas_recepcion');
-            $dotacion = $request->input('dotacion');
-            $observacion = $request->input('observacion');
-
+            // Actualizar detalle_planilla_pst con todos los campos incluyendo productividad y rendimiento
             DB::table('pst_2.dbo.detalle_planilla_pst')
                 ->where('cod_planilla', $request->input('idPlanilla'))
                 ->update([
-                    'cajas_entrega' => $cajasEntrega,
-                    'kilos_entrega' => $kilosEntrega,
-                    'piezas_entrega' => $piezasEntrega,
-                    'cajas_recepcion' => $cajasRecepcion,
-                    'kilos_recepcion' => $kilosRecepcion,
-                    'piezas_recepcion' => $piezasRecepcion,
-                    'dotacion' => $dotacion,
-                    'cod_sala' => $codSala,
-                    'observacion' => $observacion,
+                    'cajas_entrega' => $request->input('cajas_entrega'),
+                    'kilos_entrega' => $request->input('kilos_entrega'),
+                    'piezas_entrega' => $request->input('piezas_entrega'),
+                    'cajas_recepcion' => $request->input('cajas_recepcion'),
+                    'kilos_recepcion' => $request->input('kilos_recepcion'),
+                    'piezas_recepcion' => $request->input('piezas_recepcion'),
+                    'dotacion' => $request->input('dotacion'),
+                    'cod_sala' => $request->input('sala'),
+                    'observacion' => $request->input('observacion'),
+                    'productividad' => $request->input('productividad'),
+                    'rendimiento' => $request->input('rendimiento')
                 ]);
 
+            // Actualizar planilla
             DB::table('pst_2.dbo.planillas_pst')
                 ->where('cod_planilla', $request->input('idPlanilla'))
                 ->update([
@@ -514,8 +510,9 @@ class PlanillaController extends Controller
             ->join('pst_2.dbo.calidad AS cal', 'rp.cod_calidad', '=', 'cal.cod_cald')
             ->where('rp.cod_planilla', $idPlanilla)
             ->groupBy('c.nombre', 'cal.nombre')
-            ->orderBy('c.nombre', 'asc')
+            ->orderByRaw('CAST(ROUND((SUM(rp.kilos) * 100.0 / (SELECT SUM(kilos) FROM pst_2.dbo.registro_planilla_pst WHERE cod_planilla = ' . $idPlanilla . ')), 2) AS DECIMAL(10,2)) DESC')
             ->orderBy('cal.nombre', 'asc')
+            ->orderBy('c.nombre', 'asc')
             ->get();
 
         $total = DB::table('pst_2.dbo.registro_planilla_pst AS rp')
@@ -562,8 +559,9 @@ class PlanillaController extends Controller
                 ->join('pst_2.dbo.calidad AS cal', 'rp.cod_calidad', '=', 'cal.cod_cald')
                 ->where('rp.cod_planilla', $idPlanilla)
                 ->groupBy('c.nombre', 'cal.nombre')
-                ->orderBy('c.nombre', 'asc')
+                ->orderByRaw('CAST(ROUND((SUM(rp.kilos) * 100.0 / (SELECT SUM(kilos) FROM pst_2.dbo.registro_planilla_pst WHERE cod_planilla = ' . $idPlanilla . ')), 2) AS DECIMAL(10,2)) DESC')
                 ->orderBy('cal.nombre', 'asc')
+                ->orderBy('c.nombre', 'asc')
                 ->get();
 
             $total = DB::table('pst_2.dbo.registro_planilla_pst AS rp')

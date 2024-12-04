@@ -75,6 +75,8 @@ CREATE TABLE pst_2.dbo.detalle_planilla_pst (
     piezas_recepcion INT,
     dotacion INT,
     cod_sala INT,
+    productividad DECIMAL(10,2),
+    rendimiento DECIMAL(10,2),
     observacion NVARCHAR(MAX),
     FOREIGN KEY (cod_planilla) REFERENCES pst_2.dbo.planillas_pst(cod_planilla)
 );

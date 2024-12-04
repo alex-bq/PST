@@ -139,11 +139,14 @@
                                     <th class="px-3">{{$a->corte_final}}</th>
                                     <th class="px-3">{{$a->calidad}}</th>
                                     <td class="text-end px-3" id="totalPiezas">
-                                        {{number_format($a->total_piezas, 0, '.', ',')}}</td>
+                                        {{number_format($a->total_piezas, 0, '.', ',')}}
+                                    </td>
                                     <td class="text-end px-3" id="totalKilos">
-                                        {{number_format($a->total_kilos, 2, '.', ',')}}</td>
+                                        {{number_format($a->total_kilos, 2, '.', ',')}}
+                                    </td>
                                     <td class="text-end px-3" id="totalPorcentaje">
-                                        {{number_format($a->porcentaje_del_total, 2, '.', ',')}}%</td>
+                                        {{number_format($a->porcentaje_del_total, 2, '.', ',')}}%
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
@@ -155,7 +158,7 @@
 
 
     <div class="row">
-        <div class="col-lg-4 mb-2">
+        <div class="col-lg-4 mb-2" style="padding-right: 0.25rem;">
 
             <div class="card" id="columna1">
                 <div class="card-header">
@@ -504,7 +507,7 @@
         </div>
 
 
-        <div class="col-lg-8 mb-2" style="margin-bottom: 0px !important;">
+        <div class="col-lg-8 mb-2" style="margin-bottom: 0px !important;padding-left: 0.25rem;">
             <div class="card w-100">
                 <div class="card-body">
                     <div class="row">
@@ -607,14 +610,15 @@
             </div>
         </div>
 
-        <div class="row mt-4" id="seccionEntrega">
-            <div class="col-12">
+        <div class="row mt-4" id="seccionEntrega" style="padding-right: 0px;">
+            <div class="col-12" style="padding-right: 0px;">
                 <div class="card" style="margin-top: 0px;">
                     <div class="card-header">
                         <h5 class="mb-0">Entrega de Planilla</h5>
                     </div>
                     <div class="card-body">
-                        <form id='formEntrega' action="{{ route('guardar') }}" method="post" class="mt-3">
+                        <form id='formEntrega' action="{{ route('guardar') }}" method="post"
+                            style="margin-bottom: 0px;">
                             @csrf
                             <!-- Tipo de conteo y hora término en la primera fila -->
                             <div class="row mb-3">
