@@ -407,10 +407,17 @@ class PlanillaController extends Controller
                 ]);
             }
 
-            // Obtener la hora de inicio de la planilla
+            // Obtener la planilla primero y validar que existe
             $planilla = DB::table('pst_2.dbo.planillas_pst')
                 ->where('cod_planilla', $request->input('idPlanilla'))
                 ->first();
+
+            if (!$planilla) {
+                return response()->json([
+                    'success' => false,
+                    'mensaje' => 'No se encontró la planilla'
+                ]);
+            }
 
             // Validar que la hora de término sea posterior a la hora de inicio
             $horaInicio = strtotime($planilla->hora_inicio);
@@ -423,21 +430,21 @@ class PlanillaController extends Controller
                 ]);
             }
 
-            // Actualizar detalle_planilla_pst con todos los campos incluyendo productividad y rendimiento
+            // Actualizar detalle_planilla_pst
             DB::table('pst_2.dbo.detalle_planilla_pst')
                 ->where('cod_planilla', $request->input('idPlanilla'))
                 ->update([
-                    'cajas_entrega' => $request->input('cajas_entrega'),
-                    'kilos_entrega' => $request->input('kilos_entrega'),
-                    'piezas_entrega' => $request->input('piezas_entrega'),
-                    'cajas_recepcion' => $request->input('cajas_recepcion'),
-                    'kilos_recepcion' => $request->input('kilos_recepcion'),
-                    'piezas_recepcion' => $request->input('piezas_recepcion'),
-                    'dotacion' => $request->input('dotacion'),
+                    'cajas_entrega' => $request->input('cajas_entrega', 0),
+                    'kilos_entrega' => $request->input('kilos_entrega', 0),
+                    'piezas_entrega' => $request->input('piezas_entrega', 0),
+                    'cajas_recepcion' => $request->input('cajas_recepcion', 0),
+                    'kilos_recepcion' => $request->input('kilos_recepcion', 0),
+                    'piezas_recepcion' => $request->input('piezas_recepcion', 0),
+                    'dotacion' => $request->input('dotacion', 0),
                     'cod_sala' => $request->input('sala'),
-                    'observacion' => $request->input('observacion'),
-                    'productividad' => $request->input('productividad'),
-                    'rendimiento' => $request->input('rendimiento')
+                    'observacion' => $request->input('observacion', ''),
+                    'productividad' => $request->input('productividad', 0),
+                    'rendimiento' => $request->input('rendimiento', 0)
                 ]);
 
             // Actualizar planilla
@@ -610,22 +617,24 @@ class PlanillaController extends Controller
     public function obtenerTiemposMuertos($idPlanilla)
     {
         try {
+            \Log::info("Obteniendo tiempos muertos para planilla: " . $idPlanilla);
+
             $tiemposMuertos = DB::table('pst_2.dbo.tiempos_muertos')
                 ->where('cod_planilla', $idPlanilla)
-                ->select('cod_tiempo_muerto', 'causa', 'hora_inicio', 'hora_termino', 'duracion_minutos')
-                ->orderBy('hora_inicio')
                 ->get();
+
+            \Log::info("Tiempos muertos encontrados: ", ['count' => $tiemposMuertos->count(), 'data' => $tiemposMuertos]);
 
             return response()->json([
                 'success' => true,
                 'tiemposMuertos' => $tiemposMuertos
             ]);
-        } catch (QueryException $e) {
-            \Log::error('Error al obtener tiempos muertos:', ['error' => $e->getMessage()]);
+        } catch (Exception $e) {
+            \Log::error("Error al obtener tiempos muertos: " . $e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error al obtener los tiempos muertos',
-                'error' => $e->getMessage()
+                'mensaje' => $e->getMessage()
             ]);
         }
     }

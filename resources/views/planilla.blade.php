@@ -19,6 +19,8 @@
 
 @section('content')
 
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
 <div class="vY" id="toast" style="display: none;">
     <div class="vX">
         <div class="vh">
@@ -30,8 +32,8 @@
     </div>
 </div>
 
-<div id="planillaData" data-hora-inicio="{{ isset($desc_planilla->hora_inicio) ? $desc_planilla->hora_inicio : '' }}"
-    data-hora-termino="{{ isset($desc_planilla->hora_termino) ? $desc_planilla->hora_termino : '' }}">
+<div id="planillaData" data-hora-inicio="{{ $desc_planilla->hora_inicio }}"
+    data-hora-termino="{{ $desc_planilla->hora_termino }}" data-id-planilla="{{ $desc_planilla->cod_planilla }}">
 </div>
 
 <div class="container-fluid align-text">
