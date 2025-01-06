@@ -78,6 +78,11 @@
                         </li>
 
                     @endif
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ route('informes.index') }}">
+                            <i class="bi bi-graph-up"></i> Informes
+                        </a>
+                    </li>
                 </ul>
 
 

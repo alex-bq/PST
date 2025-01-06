@@ -5,6 +5,7 @@ use App\Http\Controllers\IndexController;
 use App\Http\Controllers\PlanillaController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\adminController;
+use App\Http\Controllers\InformeController;
 
 // Ruta de inicio de sesión
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -75,6 +76,12 @@ Route::get('/obtener-tiempos-muertos/{idPlanilla}', [PlanillaController::class, 
 Route::delete('/eliminar-tiempo-muerto/{id}', [PlanillaController::class, 'eliminarTiempoMuerto']);
 
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+
+
+Route::get('/informes', [InformeController::class, 'index'])->name('informes.index');
+Route::get('/informes/turno', [InformeController::class, 'informePorTurno'])->name('informes.turno');
+Route::post('/informes/filtrar', [InformeController::class, 'filtrarInformes'])->name('informes.filtrar');
+Route::get('/informes/detalle', [InformeController::class, 'verDetalle'])->name('informes.detalle');
 
 
 

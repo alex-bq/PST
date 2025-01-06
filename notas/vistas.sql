@@ -153,3 +153,47 @@ AND pst_2.dbo.planillas_pst.fec_turno <= '2024-03-01' -- Fecha de fin
 ORDER BY
     pst_2.dbo.planillas_pst.fec_turno,
     pst_2.dbo.planillas_pst.fec_crea_planilla;
+
+
+
+
+
+
+
+
+-- v_informe_por_turno
+
+CREATE OR ALTER VIEW pst_2.dbo.v_informe_por_turno AS
+SELECT 
+    p.fec_turno as fecha,
+    p.cod_turno,
+    t.NomTurno as nombre_turno,
+    p.cod_supervisor,
+    u.nombre as nombre_supervisor,
+    COUNT(DISTINCT r.cod_planilla) as total_registros,
+    ISNULL(dp.dotacion, 0) as total_dotacion,
+    ISNULL(CAST(dp.productividad AS DECIMAL(10,2)), 0) as promedio_productividad,
+    ISNULL(CAST(dp.rendimiento AS DECIMAL(10,2)), 0) as promedio_rendimiento,
+    ISNULL(CAST(dp.kilos_entrega AS DECIMAL(10,2)), 0) as total_kilos_entrega,
+    ISNULL(CAST(dp.kilos_recepcion AS DECIMAL(10,2)), 0) as total_kilos_recepcion
+FROM pst_2.dbo.planillas_pst p
+LEFT JOIN pst_2.dbo.detalle_planilla_pst dp 
+    ON p.cod_planilla = dp.cod_planilla
+LEFT JOIN pst_2.dbo.registro_planilla_pst r 
+    ON p.cod_planilla = r.cod_planilla
+LEFT JOIN bdsystem.dbo.turno t 
+    ON p.cod_turno = t.codTurno
+LEFT JOIN pst_2.dbo.v_data_usuario u 
+    ON p.cod_supervisor = u.cod_usuario
+WHERE p.guardado = 1
+GROUP BY 
+    p.fec_turno,
+    p.cod_turno,
+    t.NomTurno,
+    p.cod_supervisor,
+    u.nombre,
+    dp.dotacion,
+    dp.productividad,
+    dp.rendimiento,
+    dp.kilos_entrega,
+    dp.kilos_recepcion;
