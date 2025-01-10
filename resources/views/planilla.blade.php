@@ -421,13 +421,11 @@
                                 </div>
                             </div>
 
-                        @elseif(session('user')['cod_rol'] == 2 || session('user')['cod_rol'] == 3)
+                        @elseif(session('user')['cod_rol'] == 2 || session('user')['cod_rol'] == 3 || session('user')['cod_rol'] == 4)
 
                                             <form action="{{ route('modificar-planilla', ['id' => $idPlanilla]) }}" id="form2"
                                                 method="post">
                                                 @csrf
-
-
                                                 <div class="row">
                                                     <div class="col-md-6">
                                                         <div class="form-group">
@@ -440,11 +438,9 @@
                                                         <div class="form-group">
                                                             <label for="codTurno">Turno</label>
                                                             <select class="form-select select2" style="width: 100%" name="turno">
-
                                                                 @foreach ($turnos as $turno)
                                                                                                         <option value="{{ $turno->codTurno }}" @if(
-                                                                                                            $desc_planilla->turno ==
-                                                                                                            $turno->NomTurno
+                                                                                                            $desc_planilla->turno == $turno->NomTurno
                                                                                                         ) selected @endif>
                                                                                                             {{ $turno->NomTurno }}
                                                                                                         </option>
@@ -454,16 +450,15 @@
                                                     </div>
                                                 </div>
 
-                                                <div class="row" style=" margin-bottom: 1rem;">
-                                                    <div class="col-md-6">
+                                                <div class="row" style="margin-bottom: 1rem;">
+                                                    <div class="col-md-4">
                                                         <div class="form-group">
                                                             <label for="codSupervisor">Supervisor</label>
-                                                            <select class="form-select select2" style="width: 100%" name="supervisor">
-
+                                                            <select class="form-select select2" style="width: 100%" name="supervisor"
+                                                                @if(session('user')['cod_rol'] == 2) disabled @endif>
                                                                 @foreach ($supervisores as $supervisor)
                                                                                                         @php
-                                                                                                            $selected = ($desc_planilla->cod_supervisor ==
-                                                                                                                $supervisor->cod_usuario) ? 'selected' : '';
+                                                                                                            $selected = ($desc_planilla->cod_supervisor == $supervisor->cod_usuario) ? 'selected' : '';
                                                                                                         @endphp
                                                                                                         <option value="{{ $supervisor->cod_usuario }}" {{ $selected }}>
                                                                                                             {{ $supervisor->nombre }}
@@ -472,15 +467,14 @@
                                                             </select>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-6">
+                                                    <div class="col-md-4">
                                                         <div class="form-group">
                                                             <label for="codPlanillero">Planillero</label>
-                                                            <select class="form-select select2" style="width: 100%" name="planillero">
-
+                                                            <select class="form-select select2" style="width: 100%" name="planillero"
+                                                                @if(session('user')['cod_rol'] == 1) disabled @endif>
                                                                 @foreach ($planilleros as $planillero)
                                                                                                         @php
-                                                                                                            $selected = ($desc_planilla->cod_planillero ==
-                                                                                                                $planillero->cod_usuario) ? 'selected' : '';
+                                                                                                            $selected = ($desc_planilla->cod_planillero == $planillero->cod_usuario) ? 'selected' : '';
                                                                                                         @endphp
                                                                                                         <option value="{{ $planillero->cod_usuario }}" {{ $selected }}>
                                                                                                             {{ $planillero->nombre }}
@@ -489,11 +483,23 @@
                                                             </select>
                                                         </div>
                                                     </div>
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <label for="codJefeTurno">Jefe de Turno</label>
+                                                            <select class="form-select select2" style="width: 100%" name="jefe_turno"
+                                                                @if(session('user')['cod_rol'] == 4) disabled @endif>
+                                                                @foreach ($jefes_turno as $jefe)
+                                                                                                        @php
+                                                                                                            $selected = ($desc_planilla->cod_jefe_turno == $jefe->cod_usuario) ? 'selected' : '';
+                                                                                                        @endphp
+                                                                                                        <option value="{{ $jefe->cod_usuario }}" {{ $selected }}>
+                                                                                                            {{ $jefe->nombre }}
+                                                                                                        </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
                                                 </div>
-
-
-
-
 
                                                 <button type="submit" class="btn btn-primary" id="btnModificar" disabled>Modificar
                                                     planilla</button>

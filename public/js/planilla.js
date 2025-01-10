@@ -1066,12 +1066,14 @@ document.addEventListener("DOMContentLoaded", function () {
     var turnoSelect = document.querySelector('select[name="turno"]');
     var supervisorSelect = document.querySelector('select[name="supervisor"]');
     var planilleroSelect = document.querySelector('select[name="planillero"]');
+    var jefeTurnoSelect = document.querySelector('select[name="jefe_turno"]');
 
     // Guardar los valores iniciales
     var initialFechaTurno = fechaTurno.value;
     var initialTurno = turnoSelect.value;
     var initialSupervisor = supervisorSelect.value;
     var initialPlanillero = planilleroSelect.value;
+    var initialJefeTurno = jefeTurnoSelect.value;
 
     // Función para comprobar si hay cambios
     function checkChanges() {
@@ -1079,7 +1081,8 @@ document.addEventListener("DOMContentLoaded", function () {
             fechaTurno.value !== initialFechaTurno ||
             turnoSelect.value !== initialTurno ||
             supervisorSelect.value !== initialSupervisor ||
-            planilleroSelect.value !== initialPlanillero;
+            planilleroSelect.value !== initialPlanillero ||
+            jefeTurnoSelect.value !== initialJefeTurno;
 
         // Habilitar o deshabilitar el botón según si hay cambios
         btnModificar.disabled = !cambios;
@@ -1105,6 +1108,10 @@ document.addEventListener("DOMContentLoaded", function () {
             modifiedFields.planillero = planilleroSelect.value;
         }
 
+        if (jefeTurnoSelect.value !== initialJefeTurno) {
+            modifiedFields.jefe_turno = jefeTurnoSelect.value;
+        }
+
         return modifiedFields;
     }
 
@@ -1123,6 +1130,10 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
     $(planilleroSelect).on("change.select2", function () {
+        checkChanges();
+    });
+
+    $(jefeTurnoSelect).on("change.select2", function () {
         checkChanges();
     });
 

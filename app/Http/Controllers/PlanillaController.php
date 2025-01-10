@@ -93,6 +93,7 @@ class PlanillaController extends Controller
         $turnos = DB::select('SELECT codTurno,NomTurno FROM bdsystem.dbo.turno WHERE inactivo=0 ORDER BY NomTurno ASC;');
         $supervisores = DB::select('SELECT cod_usuario,nombre FROM pst_2.dbo.v_data_usuario WHERE cod_rol=2 AND activo = 1 ORDER BY nombre ASC;');
         $planilleros = DB::select('SELECT cod_usuario,nombre FROM pst_2.dbo.v_data_usuario WHERE cod_rol=1 AND activo = 1 ORDER BY nombre ASC;');
+        $jefes_turno = DB::select('SELECT cod_usuario,nombre FROM pst_2.dbo.v_data_usuario WHERE cod_rol=4 AND activo = 1 ORDER BY nombre ASC;');
 
 
         $detalle_planilla = DB::table('pst_2.dbo.detalle_planilla_pst ')
@@ -147,7 +148,7 @@ class PlanillaController extends Controller
                 ->get();
 
 
-            return view('planilla', compact('subtotal', 'total', 'planilla', 'destinos', 'cortes', 'salas', 'calibres', 'calidades', 'idPlanilla', 'detalle_planilla', 'desc_planilla', 'empresas', 'procesos', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros'));
+            return view('planilla', compact('subtotal', 'total', 'planilla', 'destinos', 'cortes', 'salas', 'calibres', 'calidades', 'idPlanilla', 'detalle_planilla', 'desc_planilla', 'empresas', 'procesos', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'jefes_turno'));
         } else {
             return redirect('/inicio')->with('error', 'No tiene permiso para editar la planilla, indicar a su supervisor');
         }
@@ -380,6 +381,10 @@ class PlanillaController extends Controller
 
         if (isset($modifiedFields['planillero'])) {
             $updates[] = "cod_planillero = '" . $modifiedFields['planillero'] . "'";
+        }
+
+        if (isset($modifiedFields['jefe_turno'])) {
+            $updates[] = "cod_jefe_turno = '" . $modifiedFields['jefe_turno'] . "'";
         }
 
         // Verificar si hay campos para actualizar

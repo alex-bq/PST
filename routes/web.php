@@ -78,11 +78,12 @@ Route::delete('/eliminar-tiempo-muerto/{id}', [PlanillaController::class, 'elimi
 Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
 
-Route::get('/informes', [InformeController::class, 'index'])->name('informes.index');
-Route::get('/informes/turno', [InformeController::class, 'informePorTurno'])->name('informes.turno');
-Route::post('/informes/filtrar', [InformeController::class, 'filtrarInformes'])->name('informes.filtrar');
-Route::get('/informes/detalle', [InformeController::class, 'verDetalle'])->name('informes.detalle');
+Route::get('/informes', [InformeController::class, 'index'])->name('informes');
 
+// Ruta simple para visualizar el detalle de turno
+Route::get('/detalle-turno', function () {
+    return view('detalle-turno');
+})->name('detalle.turno');
 
 
 

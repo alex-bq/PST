@@ -311,7 +311,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="codSupervisor">Supervisor</label>
                                 <select class="form-select modalSelect" name="supervisor"
@@ -328,7 +328,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="codPlanillero">Planillero</label>
                                 <select class="form-select modalSelect" name="planillero"
@@ -340,6 +340,23 @@
                                                                             session('user')['cod_usuario'] == $planillero->cod_usuario
                                                                         ) selected @endif>
                                                                             {{ $planillero->nombre }}
+                                                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <label for="codJefeTurno">Jefe de Turno</label>
+                                <select class="form-select modalSelect" name="jefe_turno"
+                                    @if(session('user')['cod_rol'] == 4) disabled @endif>
+                                    <option selected disabled>Seleccione un jefe de turno</option>
+                                    @foreach ($jefes_turno as $jefe)
+                                                                        <option value="{{ $jefe->cod_usuario }}" @if(
+                                                                            session('user')['cod_rol'] == 4 &&
+                                                                            session('user')['cod_usuario'] == $jefe->cod_usuario
+                                                                        ) selected @endif>
+                                                                            {{ $jefe->nombre }}
                                                                         </option>
                                     @endforeach
                                 </select>
@@ -429,6 +446,7 @@
             var turno = $('select[name="turno"]').val();
             var supervisor = $('select[name="supervisor"]').val();
             var planillero = $('select[name="planillero"]').val();
+            var jefeTurno = $('select[name="jefe_turno"]').val();
 
             var datos = {
                 codLote: codLote,
@@ -440,7 +458,8 @@
                 horaInicio: horaInicio,
                 turno: turno,
                 supervisor: supervisor,
-                planillero: planillero
+                planillero: planillero,
+                jefeTurno: jefeTurno
             };
 
             $.ajax({

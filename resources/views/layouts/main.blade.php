@@ -76,13 +76,13 @@
                                 </li>
                             </ul>
                         </li>
-
                     @endif
-                    <li class="nav-item">
-                        <a class="nav-link" href="{{ route('informes.index') }}">
-                            <i class="bi bi-graph-up"></i> Informes
-                        </a>
-                    </li>
+
+                    @if(session('user')['cod_rol'] == 3 || session('user')['cod_rol'] == 4)
+                        <li class="nav-item">
+                            <a href="#" data-url="{{ route('informes') }}">Informes</a>
+                        </li>
+                    @endif
                 </ul>
 
 

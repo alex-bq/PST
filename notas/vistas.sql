@@ -40,6 +40,8 @@ SELECT DISTINCT TOP (100) PERCENT
     planillero.nombre + ' ' + planillero.apellido AS planillero_nombre,
     pst_2.dbo.planillas_pst.cod_supervisor,
     supervisor.nombre + ' ' + supervisor.apellido AS supervisor_nombre,
+    pst_2.dbo.planillas_pst.cod_jefe_turno,
+    jefe_turno.nombre + ' ' + jefe_turno.apellido AS jefe_turno_nombre,
     pst_2.dbo.planillas_pst.guardado,
     pst_2.dbo.planillas_pst.fec_crea_planilla,
 	user_crea.cod_usuario AS cod_usuario_crea,
@@ -59,6 +61,7 @@ LEFT OUTER JOIN bdsystem.dbo.especies ON pst_2.dbo.planillas_pst.cod_especie = b
 LEFT OUTER JOIN bdsystem.dbo.subproceso ON pst_2.dbo.planillas_pst.cod_proceso = bdsystem.dbo.subproceso.cod_sproceso
 LEFT OUTER JOIN pst_2.dbo.usuarios_pst AS planillero ON pst_2.dbo.planillas_pst.cod_planillero = planillero.cod_usuario
 LEFT OUTER JOIN pst_2.dbo.usuarios_pst AS supervisor ON pst_2.dbo.planillas_pst.cod_supervisor = supervisor.cod_usuario
+LEFT OUTER JOIN pst_2.dbo.usuarios_pst AS jefe_turno ON pst_2.dbo.planillas_pst.cod_jefe_turno = jefe_turno.cod_usuario
 LEFT OUTER JOIN pst_2.dbo.usuarios_pst AS user_crea ON pst_2.dbo.planillas_pst.cod_usuario_crea_planilla = user_crea.cod_usuario
 LEFT OUTER JOIN pst_2.dbo.detalle_planilla_pst AS detalle ON pst_2.dbo.planillas_pst.cod_planilla = detalle.cod_planilla
 LEFT OUTER JOIN pst_2.dbo.sala ON pst_2.dbo.sala.cod_sala = detalle.cod_sala
@@ -197,3 +200,122 @@ GROUP BY
     dp.rendimiento,
     dp.kilos_entrega,
     dp.kilos_recepcion;
+
+
+
+
+-- informes de turno y dia 
+
+    DECLARE @fecha DATE = '2024-01-05'; -- Puedes cambiar esta fecha según necesites
+
+SELECT 
+	@fecha as fecha,
+    t.NomTurno as turno,
+    CONCAT(u.nombre, ' ', u.apellido) as jefe_turno,
+	COUNT(DISTINCT p.cod_planilla) as cantidad_planillas,
+    -- Dotación promedio (asumiendo que hay un campo dotacion en detalle_planilla_pst)
+    AVG(dp.dotacion) as dotacion_promedio,
+    -- Productividad promedio con 2 decimales
+    ROUND(AVG(dp.productividad), 2) as productividad_promedio,
+    -- Totales de kilos
+    SUM(dp.kilos_entrega) as total_kilos_entrega,
+    SUM(dp.kilos_recepcion) as total_kilos_recepcion
+    
+FROM pst_2.dbo.planillas_pst p
+JOIN bdsystem.dbo.turno t ON p.cod_turno = t.CodTurno
+JOIN pst_2.dbo.usuarios_pst u ON p.cod_jefe_turno = u.cod_usuario
+JOIN pst_2.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
+WHERE p.fec_turno = @fecha
+GROUP BY 
+    t.NomTurno,
+    u.nombre,
+    u.apellido
+ORDER BY 
+    CASE 
+        WHEN t.NomTurno LIKE '%Día%' THEN 1
+        WHEN t.NomTurno LIKE '%Tarde%' THEN 2
+        WHEN t.NomTurno LIKE '%Noche%' THEN 3
+    END;
+
+-- informacion de informes
+
+DECLARE @fecha DATE = '2024-01-05';
+DECLARE @turno INT = 1; -- 1 para día, 2 para tarde, 3 para noche
+
+-- 1. Información básica por sala
+SELECT 
+    s.nombre as nombre_sala,
+    dp.cod_sala,
+	COUNT(DISTINCT p.cod_planilla) as cantidad_planillas,
+    dp.dotacion,
+    dp.productividad,
+    dp.rendimiento,
+    dp.kilos_entrega,
+    dp.kilos_recepcion
+FROM pst_2.dbo.planillas_pst p
+JOIN pst_2.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
+JOIN pst_2.dbo.sala s ON dp.cod_sala = s.cod_sala
+WHERE p.fec_turno = @fecha 
+AND p.cod_turno = @turno
+GROUP BY 
+    s.nombre,
+    dp.cod_sala,
+    dp.dotacion,
+    dp.productividad,
+    dp.rendimiento,
+    dp.kilos_entrega,
+    dp.kilos_recepcion;
+
+-- 2. Detalle de procesamiento por sala
+SELECT 
+    dp.cod_sala,
+    c_ini.nombre as corte_inicial,
+    c_fin.nombre as corte_final,
+    d.nombre as destino,
+    cal.nombre as calibre,
+    cld.nombre as calidad,
+    rp.piezas,
+    rp.kilos,
+    -- Totales por sala
+    SUM(rp.piezas) OVER (PARTITION BY dp.cod_sala) as total_piezas_sala,
+    SUM(rp.kilos) OVER (PARTITION BY dp.cod_sala) as total_kilos_sala
+FROM pst_2.dbo.planillas_pst p
+JOIN pst_2.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
+JOIN pst_2.dbo.registro_planilla_pst rp ON p.cod_planilla = rp.cod_planilla
+JOIN pst_2.dbo.corte c_ini ON rp.cod_corte_ini = c_ini.cod_corte
+JOIN pst_2.dbo.corte c_fin ON rp.cod_corte_fin = c_fin.cod_corte
+JOIN pst_2.dbo.destino d ON rp.cod_destino = d.cod_destino
+JOIN pst_2.dbo.calibre cal ON rp.cod_calibre = cal.cod_calib
+JOIN pst_2.dbo.calidad cld ON rp.cod_calidad = cld.cod_cald
+WHERE p.fec_turno = @fecha 
+AND p.cod_turno = @turno
+ORDER BY dp.cod_sala,cld.nombre,cal.nombre,c_ini.nombre,c_fin.nombre,d.nombre;
+
+-- 3. Tiempos muertos por sala
+SELECT 
+    dp.cod_sala,
+    tm.causa as motivo,
+    tm.duracion_minutos,
+    -- Total de minutos por sala
+    SUM(tm.duracion_minutos) OVER (PARTITION BY dp.cod_sala) as total_minutos_sala
+FROM pst_2.dbo.planillas_pst p
+JOIN pst_2.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
+JOIN pst_2.dbo.tiempos_muertos tm ON p.cod_planilla = tm.cod_planilla
+WHERE p.fec_turno = @fecha 
+AND p.cod_turno = @turno
+ORDER BY dp.cod_sala;
+
+-- 4. Planillas por sala
+SELECT 
+    dp.cod_sala,
+    p.cod_planilla,
+    p.fec_turno,
+    CONCAT(u.nombre, ' ', u.apellido) as supervisor
+FROM pst_2.dbo.planillas_pst p
+JOIN pst_2.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
+JOIN pst_2.dbo.sala s ON dp.cod_sala = s.cod_sala
+JOIN bdsystem.dbo.turno t ON p.cod_turno = t.CodTurno
+JOIN pst_2.dbo.usuarios_pst u ON p.cod_supervisor = u.cod_usuario
+WHERE p.fec_turno = @fecha 
+AND p.cod_turno = @turno
+ORDER BY dp.cod_sala, p.cod_planilla;
