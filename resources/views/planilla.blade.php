@@ -618,7 +618,7 @@
             </div>
         </div>
 
-        <div class="row mt-4" id="seccionEntrega" style="padding-right: 0px;">
+        <div class="row mt-4" id="seccionEntrega">
             <div class="col-12" style="padding-right: 0px;">
                 <div class="card" style="margin-top: 0px;">
                     <div class="card-header">
@@ -628,124 +628,114 @@
                         <form id='formEntrega' action="{{ route('guardar') }}" method="post"
                             style="margin-bottom: 0px;">
                             @csrf
-                            <!-- Tipo de conteo y hora término en la primera fila -->
-                            <div class="row mb-3">
-                                <div class="col-md-6">
-                                    <h6 class="d-inline-block me-3">Seleccione tipo de conteo:</h6>
-                                    <div class="col-12">
-                                        @php
-                                            $tipoConteo = 'piezas'; // valor por defecto
-                                            if ($detalle_planilla->cajas_entrega > 0) {
-                                                $tipoConteo = 'cajas';
-                                            } elseif ($detalle_planilla->piezas_entrega > 0) {
-                                                $tipoConteo = 'piezas';
-                                            }
-                                        @endphp
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="tipo_conteo"
-                                                id="tipo_piezas" value="piezas" {{ $tipoConteo === 'piezas' ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="tipo_piezas">Piezas</label>
+                            <div class="row">
+                                <div class="col-6">
+                                    <div class="row">
+                                        <h6>Tipo de Planilla: {{ $desc_planilla->tipo_planilla_nombre }}</h6>
+                                        <input type="hidden" id="tipo_planilla"
+                                            value="{{ $desc_planilla->cod_tipo_planilla }}">
+                                    </div>
+                                    <div class="row">
+                                        <!-- Entrega Frigorífico -->
+                                        <div class="col-4">
+                                            <h6>Entrega M.P</h6>
+                                            <div id="entrega_piezas" class="mb-2"
+                                                style="display: {{ $desc_planilla->cod_tipo_planilla == 2 ? 'none' : 'block' }}">
+                                                <label for="piezasEntrega">Piezas:</label>
+                                                <input type="number" min="0" class="form-control form-control-sm"
+                                                    id="piezasEntrega"
+                                                    value="{{ round($detalle_planilla->piezas_entrega) }}"
+                                                    name="piezas_entrega" placeholder="Piezas">
+                                            </div>
+                                            <label for="kilosEntrega">Kilos:</label>
+                                            <input type="number" min="0" class="form-control form-control-sm"
+                                                id="kilosEntrega"
+                                                value="{{ round($detalle_planilla->kilos_entrega, 2) }}"
+                                                name="kilos_entrega" placeholder="Kilos">
                                         </div>
-                                        <div class="form-check form-check-inline">
-                                            <input class="form-check-input" type="radio" name="tipo_conteo"
-                                                id="tipo_cajas" value="cajas" {{ $tipoConteo === 'cajas' ? 'checked' : '' }}>
-                                            <label class="form-check-label" for="tipo_cajas">Cajas</label>
+
+                                        <!-- Recepción Planta -->
+                                        <div class="col-4">
+                                            <h6>Recepción Planta</h6>
+                                            <div id="recepcion_piezas" class="mb-2"
+                                                style="display: {{ $desc_planilla->cod_tipo_planilla == 2 ? 'none' : 'block' }}">
+                                                <label for="piezasRecepcion">Piezas:</label>
+                                                <input type="number" min="0" class="form-control form-control-sm"
+                                                    id="piezasRecepcion"
+                                                    value="{{ round($detalle_planilla->piezas_recepcion) }}"
+                                                    name="piezas_recepcion" placeholder="Piezas">
+                                            </div>
+                                            <label for="kilosRecepcion">Kilos:</label>
+                                            <input type="number" min="0" class="form-control form-control-sm"
+                                                id="kilosRecepcion"
+                                                value="{{ round($detalle_planilla->kilos_recepcion, 2) }}"
+                                                name="kilos_recepcion" placeholder="Kilos">
+                                        </div>
+
+                                        <!-- Producto Terminado -->
+                                        <div class="col-4" id="producto_terminado" style="display: {{ $desc_planilla->cod_tipo_planilla == 2 ? 'block' : 'none' }}">
+                                            <h6>Producto Terminado</h6>
+                                            <div class="mb-2">
+                                                <label for="embolsadoTerminado">Embolsado:</label>
+                                                <input type="number" min="0" class="form-control form-control-sm" 
+                                                    id="embolsadoTerminado" 
+                                                    name="embolsado_terminado" 
+                                                    value="{{ isset($detalle_planilla->embolsado_terminado) ? $detalle_planilla->embolsado_terminado : '' }}"
+                                                    placeholder="Embolsado">
+                                            </div>
+                                            <label for="kilosTerminado">Kilos:</label>
+                                            <input type="number" min="0" class="form-control form-control-sm" 
+                                                id="kilosTerminado" 
+                                                name="kilos_terminado" 
+                                                value="{{ isset($detalle_planilla->kilos_terminado) ? round($detalle_planilla->kilos_terminado, 2) : '' }}"
+                                                placeholder="Kilos" 
+                                                step="0.01">
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
-                                    <div class="form-group">
-                                        <label for="hora_termino">Hora de Término</label>
-                                        <input type="time" class="form-control" id="hora_termino" name="hora_termino"
-                                            value="{{ isset($desc_planilla->hora_termino) ? \Carbon\Carbon::parse($desc_planilla->hora_termino)->format('H:i') : '' }}"
-                                            required>
+
+                                <!-- Segunda columna: Sala, Dotación y Observación -->
+                                <div class="col-6">
+                                    <div class="row">
+                                        <div class="form-group">
+                                            <label for="hora_termino">Hora de Término</label>
+                                            <input type="time" class="form-control" id="hora_termino"
+                                                name="hora_termino"
+                                                value="{{ isset($desc_planilla->hora_termino) ? \Carbon\Carbon::parse($desc_planilla->hora_termino)->format('H:i') : '' }}"
+                                                required>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <h6>Sala</h6>
+                                            <select id="sala" class="form-select select2" name="sala" required>
+                                                <option value="" selected disabled hidden>Selecciona una sala</option>
+                                                @foreach ($salas as $sala)
+                                                                                                @php
+                                                                                                    $selected = ($detalle_planilla && $sala->cod_sala == $detalle_planilla->cod_sala) ? 'selected' : '';
+                                                                                                @endphp
+                                                                                                <option value="{{ $sala->cod_sala }}" {{ $selected }}>
+                                                                                                    {{ $sala->nombre }}</option>
+                                                @endforeach
+                                            </select>
+                                            <h6>Dotación</h6>
+                                            <input type="number" min="1" class="form-control" name="dotacion"
+                                                id="dotacion" value="{{ $detalle_planilla->dotacion }}"
+                                                placeholder="Dotacion" required>
+                                        </div>
+                                        <div class="col">
+                                            <h6>Observación</h6>
+                                            <textarea class="form-control" name="observacion" id="observacion"
+                                                style="height: 108px;">{{ $detalle_planilla->observacion }}</textarea>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Contenedores en línea horizontal -->
-                            <div class="row">
-                                <!-- Entrega Frigorífico -->
-                                <div class="col-3">
-                                    <h6>Entrega Frigorífico (MP)</h6>
-                                    <div id="entrega_cajas" class="mb-2"
-                                        style="{{ $detalle_planilla->piezas_entrega > 0 ? 'display:none;' : '' }}">
-                                        <label for="cajasEntrega">Cajas:</label>
-                                        <input type="number" min="0" class="form-control form-control-sm"
-                                            id="cajasEntrega" value="{{ round($detalle_planilla->cajas_entrega) }}"
-                                            name="cajas_entrega" placeholder="Cajas">
-                                    </div>
-                                    <div id="entrega_piezas" class="mb-2"
-                                        style="{{ $detalle_planilla->cajas_entrega > 0 ? 'display:none;' : '' }}">
-                                        <label for="piezasEntrega">Piezas:</label>
-                                        <input type="number" min="0" class="form-control form-control-sm"
-                                            id="piezasEntrega" value="{{ round($detalle_planilla->piezas_entrega) }}"
-                                            name="piezas_entrega" placeholder="Piezas">
-                                    </div>
-                                    <label for="kilosEntrega">Kilos:</label>
-                                    <input type="number" min="0" class="form-control form-control-sm" id="kilosEntrega"
-                                        value="{{ round($detalle_planilla->kilos_entrega, 2) }}" name="kilos_entrega"
-                                        placeholder="Kilos">
-                                </div>
-
-                                <!-- Recepción Planta -->
-                                <div class="col-3">
-                                    <h6>Recepción Planta</h6>
-                                    <div id="recepcion_cajas" class="mb-2"
-                                        style="{{ $detalle_planilla->piezas_recepcion > 0 ? 'display:none;' : '' }}">
-                                        <label for="cajasRecepcion">Cajas:</label>
-                                        <input type="number" min="0" class="form-control form-control-sm"
-                                            id="cajasRecepcion" value="{{ round($detalle_planilla->cajas_recepcion) }}"
-                                            name="cajas_recepcion" placeholder="Cajas">
-                                    </div>
-                                    <div id="recepcion_piezas" class="mb-2"
-                                        style="{{ $detalle_planilla->cajas_recepcion > 0 ? 'display:none;' : '' }}">
-                                        <label for="piezasRecepcion">Piezas:</label>
-                                        <input type="number" min="0" class="form-control form-control-sm"
-                                            id="piezasRecepcion"
-                                            value="{{ round($detalle_planilla->piezas_recepcion) }}"
-                                            name="piezas_recepcion" placeholder="Piezas">
-                                    </div>
-                                    <label for="kilosRecepcion">Kilos:</label>
-                                    <input type="number" min="0" class="form-control form-control-sm"
-                                        id="kilosRecepcion" value="{{ round($detalle_planilla->kilos_recepcion, 2) }}"
-                                        name="kilos_recepcion" placeholder="Kilos">
-                                </div>
-
-                                <!-- Sala y Dotación -->
-                                <div class="col-3">
-                                    <div class="mb-3">
-                                        <h6>Sala</h6>
-                                        <select id="sala" class="form-select select2" name="sala" required>
-                                            <option value="" selected disabled hidden>Selecciona una sala</option>
-                                            @foreach ($salas as $sala)
-                                                                                        @php
-                                                                                            $selected = ($detalle_planilla && $sala->cod_sala == $detalle_planilla->cod_sala) ? 'selected' : '';
-                                                                                        @endphp
-                                                                                        <option value="{{ $sala->cod_sala }}" {{ $selected }}>{{ $sala->nombre }}
-                                                                                        </option>
-                                            @endforeach
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <h6>Dotación</h6>
-                                        <input type="number" min="1" class="form-control" name="dotacion" id="dotacion"
-                                            value="{{ $detalle_planilla->dotacion }}" placeholder="Dotacion" required>
-                                    </div>
-                                </div>
-
-                                <!-- Observación -->
-                                <div class="col-3">
-                                    <h6>Observación</h6>
-                                    <textarea class="form-control" name="observacion" id="observacion"
-                                        style="height: 108px;">{{ $detalle_planilla->observacion }}</textarea>
-                                </div>
-                                <div class="row mt-3">
-                                    <div class="col-12 text-end">
-                                        <button type="submit" class="btn btn-success" id="btnGuardarPlanilla">
-                                            Guardar Planilla
-                                        </button>
-                                    </div>
+                            <div class="row mt-3">
+                                <div class="col-12 text-end">
+                                    <button type="submit" class="btn btn-success" id="btnGuardarPlanilla">Guardar
+                                        Planilla</button>
                                 </div>
                             </div>
 
@@ -996,61 +986,7 @@
     });
 </script>
 
-<script>
-    $(document).ready(function () {
-        function updateRequiredFields(tipo) {
-            if (tipo === 'cajas') {
-                $('#cajasEntrega, #cajasRecepcion').prop('required', true);
-                $('#piezasEntrega, #piezasRecepcion').prop('required', false);
-            } else {
-                $('#cajasEntrega, #cajasRecepcion').prop('required', false);
-                $('#piezasEntrega, #piezasRecepcion').prop('required', true);
-            }
-        }
 
-        // Establecer estado inicial según el valor seleccionado
-        updateRequiredFields($('input[name="tipo_conteo"]:checked').val());
-
-        // Manejar cambios en la selección
-        $('input[name="tipo_conteo"]').change(function () {
-            const tipo = $(this).val();
-
-            if (tipo === 'cajas') {
-                $('#entrega_cajas, #recepcion_cajas').show();
-                $('#entrega_piezas, #recepcion_piezas').hide();
-                $('#piezasEntrega, #piezasRecepcion').val('0');
-            } else {
-                $('#entrega_cajas, #recepcion_cajas').hide();
-                $('#entrega_piezas, #recepcion_piezas').show();
-                $('#cajasEntrega, #cajasRecepcion').val('0');
-            }
-
-            updateRequiredFields(tipo);
-        });
-
-        // Validación del formulario
-        $('#formEntrega').submit(function (e) {
-            const tipo = $('input[name="tipo_conteo"]:checked').val();
-
-            if (tipo === 'cajas') {
-                if (!$('#cajasEntrega').val() || !$('#cajasRecepcion').val()) {
-                    e.preventDefault();
-                    alert('Por favor, complete todos los campos de cajas requeridos');
-                }
-            } else {
-                if (!$('#piezasEntrega').val() || !$('#piezasRecepcion').val()) {
-                    e.preventDefault();
-                    alert('Por favor, complete todos los campos de piezas requeridos');
-                }
-            }
-
-            if (!$('#kilosEntrega').val() || !$('#kilosRecepcion').val()) {
-                e.preventDefault();
-                alert('Por favor, complete todos los campos de kilos requeridos');
-            }
-        });
-    });
-</script>
 
 <script>
     document.querySelectorAll(".tabPlanilla").forEach(function (enlace) {

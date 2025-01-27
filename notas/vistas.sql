@@ -44,12 +44,13 @@ SELECT DISTINCT TOP (100) PERCENT
     jefe_turno.nombre + ' ' + jefe_turno.apellido AS jefe_turno_nombre,
     pst_2.dbo.planillas_pst.guardado,
     pst_2.dbo.planillas_pst.fec_crea_planilla,
-	user_crea.cod_usuario AS cod_usuario_crea,
-	user_crea.usuario AS usuario_crea,
-	pst_2.dbo.sala.nombre as sala,
-	CONVERT(TIME(0), pst_2.dbo.planillas_pst.hora_inicio) as hora_inicio,
-	CONVERT(TIME(0), pst_2.dbo.planillas_pst.hora_termino) as hora_termino
-
+    user_crea.cod_usuario AS cod_usuario_crea,
+    user_crea.usuario AS usuario_crea,
+    pst_2.dbo.sala.nombre as sala,
+    CONVERT(TIME(0), pst_2.dbo.planillas_pst.hora_inicio) as hora_inicio,
+    CONVERT(TIME(0), pst_2.dbo.planillas_pst.hora_termino) as hora_termino,
+    pst_2.dbo.planillas_pst.cod_tipo_planilla,
+    tp.nombre AS tipo_planilla_nombre
 FROM
     pst_2.dbo.planillas_pst
 LEFT OUTER JOIN bdsystem.dbo.lotes ON pst_2.dbo.planillas_pst.cod_lote = bdsystem.dbo.lotes.cod_lote
@@ -65,6 +66,7 @@ LEFT OUTER JOIN pst_2.dbo.usuarios_pst AS jefe_turno ON pst_2.dbo.planillas_pst.
 LEFT OUTER JOIN pst_2.dbo.usuarios_pst AS user_crea ON pst_2.dbo.planillas_pst.cod_usuario_crea_planilla = user_crea.cod_usuario
 LEFT OUTER JOIN pst_2.dbo.detalle_planilla_pst AS detalle ON pst_2.dbo.planillas_pst.cod_planilla = detalle.cod_planilla
 LEFT OUTER JOIN pst_2.dbo.sala ON pst_2.dbo.sala.cod_sala = detalle.cod_sala
+LEFT OUTER JOIN pst_2.dbo.tipo_planilla tp ON pst_2.dbo.planillas_pst.cod_tipo_planilla = tp.cod_tipo_planilla
 ORDER BY
     pst_2.dbo.planillas_pst.fec_turno,
     pst_2.dbo.planillas_pst.fec_crea_planilla;

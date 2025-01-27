@@ -39,6 +39,7 @@ class IndexController extends Controller
         $supervisores = DB::select('SELECT cod_usuario,nombre FROM pst_2.dbo.v_data_usuario WHERE cod_rol=2 AND activo = 1 ORDER BY nombre ASC;');
         $planilleros = DB::select('SELECT cod_usuario,nombre FROM pst_2.dbo.v_data_usuario WHERE cod_rol=1 AND activo = 1 ORDER BY nombre ASC;');
         $jefes_turno = DB::select('SELECT cod_usuario,nombre FROM pst_2.dbo.v_data_usuario WHERE cod_rol=4 AND activo = 1 ORDER BY nombre ASC;');
+        $tipos_planilla = DB::select('SELECT cod_tipo_planilla, nombre FROM pst_2.dbo.tipo_planilla ORDER BY nombre ASC;');
 
         $fechaHoy = Carbon::now()->format('Y-m-d');
         $fechaHace7Dias = Carbon::now()->subDays(7)->format('Y-m-d');
@@ -86,7 +87,7 @@ class IndexController extends Controller
 
 
 
-        return view('index', compact('procesos', 'empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'jefes_turno', 'planillasHoy', 'planillas7dias', 'noGuardado'));
+        return view('index', compact('procesos', 'empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'jefes_turno', 'planillasHoy', 'planillas7dias', 'noGuardado', 'tipos_planilla'));
     }
 
     public function planillas()
@@ -196,6 +197,7 @@ class IndexController extends Controller
     public function procesarFormulario(Request $request)
     {
         $request->validate([
+            'tipo_planilla' => 'required',
             'codLote' => 'required',
             'empresa' => 'required',
             'proveedor' => 'required',
@@ -222,6 +224,7 @@ class IndexController extends Controller
 
         try {
             DB::table('pst_2.dbo.planillas_pst')->insert([
+                'cod_tipo_planilla' => $request->input('tipo_planilla'),
                 'cod_lote' => $idLote,
                 'fec_turno' => $request->input('fechaTurno'),
                 'hora_inicio' => $request->input('horaInicio'),

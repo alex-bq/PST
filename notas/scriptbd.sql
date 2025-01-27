@@ -10,6 +10,7 @@ DROP TABLE pst_2.dbo.calibre;                    -- Tabla independiente
 DROP TABLE pst_2.dbo.calidad;                    -- Tabla independiente
 DROP TABLE pst_2.dbo.destino;                    -- Tabla independiente
 DROP TABLE pst_2.dbo.roles;                      -- Tabla referenciada por usuarios_pst
+DROP TABLE pst_2.dbo.tipo_planilla;              -- Agregar este drop
 
 
 
@@ -74,6 +75,8 @@ CREATE TABLE pst_2.dbo.detalle_planilla_pst (
     cajas_recepcion INT,
     kilos_recepcion FLOAT,
     piezas_recepcion INT,
+    embolsado_terminado INT,
+    kilos_terminado FLOAT,
     dotacion INT,
     cod_sala INT,
     productividad DECIMAL(10,2),
@@ -123,6 +126,29 @@ CREATE TABLE pst_2.dbo.tiempos_muertos (
     duracion_minutos INT,
     FOREIGN KEY (cod_planilla) REFERENCES pst_2.dbo.planillas_pst(cod_planilla)
 );
+
+-- Crear tabla tipo_planilla
+CREATE TABLE pst_2.dbo.tipo_planilla (
+    cod_tipo_planilla INT PRIMARY KEY IDENTITY(1,1),
+    nombre NVARCHAR(255),
+    activo INT
+);
+
+-- Insertar tipos de planilla
+INSERT INTO pst_2.dbo.tipo_planilla (nombre, activo)
+VALUES 
+    ('Filete', 1),
+    ('Porción', 1),
+    ('Empaque', 1);
+
+-- Agregar columna a planillas_pst
+ALTER TABLE pst_2.dbo.planillas_pst
+ADD cod_tipo_planilla INT;
+
+-- Agregar la foreign key
+ALTER TABLE pst_2.dbo.planillas_pst
+ADD CONSTRAINT FK_planillas_tipo_planilla
+FOREIGN KEY (cod_tipo_planilla) REFERENCES pst_2.dbo.tipo_planilla(cod_tipo_planilla);
 
 
 
@@ -228,15 +254,15 @@ VALUES
     (10, 4, 1, 3, 4, 5, 230, 115.0, 1),
     (10, 5, 2, 4, 5, 1, 240, 120.0, 1);
 -- Inserts para detalle_planilla_pst
-INSERT INTO pst_2.dbo.detalle_planilla_pst (cod_planilla, cajas_entrega, kilos_entrega, piezas_entrega, cajas_recepcion, kilos_recepcion, piezas_recepcion, dotacion, cod_sala, observacion)
+INSERT INTO pst_2.dbo.detalle_planilla_pst (cod_planilla, cajas_entrega, kilos_entrega, piezas_entrega, cajas_recepcion, kilos_recepcion, piezas_recepcion, embolsado_terminado, kilos_terminado, dotacion, cod_sala, observacion)
 VALUES
-    (1, 50, 250.5, 500, 48, 240.0, 480, 10, 1, 'Proceso normal'),
-    (2, 60, 300.0, 600, 59, 295.0, 590, 12, 2, 'Leve retraso por mantenimiento'),
-    (3, 40, 200.0, 400, 40, 200.0, 400, 8, 3, 'Sin novedad'),
-    (4, 55, 275.5, 550, 54, 270.0, 540, 11, 4, 'Calidad excepcional'),
-    (5, 70, 350.0, 700, 68, 340.0, 680, 14, 5, 'Alta productividad'),
-    (6, 45, 225.0, 450, 44, 220.0, 440, 9, 1, 'Proceso estándar'),
-    (7, 65, 325.5, 650, 63, 315.0, 630, 13, 2, 'Buena jornada'),
-    (8, 52, 260.0, 520, 51, 255.0, 510, 10, 3, 'Sin incidentes'),
-    (9, 58, 290.0, 580, 57, 285.0, 570, 12, 4, 'Producto de alta calidad'),
-    (10, 48, 240.0, 480, 47, 235.0, 470, 10, 5, 'Proceso eficiente');
+    (1, 50, 250.5, 500, 48, 240.0, 480, 10, 45.0, 10, 1, 'Proceso normal'),
+    (2, 60, 300.0, 600, 59, 295.0, 590, 12, 55.2, 12, 2, 'Leve retraso por mantenimiento'),
+    (3, 40, 200.0, 400, 40, 200.0, 400, 8, 50.0, 8, 3, 'Sin novedad'),
+    (4, 55, 275.5, 550, 54, 270.0, 540, 11, 55.2, 11, 4, 'Calidad excepcional'),
+    (5, 70, 350.0, 700, 68, 340.0, 680, 14, 70.0, 14, 5, 'Alta productividad'),
+    (6, 45, 225.0, 450, 44, 220.0, 440, 9, 45.0, 9, 1, 'Proceso estándar'),
+    (7, 65, 325.5, 650, 63, 315.0, 630, 13, 65.0, 13, 2, 'Buena jornada'),
+    (8, 52, 260.0, 520, 51, 255.0, 510, 10, 52.0, 10, 3, 'Sin incidentes'),
+    (9, 58, 290.0, 580, 57, 285.0, 570, 12, 58.0, 12, 4, 'Producto de alta calidad'),
+    (10, 48, 240.0, 480, 47, 235.0, 470, 10, 48.0, 10, 5, 'Proceso eficiente');

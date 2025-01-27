@@ -343,19 +343,9 @@ $(document).ready(function () {
             const totalPiezas = total[0].total_piezas;
             const totalKilos = total[0].total_kilos;
 
-            // Actualizar campos de recepción según el tipo de conteo
-            const tipoConteo = $('input[name="tipo_conteo"]:checked').val();
-
             // Siempre actualizar kilos y deshabilitarlo
             $("#kilosRecepcion").val(totalKilos).prop("disabled", true);
-
-            if (tipoConteo === "piezas") {
-                $("#piezasRecepcion").val(totalPiezas).prop("disabled", true);
-                $("#cajasRecepcion").val("").prop("disabled", true);
-            } else if (tipoConteo === "cajas") {
-                $("#cajasRecepcion").prop("disabled", false);
-                $("#piezasRecepcion").val("").prop("disabled", true);
-            }
+            $("#piezasRecepcion").val(totalPiezas).prop("disabled", true);
         }
     }
 
@@ -390,11 +380,16 @@ $(document).ready(function () {
         var tipoConteo = $('input[name="tipo_conteo"]:checked').val();
         var kilosEntrega = parseFloat($("#kilosEntrega").val()) || 0;
         var kilosRecepcion = parseFloat($("#kilosRecepcion").val()) || 0;
-        var cajasEntrega = parseInt($("#cajasEntrega").val()) || 0;
-        var cajasRecepcion = parseInt($("#cajasRecepcion").val()) || 0;
         var piezasEntrega = parseInt($("#piezasEntrega").val()) || 0;
         var piezasRecepcion = parseInt($("#piezasRecepcion").val()) || 0;
         const horaTermino = $("#hora_termino").val();
+        const tipoPlanilla = parseInt($("#tipo_planilla").val());
+        const embolsadoTerminado =
+            parseFloat($("#embolsadoTerminado").val()) || 0;
+        const kilosTerminado = parseFloat($("#kilosTerminado").val()) || 0;
+        const TIPO_PORCION = 2;
+        const TIPO_FILETE = 1;
+
         // Obtener productividad y rendimiento
         const productividad = parseFloat($("#productividad").text()) || 0;
         console.log(productividad, "productividad");
@@ -417,24 +412,19 @@ $(document).ready(function () {
             errores.push("Debe ingresar la dotación");
         }
 
-        // Validar tipo de conteo
-        if (!tipoConteo) {
-            errores.push("Debe seleccionar un tipo de conteo (Cajas o Piezas)");
-        }
-
-        // Validar kilos (siempre requeridos y no pueden ser 0)
-        if (kilosEntrega <= 0 || kilosRecepcion <= 0) {
-            errores.push("Los kilos deben ser mayores a 0");
-        }
-
-        // Validar según tipo de conteo
-        if (tipoConteo === "cajas") {
-            if (cajasEntrega <= 0 || cajasRecepcion <= 0) {
-                errores.push("Las cajas deben ser mayores a 0");
-            }
-        } else if (tipoConteo === "piezas") {
+        if (tipoPlanilla === TIPO_FILETE) {
             if (piezasEntrega <= 0 || piezasRecepcion <= 0) {
                 errores.push("Las piezas deben ser mayores a 0");
+            }
+        } else if (tipoPlanilla === TIPO_PORCION) {
+            // Para porción no validamos piezas
+            if (kilosEntrega <= 0 || kilosRecepcion <= 0) {
+                errores.push("Los kilos deben ser mayores a 0");
+            }
+            if (embolsadoTerminado <= 0 || kilosTerminado <= 0) {
+                errores.push(
+                    "El embolsado y los kilos terminados deben ser mayores a 0"
+                );
             }
         }
 
@@ -454,16 +444,6 @@ $(document).ready(function () {
             headers: {
                 "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
             },
-            beforeSend: function () {
-                // Asegurarnos que los valores de recepción estén en el formulario
-                $("#kilos_recepcion").val($("#kilosRecepcion").val());
-                $("#piezas_recepcion").val($("#piezasRecepcion").val());
-
-                console.log("Valores de recepción:", {
-                    kilos: $("#kilosRecepcion").val(),
-                    piezas: $("#piezasRecepcion").val(),
-                });
-            },
             data:
                 $("#formEntrega").serialize() +
                 "&productividad=" +
@@ -473,7 +453,11 @@ $(document).ready(function () {
                 "&kilos_recepcion=" +
                 $("#kilosRecepcion").val() +
                 "&piezas_recepcion=" +
-                $("#piezasRecepcion").val(),
+                $("#piezasRecepcion").val() +
+                "&embolsado_terminado=" +
+                embolsadoTerminado +
+                "&kilos_terminado=" +
+                kilosTerminado,
             dataType: "json",
             success: function (response) {
                 Toast.hide();
@@ -618,99 +602,11 @@ $(document).ready(function () {
         $("#formularioDetalle").show();
     }
 
-    // Ocultar solo los contenedores de recepción y entrega inicialmente
-    $("#contenedor-entrega, #contenedor-recepcion").hide();
-
-    // Si hay un tipo de conteo seleccionado al cargar, mostrar los contenedores
-    const tipoConteoInicial = $('input[name="tipo_conteo"]:checked').val();
-    if (tipoConteoInicial) {
-        $("#contenedor-entrega, #contenedor-recepcion").show();
-        // Usar los IDs específicos
-        const totalPiezas = $("#totalPiezas").text().trim().replace(/,/g, "");
-        const totalKilos = $("#totalKilos").text().trim().replace(/,/g, "");
-
-        console.log("Texto piezas:", $("#totalPiezas").text());
-        console.log("Texto kilos:", $("#totalKilos").text());
-        console.log("Total piezas después de limpieza:", totalPiezas);
-        console.log("Total kilos después de limpieza:", totalKilos);
-
-        if (tipoConteoInicial === "cajas") {
-            $("#entrega_cajas, #recepcion_cajas").show();
-            $("#entrega_piezas, #recepcion_piezas").hide();
-            $("#cajasRecepcion").prop("disabled", false);
-            $("#piezasRecepcion").val("").prop("disabled", true);
-        } else {
-            $("#entrega_cajas, #recepcion_cajas").hide();
-            $("#entrega_piezas, #recepcion_piezas").show();
-            $("#piezasRecepcion").val(totalPiezas).prop("disabled", true);
-        }
-        $("#kilosRecepcion").val(totalKilos).prop("disabled", true);
-    }
-
-    // Manejar el cambio en los radio buttons
-    $('input[name="tipo_conteo"]').change(function () {
-        const tipo = $(this).val();
-        $("#contenedor-entrega, #contenedor-recepcion").show(); // Mostrar los contenedores
-
-        const totalPiezas = $("#totalPiezas").text().trim().replace(/,/g, "");
-        const totalKilos = $("#totalKilos").text().trim().replace(/,/g, "");
-
-        console.log("Cambio de tipo de conteo:", tipo);
-        console.log("Total piezas:", totalPiezas);
-        console.log("Total kilos:", totalKilos);
-
-        if (tipo === "cajas") {
-            $("#entrega_cajas, #recepcion_cajas").show();
-            $("#entrega_piezas, #recepcion_piezas").hide();
-            $("#cajasRecepcion").prop("disabled", false);
-            $("#piezasRecepcion").val("").prop("disabled", true);
-        } else {
-            $("#entrega_cajas, #recepcion_cajas").hide();
-            $("#entrega_piezas, #recepcion_piezas").show();
-            $("#piezasRecepcion").val(totalPiezas).prop("disabled", true);
-        }
-        $("#kilosRecepcion").val(totalKilos).prop("disabled", true);
-    });
-
-    // Validación del formulario
-    $("#formEntrega").submit(function (e) {
-        e.preventDefault();
-
-        // Si todas las validaciones pasan, enviamos el formulario
-        $.ajax({
-            type: "POST",
-            url: $(this).attr("action"),
-            data: $(this).serialize(),
-            dataType: "json",
-            success: function (response) {
-                if (response.success) {
-                    toastr.success("Planilla guardada correctamente");
-                    window.location.href = baseUrl + "/inicio";
-                } else {
-                    if (response.mensaje) {
-                        toastr.error(response.mensaje);
-                    } else if (response.message) {
-                        toastr.error(response.message);
-                    } else {
-                        toastr.error("Error al guardar la planilla");
-                    }
-                }
-            },
-            error: function (xhr, status, error) {
-                // Mejorado el manejo de errores
-                if (
-                    xhr.responseJSON &&
-                    (xhr.responseJSON.mensaje || xhr.responseJSON.message)
-                ) {
-                    toastr.error(
-                        xhr.responseJSON.mensaje || xhr.responseJSON.message
-                    );
-                } else {
-                    toastr.error("Error en el servidor");
-                }
-            },
-        });
-    });
+    // Actualizar valores iniciales
+    const totalPiezas = $("#totalPiezas").text().trim().replace(/,/g, "");
+    const totalKilos = $("#totalKilos").text().trim().replace(/,/g, "");
+    $("#piezasRecepcion").val(totalPiezas).prop("disabled", true);
+    $("#kilosRecepcion").val(totalKilos).prop("disabled", true);
 
     // Función para cargar los tiempos muertos
     function cargarTiemposMuertos() {
@@ -880,57 +776,55 @@ $(document).ready(function () {
             const planillaData = document.getElementById("planillaData");
             const idPlanilla = planillaData.dataset.idPlanilla;
 
-            console.log(
-                "Obteniendo tiempos muertos para planilla:",
-                idPlanilla
-            );
-
-            // Primero obtener los tiempos muertos
             $.ajax({
                 type: "GET",
                 url: baseUrl + "/obtener-tiempos-muertos/" + idPlanilla,
-                beforeSend: function () {
-                    console.log("Solicitando tiempos muertos a:", this.url);
-                },
                 success: function (response) {
-                    console.log("Respuesta tiempos muertos:", response);
-
                     const horaInicioPlanilla = planillaData.dataset.horaInicio;
                     const horaTerminoPlanilla =
                         planillaData.dataset.horaTermino;
 
-                    // Calcular tiempo total en minutos
-                    const [horaInicioHH, horaInicioMM] =
-                        horaInicioPlanilla.split(":");
-                    const [horaFinHH, horaFinMM] =
-                        horaTerminoPlanilla.split(":");
+                    // Convertir las horas a objetos Date del mismo día
+                    let inicio = new Date(`2000/01/01 ${horaInicioPlanilla}`);
+                    let termino = new Date(`2000/01/01 ${horaTerminoPlanilla}`);
 
-                    let minutosInicio =
-                        parseInt(horaInicioHH) * 60 + parseInt(horaInicioMM);
-                    let minutosFin =
-                        parseInt(horaFinHH) * 60 + parseInt(horaFinMM);
-
-                    if (minutosFin < minutosInicio) {
-                        minutosFin += 24 * 60;
+                    // Si la hora de término es menor que la de inicio, asumimos que es del día siguiente
+                    if (termino < inicio) {
+                        termino = new Date(`2000/01/02 ${horaTerminoPlanilla}`);
                     }
 
-                    const tiempoTotalMinutos = minutosFin - minutosInicio;
+                    // Calcular la diferencia en minutos
+                    const tiempoTotalMinutos = Math.round(
+                        (termino - inicio) / (1000 * 60)
+                    );
                     let tiempoMuertoTotal = 0;
 
                     if (response.success && response.tiemposMuertos) {
                         response.tiemposMuertos.forEach(function (tiempo) {
-                            const duracionMinutos =
-                                parseInt(tiempo.duracion_minutos) || 0;
+                            // Aplicar la misma lógica para los tiempos muertos
+                            let inicioTM = new Date(
+                                `2000/01/01 ${tiempo.hora_inicio}`
+                            );
+                            let terminoTM = new Date(
+                                `2000/01/01 ${tiempo.hora_termino}`
+                            );
+
+                            if (terminoTM < inicioTM) {
+                                terminoTM = new Date(
+                                    `2000/01/02 ${tiempo.hora_termino}`
+                                );
+                            }
+
+                            const duracionMinutos = Math.round(
+                                (terminoTM - inicioTM) / (1000 * 60)
+                            );
                             tiempoMuertoTotal += duracionMinutos;
-                            console.log("Tiempo muerto encontrado:", {
-                                id: tiempo.cod_tiempo_muerto,
-                                duracion: duracionMinutos,
-                            });
                         });
                     }
 
                     const tiempoEfectivoMinutos =
                         tiempoTotalMinutos - tiempoMuertoTotal;
+
                     console.log("Cálculo final:", {
                         tiempoTotal: tiempoTotalMinutos,
                         tiempoMuerto: tiempoMuertoTotal,
@@ -940,14 +834,8 @@ $(document).ready(function () {
                     resolve(tiempoEfectivoMinutos / 60);
                 },
                 error: function (xhr, status, error) {
-                    console.error("Error al obtener tiempos muertos:", {
-                        status: status,
-                        error: error,
-                        response: xhr.responseText,
-                    });
-                    // En caso de error, usar el tiempo total sin descuentos
-                    const tiempoTotalMinutos = minutosFin - minutosInicio;
-                    resolve(tiempoTotalMinutos / 60);
+                    console.error("Error al obtener tiempos muertos:", error);
+                    resolve(0);
                 },
             });
         });
@@ -1028,19 +916,9 @@ $(document).ready(function () {
         const totalPiezas =
             parseInt($("#totalPiezas").text().replace(/,/g, "")) || 0;
 
-        // Actualizar campos de recepción según el tipo de conteo
-        const tipoConteo = $('input[name="tipo_conteo"]:checked').val();
-
         // Siempre actualizar kilos y deshabilitarlo
         $("#kilosRecepcion").val(totalKilos).prop("disabled", true);
-
-        if (tipoConteo === "piezas") {
-            $("#piezasRecepcion").val(totalPiezas).prop("disabled", true);
-            $("#cajasRecepcion").val("").prop("disabled", true);
-        } else if (tipoConteo === "cajas") {
-            $("#cajasRecepcion").prop("disabled", false);
-            $("#piezasRecepcion").val("").prop("disabled", true);
-        }
+        $("#piezasRecepcion").val(totalPiezas).prop("disabled", true);
     }
 
     $(document).ready(function () {
@@ -1048,6 +926,24 @@ $(document).ready(function () {
         actualizarCamposRecepcion();
         actualizarIndicadores();
     });
+
+    // Eliminar el event listener de los radio buttons
+    // y reemplazar por una configuración inicial basada en el tipo de planilla
+
+    const tipoPlanilla = parseInt($("#tipo_planilla").val());
+    const TIPO_PORCION = 2; // Definir constante para el código de Porción
+
+    if (tipoPlanilla === TIPO_PORCION) {
+        $("#entrega_piezas, #recepcion_piezas").hide();
+        $("#piezasEntrega, #piezasRecepcion").prop("required", false);
+        $("#producto_terminado").show();
+        $("#embolsadoTerminado, #kilosTerminado").prop("required", true);
+    } else {
+        $("#entrega_piezas, #recepcion_piezas").show();
+        $("#piezasEntrega, #piezasRecepcion").prop("required", true);
+        $("#producto_terminado").hide();
+        $("#embolsadoTerminado, #kilosTerminado").prop("required", false);
+    }
 });
 
 function limpiarFormulario() {

@@ -111,6 +111,11 @@ class PlanillaController extends Controller
             return redirect('/main')->with('error', 'La planilla no existe.');
         }
 
+        // Obtener el tipo de planilla
+        $tipo_planilla = DB::table('pst_2.dbo.tipo_planilla')
+            ->where('cod_tipo_planilla', $desc_planilla->cod_tipo_planilla)
+            ->first();
+
         if (($desc_planilla->cod_planillero == session('user.cod_usuario') && $desc_planilla->guardado == 0) || !(session('user.cod_rol') == 1)) {
 
 
@@ -148,7 +153,7 @@ class PlanillaController extends Controller
                 ->get();
 
 
-            return view('planilla', compact('subtotal', 'total', 'planilla', 'destinos', 'cortes', 'salas', 'calibres', 'calidades', 'idPlanilla', 'detalle_planilla', 'desc_planilla', 'empresas', 'procesos', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'jefes_turno'));
+            return view('planilla', compact('subtotal', 'total', 'planilla', 'destinos', 'cortes', 'salas', 'calibres', 'calidades', 'idPlanilla', 'detalle_planilla', 'desc_planilla', 'empresas', 'procesos', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'jefes_turno', 'tipo_planilla'));
         } else {
             return redirect('/inicio')->with('error', 'No tiene permiso para editar la planilla, indicar a su supervisor');
         }
@@ -424,15 +429,25 @@ class PlanillaController extends Controller
                 ]);
             }
 
-            // Validar que la hora de término sea posterior a la hora de inicio
-            $horaInicio = strtotime($planilla->hora_inicio);
-            $horaTermino = strtotime($request->input('hora_termino'));
+            // Convertir las horas a objetos DateTime para comparar
+            $fechaBase = '2000-01-01';
+            $inicio = new \DateTime($fechaBase . ' ' . $planilla->hora_inicio);
+            $termino = new \DateTime($fechaBase . ' ' . $request->input('hora_termino'));
 
-            if ($horaTermino <= $horaInicio) {
-                return response()->json([
-                    'success' => false,
-                    'mensaje' => 'La hora de término debe ser posterior a la hora de inicio: ' . date('H:i', $horaInicio)
-                ]);
+            // Si la hora de término es menor que la de inicio, asumimos que es del día siguiente
+            if ($termino < $inicio) {
+                $termino->modify('+1 day');
+
+                // Validar que la diferencia no sea mayor a 12 horas
+                $diferencia = $inicio->diff($termino);
+                $horasDiferencia = $diferencia->h + ($diferencia->days * 24);
+
+                if ($horasDiferencia > 12) {
+                    return response()->json([
+                        'success' => false,
+                        'mensaje' => 'La diferencia entre hora de inicio y término no puede ser mayor a 12 horas'
+                    ]);
+                }
             }
 
             // Actualizar detalle_planilla_pst
@@ -449,7 +464,9 @@ class PlanillaController extends Controller
                     'cod_sala' => $request->input('sala'),
                     'observacion' => $request->input('observacion', ''),
                     'productividad' => $request->input('productividad', 0),
-                    'rendimiento' => $request->input('rendimiento', 0)
+                    'rendimiento' => $request->input('rendimiento', 0),
+                    'embolsado_terminado' => $request->input('embolsado_terminado', 0),
+                    'kilos_terminado' => $request->input('kilos_terminado', 0)
                 ]);
 
             // Actualizar planilla

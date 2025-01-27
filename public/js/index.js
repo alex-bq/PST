@@ -128,10 +128,10 @@ jQuery(document).ready(function ($) {
         columnDefs: [{ type: "date", targets: [2] }],
     });
 
-    $(".js-example-basic-single").select2({
-        placeholder: "Select an option",
-        width: "resolve",
-        theme: "bootstrap4",
+    $(".select2").select2({
+        placeholder: "Seleccione una opción",
+        allowClear: true,
+        width: "100%",
     });
 
     $(".modalSelect").select2({
@@ -144,4 +144,27 @@ jQuery(document).ready(function ($) {
         positionClass: "toast-position",
         containerId: "toast-container",
     };
+
+    $("#formPlanilla").submit(function (e) {
+        e.preventDefault();
+        var errores = [];
+
+        if (!$("#tipo_planilla").val()) {
+            errores.push("Debe seleccionar un tipo de planilla");
+        }
+
+        if (!$("#codLote").val()) {
+            errores.push("Debe ingresar un lote");
+        }
+
+        if (errores.length > 0) {
+            let mensajeError = "<ul>";
+            errores.forEach(function (error) {
+                mensajeError += "<li>" + error + "</li>";
+            });
+            mensajeError += "</ul>";
+            toastr.error(mensajeError);
+            return false;
+        }
+    });
 });

@@ -208,17 +208,22 @@
             <div class="modal-body mx-auto">
                 <form id="formularioPlanilla" action="{{ route('procesar.formulario') }}" method="post">
                     @csrf
-                    <div class='row'>
-                        <div class="col-md-12">
-                            <div class="form-group">
-                                <div id="mensajeError" class="alert alert-danger" style="display: none;"></div>
-                                <label for="codLote">Lote</label>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="tipo_planilla" class="form-label">Tipo de Planilla <span
+                                    class="text-danger">*</span></label>
+                            <select class="form-control" name="tipo_planilla" id="tipo_planilla" required>
+                                <option value="" selected disabled>Seleccione tipo de planilla</option>
+                                @foreach($tipos_planilla as $tipo)
+                                    <option value="{{ $tipo->cod_tipo_planilla }}">{{ $tipo->nombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
 
-                                <input type="text" class="form-control" id="codLote" name="codLote"
-                                    placeholder="Ingrese el lote" required>
-
-
-                            </div>
+                        <div class="col-md-6 mb-3">
+                            <label for="codLote" class="form-label">Lote <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="codLote" name="codLote"
+                                placeholder="Ingrese el lote" required>
                         </div>
                     </div>
 
@@ -442,30 +447,73 @@
 
         $('#formularioPlanilla').submit(function (event) {
             event.preventDefault();
-            var codLote = $('#codLote').val();
-            var empresa = $('select[name="empresa"]').val();
-            var proveedor = $('select[name="proveedor"]').val();
-            var especie = $('select[name="especie"]').val();
-            var proceso = $('select[name="proceso"]').val();
-            var fechaTurno = $('#fechaTurno').val();
-            var horaInicio = $('#horaInicio').val();
-            var turno = $('select[name="turno"]').val();
-            var supervisor = $('select[name="supervisor"]').val();
-            var planillero = $('select[name="planillero"]').val();
-            var jefeTurno = $('select[name="jefe_turno"]').val();
+            var errores = [];
+
+            // Validaciones
+            if (!$('select[name="tipo_planilla"]').val()) {
+                errores.push("Debe seleccionar un tipo de planilla");
+            }
+            if (!$('#codLote').val()) {
+                errores.push("Debe ingresar un lote");
+            }
+            if (!$('select[name="empresa"]').val()) {
+                errores.push("Debe seleccionar una empresa");
+            }
+            if (!$('select[name="proveedor"]').val()) {
+                errores.push("Debe seleccionar un proveedor");
+            }
+            if (!$('select[name="especie"]').val()) {
+                errores.push("Debe seleccionar una especie");
+            }
+            if (!$('select[name="proceso"]').val()) {
+                errores.push("Debe seleccionar un proceso");
+            }
+            if (!$('#fechaTurno').val()) {
+                errores.push("Debe seleccionar una fecha de turno");
+            }
+            if (!$('#horaInicio').val()) {
+                errores.push("Debe ingresar una hora de inicio");
+            }
+            if (!$('select[name="turno"]').val()) {
+                errores.push("Debe seleccionar un turno");
+            }
+            if (!$('select[name="supervisor"]').val()) {
+                errores.push("Debe seleccionar un supervisor");
+            }
+            if (!$('select[name="planillero"]').val()) {
+                errores.push("Debe seleccionar un planillero");
+            }
+            if (!$('select[name="jefe_turno"]').val()) {
+                errores.push("Debe seleccionar un jefe de turno");
+            }
+
+            if (errores.length > 0) {
+                let mensajeError = "<ul>";
+                errores.forEach(function (error) {
+                    mensajeError += "<li>" + error + "</li>";
+                });
+                mensajeError += "</ul>";
+                toastr.error(mensajeError);
+                return false;
+            }
+
+            // Mostrar toast de carga
+            $("#toast").show();
+            $("#toast-text").text("Creando planilla...");
 
             var datos = {
-                codLote: codLote,
-                empresa: empresa,
-                proveedor: proveedor,
-                especie: especie,
-                proceso: proceso,
-                fechaTurno: fechaTurno,
-                horaInicio: horaInicio,
-                turno: turno,
-                supervisor: supervisor,
-                planillero: planillero,
-                jefeTurno: jefeTurno
+                tipo_planilla: $('select[name="tipo_planilla"]').val(),
+                codLote: $('#codLote').val(),
+                empresa: $('select[name="empresa"]').val(),
+                proveedor: $('select[name="proveedor"]').val(),
+                especie: $('select[name="especie"]').val(),
+                proceso: $('select[name="proceso"]').val(),
+                fechaTurno: $('#fechaTurno').val(),
+                horaInicio: $('#horaInicio').val(),
+                turno: $('select[name="turno"]').val(),
+                supervisor: $('select[name="supervisor"]').val(),
+                planillero: $('select[name="planillero"]').val(),
+                jefeTurno: $('select[name="jefe_turno"]').val()
             };
 
             $.ajax({
@@ -473,15 +521,22 @@
                 url: baseUrl + '/procesar-formulario',
                 data: datos,
                 success: function (response) {
+                    $("#toast").hide();
                     sessionStorage.setItem("planillaCreada", "true");
                     window.location.href = baseUrl + '/planilla/' + response.planilla;
                 },
                 error: function (xhr, status, error) {
+                    $("#toast").hide();
                     if (xhr.status === 419) {
                         console.error('Error CSRF');
+                        toastr.error('Error de sesión. Por favor, recargue la página.');
                     } else {
                         console.error(xhr.responseText);
-                        $('#mensajeError').text('Error en la creación').show();
+                        if (xhr.responseJSON && xhr.responseJSON.message) {
+                            toastr.error(xhr.responseJSON.message);
+                        } else {
+                            toastr.error('Error al crear la planilla');
+                        }
                     }
                 }
             });
