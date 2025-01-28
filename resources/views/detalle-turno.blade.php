@@ -1,358 +1,426 @@
 @extends('layouts.main-iframe')
 
-@section('title', 'Detalle Turno Día')
+@section('title', 'Detalle del Turno')
 
 @section('styles')
 <style>
-    .resumen-card {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 30px;
+    .back-button {
+        background-color: #000120;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .back-button:hover {
+        background-color: #14142a;
+        color: white;
+    }
+
+    .detail-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .resumen-title {
-        color: #333;
-        border-bottom: 2px solid #007bff;
-        padding-bottom: 10px;
-        margin-bottom: 20px;
+    .detail-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 1rem;
+        color: #1C1D22;
     }
 
-    .info-row {
-        margin: 10px 0;
+    .detail-table {
+        width: 100%;
+        margin-bottom: 1rem;
     }
 
-    .info-label {
-        font-weight: bold;
-        color: #666;
+    .detail-table th {
+        background-color: #f8f9fa;
+        padding: 0.75rem;
+        font-weight: 600;
     }
 
-    .info-value {
-        color: #333;
+    .detail-table td {
+        padding: 0.75rem;
+        border-top: 1px solid #dee2e6;
     }
 
     .accordion-button:not(.collapsed) {
-        background-color: #e7f1ff;
+        background-color: #000120;
+        color: white;
     }
 
-    .sala-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px;
+    .accordion-button:focus {
+        box-shadow: none;
+        border-color: rgba(0, 0, 0, 0.125);
+    }
+
+    .accordion-item {
+        margin-bottom: 1rem;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .accordion-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .sala-stats {
+        color: #6c757d;
+        font-size: 0.9rem;
+        margin-left: 1rem;
+    }
+
+    .sala-stats span {
+        margin-right: 1.5rem;
+    }
+
+    .sala-stats strong {
+        color: #000120;
+    }
+
+    .page-title {
+        color: #000120;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .page-subtitle {
+        color: #6c757d;
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .salas-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .sala-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .sala-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #000120;
+        margin-bottom: 1rem;
     }
 
     .sala-info {
-        padding: 15px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+
+    .sala-info-item {
+        margin-bottom: 0.5rem;
+    }
+
+    .sala-info-item strong {
+        display: block;
+        color: #000120;
+        font-size: 0.9rem;
+    }
+
+    .sala-info-item span {
+        color: #6c757d;
+    }
+
+    .accordion-section {
+        margin-top: 1rem;
+    }
+
+    .accordion-section-title {
+        color: #000120;
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+        font-weight: 600;
+    }
+
+    .turno-info {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .turno-info-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 2rem;
+        justify-content: center;
+    }
+
+    .turno-info-item {
+        text-align: center;
+    }
+
+    .turno-info-item strong {
+        display: block;
+        color: #000120;
+        font-size: 0.9rem;
+        margin-bottom: 0.25rem;
+    }
+
+    .turno-info-item span {
+        color: #6c757d;
+        font-size: 1.1rem;
+    }
+
+    .sala-header {
+        margin-bottom: 1.5rem;
+    }
+
+    .sala-stat-item {
+        font-size: 0.9rem;
+    }
+
+    .modal-header {
+        background-color: #000120;
+        color: white;
+    }
+
+    .modal-title {
+        color: white;
+    }
+
+    .btn-detail {
+        background-color: #000120;
+        color: white;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        margin-right: 0.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .btn-detail:hover {
+        background-color: #000140;
+        transform: translateY(-2px);
+    }
+
+    .sala-actions {
+        margin-top: 1rem;
+        display: flex;
+        gap: 0.5rem;
     }
 </style>
 @endsection
 
 @section('content')
-<div class="container">
-    <h1 class="text-center mb-4">Detalle Turno Día - 15/03/2024</h1>
+<div class="container-fluid py-4">
+    <a href="/pst/public/informes" class="back-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+            <path fill-rule="evenodd"
+                d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z" />
+        </svg>
+        Volver a Informes
+    </a>
 
-    <!-- Resumen General -->
-    <div class="resumen-card">
-        <h3 class="resumen-title">Resumen General del Turno</h3>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="info-row">
-                    <span class="info-label">Jefe de Turno:</span>
-                    <span class="info-value">Juan Pérez</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Dotación Total:</span>
-                    <span class="info-value">45 personas</span>
-                </div>
+    <h2 class="page-title">Detalle del Turno - {{ $informe->turno }}</h2>
+    <p class="page-subtitle">{{ $informe->fecha }} - Turno {{ $informe->turno }}</p>
+    <!-- Aquí irá la información del informe diario -->
+
+    <!-- Información del Turno -->
+    <div class="turno-info">
+        <div class="turno-info-grid">
+            <div class="turno-info-item">
+                <strong>Fecha</strong>
+                <span>{{ \Carbon\Carbon::parse($informe->fecha)->format('d/m/Y') }}</span>
             </div>
-            <div class="col-md-4">
-                <div class="info-row">
-                    <span class="info-label">Productividad Promedio:</span>
-                    <span class="info-value">85.5%</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Rendimiento Promedio:</span>
-                    <span class="info-value">92.3%</span>
-                </div>
+            <div class="turno-info-item">
+                <strong>Jefe de Turno</strong>
+                <span>{{ $informe->jefe_turno }}</span>
             </div>
-            <div class="col-md-4">
-                <div class="info-row">
-                    <span class="info-label">Total Kilos Entrega:</span>
-                    <span class="info-value">4,500 kg</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Total Kilos Recepción:</span>
-                    <span class="info-value">4,155 kg</span>
-                </div>
+            <div class="turno-info-item">
+                <strong>Dotación Total</strong>
+                <span>{{ number_format($informe->dotacion_promedio, 0) }} personas</span>
             </div>
-        </div>
-    </div>
-
-    <!-- Acordeón de Salas -->
-    <div class="accordion" id="salaAccordion">
-        <!-- Sala 1 -->
-        <div class="accordion-item">
-            <h2 class="accordion-header">
-                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#sala1">
-                    Sala 1
-                </button>
-            </h2>
-            <div id="sala1" class="accordion-collapse collapse show" data-bs-parent="#salaAccordion">
-                <div class="accordion-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="info-row">
-                                <span class="info-label">Dotación:</span>
-                                <span class="info-value">20 personas</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">Productividad:</span>
-                                <span class="info-value">86.2%</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">Rendimiento:</span>
-                                <span class="info-value">93.1%</span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="info-row">
-                                <span class="info-label">Kilos Entrega:</span>
-                                <span class="info-value">2,000 kg</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">Kilos Recepción:</span>
-                                <span class="info-value">1,862 kg</span>
-                            </div>
-                        </div>
-
-                        <!-- Tabla de Procesamiento -->
-                        <div class="col-12 mt-4">
-                            <h5>Detalle de Procesamiento</h5>
-                            <div class="table-responsive">
-                                <table class="table table-sm table-striped">
-                                    <thead>
-                                        <tr>
-                                            <th>Corte Inicial</th>
-                                            <th>Corte Final</th>
-                                            <th>Destino</th>
-                                            <th>Calibre</th>
-                                            <th>Calidad</th>
-                                            <th>Piezas</th>
-                                            <th>Kilos</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>TRIM B</td>
-                                            <td>TRIM C</td>
-                                            <td>SIN DESTINO</td>
-                                            <td>4-5</td>
-                                            <td>INDUSTRIAL A</td>
-                                            <td>199</td>
-                                            <td>67</td>
-                                        </tr>
-                                        <tr>
-                                            <td>TRIM E</td>
-                                            <td>TRIM C</td>
-                                            <td>SIN DESTINO</td>
-                                            <td>4-5</td>
-                                            <td>INDUSTRIAL B</td>
-                                            <td>179</td>
-                                            <td>76</td>
-                                        </tr>
-                                        <tr>
-                                            <td>TRIM E</td>
-                                            <td>TRIM D</td>
-                                            <td>POR SELLAR</td>
-                                            <td>2-3</td>
-                                            <td>INDUSTRIAL B</td>
-                                            <td>123</td>
-                                            <td>84</td>
-                                        </tr>
-                                        <tr>
-                                            <td>TRIM A</td>
-                                            <td>TRIM E</td>
-                                            <td>DESECHO</td>
-                                            <td>3-4</td>
-                                            <td>GRADO 1</td>
-                                            <td>186</td>
-                                            <td>92</td>
-                                        </tr>
-                                        <tr class="table-info">
-                                            <td colspan="5"><strong>Total</strong></td>
-                                            <td><strong>687</strong></td>
-                                            <td><strong>319</strong></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Tiempos Muertos -->
-                        <div class="col-12 mt-3">
-                            <h5>Tiempos Muertos</h5>
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Motivo</th>
-                                        <th>Minutos</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Falla Máquina</td>
-                                        <td>45</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Cambio de Formato</td>
-                                        <td>30</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Total</strong></td>
-                                        <td><strong>75</strong></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+            <div class="turno-info-item">
+                <strong>Productividad Promedio</strong>
+                <span>{{ number_format($informe->productividad_promedio, 2) }} kg/pers/hr</span>
             </div>
-        </div>
-
-        <!-- Sala 2 -->
-        <div class="accordion-item">
-            <h2 class="accordion-header">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#sala2">
-                    Sala 2
-                </button>
-            </h2>
-            <div id="sala2" class="accordion-collapse collapse" data-bs-parent="#salaAccordion">
-                <div class="accordion-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="info-row">
-                                <span class="info-label">Dotación:</span>
-                                <span class="info-value">15 personas</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">Productividad:</span>
-                                <span class="info-value">84.8%</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">Rendimiento:</span>
-                                <span class="info-value">91.5%</span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="info-row">
-                                <span class="info-label">Kilos Entrega:</span>
-                                <span class="info-value">1,500 kg</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">Kilos Recepción:</span>
-                                <span class="info-value">1,373 kg</span>
-                            </div>
-                        </div>
-                        <!-- Tiempos Muertos -->
-                        <div class="col-12 mt-3">
-                            <h5>Tiempos Muertos</h5>
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Motivo</th>
-                                        <th>Minutos</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Falta Material</td>
-                                        <td>25</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Reunión</td>
-                                        <td>15</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Total</strong></td>
-                                        <td><strong>40</strong></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+            <div class="turno-info-item">
+                <strong>Kilos Entrega Total</strong>
+                <span>{{ number_format($informe->total_kilos_entrega, 1) }} kg</span>
             </div>
-        </div>
-
-        <!-- Sala 3 -->
-        <div class="accordion-item">
-            <h2 class="accordion-header">
-                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
-                    data-bs-target="#sala3">
-                    Sala 3
-                </button>
-            </h2>
-            <div id="sala3" class="accordion-collapse collapse" data-bs-parent="#salaAccordion">
-                <div class="accordion-body">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="info-row">
-                                <span class="info-label">Dotación:</span>
-                                <span class="info-value">10 personas</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">Productividad:</span>
-                                <span class="info-value">85.5%</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">Rendimiento:</span>
-                                <span class="info-value">92.3%</span>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="info-row">
-                                <span class="info-label">Kilos Entrega:</span>
-                                <span class="info-value">1,000 kg</span>
-                            </div>
-                            <div class="info-row">
-                                <span class="info-label">Kilos Recepción:</span>
-                                <span class="info-value">920 kg</span>
-                            </div>
-                        </div>
-                        <!-- Tiempos Muertos -->
-                        <div class="col-12 mt-3">
-                            <h5>Tiempos Muertos</h5>
-                            <table class="table table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Motivo</th>
-                                        <th>Minutos</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>Limpieza</td>
-                                        <td>20</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Mantenimiento</td>
-                                        <td>35</td>
-                                    </tr>
-                                    <tr>
-                                        <td><strong>Total</strong></td>
-                                        <td><strong>55</strong></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+            <div class="turno-info-item">
+                <strong>Kilos Recepción Total</strong>
+                <span>{{ number_format($informe->total_kilos_recepcion, 1) }} kg</span>
             </div>
         </div>
     </div>
+
+    @php
+        $tipos_planilla = collect($informacion_sala)->groupBy('tipo_planilla');
+    @endphp
+
+    @foreach($tipos_planilla as $tipo_planilla => $salas)
+        <div class="tipo-planilla-section">
+            <h3 class="tipo-planilla-title">{{ $tipo_planilla }}</h3>
+
+            <div class="salas-grid">
+                @foreach($salas as $sala)
+                        <div class="sala-card">
+                            <h4 class="sala-title">{{ $sala->nombre_sala }}</h4>
+                            <div class="sala-info">
+                                <div class="sala-info-item">
+                                    <strong>Dotación</strong>
+                                    <span>{{ number_format($sala->dotacion_promedio, 0) }}</span>
+                                </div>
+                                <div class="sala-info-item">
+                                    <strong>Productividad</strong>
+                                    <span>{{ number_format($sala->productividad_promedio, 2) }} kg/pers/hr</span>
+                                </div>
+                                <div class="sala-info-item">
+                                    <strong>Rendimiento</strong>
+                                    <span>{{ number_format($sala->rendimiento_promedio, 2) }}%</span>
+                                </div>
+                                <div class="sala-info-item">
+                                    <strong>Kilos Entrega</strong>
+                                    <span>{{ number_format($sala->kilos_entrega_total, 1) }} kg</span>
+                                </div>
+                                <div class="sala-info-item">
+                                    <strong>Kilos Recepción</strong>
+                                    <span>{{ number_format($sala->kilos_recepcion_total, 1) }} kg</span>
+                                </div>
+                            </div>
+
+                            <div class="sala-actions">
+                                <button type="button" class="btn-detail" data-bs-toggle="modal"
+                                    data-bs-target="#procesamiento{{ $sala->cod_tipo_planilla }}_{{ $sala->cod_sala }}">
+                                    Ver Detalle Procesamiento
+                                </button>
+                                <button type="button" class="btn-detail" data-bs-toggle="modal"
+                                    data-bs-target="#tiempos{{ $sala->cod_tipo_planilla }}_{{ $sala->cod_sala }}">
+                                    Ver Tiempos Muertos
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Modal Detalle Procesamiento -->
+                        <div class="modal fade" id="procesamiento{{ $sala->cod_tipo_planilla }}_{{ $sala->cod_sala }}"
+                            tabindex="-1">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">
+                                            Detalle Procesamiento - {{ $sala->nombre_sala }} ({{ $tipo_planilla }})
+                                        </h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        @php
+                                            $procesamientoSala = collect($detalle_procesamiento)
+                                                ->where('cod_sala', $sala->cod_sala)
+                                                ->where('cod_tipo_planilla', $sala->cod_tipo_planilla);
+                                        @endphp
+                                        <div class="table-responsive">
+                                            <table class="detail-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Corte Inicial</th>
+                                                        <th>Corte Final</th>
+                                                        <th>Destino</th>
+                                                        <th>Calibre</th>
+                                                        <th>Calidad</th>
+                                                        <th>Piezas</th>
+                                                        <th>Kilos</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($procesamientoSala as $proceso)
+                                                        <tr>
+                                                            <td>{{ $proceso->corte_inicial }}</td>
+                                                            <td>{{ $proceso->corte_final }}</td>
+                                                            <td>{{ $proceso->destino }}</td>
+                                                            <td>{{ $proceso->calibre }}</td>
+                                                            <td>{{ $proceso->calidad }}</td>
+                                                            <td>{{ number_format($proceso->piezas, 0) }}</td>
+                                                            <td>{{ number_format($proceso->kilos, 1) }} kg</td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td colspan="5" class="text-end"><strong>Totales:</strong></td>
+                                                        <td><strong>{{ number_format($procesamientoSala->sum('piezas'), 0) }}</strong>
+                                                        </td>
+                                                        <td><strong>{{ number_format($procesamientoSala->sum('kilos'), 1) }}
+                                                                kg</strong>
+                                                        </td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Modal Tiempos Muertos -->
+                        <div class="modal fade" id="tiempos{{ $sala->cod_tipo_planilla }}_{{ $sala->cod_sala }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Tiempos Muertos - {{ $sala->nombre_sala }}</h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="table-responsive">
+                                            @php
+                                                $tiemposMuertosSala = collect($tiempos_muertos)->where('cod_sala', $sala->cod_sala);
+                                            @endphp
+                                            <table class="detail-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Motivo</th>
+                                                        <th>Duración (min)</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($tiemposMuertosSala as $tiempo)
+                                                        <tr>
+                                                            <td>{{ $tiempo->motivo }}</td>
+                                                            <td>{{ number_format($tiempo->duracion_minutos, 0) }}</td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                                <tfoot>
+                                                    <tr>
+                                                        <td class="text-end"><strong>Total:</strong></td>
+                                                        <td><strong>{{ number_format($tiemposMuertosSala->sum('duracion_minutos'), 0) }}
+                                                                min</strong></td>
+                                                    </tr>
+                                                </tfoot>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                @endforeach
+            </div>
+        </div>
+    @endforeach
 </div>
 @endsection
 

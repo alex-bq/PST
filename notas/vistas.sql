@@ -205,11 +205,17 @@ GROUP BY
 
 
 
+-- ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+-- informacion de informes
+
+DECLARE @fecha DATE = '2024-01-05';
+DECLARE @turno INT = 1; -- 1 para día, 2 para tarde, 3 para noche
 
 -- informes de turno y dia 
 
-    DECLARE @fecha DATE = '2024-01-05'; -- Puedes cambiar esta fecha según necesites
-
+DECLARE @fecha DATE = '2024-01-05';
+DECLARE @turno INT = 1; -- 1 para día, 2 para tarde, 3 para noche
 SELECT 
 	@fecha as fecha,
     t.NomTurno as turno,
@@ -241,36 +247,38 @@ ORDER BY
 
 -- informacion de informes
 
-DECLARE @fecha DATE = '2024-01-05';
-DECLARE @turno INT = 1; -- 1 para día, 2 para tarde, 3 para noche
 
 -- 1. Información básica por sala
 SELECT 
     s.nombre as nombre_sala,
     dp.cod_sala,
-	COUNT(DISTINCT p.cod_planilla) as cantidad_planillas,
-    dp.dotacion,
-    dp.productividad,
-    dp.rendimiento,
-    dp.kilos_entrega,
-    dp.kilos_recepcion
+    tp.nombre as tipo_planilla,
+	tp.cod_tipo_planilla,
+    COUNT(DISTINCT p.cod_planilla) as cantidad_planillas,
+    AVG(dp.dotacion) as dotacion_promedio,
+    AVG(dp.productividad) as productividad_promedio,
+    AVG(dp.rendimiento) as rendimiento_promedio,
+    SUM(dp.kilos_entrega) as kilos_entrega_total,
+    SUM(dp.kilos_recepcion) as kilos_recepcion_total
 FROM pst_2.dbo.planillas_pst p
 JOIN pst_2.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
 JOIN pst_2.dbo.sala s ON dp.cod_sala = s.cod_sala
+JOIN pst_2.dbo.tipo_planilla tp ON p.cod_tipo_planilla = tp.cod_tipo_planilla
 WHERE p.fec_turno = @fecha 
 AND p.cod_turno = @turno
 GROUP BY 
     s.nombre,
     dp.cod_sala,
-    dp.dotacion,
-    dp.productividad,
-    dp.rendimiento,
-    dp.kilos_entrega,
-    dp.kilos_recepcion;
-
+    tp.nombre,
+	tp.cod_tipo_planilla
+ORDER BY 
+    dp.cod_sala,
+    tp.nombre;
 -- 2. Detalle de procesamiento por sala
 SELECT 
     dp.cod_sala,
+    tp.cod_tipo_planilla,
+    tp.nombre as tipo_planilla,
     c_ini.nombre as corte_inicial,
     c_fin.nombre as corte_final,
     d.nombre as destino,
@@ -278,9 +286,8 @@ SELECT
     cld.nombre as calidad,
     rp.piezas,
     rp.kilos,
-    -- Totales por sala
-    SUM(rp.piezas) OVER (PARTITION BY dp.cod_sala) as total_piezas_sala,
-    SUM(rp.kilos) OVER (PARTITION BY dp.cod_sala) as total_kilos_sala
+    SUM(rp.piezas) OVER (PARTITION BY dp.cod_sala, tp.cod_tipo_planilla) as total_piezas_sala_tipo,
+    SUM(rp.kilos) OVER (PARTITION BY dp.cod_sala, tp.cod_tipo_planilla) as total_kilos_sala_tipo
 FROM pst_2.dbo.planillas_pst p
 JOIN pst_2.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
 JOIN pst_2.dbo.registro_planilla_pst rp ON p.cod_planilla = rp.cod_planilla
@@ -289,27 +296,32 @@ JOIN pst_2.dbo.corte c_fin ON rp.cod_corte_fin = c_fin.cod_corte
 JOIN pst_2.dbo.destino d ON rp.cod_destino = d.cod_destino
 JOIN pst_2.dbo.calibre cal ON rp.cod_calibre = cal.cod_calib
 JOIN pst_2.dbo.calidad cld ON rp.cod_calidad = cld.cod_cald
+JOIN pst_2.dbo.tipo_planilla tp ON p.cod_tipo_planilla = tp.cod_tipo_planilla
 WHERE p.fec_turno = @fecha 
 AND p.cod_turno = @turno
-ORDER BY dp.cod_sala,cld.nombre,cal.nombre,c_ini.nombre,c_fin.nombre,d.nombre;
+ORDER BY dp.cod_sala, tp.cod_tipo_planilla, cld.nombre, cal.nombre, c_ini.nombre, c_fin.nombre, d.nombre;
 
 -- 3. Tiempos muertos por sala
 SELECT 
     dp.cod_sala,
+    tp.cod_tipo_planilla,
+    tp.nombre as tipo_planilla,
     tm.causa as motivo,
     tm.duracion_minutos,
-    -- Total de minutos por sala
-    SUM(tm.duracion_minutos) OVER (PARTITION BY dp.cod_sala) as total_minutos_sala
+    SUM(tm.duracion_minutos) OVER (PARTITION BY dp.cod_sala, tp.cod_tipo_planilla) as total_minutos_sala_tipo
 FROM pst_2.dbo.planillas_pst p
 JOIN pst_2.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
 JOIN pst_2.dbo.tiempos_muertos tm ON p.cod_planilla = tm.cod_planilla
+JOIN pst_2.dbo.tipo_planilla tp ON p.cod_tipo_planilla = tp.cod_tipo_planilla
 WHERE p.fec_turno = @fecha 
 AND p.cod_turno = @turno
-ORDER BY dp.cod_sala;
+ORDER BY dp.cod_sala, tp.cod_tipo_planilla;
 
 -- 4. Planillas por sala
 SELECT 
     dp.cod_sala,
+    tp.cod_tipo_planilla,
+    tp.nombre as tipo_planilla,
     p.cod_planilla,
     p.fec_turno,
     CONCAT(u.nombre, ' ', u.apellido) as supervisor
@@ -318,6 +330,7 @@ JOIN pst_2.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
 JOIN pst_2.dbo.sala s ON dp.cod_sala = s.cod_sala
 JOIN bdsystem.dbo.turno t ON p.cod_turno = t.CodTurno
 JOIN pst_2.dbo.usuarios_pst u ON p.cod_supervisor = u.cod_usuario
+JOIN pst_2.dbo.tipo_planilla tp ON p.cod_tipo_planilla = tp.cod_tipo_planilla
 WHERE p.fec_turno = @fecha 
 AND p.cod_turno = @turno
-ORDER BY dp.cod_sala, p.cod_planilla;
+ORDER BY dp.cod_sala, tp.cod_tipo_planilla, p.cod_planilla;

@@ -85,6 +85,11 @@ Route::get('/detalle-turno', function () {
     return view('detalle-turno');
 })->name('detalle.turno');
 
+Route::get('/informes-diarios/{fecha}', [InformeController::class, 'getInformesDiarios'])->name('informes.diarios');
+
+Route::get('/informes/detalle/{fecha}/{turno}', [InformeController::class, 'getDetalleTurno'])
+    ->name('informes.detalle');
+
 
 
 
