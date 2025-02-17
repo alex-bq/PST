@@ -474,7 +474,8 @@ class PlanillaController extends Controller
                 ->where('cod_planilla', $request->input('idPlanilla'))
                 ->update([
                     'guardado' => 1,
-                    'hora_termino' => $request->input('hora_termino')
+                    'hora_termino' => $request->input('hora_termino'),
+                    'tiempo_trabajado' => $request->input('tiempo_trabajado')
                 ]);
 
             return response()->json(['success' => true]);

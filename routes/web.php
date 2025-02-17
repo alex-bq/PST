@@ -6,6 +6,7 @@ use App\Http\Controllers\PlanillaController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\adminController;
 use App\Http\Controllers\InformeController;
+use App\Http\Controllers\MisInformesController;
 
 // Ruta de inicio de sesión
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -89,6 +90,16 @@ Route::get('/informes-diarios/{fecha}', [InformeController::class, 'getInformesD
 
 Route::get('/informes/detalle/{fecha}/{turno}', [InformeController::class, 'getDetalleTurno'])
     ->name('informes.detalle');
+
+Route::get('/mis-informes', [MisInformesController::class, 'index'])
+    ->name('mis-informes');
+
+// Ruta para guardar el informe
+Route::post('/informes/store', [InformeController::class, 'store'])->name('informes.store');
+
+// Ruta para ver la lista de informes (para la redirección después de guardar)
+
+Route::post('/informes/validar', [InformeController::class, 'validarInforme'])->name('informes.validar');
 
 
 

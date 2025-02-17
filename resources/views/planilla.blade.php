@@ -77,6 +77,23 @@
                                 <div class="d-flex justify-content-between align-items-center">
                                     <div>
                                         <h6 class="text-muted mb-2">
+                                            <i class="bi bi-clock me-2"></i>Tiempo Trabajado
+                                        </h6>
+                                        <h4 class="mb-0" id="tiempoTrabajado">0h 0m</h4>
+                                    </div>
+                                    <div class="fs-1 text-info">
+                                        <i class="bi bi-hourglass-split"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-2">
                                             <i class="bi bi-speedometer2 me-2"></i>Productividad
                                         </h6>
                                         <h4 class="mb-0" id="productividad">0 kg/persona/hora</h4>
@@ -96,10 +113,10 @@
                                         <h6 class="text-muted mb-2">
                                             <i class="bi bi-percent me-2"></i>Rendimiento
                                         </h6>
-                                        <h4 class="mb-0" id="rendimientoGeneral">0%</h4>
+                                        <h4 class="mb-0" id="rendimiento">0.0%</h4>
                                     </div>
                                     <div class="fs-1 text-success">
-                                        <i class="bi bi-bar-chart-fill"></i>
+                                        <i class="bi bi-graph-up-arrow"></i>
                                     </div>
                                 </div>
                             </div>

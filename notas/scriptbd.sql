@@ -52,6 +52,7 @@ CREATE TABLE pst_2.dbo.planillas_pst (
     fec_turno DATE,
     hora_inicio TIME,
     hora_termino TIME,
+    tiempo_trabajado DECIMAL(10,2),
     cod_turno SMALLINT,
     cod_empresa NUMERIC(18,0),
     cod_proveedor numeric(18,0),
@@ -151,8 +152,73 @@ ADD CONSTRAINT FK_planillas_tipo_planilla
 FOREIGN KEY (cod_tipo_planilla) REFERENCES pst_2.dbo.tipo_planilla(cod_tipo_planilla);
 
 
+-- Tablas para los informes de turno
+CREATE TABLE pst_2.dbo.informes_turno (
+    cod_informe INT PRIMARY KEY IDENTITY(1,1),
+    fecha_turno DATE NOT NULL,
+    cod_turno SMALLINT NOT NULL,
+    cod_jefe_turno NUMERIC(18,0),
+    cod_usuario_crea INT,
+    comentarios NVARCHAR(MAX),
+    fecha_creacion DATETIME DEFAULT GETDATE(),
+    estado SMALLINT DEFAULT 1,
+    FOREIGN KEY (cod_usuario_crea) REFERENCES pst_2.dbo.usuarios_pst(cod_usuario)
+);
 
+CREATE TABLE pst_2.dbo.detalle_informe_sala (
+    cod_detalle_informe INT PRIMARY KEY IDENTITY(1,1),
+    cod_informe INT,
+    cod_sala INT,
+    dotacion_real INT,
+    dotacion_esperada INT,
+    kilos_entrega FLOAT,
+    kilos_recepcion FLOAT,
+    horas_trabajadas DECIMAL(10,2),
+    tiempo_muerto_minutos INT,
+    rendimiento DECIMAL(10,2),
+    productividad DECIMAL(10,2),
+    FOREIGN KEY (cod_informe) REFERENCES pst_2.dbo.informes_turno(cod_informe),
+    FOREIGN KEY (cod_sala) REFERENCES pst_2.dbo.sala(cod_sala)
+);
 
+-- Índices para optimizar las consultas
+CREATE INDEX idx_informes_turno_fecha ON pst_2.dbo.informes_turno(fecha_turno);
+CREATE INDEX idx_detalle_informe_sala_informe ON pst_2.dbo.detalle_informe_sala(cod_informe);
+
+-- Vista para obtener resumen de informes
+CREATE VIEW pst_2.dbo.v_resumen_informes AS
+SELECT 
+    i.cod_informe,
+    i.fecha_turno,
+    i.cod_turno,
+    SUM(d.dotacion_real) as dotacion_total_real,
+    SUM(d.dotacion_esperada) as dotacion_total_esperada,
+    CASE 
+        WHEN SUM(d.dotacion_esperada) > 0 
+        THEN ((SUM(d.dotacion_esperada) - SUM(d.dotacion_real)) / SUM(d.dotacion_esperada) * 100) 
+        ELSE 0 
+    END as porcentaje_ausentismo,
+    SUM(d.kilos_entrega) as total_kilos_entrega,
+    SUM(d.kilos_recepcion) as total_kilos_recepcion,
+    AVG(d.rendimiento) as rendimiento_promedio,
+    AVG(d.productividad) as productividad_promedio
+FROM 
+    pst_2.dbo.informes_turno i
+    LEFT JOIN pst_2.dbo.detalle_informe_sala d ON i.cod_informe = d.cod_informe
+WHERE 
+    i.estado = 1
+GROUP BY 
+    i.cod_informe, i.fecha_turno, i.cod_turno;
+
+---------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------
 
 INSERT INTO pst_2.dbo.roles (nombre_rol)
 VALUES
@@ -266,3 +332,4 @@ VALUES
     (8, 52, 260.0, 520, 51, 255.0, 510, 10, 52.0, 10, 3, 'Sin incidentes'),
     (9, 58, 290.0, 580, 57, 285.0, 570, 12, 58.0, 12, 4, 'Producto de alta calidad'),
     (10, 48, 240.0, 480, 47, 235.0, 470, 10, 48.0, 10, 5, 'Proceso eficiente');
+

@@ -208,6 +208,7 @@ class IndexController extends Controller
             'turno' => 'required',
             'supervisor' => 'required',
             'planillero' => 'required',
+            'jefeTurno' => 'required',
         ]);
 
         $loteExistente = DB::table('bdsystem.dbo.lotes')
@@ -236,6 +237,7 @@ class IndexController extends Controller
                 'cod_planillero' => $request->input('planillero'),
                 'cod_supervisor' => $request->input('supervisor'),
                 'cod_usuario_crea_planilla' => session('user.cod_usuario'),
+                'cod_jefe_turno' => $request->input('jefeTurno'),
                 'guardado' => 0,
             ]);
             $idPlanilla = DB::table('pst_2.dbo.planillas_pst')

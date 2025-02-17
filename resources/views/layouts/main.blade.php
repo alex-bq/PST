@@ -17,6 +17,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.css" />
     <link rel="icon" href="{{ asset('image/logo.ico') }}" type="image/x-icon">
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
 
 
     <link rel="stylesheet" href="{{ asset('css/plantilla.css') }}" />
@@ -80,7 +82,13 @@
 
                     @if(session('user')['cod_rol'] == 3 || session('user')['cod_rol'] == 4)
                         <li class="nav-item">
-                            <a href="#" data-url="{{ route('informes') }}">Informes</a>
+                            <a href="#" data-url="{{ route('informes') }}">Buscar Informes</a>
+                        </li>
+                    @endif
+
+                    @if(session('user')['cod_rol'] == 4)
+                        <li class="nav-item">
+                            <a href="#" data-url="{{ route('informes') }}">Mis Informes</a>
                         </li>
                     @endif
                 </ul>

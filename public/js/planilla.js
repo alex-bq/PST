@@ -438,52 +438,58 @@ $(document).ready(function () {
 
         // Si pasa todas las validaciones, enviar el formulario
         Toast.show("Guardando planilla...");
-        $.ajax({
-            type: "POST",
-            url: baseUrl + "/guardar-planilla",
-            headers: {
-                "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr("content"),
-            },
-            data:
-                $("#formEntrega").serialize() +
-                "&productividad=" +
-                productividad +
-                "&rendimiento=" +
-                rendimiento +
-                "&kilos_recepcion=" +
-                $("#kilosRecepcion").val() +
-                "&piezas_recepcion=" +
-                $("#piezasRecepcion").val() +
-                "&embolsado_terminado=" +
-                embolsadoTerminado +
-                "&kilos_terminado=" +
-                kilosTerminado,
-            dataType: "json",
-            success: function (response) {
-                Toast.hide();
-                if (response.success) {
-                    toastr.success("Planilla guardada correctamente");
-                    sessionStorage.setItem("planillaSaved", "true");
-                    window.location.href = baseUrl + "/inicio";
-                    window.removeEventListener(
-                        "beforeunload",
-                        beforeUnloadHandler
-                    );
-                } else {
-                    toastr.error(
-                        "Error al guardar la planilla: " + response.mensaje
-                    );
-                }
-            },
-            error: function (xhr, status, error) {
-                console.log("Error detallado:", {
-                    status: status,
-                    error: error,
-                    response: xhr.responseJSON,
-                });
-                Toast.hide();
-                toastr.error("Error en la solicitud: " + error);
-            },
+        calcularTiempoTrabajado().then((tiempoTrabajadoHoras) => {
+            $.ajax({
+                type: "POST",
+                url: baseUrl + "/guardar-planilla",
+                headers: {
+                    "X-CSRF-TOKEN": $('meta[name="csrf-token"]').attr(
+                        "content"
+                    ),
+                },
+                data:
+                    $("#formEntrega").serialize() +
+                    "&productividad=" +
+                    productividad +
+                    "&rendimiento=" +
+                    rendimiento +
+                    "&kilos_recepcion=" +
+                    $("#kilosRecepcion").val() +
+                    "&piezas_recepcion=" +
+                    $("#piezasRecepcion").val() +
+                    "&embolsado_terminado=" +
+                    embolsadoTerminado +
+                    "&kilos_terminado=" +
+                    kilosTerminado +
+                    "&tiempo_trabajado=" +
+                    tiempoTrabajadoHoras,
+                dataType: "json",
+                success: function (response) {
+                    Toast.hide();
+                    if (response.success) {
+                        toastr.success("Planilla guardada correctamente");
+                        sessionStorage.setItem("planillaSaved", "true");
+                        window.location.href = baseUrl + "/inicio";
+                        window.removeEventListener(
+                            "beforeunload",
+                            beforeUnloadHandler
+                        );
+                    } else {
+                        toastr.error(
+                            "Error al guardar la planilla: " + response.mensaje
+                        );
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.log("Error detallado:", {
+                        status: status,
+                        error: error,
+                        response: xhr.responseJSON,
+                    });
+                    Toast.hide();
+                    toastr.error("Error en la solicitud: " + error);
+                },
+            });
         });
     });
     $("#formEditarReg").submit(function (e) {
@@ -841,33 +847,56 @@ $(document).ready(function () {
         });
     }
 
-    // Función para calcular y actualizar los indicadores
-    async function actualizarIndicadores() {
+    // Función para calcular el rendimiento
+    function calcularRendimiento() {
+        const tipoPlanilla = parseInt($("#tipo_planilla").val());
+        const TIPO_PORCION = 2; // Definir constante para el código de Porción
+
         const kilosEntrega = parseFloat($("#kilosEntrega").val()) || 0;
-        const kilosRecepcion = parseFloat($("#kilosRecepcion").val()) || 0;
-        const dotacion = parseInt($("#dotacion").val()) || 1;
-        const tiempoTrabajado = await calcularTiempoTrabajado();
+        let kilosFinales;
 
-        console.log("Valores para cálculo:", {
-            kilosEntrega,
-            kilosRecepcion,
-            dotacion,
-            tiempoTrabajado,
-        });
-
-        // Calcular Rendimiento General
-        if (kilosEntrega > 0) {
-            const rendimiento = (kilosRecepcion / kilosEntrega) * 100;
-            $("#rendimientoGeneral").text(rendimiento.toFixed(2) + "%");
+        if (tipoPlanilla === TIPO_PORCION) {
+            // Para planillas tipo porción, usar kilos de producto terminado
+            kilosFinales = parseFloat($("#kilosTerminado").val()) || 0;
+        } else {
+            // Para otros tipos de planilla, usar kilos de recepción
+            kilosFinales = parseFloat($("#kilosRecepcion").val()) || 0;
         }
 
-        // Calcular Productividad
-        if (dotacion > 0 && tiempoTrabajado > 0) {
-            const productividad = kilosRecepcion / (dotacion * tiempoTrabajado);
-            $("#productividad").text(
-                productividad.toFixed(2) + " kg/persona/hora"
+        if (kilosEntrega === 0) return 0;
+
+        const rendimiento = (kilosFinales / kilosEntrega) * 100;
+        return rendimiento;
+    }
+
+    // Función para calcular y actualizar los indicadores
+    function actualizarIndicadores() {
+        calcularTiempoTrabajado().then((tiempoTrabajadoHoras) => {
+            // Actualizar el tiempo trabajado en el dashboard
+            const horasEnteras = Math.floor(tiempoTrabajadoHoras);
+            const minutos = Math.round(
+                (tiempoTrabajadoHoras - horasEnteras) * 60
             );
-        }
+            $("#tiempoTrabajado").text(`${horasEnteras}h ${minutos}m`);
+
+            // Calcular y actualizar la productividad
+            const totalKilos =
+                parseFloat($("#totalKilos").text().replace(/,/g, "")) || 0;
+            const dotacion = parseInt($("#dotacion").val()) || 1;
+
+            let productividad = 0;
+            if (tiempoTrabajadoHoras > 0 && dotacion > 0) {
+                productividad = totalKilos / (tiempoTrabajadoHoras * dotacion);
+            }
+
+            $("#productividad").text(
+                productividad.toFixed(1) + " kg/persona/hora"
+            );
+
+            // Calcular y actualizar el rendimiento
+            const rendimiento = calcularRendimiento();
+            $("#rendimiento").text(rendimiento.toFixed(1) + "%");
+        });
     }
 
     // Inicialización
