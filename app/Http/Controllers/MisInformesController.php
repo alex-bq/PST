@@ -11,6 +11,13 @@ class MisInformesController extends Controller
     public function index()
     {
         $user_id = session('user.cod_usuario');
+        $fecha_limite = now()->subDays(7)->format('Y-m-d'); // Fecha de hace 7 días
+
+        // Obtener los turnos de la base de datos
+        $turnos = DB::table('bdsystem.dbo.turno')
+            ->select('CodTurno', 'NomTurno')
+            ->orderBy('CodTurno')
+            ->get();
 
         $informesPendientes = DB::select("
             SELECT
@@ -30,6 +37,7 @@ class MisInformesController extends Controller
             WHERE u.cod_usuario = ? 
                 AND p.guardado = 1 
                 AND i.cod_informe IS NULL
+                AND p.fec_turno >= ?
             GROUP BY 
                 p.fec_turno,
                 t.CodTurno,
@@ -37,7 +45,7 @@ class MisInformesController extends Controller
                 u.nombre,
                 u.apellido
             ORDER BY p.fec_turno DESC, t.CodTurno",
-            [$user_id]
+            [$user_id, $fecha_limite]
         );
 
         // // Agregar estos dd() para depuración
@@ -63,6 +71,7 @@ class MisInformesController extends Controller
             JOIN pst_2.dbo.detalle_informe_sala d ON i.cod_informe = d.cod_informe
             WHERE i.cod_jefe_turno = ? 
                 AND i.estado = 1
+                AND i.fecha_turno >= ?
             GROUP BY 
                 i.fecha_turno,
                 t.CodTurno,
@@ -71,9 +80,85 @@ class MisInformesController extends Controller
                 u.nombre,
                 u.apellido
             ORDER BY i.fecha_turno DESC, t.CodTurno",
-            [$user_id]
+            [$user_id, $fecha_limite]
         );
 
-        return view('informes.mis-informes', compact('informesPendientes', 'informesCreados'));
+        return view('informes.mis-informes', compact('informesPendientes', 'informesCreados', 'turnos'));
+    }
+
+    public function destroy($cod_informe)
+    {
+        try {
+            // Primero eliminamos los detalles
+            DB::table('pst_2.dbo.detalle_informe_sala')
+                ->where('cod_informe', $cod_informe)
+                ->delete();
+
+            // Luego eliminamos el informe
+            DB::table('pst_2.dbo.informes_turno')
+                ->where('cod_informe', $cod_informe)
+                ->delete();
+
+            return redirect()->route('mis-informes')
+                ->with('success', 'Informe eliminado correctamente');
+        } catch (\Exception $e) {
+            return redirect()->route('mis-informes')
+                ->with('error', 'Error al eliminar el informe');
+        }
+    }
+
+    public function search(Request $request)
+    {
+        try {
+            \Log::info('Parámetros de búsqueda:', $request->all());
+
+            $query = DB::table('pst_2.dbo.informes_turno as i')
+                ->join('bdsystem.dbo.turno as t', 'i.cod_turno', '=', 't.CodTurno')
+                ->join('pst_2.dbo.usuarios_pst as u', 'i.cod_jefe_turno', '=', 'u.cod_usuario')
+                ->join('pst_2.dbo.detalle_informe_sala as d', 'i.cod_informe', '=', 'd.cod_informe')
+                ->select(
+                    'i.fecha_turno',
+                    'i.cod_turno as turno',
+                    't.NomTurno',
+                    DB::raw("CONCAT(u.nombre, ' ', u.apellido) as jefe_turno"),
+                    DB::raw('SUM(d.kilos_entrega) as total_kilos_entrega'),
+                    DB::raw('SUM(d.kilos_recepcion) as total_kilos_recepcion')
+                )
+                ->where('i.estado', '=', 1);
+
+            if ($request->filled('fecha')) {
+                $query->whereDate('i.fecha_turno', '=', $request->fecha);
+            }
+
+            if ($request->filled('turno')) {
+                $query->where('i.cod_turno', '=', $request->turno);
+            }
+
+            $results = $query->groupBy(
+                'i.fecha_turno',
+                'i.cod_turno',
+                't.NomTurno',
+                'u.nombre',
+                'u.apellido'
+            )
+                ->orderBy('i.fecha_turno', 'desc')
+                ->orderBy('i.cod_turno', 'asc')
+                ->get();
+
+            \Log::info('Resultados encontrados:', ['count' => count($results)]);
+
+            return response()->json($results);
+
+        } catch (\Exception $e) {
+            \Log::error('Error en búsqueda:', [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]);
+
+            return response()->json([
+                'error' => 'Error al realizar la búsqueda: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

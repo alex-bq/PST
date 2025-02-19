@@ -88,8 +88,8 @@ Route::get('/detalle-turno', function () {
 
 Route::get('/informes-diarios/{fecha}', [InformeController::class, 'getInformesDiarios'])->name('informes.diarios');
 
-Route::get('/informes/detalle/{fecha}/{turno}', [InformeController::class, 'getDetalleTurno'])
-    ->name('informes.detalle');
+Route::get('/informes/crear/{fecha}/{turno}', [InformeController::class, 'getDetalleTurno'])
+    ->name('informes.crear');
 
 Route::get('/mis-informes', [MisInformesController::class, 'index'])
     ->name('mis-informes');
@@ -100,6 +100,14 @@ Route::post('/informes/store', [InformeController::class, 'store'])->name('infor
 // Ruta para ver la lista de informes (para la redirección después de guardar)
 
 Route::post('/informes/validar', [InformeController::class, 'validarInforme'])->name('informes.validar');
+
+Route::delete('informes/{cod_informe}', [MisInformesController::class, 'destroy'])->name('informes.destroy');
+
+Route::get('/informes/search', [MisInformesController::class, 'search'])->name('informes.search');
+
+// Agregar esta nueva ruta
+Route::get('/informes/detalle/{fecha}/{turno}', [InformeController::class, 'show'])
+    ->name('informes.show');
 
 
 

@@ -88,7 +88,7 @@
 
                     @if(session('user')['cod_rol'] == 4)
                         <li class="nav-item">
-                            <a href="#" data-url="{{ route('informes') }}">Mis Informes</a>
+                            <a href="#" data-url="{{ route('mis-informes') }}">Mis Informes</a>
                         </li>
                     @endif
                 </ul>

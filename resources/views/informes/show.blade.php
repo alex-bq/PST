@@ -1,6 +1,6 @@
 @extends('layouts.main-iframe')
 
-@section('title', 'Detalle del Turno')
+@section('title', 'Detalle del Informe')
 
 @section('styles')
     <style>
@@ -131,7 +131,6 @@
 
         .dotacion-input {
             width: 50%;
-            border: 1px solid #14142a38;
             border-radius: 4px;
             text-align: center;
         }
@@ -189,7 +188,7 @@
         </a>
 
         <h2 class="page-title">Detalle del Turno</h2>
-        <h3 class="page-subtitle">{{ \Carbon\Carbon::parse($fecha)->format('d/m/Y') }} - {{ $informe->turno }} -
+        <h3 class="page-subtitle">{{ \Carbon\Carbon::parse($fecha)->format('d/m/Y') }} - {{ $informe->NomTurno }} -
             {{ $informe->jefe_turno_nom }}
         </h3>
 
@@ -226,7 +225,7 @@
             <div class="tipo-planilla-section">
                 <h3 class="tipo-planilla-title">{{ $tipo_planilla }}</h3>
                 <div class="salas-grid">
-                    @foreach($salas as $sala)
+                    @foreach($informacion_sala as $sala)
                             <div class="card mb-4 sala-card" data-sala-id="{{ $sala->cod_sala }}">
                                 <h4 class="card-header sala-title">{{ $sala->nombre_sala }}</h4>
 
@@ -238,20 +237,23 @@
                                                 <div class="d-flex gap-4 align-items-center">
                                                     <strong>Dotación:</strong>
                                                     <div class="d-flex gap-3">
-                                                        <div class="d-flex flex-column">
-                                                            <small class="text-muted">Real</small>
-                                                            <input type="number" class="form-control form-control-sm dotacion-input"
-                                                                style="width: 80px;" min="0" value="0"
-                                                                data-sala-id="{{ $sala->cod_sala }}"
-                                                                onchange="actualizarDotacionTotal()">
+                                                        <div class="dotacion-group">
+                                                            <div class="dotacion-label">Dotación Real:</div>
+                                                            <div class="dotacion-value">
+                                                                <span class="dotacion-input"
+                                                                    data-dotacion-real="{{ $sala->dotacion_real }}">
+                                                                    {{ number_format($sala->dotacion_real, 0) }}
+                                                                </span>
+                                                            </div>
                                                         </div>
-                                                        <div class="d-flex flex-column">
-                                                            <small class="text-muted">Esperada</small>
-                                                            <input type="number"
-                                                                class="form-control form-control-sm dotacion-esperada-input"
-                                                                style="width: 80px;" min="0" value="0"
-                                                                data-sala-id="{{ $sala->cod_sala }}"
-                                                                onchange="actualizarDotacionTotal()">
+                                                        <div class="dotacion-group">
+                                                            <div class="dotacion-label">Dotación Esperada:</div>
+                                                            <div class="dotacion-value">
+                                                                <span class="dotacion-esperada-input"
+                                                                    data-dotacion-esperada="{{ $sala->dotacion_esperada }}">
+                                                                    {{ number_format($sala->dotacion_esperada, 0) }}
+                                                                </span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -263,14 +265,14 @@
                                     <div class="sala-info">
                                         <div class="sala-info-item">
                                             <strong>Kilos Entrega</strong>
-                                            <span data-kilos-entrega="{{ $sala->kilos_entrega_total }}">
-                                                {{ number_format($sala->kilos_entrega_total, 1) }} kg
+                                            <span data-kilos-entrega="{{ $sala->kilos_entrega }}">
+                                                {{ number_format($sala->kilos_entrega, 1) }} kg
                                             </span>
                                         </div>
                                         <div class="sala-info-item">
                                             <strong>Kilos Recepción</strong>
-                                            <span data-kilos-recepcion="{{ $sala->kilos_recepcion_total }}">
-                                                {{ number_format($sala->kilos_recepcion_total, 1) }} kg
+                                            <span data-kilos-recepcion="{{ $sala->kilos_recepcion }}">
+                                                {{ number_format($sala->kilos_recepcion, 1) }} kg
                                             </span>
                                         </div>
                                         <div class="sala-info-item">
@@ -306,8 +308,8 @@
                                     </div>
                                     <div class="sala-actions" style="margin-top: 1rem;">
                                         <button class="btn btn-primary btn-detail" data-bs-toggle="modal"
-                                            data-bs-target="#procesamiento{{ $sala->cod_tipo_planilla }}_{{ $sala->cod_sala }}"
-                                            data-bs-tooltip="tooltip" title="Ver Detalle Procesamiento">
+                                            data-bs-target="#procesamiento_{{ $sala->cod_sala }}" data-bs-tooltip="tooltip"
+                                            title="Ver Detalle Procesamiento">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                                 stroke-linejoin="round">
@@ -316,8 +318,8 @@
                                             </svg>
                                         </button>
                                         <button class="btn btn-primary btn-detail ms-2" data-bs-toggle="modal"
-                                            data-bs-target="#tiempos{{ $sala->cod_tipo_planilla }}_{{ $sala->cod_sala }}"
-                                            data-bs-tooltip="tooltip" title="Ver Tiempos Muertos">
+                                            data-bs-target="#tiempos_{{ $sala->cod_sala }}" data-bs-tooltip="tooltip"
+                                            title="Ver Tiempos Muertos">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
                                                 fill="currentColor">
                                                 <path
@@ -329,8 +331,7 @@
                             </div>
 
                             <!-- Modal Detalle Procesamiento -->
-                            <div class="modal fade" id="procesamiento{{ $sala->cod_tipo_planilla }}_{{ $sala->cod_sala }}"
-                                tabindex="-1">
+                            <div class="modal fade" id="procesamiento_{{ $sala->cod_sala }}" tabindex="-1">
                                 <div class="modal-dialog modal-lg">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -341,8 +342,7 @@
                                         <div class="modal-body">
                                             @php
                                                 $procesamientoSala = collect($detalle_procesamiento)
-                                                    ->where('cod_sala', $sala->cod_sala)
-                                                    ->where('cod_tipo_planilla', $sala->cod_tipo_planilla);
+                                                    ->where('cod_sala', $sala->cod_sala);
                                             @endphp
                                             <div class="table-responsive">
                                                 <table class="detail-table">
@@ -387,7 +387,7 @@
                             </div>
 
                             <!-- Modal Tiempos Muertos -->
-                            <div class="modal fade" id="tiempos{{ $sala->cod_tipo_planilla }}_{{ $sala->cod_sala }}" tabindex="-1">
+                            <div class="modal fade" id="tiempos_{{ $sala->cod_sala }}" tabindex="-1">
                                 <div class="modal-dialog">
                                     <div class="modal-content">
                                         <div class="modal-header">
@@ -397,7 +397,8 @@
                                         <div class="modal-body">
                                             <div class="table-responsive">
                                                 @php
-                                                    $tiemposMuertosSala = collect($tiempos_muertos)->where('cod_sala', $sala->cod_sala);
+                                                    $tiemposMuertosSala = collect($tiempos_muertos)
+                                                        ->where('cod_sala', $sala->cod_sala);
                                                 @endphp
                                                 <table class="detail-table">
                                                     <thead>
@@ -432,21 +433,17 @@
             </div>
         @endforeach
 
-
+        <!-- Comentarios del Turno -->
         <div class="card mb-4 comentarios-card">
-
             <div class="p-3">
                 <h4>Comentarios del Turno</h4>
-                <textarea class="form-control" id="comentarios_turno" name="comentarios_turno" rows="3"
-                    placeholder="Ingrese sus comentarios aquí..."></textarea>
+                <div class="form-control" style="min-height: 80px; background-color: #f8f9fa;">
+                    {{ $informe->comentarios ?? 'Sin comentarios' }}
+                </div>
             </div>
         </div>
 
-        <div class="text-center mb-4">
-            <button class="btn btn-detail btn-lg px-5" onclick="guardarInforme()">
-                Guardar y Confirmar Informe
-            </button>
-        </div>
+
 
     </div>
 
@@ -455,7 +452,69 @@
 
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Calcular todos los indicadores al cargar la página
+            actualizarDotacionTotal();
+
+            // Actualizar indicadores para cada sala
+            document.querySelectorAll('.sala-card').forEach(salaCard => {
+                actualizarIndicadoresSala(salaCard);
+            });
+        });
+
+        function actualizarDotacionTotal() {
+            try {
+                let totalReal = 0;
+                let totalEsperada = 0;
+                const spanReal = document.querySelectorAll('.dotacion-input');
+                const spanEsperada = document.querySelectorAll('.dotacion-esperada-input');
+
+                spanReal.forEach(span => {
+                    totalReal += parseInt(span.dataset.dotacionReal) || 0;
+                });
+
+                spanEsperada.forEach(span => {
+                    totalEsperada += parseInt(span.dataset.dotacionEsperada) || 0;
+                });
+
+                // Actualizar totales
+                document.getElementById('dotacion-total').textContent = totalReal;
+                document.getElementById('dotacion-esperada-total').textContent = totalEsperada;
+
+                // Calcular y mostrar porcentaje de ausentismo
+                if (totalEsperada > 0) {
+                    const ausentismo = ((totalEsperada - totalReal) / totalEsperada * 100).toFixed(1);
+                    document.getElementById('porcentaje-ausentismo').textContent = ausentismo + '%';
+                }
+            } catch (error) {
+                console.error('Error al actualizar dotación:', error);
+            }
+        }
+
+        function actualizarIndicadoresSala(salaCard) {
+            try {
+                const dotacionReal = parseInt(salaCard.querySelector('.dotacion-input').dataset.dotacionReal) || 0;
+                const kilosRecepcion = parseFloat(salaCard.querySelector('[data-kilos-recepcion]').dataset.kilosRecepcion) || 0;
+                const kilosEntrega = parseFloat(salaCard.querySelector('[data-kilos-entrega]').dataset.kilosEntrega) || 0;
+                const horasTrabajadas = parseFloat(salaCard.querySelector('[data-horas-trabajadas]').dataset.horasTrabajadas) || 0;
+
+                // Calcular rendimiento
+                const rendimiento = kilosEntrega > 0 ? (kilosRecepcion / kilosEntrega * 100) : 0;
+                salaCard.querySelector('.rendimiento-valor').textContent = rendimiento.toFixed(1) + '%';
+
+                // Calcular productividad
+                const productividad = (horasTrabajadas > 0 && dotacionReal > 0)
+                    ? kilosRecepcion / (horasTrabajadas * dotacionReal)
+                    : 0;
+                salaCard.querySelector('.productividad-valor').textContent =
+                    productividad > 0 ? productividad.toFixed(1) + ' kg/pers/hora' : '-';
+            } catch (error) {
+                console.error('Error al actualizar indicadores de sala:', error);
+            }
+        }
+
         function mostrarDatosEnConsola() {
             try {
                 const salas = document.querySelectorAll('.sala-card');
@@ -504,85 +563,6 @@
             }
         }
 
-        function actualizarDotacionTotal() {
-            try {
-                let totalReal = 0;
-                let totalEsperada = 0;
-                const inputsReal = document.querySelectorAll('.dotacion-input');
-                const inputsEsperada = document.querySelectorAll('.dotacion-esperada-input');
-
-                inputsReal.forEach(input => {
-                    if (input) {
-                        totalReal += parseInt(input.value) || 0;
-                        const salaCard = input.closest('.sala-card');
-                        if (salaCard) {
-                            actualizarIndicadoresSala(salaCard);
-                        }
-                    }
-                });
-
-                inputsEsperada.forEach(input => {
-                    if (input) {
-                        totalEsperada += parseInt(input.value) || 0;
-                    }
-                });
-
-                const dotacionTotalElement = document.getElementById('dotacion-total');
-                const dotacionEsperadaTotalElement = document.getElementById('dotacion-esperada-total');
-                const porcentajeAusentismoElement = document.getElementById('porcentaje-ausentismo');
-
-                if (dotacionTotalElement) {
-                    dotacionTotalElement.textContent = totalReal > 0 ? totalReal : '-';
-                }
-                if (dotacionEsperadaTotalElement) {
-                    dotacionEsperadaTotalElement.textContent = totalEsperada > 0 ? totalEsperada : '-';
-                }
-                if (porcentajeAusentismoElement) {
-                    if (totalEsperada > 0 && totalReal > 0) {
-                        const ausentismo = ((totalEsperada - totalReal) / totalEsperada * 100).toFixed(1);
-                        porcentajeAusentismoElement.textContent = ausentismo + '%';
-                    } else {
-                        porcentajeAusentismoElement.textContent = '-';
-                    }
-                }
-
-                mostrarDatosEnConsola();
-            } catch (error) {
-                console.error('Error al actualizar dotación:', error);
-            }
-        }
-
-        function actualizarIndicadoresSala(salaCard) {
-            const dotacion = parseInt(salaCard.querySelector('.dotacion-input').value) || 0;
-            const kilosRecepcion = parseFloat(salaCard.querySelector('[data-kilos-recepcion]').dataset.kilosRecepcion) || 0;
-            const kilosEntrega = parseFloat(salaCard.querySelector('[data-kilos-entrega]').dataset.kilosEntrega) || 0;
-            const horasTrabajadas = parseFloat(salaCard.querySelector('[data-horas-trabajadas]').dataset.horasTrabajadas) || 0;
-
-            // Calcular rendimiento
-            const rendimiento = kilosEntrega > 0 ? (kilosRecepcion / kilosEntrega) * 100 : 0;
-            salaCard.querySelector('.rendimiento-valor').textContent = rendimiento > 0 ? rendimiento.toFixed(1) + '%' : '-';
-
-            // Calcular productividad
-            const productividad = (horasTrabajadas > 0 && dotacion > 0)
-                ? kilosRecepcion / (horasTrabajadas * dotacion)
-                : 0;
-            salaCard.querySelector('.productividad-valor').textContent =
-                productividad > 0 ? productividad.toFixed(1) + ' kg/pers/hora' : '-';
-        }
-
-        // Inicializar cuando el DOM esté completamente cargado
-        document.addEventListener('DOMContentLoaded', function () {
-            try {
-                const comentariosInput = document.getElementById('comentarios_turno');
-                if (comentariosInput) {
-                    comentariosInput.addEventListener('input', mostrarDatosEnConsola);
-                }
-                mostrarDatosEnConsola();
-            } catch (error) {
-                console.error('Error en la inicialización:', error);
-            }
-        });
-
         function validarDatos() {
             try {
                 const salas = document.querySelectorAll('.sala-card[data-sala-id]');
@@ -617,116 +597,6 @@
             }
         }
 
-        async function guardarInforme() {
-            if (!validarDatos()) {
-                return;
-            }
 
-            try {
-                // Validar si existe informe para esta fecha y turno
-                const response = await fetch('{{ route("informes.validar") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify({
-                        fecha: '{{ $fecha }}',
-                        turno: {{ $turno }}
-                            })
-                });
-
-                const data = await response.json();
-
-                if (data.status === 'success') {
-                    if (data.existe) {
-                        Swal.fire({
-                            title: 'Informe Existente',
-                            text: 'Ya existe un informe para esta fecha y turno. No es posible crear otro.',
-                            icon: 'warning',
-                            confirmButtonText: 'Entendido'
-                        });
-                        return;
-                    }
-
-                    // Si no existe, mostrar confirmación
-                    Swal.fire({
-                        title: '¿Confirmar Informe?',
-                        text: "¿Está seguro de guardar el informe del turno?",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Sí, guardar',
-                        cancelButtonText: 'Cancelar'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            enviarDatos();
-                        }
-                    });
-                } else {
-                    throw new Error(data.message || 'Error al validar el informe');
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                toastr.error('Error al validar el informe: ' + error.message);
-            }
-        }
-
-        function enviarDatos() {
-            try {
-                const salas = document.querySelectorAll('.sala-card[data-sala-id]');
-                const datosInforme = {
-                    fecha_turno: '{{ $fecha }}',
-                    cod_turno: {{ $turno }},
-                    cod_jefe_turno: '{{ $informe->jefe_turno ?? "" }}',
-                    comentarios: document.getElementById('comentarios_turno')?.value,
-                    salas: []
-                };
-
-                salas.forEach((sala) => {
-                    const salaData = {
-                        nombre_sala: sala.querySelector('.sala-title')?.textContent || 'Sin nombre',
-                        cod_sala: sala.dataset.salaId,
-                        dotacion_real: parseInt(sala.querySelector('.dotacion-input')?.value) || 0,
-                        dotacion_esperada: parseInt(sala.querySelector('.dotacion-esperada-input')?.value) || 0,
-                        kilos_entrega: parseFloat(sala.querySelector('[data-kilos-entrega]')?.dataset?.kilosEntrega) || 0,
-                        kilos_recepcion: parseFloat(sala.querySelector('[data-kilos-recepcion]')?.dataset?.kilosRecepcion) || 0,
-                        horas_trabajadas: parseFloat(sala.querySelector('[data-horas-trabajadas]')?.dataset?.horasTrabajadas) || 0,
-                        tiempo_muerto_minutos: parseInt(sala.querySelector('[data-tiempo-muerto]')?.dataset?.tiempoMuerto) || 0,
-                        rendimiento: parseFloat(sala.querySelector('.rendimiento-valor')?.textContent?.replace('%', '')) || 0,
-                        productividad: parseFloat(sala.querySelector('.productividad-valor')?.textContent?.replace(' kg/persona/hora', '')) || 0
-                    };
-                    datosInforme.salas.push(salaData);
-                });
-
-                fetch('{{ route("informes.store") }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify(datosInforme)
-                })
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            toastr.success('Informe guardado correctamente');
-                            setTimeout(() => {
-                                window.location.href = '/pst/public/mis-informes';
-                            }, 1500);
-                        } else {
-                            throw new Error(data.message || 'Error al guardar el informe');
-                        }
-                    })
-                    .catch(error => {
-                        console.error('Error:', error);
-                        toastr.error('Error al guardar el informe: ' + error.message);
-                    });
-            } catch (error) {
-                console.error('Error:', error);
-                toastr.error('Error al preparar los datos: ' + error.message);
-            }
-        }
     </script>
 @endsection
