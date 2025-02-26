@@ -73,6 +73,8 @@ Route::post('/guardar-usuario', [adminController::class, 'guardarUsuario'])->nam
 Route::post('/editar-usuario', [adminController::class, 'editarUsuario'])->name('editarUsuario');
 
 Route::get('/obtener-tiempos-muertos/{idPlanilla}', [PlanillaController::class, 'obtenerTiemposMuertos']);
+Route::get('/obtener-departamentos', [PlanillaController::class, 'obtenerDepartamentos'])->name('obtener.departamentos');
+
 
 Route::delete('/eliminar-tiempo-muerto/{id}', [PlanillaController::class, 'eliminarTiempoMuerto']);
 

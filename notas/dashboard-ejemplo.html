@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard de Administración</title>
+    <!-- Aquí irían los estilos de Tailwind CSS -->
+    <!-- ... otras etiquetas meta ... -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body>
+    <div class="flex-1 space-y-4 p-4 pt-6">
+        <div class="flex items-center justify-between px-2">
+            <div class="grid gap-1">
+                <h2 class="text-2xl font-bold tracking-tight">Dashboard de Administración</h2>
+                <p class="text-muted-foreground">Resumen de informes diarios de producción</p>
+            </div>
+            <div class="grid gap-2">
+                <!-- Aquí iría el selector de fechas -->
+                <button class="px-4 py-2 bg-primary text-white rounded">Seleccionar Fechas</button>
+            </div>
+        </div>
+
+        <div class="mb-4">
+            <div class="bg-white p-6 rounded-lg shadow">
+                <h3 class="text-xl font-semibold mb-2">Resumen Ejecutivo</h3>
+                <p class="text-sm text-gray-600 mb-4">Puntos clave del informe diario</p>
+                <ul class="list-disc pl-5 space-y-2">
+                    <li>La productividad promedio fue de 0.45, con un rendimiento promedio del 90%.</li>
+                    <li>Se observó un 14.29% de ausentismo, con 1 persona ausente de la dotación esperada.</li>
+                    <li>La Sala 2 mostró el mayor tiempo muerto con 61 minutos, principalmente debido a "paro proceso".
+                    </li>
+                    <li>Se procesaron un total de 27.0 kilos en entrega, superando los 24.0 kilos en recepción.</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <!-- KPI Cards -->
+            <div class="bg-white p-4 rounded-lg shadow">
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-sm font-medium">Dotación Total Real</h4>
+                    <svg class="h-4 w-4 text-muted-foreground" /* ... * /></svg>
+                </div>
+                <div class="text-2xl font-bold">6</div>
+                <p class="text-xs text-muted-foreground">de 7 esperados</p>
+            </div>
+            <!-- Repite para las otras 3 KPI cards -->
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            <!-- Gráficos -->
+            <div class="bg-white p-4 rounded-lg shadow col-span-2">
+                <h3 class="text-lg font-semibold mb-4">Productividad y Rendimiento por Sala</h3>
+                <!-- Aquí iría el gráfico de barras -->
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="text-lg font-semibold mb-4">Distribución de Tiempos Muertos</h3>
+                <!-- Aquí iría el gráfico circular -->
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="text-lg font-semibold mb-4">Dotación Real vs Esperada</h3>
+                <!-- Aquí iría el gráfico de barras -->
+            </div>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2">
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="text-lg font-semibold mb-4">Resumen de Procesamiento</h3>
+                <table class="min-w-full">
+                    <thead>
+                        <tr>
+                            <th class="text-left">Sala</th>
+                            <th class="text-left">Tipo</th>
+                            <th class="text-left">Corte Inicial</th>
+                            <th class="text-left">Corte Final</th>
+                            <th class="text-right">Kilos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>SALA 2</td>
+                            <td>Filete</td>
+                            <td>HON</td>
+                            <td>TRIM C</td>
+                            <td class="text-right">12.0</td>
+                        </tr>
+                        <!-- Más filas de la tabla -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow">
+                <h3 class="text-lg font-semibold mb-4">Tendencia de Kilos: Entrega vs Recepción</h3>
+                <!-- Aquí iría el gráfico de líneas -->
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

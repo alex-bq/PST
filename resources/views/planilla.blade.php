@@ -942,6 +942,12 @@
                         <div class="row">
                             <div class="col-md-12">
                                 <div class="mb-4">
+                                    <label for="departamento" class="form-label">Departamento a Cargo</label>
+                                    <select class="form-control" id="departamento" name="cod_departamento" required>
+                                        <option value="">Seleccione departamento</option>
+                                    </select>
+                                </div>
+                                <div class="mb-4">
                                     <label for="causa" class="form-label">Causa del Paro</label>
                                     <textarea class="form-control" id="causa" name="causa" rows="4" required></textarea>
                                 </div>
@@ -979,7 +985,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </div>

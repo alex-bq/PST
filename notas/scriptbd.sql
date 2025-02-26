@@ -181,6 +181,13 @@ CREATE TABLE pst_2.dbo.detalle_informe_sala (
     FOREIGN KEY (cod_sala) REFERENCES pst_2.dbo.sala(cod_sala)
 );
 
+
+
+-- Y modificar tiempos_muertos para referenciar a las causas predefinidas
+ALTER TABLE pst_2.dbo.tiempos_muertos
+ADD cod_causa INT,
+FOREIGN KEY (cod_causa) REFERENCES pst_2.dbo.causas_tiempo_muerto(cod_causa);
+
 -- Índices para optimizar las consultas
 CREATE INDEX idx_informes_turno_fecha ON pst_2.dbo.informes_turno(fecha_turno);
 CREATE INDEX idx_detalle_informe_sala_informe ON pst_2.dbo.detalle_informe_sala(cod_informe);

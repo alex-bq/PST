@@ -618,6 +618,7 @@ class PlanillaController extends Controller
         try {
             DB::table('pst_2.dbo.tiempos_muertos')->insert([
                 'cod_planilla' => $request->input('idPlanilla'),
+                'cod_departamento' => $request->input('cod_departamento'),
                 'causa' => $request->input('causa'),
                 'hora_inicio' => $request->input('hora_inicio'),
                 'hora_termino' => $request->input('hora_termino'),
@@ -642,8 +643,10 @@ class PlanillaController extends Controller
         try {
             \Log::info("Obteniendo tiempos muertos para planilla: " . $idPlanilla);
 
-            $tiemposMuertos = DB::table('pst_2.dbo.tiempos_muertos')
-                ->where('cod_planilla', $idPlanilla)
+            $tiemposMuertos = DB::table('pst_2.dbo.tiempos_muertos as tm')
+                ->leftJoin('pst_2.dbo.departamentos as d', 'd.cod_departamento', '=', 'tm.cod_departamento')
+                ->where('tm.cod_planilla', $idPlanilla)
+                ->select('tm.*', 'd.nombre as departamento')
                 ->get();
 
             \Log::info("Tiempos muertos encontrados: ", ['count' => $tiemposMuertos->count(), 'data' => $tiemposMuertos]);
@@ -680,6 +683,32 @@ class PlanillaController extends Controller
                 'message' => 'Error al eliminar el tiempo muerto',
                 'error' => $e->getMessage()
             ]);
+        }
+    }
+
+    public function obtenerDepartamentos()
+    {
+        try {
+            \Log::info("Obteniendo departamentos"); // Debug
+
+            $departamentos = DB::table('pst_2.dbo.departamentos')
+                ->where('activo', 1)
+                ->select('cod_departamento', 'nombre')
+                ->get();
+
+            \Log::info("Departamentos encontrados:", ['count' => $departamentos->count()]); // Debug
+
+            return response()->json([
+                'success' => true,
+                'departamentos' => $departamentos
+            ]);
+        } catch (\Exception $e) {
+            \Log::error("Error al obtener departamentos: " . $e->getMessage()); // Debug
+            return response()->json([
+                'success' => false,
+                'message' => 'Error al obtener los departamentos',
+                'error' => $e->getMessage()
+            ], 500);
         }
     }
 

@@ -630,9 +630,10 @@ $(document).ready(function () {
                             <table class="table table-sm table-bordered table-hover">
                                 <thead class="table-light sticky-top bg-light">
                                     <tr>
-                                        <th style="width: 35%">Causa</th>
-                                        <th style="width: 20%">Inicio</th>
-                                        <th style="width: 20%">Término</th>
+                                        <th style="width: 15%">Departamento</th>
+                                        <th style="width: 30%">Causa</th>
+                                        <th style="width: 15%">Inicio</th>
+                                        <th style="width: 15%">Término</th>
                                         <th style="width: 15%">Duración (min)</th>
                                         <th style="width: 10%">Acciones</th>
                                     </tr>
@@ -647,6 +648,7 @@ $(document).ready(function () {
                         response.tiemposMuertos.forEach(function (tiempo) {
                             html += `
                                 <tr>
+                                    <td>${tiempo.departamento || ""}</td>
                                     <td>${tiempo.causa || ""}</td>
                                     <td>${
                                         formatearHora(tiempo.hora_inicio) || ""
@@ -671,7 +673,7 @@ $(document).ready(function () {
                         });
                     } else {
                         html +=
-                            '<tr><td colspan="5" class="text-center">No hay tiempos muertos registrados</td></tr>';
+                            '<tr><td colspan="6" class="text-center">No hay tiempos muertos registrados</td></tr>';
                     }
 
                     html += "</tbody></table></div>";
@@ -731,8 +733,37 @@ $(document).ready(function () {
 
     // Manejar el modal
     $("#modalTiemposMuertos").on("show.bs.modal", function () {
+        console.log("Modal abierto - llamando a cargarDepartamentos"); // Debug
+        cargarDepartamentos();
         cargarTiemposMuertos();
     });
+
+    // Función para cargar departamentos
+    function cargarDepartamentos() {
+        console.log("Cargando departamentos..."); // Debug
+        $.ajax({
+            type: "GET",
+            url: baseUrl + "/obtener-departamentos",
+            success: function (response) {
+                console.log("Respuesta departamentos:", response); // Debug
+                if (response.success) {
+                    let options =
+                        '<option value="">Seleccione departamento</option>';
+                    response.departamentos.forEach(function (depto) {
+                        options += `<option value="${depto.cod_departamento}">${depto.nombre}</option>`;
+                    });
+                    $("#departamento").html(options);
+                    console.log("Options generadas:", options); // Debug
+                } else {
+                    console.error("Error en la respuesta:", response); // Debug
+                }
+            },
+            error: function (xhr, status, error) {
+                console.error("Error al cargar departamentos:", error); // Debug
+                toastr.error("Error al cargar los departamentos");
+            },
+        });
+    }
 
     // Manejar el formulario de tiempos muertos
     $("#formTiemposMuertos").on("submit", function (e) {
