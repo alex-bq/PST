@@ -92,12 +92,7 @@
 
         }
 
-        .sala-card {
-            background: white;
-            border-radius: 8px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
+        .sala-card {}
 
         .sala-title {
             font-size: 1.25rem;
@@ -130,7 +125,14 @@
         }
 
         .dotacion-input {
-            width: 50%;
+            width: 60%;
+            border: 1px solid #14142a38;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .dotacion-esperada-input {
+            width: 60%;
             border: 1px solid #14142a38;
             border-radius: 4px;
             text-align: center;
@@ -207,14 +209,7 @@
                     <strong>Ausentismo</strong>
                     <span id="porcentaje-ausentismo">-</span>
                 </div>
-                <div class="turno-info-item">
-                    <strong>Total Kilos Entrega</strong>
-                    <span>{{ $informe->total_kilos_entrega > 0 ? number_format($informe->total_kilos_entrega, 1) . ' kg' : '-' }}</span>
-                </div>
-                <div class="turno-info-item">
-                    <strong>Total Kilos Recepción</strong>
-                    <span>{{ $informe->total_kilos_recepcion > 0 ? number_format($informe->total_kilos_recepcion, 1) . ' kg' : '-' }}</span>
-                </div>
+
             </div>
         </div>
 
@@ -227,84 +222,199 @@
                 <h3 class="tipo-planilla-title">{{ $tipo_planilla }}</h3>
                 <div class="salas-grid">
                     @foreach($salas as $sala)
-                            <div class="card mb-4 sala-card" data-sala-id="{{ $sala->cod_sala }}">
-                                <h4 class="card-header sala-title">{{ $sala->nombre_sala }}</h4>
+                            <div class="card w-full max-w-2xl mb-[10px] sala-card" data-sala-id="{{ $sala->cod_sala }}"
+                                data-sala-nombre="{{ $sala->nombre_sala }}" data-tipo-planilla="{{ $sala->tipo_planilla }}"
+                                data-piezas-recepcion="{{ $sala->piezas_recepcion_total }}">
+                                <div class="card-header bg-primary/5 pb-2">
+                                    <div class="text-xl flex items-center justify-between">
+                                        <span class="flex items-center gap-2">
 
-                                <div class="card-body">
-                                    <!-- Sección de dotación en su propia fila -->
-                                    <div class="row mb-3">
-                                        <div class="col-12">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div class="d-flex gap-4 align-items-center">
-                                                    <strong>Dotación:</strong>
-                                                    <div class="d-flex gap-3">
-                                                        <div class="d-flex flex-column">
-                                                            <small class="text-muted">Real</small>
-                                                            <input type="number" class="form-control form-control-sm dotacion-input"
-                                                                style="width: 80px;" min="0" value="0"
-                                                                data-sala-id="{{ $sala->cod_sala }}"
-                                                                onchange="actualizarDotacionTotal()">
-                                                        </div>
-                                                        <div class="d-flex flex-column">
-                                                            <small class="text-muted">Esperada</small>
-                                                            <input type="number"
-                                                                class="form-control form-control-sm dotacion-esperada-input"
-                                                                style="width: 80px;" min="0" value="0"
-                                                                data-sala-id="{{ $sala->cod_sala }}"
-                                                                onchange="actualizarDotacionTotal()">
-                                                        </div>
-                                                    </div>
+                                            {{ $sala->nombre_sala }}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="card-body pt-4">
+                                    <div class="row">
+                                        <!-- Dotación and Indicadores in first row -->
+                                        <!-- Dotación Section -->
+                                        <div class="mb-4">
+                                            <h5 class="d-flex align-items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                    stroke-linejoin="round" class="text-primary me-2">
+                                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                                    <circle cx="9" cy="7" r="4"></circle>
+                                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                                </svg>
+                                                Dotación
+                                            </h5>
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <label class="form-label text-muted small mb-1">Real</label>
+                                                    <input type="number" class="form-control form-control-sm dotacion-input" min="0"
+                                                        value="0" data-sala-id="{{ $sala->cod_sala }}"
+                                                        onchange="actualizarDotacionTotal()">
+                                                </div>
+                                                <div class="col-6">
+                                                    <label class="form-label text-muted small mb-1">Esperada</label>
+                                                    <input type="number" class="form-control form-control-sm dotacion-esperada-input"
+                                                        min="0" value="0" data-sala-id="{{ $sala->cod_sala }}"
+                                                        onchange="actualizarDotacionTotal()">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Indicadores Section -->
+                                        <div>
+                                            <h5 class="d-flex align-items-center">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                                    stroke-linejoin="round" class="text-primary me-2">
+                                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                                                </svg>
+                                                Indicadores
+                                            </h5>
+                                            <div class="d-flex flex-row flex-wrap gap-3">
+                                                <!-- Rendimiento Premium -->
+                                                <div class="flex-grow-1">
+                                                    <p class="text-muted small mb-1">Premium</p>
+                                                    <p class="fw-medium premium-valor">
+                                                        @php
+                                                            $procesamientoSala = collect($detalle_procesamiento)
+                                                                ->where('cod_sala', $sala->cod_sala)
+                                                                ->where('cod_tipo_planilla', $sala->cod_tipo_planilla);
+
+                                                            $rendimientoPremium = 0;
+                                                            if ($sala->kilos_entrega_total > 0) {
+                                                                $rendimientoPremium = ($procesamientoSala->sum('kilos') / $sala->kilos_entrega_total) * 100;
+                                                            }
+                                                        @endphp
+                                                        {{ number_format($rendimientoPremium, 1) }}%
+                                                    </p>
+                                                </div>
+
+                                                <!-- Rendimiento General -->
+                                                <div class="flex-grow-1">
+                                                    <p class="text-muted small mb-1">Rendimiento</p>
+                                                    <p class="fw-medium rendimiento-valor">
+                                                        @php
+                                                            $rendimientoGeneral = 0;
+                                                            if ($sala->kilos_entrega_total > 0) {
+                                                                $rendimientoGeneral = ($sala->kilos_recepcion_total / $sala->kilos_entrega_total) * 100;
+                                                            }
+                                                        @endphp
+                                                        {{ number_format($rendimientoGeneral, 1) }}%
+                                                    </p>
+                                                </div>
+
+                                                <!-- Productividad -->
+                                                <div class="flex-grow-1">
+                                                    <p class="text-muted small mb-1">Productividad</p>
+                                                    <p class="fw-medium productividad-valor">-</p>
+                                                </div>
+
+                                                <!-- Horas Trabajadas -->
+                                                <div class="flex-grow-1">
+                                                    <p class="text-muted small mb-1">Horas Trabajadas</p>
+                                                    @php
+                                                        $horasEnteras = floor($sala->horas_trabajadas);
+                                                        $minutos = round(($sala->horas_trabajadas - $horasEnteras) * 60);
+                                                    @endphp
+                                                    <p class="fw-medium" data-horas-trabajadas="{{ $sala->horas_trabajadas }}">
+                                                        {{ $horasEnteras }}h {{ $minutos }}m
+                                                    </p>
+                                                </div>
+
+                                                <!-- Tiempo Muerto -->
+                                                <div class="flex-grow-1">
+                                                    <p class="text-muted small mb-1">Tiempo Muerto</p>
+                                                    @php
+                                                        $minutosTiempoMuerto = collect($tiempos_muertos)
+                                                            ->where('cod_sala', $sala->cod_sala)
+                                                            ->sum('duracion_minutos');
+                                                        $horasTM = floor($minutosTiempoMuerto / 60);
+                                                        $minutosTM = $minutosTiempoMuerto % 60;
+                                                    @endphp
+                                                    <p class="fw-medium" data-tiempo-muerto="{{ $minutosTiempoMuerto }}">
+                                                        {{ $horasTM }}h {{ $minutosTM }}m
+                                                    </p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
 
-                                    <!-- Grid de información de la sala -->
-                                    <div class="sala-info">
-                                        <div class="sala-info-item">
-                                            <strong>Kilos Entrega</strong>
-                                            <span data-kilos-entrega="{{ $sala->kilos_entrega_total }}">
-                                                {{ number_format($sala->kilos_entrega_total, 1) }} kg
-                                            </span>
+                                    <hr class="my-2">
+
+                                    <!-- Material Processing Section -->
+                                    <div class="row">
+                                        <!-- Entrega MP -->
+                                        <div class="col-md-6 mb-4 mb-md-0">
+                                            <div>
+                                                <h5 class="d-flex align-items-center">
+                                                    Entrega MP
+                                                </h5>
+                                                @php
+                                                    $procesamientoSala = collect($detalle_procesamiento)
+                                                        ->where('cod_sala', $sala->cod_sala)
+                                                        ->where('cod_tipo_planilla', $sala->cod_tipo_planilla);
+                                                @endphp
+                                                <div class="d-flex flex-row flex-wrap gap-3">
+                                                    <div class="flex-grow-1">
+                                                        <p class="text-muted small mb-1">Kilos</p>
+                                                        <p class="fw-medium" data-kilos-entrega="{{ $sala->kilos_entrega_total }}">
+                                                            {{ number_format($sala->kilos_entrega_total, 1) }} kg
+                                                        </p>
+                                                    </div>
+                                                    @if($sala->tipo_planilla !== 'PORCIONES')
+                                                        <div class="flex-grow-1">
+                                                            <p class="text-muted small mb-1">Piezas</p>
+                                                            <p class="fw-medium" data-piezas-entrega="{{ $sala->piezas_entrega_total }}">
+                                                                {{ number_format($sala->piezas_entrega_total, 0) }}
+                                                            </p>
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="sala-info-item">
-                                            <strong>Kilos Recepción</strong>
-                                            <span data-kilos-recepcion="{{ $sala->kilos_recepcion_total }}">
-                                                {{ number_format($sala->kilos_recepcion_total, 1) }} kg
-                                            </span>
-                                        </div>
-                                        <div class="sala-info-item">
-                                            <strong>Rendimiento</strong>
-                                            <span class="rendimiento-valor">0.0%</span>
-                                        </div>
-                                        <div class="sala-info-item">
-                                            <strong>Horas Trabajadas</strong>
-                                            @php
-                                                $horasEnteras = floor($sala->horas_trabajadas);
-                                                $minutos = round(($sala->horas_trabajadas - $horasEnteras) * 60);
-                                            @endphp
-                                            <span data-horas-trabajadas="{{ $sala->horas_trabajadas }}">
-                                                {{ $horasEnteras }}h {{ $minutos }}m
-                                            </span>
-                                        </div>
-                                        <div class="sala-info-item">
-                                            <strong>Tiempo Muerto</strong>
-                                            @php
-                                                $minutosTiempoMuerto = collect($tiempos_muertos)
-                                                    ->where('cod_sala', $sala->cod_sala)
-                                                    ->sum('duracion_minutos');
-                                                $horasTM = floor($minutosTiempoMuerto / 60);
-                                                $minutosTM = $minutosTiempoMuerto % 60;
-                                            @endphp
-                                            <span data-tiempo-muerto="{{ $minutosTiempoMuerto }}">{{ $horasTM }}h
-                                                {{ $minutosTM }}m</span>
-                                        </div>
-                                        <div class="sala-info-item">
-                                            <strong>Productividad</strong>
-                                            <span class="productividad-valor">-</span>
+
+                                        <!-- Recepción PST -->
+                                        <div class="col-md-6">
+                                            <div>
+                                                <h5 class="d-flex align-items-center">
+                                                    Recepción PST
+                                                </h5>
+                                                <div class="d-flex flex-row flex-wrap gap-3">
+                                                    <div class="flex-grow-1">
+                                                        <p class="text-muted small mb-1">Kilos</p>
+                                                        <p class="font-medium"
+                                                            data-kilos-recepcion="{{ number_format($sala->kilos_recepcion_total, 1) }}">
+                                                            {{ number_format($sala->kilos_recepcion_total, 1) }} kg
+                                                        </p>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <p class="text-muted small mb-1">Kilos Premium</p>
+                                                        <p class="font-medium"
+                                                            data-kilos-recepcion="{{ number_format($procesamientoSala->sum('kilos'), 1) }}">
+                                                            {{ number_format($procesamientoSala->sum('kilos'), 1) }} kg
+                                                        </p>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <p class="text-muted small mb-1">Piezas</p>
+                                                        <p class="fw-medium"
+                                                            data-piezas-recepcion="{{ number_format($procesamientoSala->sum('piezas'), decimals: 0) }}">
+                                                            {{ number_format($procesamientoSala->sum('piezas'), decimals: 0) }}
+                                                        </p>
+                                                    </div>
+
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="sala-actions" style="margin-top: 1rem;">
+
+                                    <!-- Action Buttons -->
+                                    <div class="d-flex mt-4">
                                         <button class="btn btn-primary btn-detail" data-bs-toggle="modal"
                                             data-bs-target="#procesamiento{{ $sala->cod_tipo_planilla }}_{{ $sala->cod_sala }}"
                                             data-bs-tooltip="tooltip" title="Ver Detalle Procesamiento">
@@ -339,18 +449,13 @@
                                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
                                         <div class="modal-body">
-                                            @php
-                                                $procesamientoSala = collect($detalle_procesamiento)
-                                                    ->where('cod_sala', $sala->cod_sala)
-                                                    ->where('cod_tipo_planilla', $sala->cod_tipo_planilla);
-                                            @endphp
+
                                             <div class="table-responsive">
                                                 <table class="detail-table">
                                                     <thead>
                                                         <tr>
-                                                            <th>Corte Inicial</th>
+                                                            <th>Empresa</th>
                                                             <th>Corte Final</th>
-                                                            <th>Destino</th>
                                                             <th>Calibre</th>
                                                             <th>Calidad</th>
                                                             <th>Piezas</th>
@@ -360,9 +465,8 @@
                                                     <tbody>
                                                         @foreach($procesamientoSala as $proceso)
                                                             <tr>
-                                                                <td>{{ $proceso->corte_inicial }}</td>
+                                                                <td>{{ $proceso->descripcion }}</td>
                                                                 <td>{{ $proceso->corte_final }}</td>
-                                                                <td>{{ $proceso->destino }}</td>
                                                                 <td>{{ $proceso->calibre }}</td>
                                                                 <td>{{ $proceso->calidad }}</td>
                                                                 <td>{{ number_format($proceso->piezas, 0) }}</td>
@@ -372,7 +476,7 @@
                                                     </tbody>
                                                     <tfoot>
                                                         <tr>
-                                                            <td colspan="5" class="text-end"><strong>Totales:</strong></td>
+                                                            <td colspan="4" class="text-end"><strong>Totales:</strong></td>
                                                             <td><strong>{{ number_format($procesamientoSala->sum('piezas'), 0) }}</strong>
                                                             </td>
                                                             <td><strong>{{ number_format($procesamientoSala->sum('kilos'), 1) }}
@@ -456,54 +560,6 @@
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function mostrarDatosEnConsola() {
-            try {
-                const salas = document.querySelectorAll('.sala-card');
-                const datosTurno = {
-                    resumen: {
-                        dotacionTotal: document.getElementById('dotacion-total')?.textContent || '-',
-                        dotacionEsperadaTotal: document.getElementById('dotacion-esperada-total')?.textContent || '-',
-                        ausentismo: document.getElementById('porcentaje-ausentismo')?.textContent || '-',
-                        totalKilosEntrega: document.querySelector('.turno-info-grid [data-kilos-entrega]')?.textContent?.trim() || '-',
-                        totalKilosRecepcion: document.querySelector('.turno-info-grid [data-kilos-recepcion]')?.textContent?.trim() || '-'
-                    },
-                    salas: []
-                };
-
-                salas.forEach(sala => {
-                    try {
-                        const salaData = {
-                            nombreSala: sala.querySelector('.sala-title')?.textContent || '-',
-                            codSala: sala.dataset.salaId || '-',
-                            dotacionReal: sala.querySelector('.dotacion-input')?.value || '0',
-                            dotacionEsperada: sala.querySelector('.dotacion-esperada-input')?.value || '0',
-                            kilosEntrega: sala.querySelector('[data-kilos-entrega]')?.dataset?.kilosEntrega || '0',
-                            kilosRecepcion: sala.querySelector('[data-kilos-recepcion]')?.dataset?.kilosRecepcion || '0',
-                            horasTrabajadas: sala.querySelector('[data-horas-trabajadas]')?.dataset?.horasTrabajadas || '0',
-                            rendimiento: sala.querySelector('.rendimiento-valor')?.textContent || '-',
-                            productividad: sala.querySelector('.productividad-valor')?.textContent || '-'
-                        };
-                        datosTurno.salas.push(salaData);
-                    } catch (salaError) {
-                        console.error('Error al procesar sala:', salaError);
-                    }
-                });
-
-                const comentarios = document.getElementById('comentarios_turno')?.value || '';
-                datosTurno.comentarios = comentarios;
-
-                console.log('=== DATOS DEL TURNO ===');
-                console.log('Resumen:', datosTurno.resumen);
-                console.log('Comentarios:', datosTurno.comentarios);
-                console.log('Datos por Sala:', datosTurno.salas);
-
-                return datosTurno;
-            } catch (error) {
-                console.error('Error al mostrar datos:', error);
-                return null;
-            }
-        }
-
         function actualizarDotacionTotal() {
             try {
                 let totalReal = 0;
@@ -512,19 +568,35 @@
                 const inputsEsperada = document.querySelectorAll('.dotacion-esperada-input');
 
                 inputsReal.forEach(input => {
-                    if (input) {
-                        totalReal += parseInt(input.value) || 0;
-                        const salaCard = input.closest('.sala-card');
-                        if (salaCard) {
-                            actualizarIndicadoresSala(salaCard);
+                    totalReal += parseInt(input.value) || 0;
+                    // Actualizar productividad para cada sala
+                    const salaCard = input.closest('.sala-card');
+                    if (salaCard) {
+                        const dotacion = parseInt(input.value) || 0;
+                        const horasTrabajadas = parseFloat(salaCard.querySelector('[data-horas-trabajadas]')?.dataset?.horasTrabajadas) || 0;
+                        const tipoPlanilla = salaCard.dataset.tipoPlanilla;
+
+                        let productividad = 0;
+                        if (horasTrabajadas > 0 && dotacion > 0) {
+                            if (tipoPlanilla === 'Porciones') {
+                                const kilosRecepcion = parseFloat(salaCard.querySelector('[data-kilos-recepcion]')?.textContent?.replace(/[^\d.-]/g, '')) || 0;
+                                productividad = kilosRecepcion / (horasTrabajadas * dotacion);
+                            } else {
+                                const piezasRecepcion = parseInt(salaCard.querySelector('[data-piezas-recepcion]')?.textContent?.replace(/[^\d.-]/g, '')) || 0;
+                                productividad = piezasRecepcion / (horasTrabajadas * dotacion);
+                            }
+                        }
+
+                        const productividadElement = salaCard.querySelector('.productividad-valor');
+                        if (productividadElement) {
+                            const unidad = tipoPlanilla === 'Porciones' ? '<label class="form-label text-muted small mb-1">kg/pers/hr</label>' : '<label class="form-label text-muted small mb-1"> pzs/pers/hr</label>';
+                            productividadElement.innerHTML = productividad > 0 ? productividad.toFixed(1) + unidad : '-' + unidad;
                         }
                     }
                 });
 
                 inputsEsperada.forEach(input => {
-                    if (input) {
-                        totalEsperada += parseInt(input.value) || 0;
-                    }
+                    totalEsperada += parseInt(input.value) || 0;
                 });
 
                 const dotacionTotalElement = document.getElementById('dotacion-total');
@@ -537,51 +609,14 @@
                 if (dotacionEsperadaTotalElement) {
                     dotacionEsperadaTotalElement.textContent = totalEsperada > 0 ? totalEsperada : '-';
                 }
-                if (porcentajeAusentismoElement) {
-                    if (totalEsperada > 0 && totalReal > 0) {
-                        const ausentismo = ((totalEsperada - totalReal) / totalEsperada * 100).toFixed(1);
-                        porcentajeAusentismoElement.textContent = ausentismo + '%';
-                    } else {
-                        porcentajeAusentismoElement.textContent = '-';
-                    }
+                if (porcentajeAusentismoElement && totalEsperada > 0) {
+                    const ausentismo = ((totalEsperada - totalReal) / totalEsperada * 100).toFixed(1);
+                    porcentajeAusentismoElement.textContent = ausentismo + '%';
                 }
-
-                mostrarDatosEnConsola();
             } catch (error) {
                 console.error('Error al actualizar dotación:', error);
             }
         }
-
-        function actualizarIndicadoresSala(salaCard) {
-            const dotacion = parseInt(salaCard.querySelector('.dotacion-input').value) || 0;
-            const kilosRecepcion = parseFloat(salaCard.querySelector('[data-kilos-recepcion]').dataset.kilosRecepcion) || 0;
-            const kilosEntrega = parseFloat(salaCard.querySelector('[data-kilos-entrega]').dataset.kilosEntrega) || 0;
-            const horasTrabajadas = parseFloat(salaCard.querySelector('[data-horas-trabajadas]').dataset.horasTrabajadas) || 0;
-
-            // Calcular rendimiento
-            const rendimiento = kilosEntrega > 0 ? (kilosRecepcion / kilosEntrega) * 100 : 0;
-            salaCard.querySelector('.rendimiento-valor').textContent = rendimiento > 0 ? rendimiento.toFixed(1) + '%' : '-';
-
-            // Calcular productividad
-            const productividad = (horasTrabajadas > 0 && dotacion > 0)
-                ? kilosRecepcion / (horasTrabajadas * dotacion)
-                : 0;
-            salaCard.querySelector('.productividad-valor').textContent =
-                productividad > 0 ? productividad.toFixed(1) + ' kg/pers/hora' : '-';
-        }
-
-        // Inicializar cuando el DOM esté completamente cargado
-        document.addEventListener('DOMContentLoaded', function () {
-            try {
-                const comentariosInput = document.getElementById('comentarios_turno');
-                if (comentariosInput) {
-                    comentariosInput.addEventListener('input', mostrarDatosEnConsola);
-                }
-                mostrarDatosEnConsola();
-            } catch (error) {
-                console.error('Error en la inicialización:', error);
-            }
-        });
 
         function validarDatos() {
             try {
@@ -618,9 +653,7 @@
         }
 
         async function guardarInforme() {
-            if (!validarDatos()) {
-                return;
-            }
+            if (!validarDatos()) return;
 
             try {
                 // Validar si existe informe para esta fecha y turno
@@ -633,40 +666,35 @@
                     body: JSON.stringify({
                         fecha: '{{ $fecha }}',
                         turno: {{ $turno }}
-                            })
+                                                    })
                 });
 
                 const data = await response.json();
 
-                if (data.status === 'success') {
-                    if (data.existe) {
-                        Swal.fire({
-                            title: 'Informe Existente',
-                            text: 'Ya existe un informe para esta fecha y turno. No es posible crear otro.',
-                            icon: 'warning',
-                            confirmButtonText: 'Entendido'
-                        });
-                        return;
-                    }
-
-                    // Si no existe, mostrar confirmación
+                if (data.existe) {
                     Swal.fire({
-                        title: '¿Confirmar Informe?',
-                        text: "¿Está seguro de guardar el informe del turno?",
-                        icon: 'question',
-                        showCancelButton: true,
-                        confirmButtonColor: '#3085d6',
-                        cancelButtonColor: '#d33',
-                        confirmButtonText: 'Sí, guardar',
-                        cancelButtonText: 'Cancelar'
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            enviarDatos();
-                        }
+                        title: 'Informe Existente',
+                        text: 'Ya existe un informe para esta fecha y turno. No es posible crear otro.',
+                        icon: 'warning',
+                        confirmButtonText: 'Entendido'
                     });
-                } else {
-                    throw new Error(data.message || 'Error al validar el informe');
+                    return;
                 }
+
+                Swal.fire({
+                    title: '¿Confirmar Informe?',
+                    text: "¿Está seguro de guardar el informe del turno?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Sí, guardar',
+                    cancelButtonText: 'Cancelar'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        enviarDatos();
+                    }
+                });
             } catch (error) {
                 console.error('Error:', error);
                 toastr.error('Error al validar el informe: ' + error.message);
@@ -681,25 +709,78 @@
                     cod_turno: {{ $turno }},
                     cod_jefe_turno: '{{ $informe->jefe_turno ?? "" }}',
                     comentarios: document.getElementById('comentarios_turno')?.value,
-                    salas: []
+                    salas: Array.from(salas).map(sala => {
+                        // Obtener los valores numéricos limpiando el formato
+                        const getNumericValue = (selector) => {
+                            const element = sala.querySelector(selector);
+                            if (!element) return 0;
+                            // Limpiar el texto de formato (comas, kg, etc)
+                            const text = element.textContent.replace(/,/g, '').replace(/[^\d.-]/g, '');
+                            return parseFloat(text) || 0;
+                        };
+
+                        // Obtener el valor de premium porcentaje
+                        const premiumElement = sala.querySelector('.premium-valor');
+                        const premiumValue = premiumElement ?
+                            parseFloat(premiumElement.textContent.replace('%', '')) || 0 : 0;
+
+                        // Buscar específicamente los kilos premium en la sección de Recepción PST
+                        const recepcionPstSection = Array.from(sala.querySelectorAll('p.text-muted.small.mb-1'))
+                            .find(p => p.textContent.trim() === 'Kilos Premium')
+                            ?.nextElementSibling;
+                        const kilosPremium = recepcionPstSection ?
+                            parseFloat(recepcionPstSection.textContent.replace(/,/g, '').replace(/[^\d.-]/g, '')) || 0 : 0;
+
+                        return {
+                            cod_sala: sala.dataset.salaId,
+                            nombre_sala: sala.dataset.salaNombre,
+                            tipo_planilla: sala.dataset.tipoPlanilla,
+                            dotacion_real: parseInt(sala.querySelector('.dotacion-input')?.value) || 0,
+                            dotacion_esperada: parseInt(sala.querySelector('.dotacion-esperada-input')?.value) || 0,
+                            kilos_entrega: getNumericValue('[data-kilos-entrega]'),
+                            kilos_recepcion: getNumericValue('[data-kilos-recepcion]'),
+                            kilos_premium: kilosPremium,
+                            piezas_entrega: getNumericValue('[data-piezas-entrega]'),
+                            piezas_recepcion: getNumericValue('[data-piezas-recepcion]'),
+                            horas_trabajadas: parseFloat(sala.querySelector('[data-horas-trabajadas]')?.dataset?.horasTrabajadas) || 0,
+                            tiempo_muerto_minutos: parseInt(sala.querySelector('[data-tiempo-muerto]')?.dataset?.tiempoMuerto) || 0,
+                            rendimiento: parseFloat(sala.querySelector('.rendimiento-valor')?.textContent?.replace('%', '')) || 0,
+                            productividad: parseFloat(sala.querySelector('.productividad-valor')?.textContent?.replace(/[^\d.-]/g, '')) || 0,
+                            premium: premiumValue
+                        };
+                    })
                 };
 
-                salas.forEach((sala) => {
-                    const salaData = {
-                        nombre_sala: sala.querySelector('.sala-title')?.textContent || 'Sin nombre',
-                        cod_sala: sala.dataset.salaId,
-                        dotacion_real: parseInt(sala.querySelector('.dotacion-input')?.value) || 0,
-                        dotacion_esperada: parseInt(sala.querySelector('.dotacion-esperada-input')?.value) || 0,
-                        kilos_entrega: parseFloat(sala.querySelector('[data-kilos-entrega]')?.dataset?.kilosEntrega) || 0,
-                        kilos_recepcion: parseFloat(sala.querySelector('[data-kilos-recepcion]')?.dataset?.kilosRecepcion) || 0,
-                        horas_trabajadas: parseFloat(sala.querySelector('[data-horas-trabajadas]')?.dataset?.horasTrabajadas) || 0,
-                        tiempo_muerto_minutos: parseInt(sala.querySelector('[data-tiempo-muerto]')?.dataset?.tiempoMuerto) || 0,
-                        rendimiento: parseFloat(sala.querySelector('.rendimiento-valor')?.textContent?.replace('%', '')) || 0,
-                        productividad: parseFloat(sala.querySelector('.productividad-valor')?.textContent?.replace(' kg/persona/hora', '')) || 0
-                    };
-                    datosInforme.salas.push(salaData);
-                });
+                // Mostrar datos en consola de forma organizada
+                console.group('Datos a enviar al servidor:');
+                console.log('Fecha:', datosInforme.fecha_turno);
+                console.log('Turno:', datosInforme.cod_turno);
+                console.log('Jefe de Turno:', datosInforme.cod_jefe_turno);
+                console.log('Comentarios:', datosInforme.comentarios);
 
+                console.group('Datos por Sala:');
+                datosInforme.salas.forEach(sala => {
+                    console.group(`Sala: ${sala.nombre_sala}`);
+                    console.log('Código:', sala.cod_sala);
+                    console.log('Tipo Planilla:', sala.tipo_planilla);
+                    console.log('Dotación Real:', sala.dotacion_real);
+                    console.log('Dotación Esperada:', sala.dotacion_esperada);
+                    console.log('Kilos Entrega:', sala.kilos_entrega.toFixed(1));
+                    console.log('Kilos Recepción:', sala.kilos_recepcion.toFixed(1));
+                    console.log('Kilos Premium:', sala.kilos_premium.toFixed(1));
+                    console.log('Premium (%):', sala.premium.toFixed(1));
+                    console.log('Piezas Entrega:', sala.piezas_entrega);
+                    console.log('Piezas Recepción:', sala.piezas_recepcion);
+                    console.log('Horas Trabajadas:', sala.horas_trabajadas);
+                    console.log('Tiempo Muerto (min):', sala.tiempo_muerto_minutos);
+                    console.log('Rendimiento (%):', sala.rendimiento);
+                    console.log('Productividad:', sala.productividad);
+                    console.groupEnd();
+                });
+                console.groupEnd();
+                console.groupEnd();
+
+                // Continuar con el envío de datos
                 fetch('{{ route("informes.store") }}', {
                     method: 'POST',
                     headers: {
@@ -724,9 +805,12 @@
                         toastr.error('Error al guardar el informe: ' + error.message);
                     });
             } catch (error) {
-                console.error('Error:', error);
+                console.error('Error al preparar los datos:', error);
                 toastr.error('Error al preparar los datos: ' + error.message);
             }
         }
+
+        // Inicializar cuando el DOM esté cargado
+        document.addEventListener('DOMContentLoaded', actualizarDotacionTotal);
     </script>
 @endsection

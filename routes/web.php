@@ -7,6 +7,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\adminController;
 use App\Http\Controllers\InformeController;
 use App\Http\Controllers\MisInformesController;
+use App\Http\Controllers\DashboardController;
+use Illuminate\Support\Facades\Route;
 
 // Ruta de inicio de sesión
 Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
@@ -110,6 +112,13 @@ Route::get('/informes/search', [MisInformesController::class, 'search'])->name('
 // Agregar esta nueva ruta
 Route::get('/informes/detalle/{fecha}/{turno}', [InformeController::class, 'show'])
     ->name('informes.show');
+
+Route::get('/dashboard', function () {
+    return view('admin.dashboard-productividad');
+})->name('dashboard-productividad');
+
+Route::get('/api/dashboard-data', [DashboardController::class, 'getData']);
+
 
 
 

@@ -78,6 +78,13 @@ class InformeController extends Controller
                 SELECT * FROM pst_2.dbo.fn_GetDetalleProcesamiento(?, ?)
             ", [$fecha, $turno]);
 
+            // Obtener suma de kilos para porciones terminadas
+            $porcionTerminada = DB::select("
+                SELECT SUM(kilos) AS porcionTerminada
+                FROM pst_2.dbo.fn_GetDetalleProcesamiento(?, ?)
+                WHERE corte_final IN ('PORCION SIN PIEL', 'PORCION CON PIEL', 'PORCIONES')
+            ", [$fecha, $turno])[0]->porcionTerminada ?? 0;
+
             // Obtener tiempos muertos
             $tiempos_muertos = DB::select("
                 SELECT * FROM pst_2.dbo.fn_GetTiemposMuertos(?, ?)
@@ -89,6 +96,7 @@ class InformeController extends Controller
                 'informe',
                 'informacion_sala',
                 'detalle_procesamiento',
+                'porcionTerminada',
                 'tiempos_muertos'
             ));
         } catch (\Exception $e) {
@@ -112,19 +120,24 @@ class InformeController extends Controller
                 'salas.*.dotacion_esperada' => 'required|integer|min:0',
                 'salas.*.kilos_entrega' => 'required|numeric|min:0',
                 'salas.*.kilos_recepcion' => 'required|numeric|min:0',
+                'salas.*.kilos_premium' => 'required|numeric|min:0',
+                'salas.*.piezas_entrega' => 'required|integer|min:0',
+                'salas.*.piezas_recepcion' => 'required|integer|min:0',
                 'salas.*.horas_trabajadas' => 'required|numeric|min:0',
                 'salas.*.tiempo_muerto_minutos' => 'required|integer|min:0',
                 'salas.*.rendimiento' => 'required|numeric|min:0',
                 'salas.*.productividad' => 'required|numeric|min:0',
+                'salas.*.premium' => 'required|numeric|min:0',
+                'salas.*.tipo_planilla' => 'required|string',
             ]);
 
             DB::beginTransaction();
 
             // Formatear las fechas correctamente para SQL Server
-            $fechaTurno = Carbon::parse($request->fecha_turno)->format('Ymd'); // Formato SQL Server
-            $fechaCreacion = Carbon::now()->format('Ymd H:i:s'); // Formato SQL Server
+            $fechaTurno = Carbon::parse($request->fecha_turno)->format('Ymd');
+            $fechaCreacion = Carbon::now()->format('Ymd H:i:s');
 
-            // Crear el informe con fechas formateadas
+            // Crear el informe
             $informe = DB::table('pst_2.dbo.informes_turno')->insertGetId([
                 'fecha_turno' => $fechaTurno,
                 'cod_turno' => (int) $request->cod_turno,
@@ -144,10 +157,15 @@ class InformeController extends Controller
                     'dotacion_esperada' => (int) $sala['dotacion_esperada'],
                     'kilos_entrega' => (float) $sala['kilos_entrega'],
                     'kilos_recepcion' => (float) $sala['kilos_recepcion'],
+                    'kilos_premium' => (float) $sala['kilos_premium'],
+                    'piezas_entrega' => (int) $sala['piezas_entrega'],
+                    'piezas_recepcion' => (int) $sala['piezas_recepcion'],
                     'horas_trabajadas' => (float) $sala['horas_trabajadas'],
                     'tiempo_muerto_minutos' => (int) $sala['tiempo_muerto_minutos'],
                     'rendimiento' => (float) $sala['rendimiento'],
-                    'productividad' => (float) $sala['productividad']
+                    'productividad' => (float) $sala['productividad'],
+                    'premium' => (float) $sala['premium'],
+                    'tipo_planilla' => $sala['tipo_planilla']
                 ]);
             }
 
@@ -201,31 +219,56 @@ class InformeController extends Controller
             $informe = DB::select("
                 SELECT 
                     i.cod_informe,
-                    i.fecha_turno,
-                    i.cod_turno,
-                    i.comentarios,
-                    t.NomTurno,
-                    CONCAT(u.nombre, ' ', u.apellido) as jefe_turno_nom,
+                    i.fecha_turno as fecha,
+					t.NomTurno as turno,
+                    i.cod_turno as orden_turno,
+					CONCAT(u.nombre, ' ', u.apellido) as jefe_turno_nom,
                     u.cod_usuario as jefe_turno,
-                    (SELECT COUNT(DISTINCT cod_sala) FROM pst_2.dbo.detalle_informe_sala WHERE cod_informe = i.cod_informe) as cantidad_planillas,
-                    (SELECT AVG(CAST(dotacion_real as FLOAT)) FROM pst_2.dbo.detalle_informe_sala WHERE cod_informe = i.cod_informe) as dotacion_promedio,
-                    (SELECT AVG(CAST(productividad as FLOAT)) FROM pst_2.dbo.detalle_informe_sala WHERE cod_informe = i.cod_informe) as productividad_promedio,
-                    (SELECT SUM(kilos_entrega) FROM pst_2.dbo.detalle_informe_sala WHERE cod_informe = i.cod_informe) as total_kilos_entrega,
-                    (SELECT SUM(kilos_recepcion) FROM pst_2.dbo.detalle_informe_sala WHERE cod_informe = i.cod_informe) as total_kilos_recepcion
+                    i.comentarios
+                    
+                    
+					
                 FROM pst_2.dbo.informes_turno i
                 JOIN bdsystem.dbo.turno t ON i.cod_turno = t.CodTurno
                 JOIN pst_2.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
-                WHERE i.fecha_turno = ? AND i.cod_turno = ?
+                JOIN pst_2.dbo.detalle_informe_sala d ON i.cod_informe = d.cod_informe
+
+                WHERE i.fecha_turno = ?  AND i.cod_turno = ?
+
+				GROUP BY 
+					i.cod_informe,
+					i.fecha_turno,
+					t.NomTurno,
+					i.cod_turno,
+					u.nombre,
+					u.apellido,
+					u.cod_usuario,
+					i.comentarios
             ", [$fecha, $turno])[0];
 
             // Obtener información por sala desde la tabla
             $informacion_sala = DB::select("
                 SELECT 
-                    d.*,
-                    s.nombre as nombre_sala
-                FROM pst_2.dbo.detalle_informe_sala d
-                JOIN pst_2.dbo.sala s ON d.cod_sala = s.cod_sala
-                WHERE d.cod_informe = ?
+    s.nombre as nombre_sala,
+    s.cod_sala as cod_sala,
+    d.tipo_planilla as tipo_planilla,
+    CASE d.tipo_planilla 
+        WHEN 'Filete' THEN 1
+        WHEN 'Porciones' THEN 2
+        WHEN 'HG' THEN 4
+        ELSE NULL
+    END as cod_tipo_planilla,
+    d.horas_trabajadas,
+    d.kilos_entrega as kilos_entrega_total,
+    d.kilos_recepcion as kilos_recepcion_total,
+    d.piezas_entrega as piezas_entrega_total,
+    d.piezas_recepcion as piezas_recepcion_total,
+    d.dotacion_real,
+    d.dotacion_esperada
+FROM pst_2.dbo.detalle_informe_sala d
+JOIN pst_2.dbo.sala s ON d.cod_sala = s.cod_sala
+JOIN pst_2.dbo.informes_turno i ON i.cod_informe = d.cod_informe
+WHERE d.cod_informe = ?
             ", [$informe->cod_informe]);
 
             // Obtener detalle de procesamiento

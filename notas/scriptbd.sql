@@ -152,6 +152,7 @@ ADD CONSTRAINT FK_planillas_tipo_planilla
 FOREIGN KEY (cod_tipo_planilla) REFERENCES pst_2.dbo.tipo_planilla(cod_tipo_planilla);
 
 
+
 -- Tablas para los informes de turno
 CREATE TABLE pst_2.dbo.informes_turno (
     cod_informe INT PRIMARY KEY IDENTITY(1,1),
@@ -165,6 +166,9 @@ CREATE TABLE pst_2.dbo.informes_turno (
     FOREIGN KEY (cod_usuario_crea) REFERENCES pst_2.dbo.usuarios_pst(cod_usuario)
 );
 
+
+
+
 CREATE TABLE pst_2.dbo.detalle_informe_sala (
     cod_detalle_informe INT PRIMARY KEY IDENTITY(1,1),
     cod_informe INT,
@@ -177,6 +181,8 @@ CREATE TABLE pst_2.dbo.detalle_informe_sala (
     tiempo_muerto_minutos INT,
     rendimiento DECIMAL(10,2),
     productividad DECIMAL(10,2),
+    kilos_premium DECIMAL(18,2) DEFAULT 0,
+    premium DECIMAL(5,2) DEFAULT 0,
     FOREIGN KEY (cod_informe) REFERENCES pst_2.dbo.informes_turno(cod_informe),
     FOREIGN KEY (cod_sala) REFERENCES pst_2.dbo.sala(cod_sala)
 );

@@ -11,7 +11,7 @@ class MisInformesController extends Controller
     public function index()
     {
         $user_id = session('user.cod_usuario');
-        $fecha_limite = now()->subDays(7)->format('Y-m-d'); // Fecha de hace 7 días
+        $fecha_limite = now()->subDays(9)->format('Y-m-d'); // Fecha de hace 7 días
 
         // Obtener los turnos de la base de datos
         $turnos = DB::table('bdsystem.dbo.turno')
