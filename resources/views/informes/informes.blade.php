@@ -3,305 +3,279 @@
 @section('title', 'Informes de Producción')
 
 @section('styles')
-<style>
-    .card-icon {
-        color: #1C1D22;
-    }
-
-    .card {
-        transition: all 0.3s ease;
-        border-radius: 12px;
-        min-height: 320px;
-        width: 100%;
-    }
-
-    .card .card-body {
-        padding: 2rem;
-    }
-
-    .card:hover {
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        transform: translateY(-2px);
-    }
-
-    .card-icon svg {
-        width: 32px;
-        height: 32px;
-    }
-
-    .card-title {
-        font-size: 1.5rem;
-    }
-
-    .card-stats {
-        margin-top: 2rem;
-    }
-
-    .card-stats .stat-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px 0;
-        margin-bottom: 8px;
-    }
-
-    .card-stats .text-muted {
-        font-size: 1rem;
-        flex: 1;
-    }
-
-    .card-stats .fw-medium {
-        font-size: 1.1rem;
-        margin-left: 16px;
-        text-align: right;
-    }
-
-    .text-primary {
-        color: #0d6efd !important;
-    }
-
-    .text-success {
-        color: #198754 !important;
-    }
-
-    .custom-input {
-        height: 56px;
-    }
-
-    .btn-search {
-        background-color: #000120;
-        color: white;
-    }
-
-    .btn-search:hover {
-        background-color: #14142a;
-        color: white;
-    }
-
-    @media (min-width: 768px) {
-        .col {
-            padding: 0 20px;
+    <style>
+        /* Estilos generales */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
         }
-    }
 
-    @media (max-width: 767px) {
-        .card {
-            margin-bottom: 1.5rem;
-            min-height: 280px;
+        /* Estilos del título */
+        .page-title {
+            color: #2c3e50;
+            font-size: 2.5rem;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 2.5rem;
+            padding-bottom: 1rem;
         }
-    }
 
-    .card-clickable {
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
+        /* Estilos del formulario de búsqueda */
+        .search-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
 
-    .card-clickable:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    }
+        .search-form {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
 
-    .card-clickable:active {
-        transform: translateY(-2px);
-    }
-</style>
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+            outline: none;
+        }
+
+        /* Estilos de la tabla */
+        .table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+
+        .table th {
+            background-color: #f8fafc;
+            color: #4a5568;
+            font-weight: 600;
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .table td {
+            padding: 1rem;
+            border-bottom: 1px solid #e2e8f0;
+            color: #2d3748;
+        }
+
+        .table tr:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Estilos del botón */
+        .btn-search {
+            background-color: #1a237e;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-search:hover {
+            background-color: rgb(20, 27, 97);
+            transform: translateY(-1px);
+        }
+
+        .btn-search:active {
+            transform: translateY(0);
+        }
+
+        .btn-detail {
+            background-color: #1a237e;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-detail:hover {
+            background-color: rgb(20, 27, 97);
+        }
+
+        /* Estilos responsivos */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .search-form {
+                flex-direction: column;
+            }
+
+            .form-group {
+                width: 100%;
+            }
+
+            .table-container {
+                overflow-x: auto;
+            }
+        }
+
+        /* Animaciones */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .search-container {
+            animation: fadeIn 0.5s ease-out;
+        }
+    </style>
 @endsection
 
 @section('content')
-<div class="container py-5">
-    <div class="row justify-content-center">
-        <div class="col-12 col-lg-8">
-            <!-- Título -->
-            <h1 class="text-center fw-bold mb-4" style="font-size: 32px;">Buscar Informes Diarios</h1>
+    <div class="container">
+        <h1 class="page-title">Buscar Informes Diarios</h1>
 
-            <!-- Formulario de búsqueda -->
-            <div class="row justify-content-center mb-4">
-                <div class="col-12 col-md-6">
-                    <div class="mb-3">
-                        <label class="form-label fw-medium">Seleccionar Día</label>
-                        <input type="date" id="fecha" class="form-control custom-input"
-                            placeholder="Ejemplo: 2023-10-01">
-                    </div>
-                    <div class="d-flex gap-2 justify-content-center">
-                        <button class="btn btn-search flex-grow-1" id="btnBuscar">Buscar</button>
-                        <button class="btn btn-light flex-grow-1" id="btnLimpiar">Limpiar</button>
-                    </div>
-                </div>
+        <div class="search-form">
+            <div class="form-group">
+                <input type="date" name="fecha" id="fecha" class="form-control">
             </div>
+            <div class="form-group">
+                <select name="turno" id="turno" class="form-control">
+                    <option value="">Todos los turnos</option>
+                    @foreach($turnos as $turno)
+                        <option value="{{ $turno->CodTurno }}">{{ $turno->NomTurno }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <button type="button" id="searchButton" class="btn-search">
+                Buscar
+            </button>
+        </div>
 
-            <!-- Contenedor para los informes -->
-            <div class="row row-cols-1 row-cols-md-2 g-4 px-4" id="contenedorInformes">
-                <!-- Los informes se cargarán dinámicamente aquí -->
-            </div>
+        <div class="table-container mt-4">
+            <table class="table" id="resultsTable">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Turno</th>
+                        <th>Jefe de Turno</th>
 
-            <!-- Mensaje de no resultados -->
-            <div id="mensajeNoResultados" class="text-center d-none">
-                <div class="alert alert-info" role="alert">
-                    <h4 class="alert-heading">No se encontraron informes</h4>
-                    <p class="mb-0">No hay informes disponibles para la fecha seleccionada.</p>
-                </div>
-            </div>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody">
+                    <tr>
+                        <td colspan="6" class="text-center text-gray-500">
+                            Use los filtros para buscar informes
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
-</div>
 @endsection
 
 @section('scripts')
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const btnBuscar = document.getElementById('btnBuscar');
-        const btnLimpiar = document.getElementById('btnLimpiar');
-        const inputFecha = document.getElementById('fecha');
-        const contenedorInformes = document.getElementById('contenedorInformes');
-        const mensajeNoResultados = document.getElementById('mensajeNoResultados');
-        const overlay = document.getElementById('iframeLoadingOverlay');
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchButton = document.getElementById('searchButton');
 
-        // Función para mostrar/ocultar el overlay de carga
-        const toggleLoading = (show) => {
-            if (overlay) {
-                overlay.style.display = show ? 'flex' : 'none';
-            }
-        };
+            searchButton.addEventListener('click', function () {
+                const fecha = document.getElementById('fecha').value;
+                const turno = document.getElementById('turno').value;
+                const resultsBody = document.getElementById('resultsBody');
 
-        // Función para buscar informes
-        btnBuscar.addEventListener('click', async function () {
-            const fecha = inputFecha.value;
-            if (!fecha) {
-                toastr.warning('Por favor, seleccione una fecha');
-                return;
-            }
+                // Mostrar indicador de carga
+                resultsBody.innerHTML = '<tr><td colspan="6" class="text-center">Buscando...</td></tr>';
 
-            try {
-                // Mostrar overlay de carga
-                toggleLoading(true);
+                // Construir la URL
+                const searchUrl = `${window.location.origin}/pst/public/informes/search?fecha=${fecha}&turno=${turno}`;
 
-                // Ocultar mensaje de no resultados
-                mensajeNoResultados.classList.add('d-none');
+                fetch(searchUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        resultsBody.innerHTML = '';
 
-                // Usar la URL generada por Laravel
-                const url = "{{ route('informes.diarios', ['fecha' => ':fecha']) }}".replace(':fecha', fecha);
+                        if (data && data.length > 0) {
+                            data.forEach(informe => {
+                                const fechaFormateada = new Date(informe.fecha_turno + 'T00:00:00').toLocaleDateString('es-CL', {
+                                    day: '2-digit',
+                                    month: '2-digit',
+                                    year: 'numeric'
+                                });
 
-                const response = await fetch(url, {
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                });
+                                const row = `
+                                                        <tr>
+                                                            <td>${fechaFormateada}</td>
+                                                            <td>${informe.NomTurno}</td>
+                                                            <td>${informe.jefe_turno}</td>
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-
-                const informes = await response.json();
-
-                // Limpiar contenedor
-                contenedorInformes.innerHTML = '';
-
-                if (!informes || informes.length === 0) {
-                    // Mostrar mensaje de no resultados
-                    mensajeNoResultados.classList.remove('d-none');
-                    return;
-                }
-
-                // Ordenar informes por turno
-                informes.sort((a, b) => a.orden_turno - b.orden_turno);
-
-                // Generar HTML para cada informe
-                informes.forEach(informe => {
-                    // Función para formatear números con separadores de miles y decimales específicos
-                    const formatNumber = (number, decimals = 0) => {
-                        return new Intl.NumberFormat('es-CL', {
-                            minimumFractionDigits: decimals,
-                            maximumFractionDigits: decimals
-                        }).format(number);
-                    };
-
-                    // Formatear los valores
-                    const productividad = formatNumber(informe.productividad_promedio, 2);
-                    const dotacion = formatNumber(informe.dotacion_promedio, 0);
-                    const kilos = formatNumber(informe.total_kilos_entrega, 1);
-
-                    // Función para obtener el número de turno
-                    const getTurnoNumero = (turnoTexto) => {
-                        if (turnoTexto.includes('Día')) return '1';
-                        if (turnoTexto.includes('Tarde')) return '2';
-                        if (turnoTexto.includes('Noche')) return '3';
-                        return '1'; // valor por defecto
-                    };
-
-                    const turnoNumero = getTurnoNumero(informe.turno);
-
-                    const html = `
-                        <div class="col">
-                            <div class="card h-100 border card-clickable" 
-                                 onclick="verDetalleTurno('${fecha}', '${turnoNumero}')"
-                                 role="button">
-                                <div class="card-body">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="card-icon me-3">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
-                                                viewBox="0 0 256 256">
-                                                <path d="M232,208a8,8,0,0,1-8,8H32a8,8,0,0,1-8-8V48a8,8,0,0,1,16,0v94.37L90.73,98a8,8,0,0,1,10.07-.38l58.81,44.11L218.73,90a8,8,0,1,1,10.54,12l-64,56a8,8,0,0,1-10.07.38L96.39,114.29,40,163.63V200H224A8,8,0,0,1,232,208Z"></path>
-                                            </svg>
-                                        </div>
-                                        <h5 class="card-title fw-bold mb-0">${informe.turno}</h5>
-                                    </div>
-                                    
-                                    <div class="card-stats">
-                                        <div class="stat-item mb-2">
-                                            <span class="text-muted">Jefe de Turno:</span>
-                                            <span class="fw-medium">${informe.jefe_turno}</span>
-                                        </div>
-                                        <div class="stat-item mb-2">
-                                            <span class="text-muted">Dotación:</span>
-                                            <span class="fw-medium">${dotacion} personas</span>
-                                        </div>
-                                        <div class="stat-item mb-2">
-                                            <span class="text-muted">Productividad:</span>
-                                            <span class="fw-medium text-primary">${productividad} kg/pers/hr</span>
-                                        </div>
-                                        <div class="stat-item">
-                                            <span class="text-muted">Total Kilos:</span>
-                                            <span class="fw-medium text-success">${kilos} kg</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                    contenedorInformes.innerHTML += html;
-                });
-
-            } catch (error) {
-                console.error('Error:', error);
-                toastr.error('Error al cargar los informes');
-                mensajeNoResultados.classList.remove('d-none');
-            } finally {
-                // Ocultar overlay de carga
-                toggleLoading(false);
-            }
+                                                            <td>
+                                                                <a href="/pst/public/informes/detalle/${informe.fecha_turno}/${informe.turno}"
+                                                                    class="btn-detail">
+                                                                    Ver Detalle
+                                                                </a>
+                                                            </td>
+                                                        </tr>
+                                                    `;
+                                resultsBody.insertAdjacentHTML('beforeend', row);
+                            });
+                        } else {
+                            resultsBody.innerHTML = `
+                                                    <tr>
+                                                        <td colspan="6" class="text-center">
+                                                            No se encontraron resultados
+                                                        </td>
+                                                    </tr>
+                                                `;
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error en la búsqueda:', error);
+                        resultsBody.innerHTML = `
+                                                <tr>
+                                                    <td colspan="6" class="text-center text-red-500">
+                                                        Error al realizar la búsqueda: ${error.message}
+                                                    </td>
+                                                </tr>
+                                            `;
+                    });
+            });
         });
-
-        // Función para limpiar
-        btnLimpiar.addEventListener('click', function () {
-            inputFecha.value = '';
-            contenedorInformes.innerHTML = '';
-            mensajeNoResultados.classList.add('d-none');
-        });
-
-        // También podemos buscar al presionar Enter en el input
-        inputFecha.addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                btnBuscar.click();
-            }
-        });
-    });
-
-    // Función para ver el detalle del turno
-    function verDetalleTurno(fecha, turno) {
-        // Usar la URL base de Laravel
-        const baseUrl = "{{ url('/') }}";
-        window.location.href = `${baseUrl}/informes/detalle/${fecha}/${turno}`;
-    }
-</script>
+    </script>
 @endsection

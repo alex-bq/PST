@@ -32,8 +32,30 @@
             </div>
         </div>
 
-        <!-- Contenedor de Gráficos -->
+        <!-- Panel de KPIs -->
         <div class="p-6">
+            <div class="grid grid-cols-4 gap-4 mb-6">
+
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h4 class="text-sm font-semibold text-gray-600">Dotación vs Esperada</h4>
+                    <p class="text-2xl font-bold text-purple-600" id="kpiDotacion">--%</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h4 class="text-sm font-semibold text-gray-600">Ausentismo Promedio</h4>
+                    <p class="text-2xl font-bold text-indigo-600" id="kpiAusentismo">--%</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h4 class="text-sm font-semibold text-gray-600">Tiempo Efectivo</h4>
+                    <p class="text-2xl font-bold text-green-600" id="kpiTiempoEfectivo">--%</p>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <h4 class="text-sm font-semibold text-gray-600">Rendimiento Premium</h4>
+                    <p class="text-2xl font-bold text-blue-600" id="kpiRendimientoPremium">--%</p>
+                </div>
+
+            </div>
+
+            <!-- Gráficos principales en grid 2x2 -->
             <div class="grid grid-cols-2 gap-6">
                 <!-- Gráfico de Productividad -->
                 <div class="bg-white p-6 rounded-lg shadow">
@@ -59,13 +81,13 @@
                             </div>
                         </div>
                     </div>
-                    <div id="productividadChart" class="h-[500px]"></div>
+                    <div id="productividadChart" class="h-[400px]"></div>
                 </div>
 
                 <!-- Gráfico de Rendimiento -->
                 <div class="bg-white p-6 rounded-lg shadow">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">Rendimiento por Turno</h3>
+                        <h3 class="text-lg font-semibold">Rendimiento Semanal</h3>
                         <div class="flex items-center space-x-2">
                             <label for="turnoSelectorRendimiento" class="text-sm font-medium text-gray-700">Turno:</label>
                             <select id="turnoSelectorRendimiento"
@@ -77,9 +99,19 @@
                             </select>
                         </div>
                     </div>
-                    <div id="rendimientoChart" class="h-[500px]"></div>
+                    <div id="rendimientoChart" class="h-[400px]"></div>
+                </div>
+
+                <!-- Nuevos gráficos -->
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div id="dotacionChart" class="h-[400px]"></div>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow">
+                    <div id="tiempoChart" class="h-[400px]"></div>
                 </div>
             </div>
+
+
         </div>
     </div>
 @endsection
@@ -174,6 +206,10 @@
                     }];
                 }
 
+                // Determinar la unidad de medida según el tipo de planilla
+                const tipoPlanilla = tipoPlanillaSelect.value;
+                const unidadMedida = (tipoPlanilla === 'Porciones') ? 'kg/prs/hr' : 'pzs/prs/hr';
+
                 const optionsProductividad = {
                     series: seriesProductividad,
                     chart: {
@@ -191,20 +227,36 @@
                         formatter: function (val) {
                             if (val === null || val === 0) return '';
                             return val.toFixed(2);
+                        },
+                        style: {
+                            fontSize: '12px',
+                            colors: ['#1a237e']
                         }
                     },
                     colors: ['#008FFB', '#00E396', '#FEB019'],
                     xaxis: {
-                        categories: diasSemana.map(dia => `${dia.nombreDia} ${dia.fechaFormateada}`),
+                        categories: diasSemana.map(dia => {
+                            const fecha = new Date(dia.fecha);
+                            const nombreDia = fecha.toLocaleDateString('es-ES', { weekday: 'short' });
+                            const numeroDia = fecha.getDate();
+                            return `${numeroDia} ${nombreDia}`;
+                        }),
                         title: {
                             text: 'Fecha'
                         }
                     },
                     yaxis: {
                         title: {
-                            text: "Productividad (kg/hora/persona)"
+                            text: `Productividad (${unidadMedida})`
                         },
-                        min: 0
+                        min: 0,
+                        max: Math.ceil(parseFloat(metaProductividadInput.value) * 1.2),
+                        tickAmount: 10,
+                        labels: {
+                            formatter: function (val) {
+                                return Math.round(val);
+                            }
+                        }
                     },
                     annotations: {
                         yaxis: [{
@@ -214,7 +266,11 @@
                                 borderColor: '#FF0000',
                                 style: {
                                     color: '#fff',
-                                    background: '#FF0000'
+                                    background: '#FF0000',
+                                    padding: {
+                                        left: 10,
+                                        right: 10
+                                    }
                                 },
                                 text: 'Meta de Productividad'
                             }
@@ -224,7 +280,7 @@
                         y: {
                             formatter: function (val) {
                                 if (val === null) return 'Sin datos';
-                                return val.toFixed(2) + ' kg/hora/persona';
+                                return val.toFixed(2) + ` ${unidadMedida}`;
                             }
                         }
                     }
@@ -284,7 +340,7 @@
                         enabled: true,
                         formatter: function (val) {
                             if (val === null || val === 0) return '';
-                            return val.toFixed(2) + '%';
+                            return Math.round(val) + '%';
                         },
                         offsetY: -10
                     },
@@ -302,7 +358,12 @@
                         }
                     },
                     xaxis: {
-                        categories: diasSemana.map(dia => `${dia.nombreDia} ${dia.fechaFormateada}`),
+                        categories: diasSemana.map(dia => {
+                            const fecha = new Date(dia.fecha);
+                            const nombreDia = fecha.toLocaleDateString('es-ES', { weekday: 'short' });
+                            const numeroDia = fecha.getDate();
+                            return `${numeroDia} ${nombreDia}`;
+                        }),
                         title: {
                             text: 'Fecha'
                         }
@@ -313,7 +374,20 @@
                         },
                         min: 0,
                         max: 100,
-                        tickAmount: 10
+                        tickAmount: 10,
+                        labels: {
+                            formatter: function (val) {
+                                return Math.round(val);
+                            }
+                        }
+                    },
+                    title: {
+                        text: '',
+                        align: 'left',
+                        style: {
+                            fontSize: '16px',
+                            fontWeight: 'bold'
+                        }
                     },
                     tooltip: {
                         shared: true,
@@ -326,12 +400,162 @@
                     }
                 };
 
+                // Nuevo gráfico de dotación
+                const optionsDotacion = {
+                    series: [{
+                        name: 'Dotación Real',
+                        type: 'line',
+                        data: diasSemana.map(dia => {
+                            const turnoData = data.find(row =>
+                                formatDate(row.fecha_turno) === dia.fechaFormateada
+                            );
+                            return turnoData ? Number(turnoData.dotacion_real) : null;
+                        })
+                    }, {
+                        name: 'Dotación Esperada',
+                        type: 'line',
+                        data: diasSemana.map(dia => {
+                            const turnoData = data.find(row =>
+                                formatDate(row.fecha_turno) === dia.fechaFormateada
+                            );
+                            return turnoData ? Number(turnoData.dotacion_esperada) : null;
+                        })
+                    }],
+                    chart: {
+                        height: 400,
+                        type: 'line'
+                    },
+                    stroke: {
+                        width: [3, 3],
+                        curve: 'smooth'
+                    },
+                    colors: ['#818CF8', '#A78BFA'],
+                    title: {
+                        text: 'Dotación Real vs Esperada'
+                    },
+                    xaxis: {
+                        categories: diasSemana.map(dia => {
+                            const fecha = new Date(dia.fecha);
+                            const nombreDia = fecha.toLocaleDateString('es-ES', { weekday: 'short' });
+                            const numeroDia = fecha.getDate();
+                            return `${numeroDia} ${nombreDia}`;
+                        }),
+                        title: {
+                            text: 'Fecha'
+                        }
+                    },
+                    yaxis: {
+                        title: {
+                            text: 'Personas'
+                        }
+                    }
+                };
+
+                // Gráfico de tiempo efectivo
+                const optionsTiempo = {
+                    series: [{
+                        name: 'Minutos Efectivos',
+                        data: diasSemana.map(dia => {
+                            const turnoData = data.find(row =>
+                                formatDate(row.fecha_turno) === dia.fechaFormateada
+                            );
+                            return turnoData ? Number(turnoData.minutos_efectivos) : null;
+                        })
+                    }, {
+                        name: 'Tiempo Muerto',
+                        data: diasSemana.map(dia => {
+                            const turnoData = data.find(row =>
+                                formatDate(row.fecha_turno) === dia.fechaFormateada
+                            );
+                            return turnoData ? Number(turnoData.tiempo_muerto_minutos) : null;
+                        })
+                    }],
+                    chart: {
+                        type: 'bar',
+                        height: 400,
+                        stacked: true
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: false
+                        }
+                    },
+                    colors: ['#10B981', '#EF4444'],
+                    title: {
+                        text: 'Distribución de Tiempo'
+                    },
+                    xaxis: {
+                        categories: diasSemana.map(dia => {
+                            const fecha = new Date(dia.fecha);
+                            const nombreDia = fecha.toLocaleDateString('es-ES', { weekday: 'short' });
+                            const numeroDia = fecha.getDate();
+                            return `${numeroDia} ${nombreDia}`;
+                        }),
+                        title: {
+                            text: 'Fecha'
+                        }
+                    },
+                    yaxis: {
+                        title: {
+                            text: 'Minutos'
+                        }
+                    }
+                };
+
                 // Renderizar gráficos
                 document.querySelector("#productividadChart").innerHTML = '';
                 document.querySelector("#rendimientoChart").innerHTML = '';
+                document.querySelector("#dotacionChart").innerHTML = '';
+                document.querySelector("#tiempoChart").innerHTML = '';
                 new ApexCharts(document.querySelector("#productividadChart"), optionsProductividad).render();
                 new ApexCharts(document.querySelector("#rendimientoChart"), optionsRendimiento).render();
+                new ApexCharts(document.querySelector("#dotacionChart"), optionsDotacion).render();
+                new ApexCharts(document.querySelector("#tiempoChart"), optionsTiempo).render();
+
+                // Calcular KPIs
+                const kpis = calcularKPIs(data);
+                actualizarKPIs(kpis);
+
             }
+
+            function calcularKPIs(data) {
+                // Suma total de kilos premium y recepción de la semana
+                const totales = data.reduce((acc, row) => {
+                    acc.kilos_premium += Number(row.kilos_premium) || 0;
+                    acc.kilos_recepcion += Number(row.kilos_recepcion) || 0;
+                    acc.ausentismo += Number(row.porcentaje_ausentismo) || 0;
+                    acc.tiempoEfectivo += (Number(row.minutos_efectivos) / (Number(row.minutos_efectivos) + Number(row.tiempo_muerto_minutos))) * 100 || 0;
+                    acc.dotacion += Number(row.dotacion_real) / Number(row.dotacion_esperada) * 100 || 0;
+                    acc.count++;
+                    return acc;
+                }, {
+                    kilos_premium: 0,
+                    kilos_recepcion: 0,
+                    ausentismo: 0,
+                    tiempoEfectivo: 0,
+                    dotacion: 0,
+                    count: 0
+                });
+
+                // Cálculo del rendimiento premium total de la semana
+                const rendimientoPremium = (totales.kilos_premium / totales.kilos_recepcion) * 100;
+
+                return {
+                    ausentismo: (totales.ausentismo / totales.count).toFixed(1),
+                    tiempoEfectivo: (totales.tiempoEfectivo / totales.count).toFixed(1),
+                    rendimientoPremium: rendimientoPremium.toFixed(1),
+                    dotacion: (totales.dotacion / totales.count).toFixed(1)
+                };
+            }
+
+            function actualizarKPIs(kpis) {
+                document.getElementById('kpiAusentismo').textContent = `${kpis.ausentismo}%`;
+                document.getElementById('kpiTiempoEfectivo').textContent = `${kpis.tiempoEfectivo}%`;
+                document.getElementById('kpiRendimientoPremium').textContent = `${kpis.rendimientoPremium}%`;
+                document.getElementById('kpiDotacion').textContent = `${kpis.dotacion}%`;
+            }
+
+
 
             // Eventos para recargar datos
             fechaInput.addEventListener('change', cargarDatos);
