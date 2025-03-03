@@ -14,35 +14,49 @@ class DashboardController extends Controller
         try {
             // Establecer valores por defecto
             $fecha = $request->fecha ? Carbon::parse($request->fecha) : Carbon::today();
-            $tipoPlanilla = $request->tipo_planilla ?? 'Filete'; // Filete por defecto
+            $tipoPlanilla = $request->tipo_planilla ?? 'Filete';
 
             // Obtener el inicio (lunes) y fin (domingo) de la semana
             $inicioSemana = $fecha->copy()->startOfWeek();
             $finSemana = $fecha->copy()->endOfWeek();
 
-            $query = DB::table('pst_2.dbo.vw_analisis_informes')
+            // Obtener datos de producción
+            $produccionQuery = DB::table('pst_2.dbo.vw_analisis_informes')
                 ->where('estado', 1)
                 ->where('tipo_planilla', $tipoPlanilla)
                 ->whereBetween('fecha_turno', [
                     $inicioSemana->format('Y-m-d'),
                     $finSemana->format('Y-m-d')
-                ]);
+                ])
+                ->orderBy('fecha_turno', 'desc')
+                ->orderBy('cod_turno', 'asc')
+                ->get();
 
-            // Ordenamos por fecha y turno
-            $query->orderBy('fecha_turno', 'desc')
-                ->orderBy('cod_turno', 'asc');
+            // Obtener datos de tiempos muertos con parámetros correctamente formateados
+            $tiemposMuertosQuery = DB::select("
+                SELECT * FROM pst_2.dbo.fn_tiempos_muertos_dashboard(
+                    '{$inicioSemana->format('Y-m-d')}',
+                    '{$finSemana->format('Y-m-d')}',
+                    '{$tipoPlanilla}'
+                )
+            ");
 
-            $results = $query->get();
+            // Combinar los resultados
+            $response = [
+                'produccion' => $produccionQuery,
+                'tiempos_muertos' => $tiemposMuertosQuery
+            ];
 
             Log::info('Consulta ejecutada', [
                 'fecha_seleccionada' => $fecha->format('Y-m-d'),
                 'inicio_semana' => $inicioSemana->format('Y-m-d'),
                 'fin_semana' => $finSemana->format('Y-m-d'),
                 'tipo_planilla' => $tipoPlanilla,
-                'cantidad_registros' => count($results)
+                'cantidad_registros_produccion' => count($produccionQuery),
+                'cantidad_registros_tiempos_muertos' => count($tiemposMuertosQuery)
             ]);
 
-            return $results;
+            return response()->json($response);
 
         } catch (\Exception $e) {
             Log::error('Error en getData:', [

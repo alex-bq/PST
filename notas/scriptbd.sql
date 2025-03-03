@@ -125,12 +125,19 @@ CREATE TABLE pst_2.dbo.tiempos_muertos (
     hora_inicio TIME,
     hora_termino TIME,
     duracion_minutos INT,
+    cod_departamento INT,
     FOREIGN KEY (cod_planilla) REFERENCES pst_2.dbo.planillas_pst(cod_planilla)
 );
 
 -- Crear tabla tipo_planilla
 CREATE TABLE pst_2.dbo.tipo_planilla (
     cod_tipo_planilla INT PRIMARY KEY IDENTITY(1,1),
+    nombre NVARCHAR(255),
+    activo INT
+);
+
+CREATE TABLE pst_2.dbo.departamentos (
+    cod_departamento INT PRIMARY KEY IDENTITY(1,1),
     nombre NVARCHAR(255),
     activo INT
 );
@@ -165,7 +172,6 @@ CREATE TABLE pst_2.dbo.informes_turno (
     estado SMALLINT DEFAULT 1,
     FOREIGN KEY (cod_usuario_crea) REFERENCES pst_2.dbo.usuarios_pst(cod_usuario)
 );
-
 
 
 
