@@ -1,6 +1,6 @@
 USE [master]
 GO
-/****** Object:  Database [pst_2]    Script Date: 20-02-2025 15:31:51 ******/
+/****** Object:  Database [pst_2]    Script Date: 03-03-2025 12:19:12 ******/
 CREATE DATABASE [pst_2]
  CONTAINMENT = NONE
  ON  PRIMARY 
@@ -75,7 +75,7 @@ ALTER DATABASE [pst_2] SET DELAYED_DURABILITY = DISABLED
 GO
 USE [pst_2]
 GO
-/****** Object:  Table [dbo].[calibre]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  Table [dbo].[calibre]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -90,7 +90,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[calidad]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  Table [dbo].[calidad]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -105,7 +105,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[corte]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  Table [dbo].[corte]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -120,7 +120,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[departamentos]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  Table [dbo].[departamentos]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -135,7 +135,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[destino]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  Table [dbo].[destino]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -150,7 +150,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[detalle_informe_sala]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  Table [dbo].[detalle_informe_sala]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -167,13 +167,18 @@ CREATE TABLE [dbo].[detalle_informe_sala](
 	[tiempo_muerto_minutos] [int] NULL,
 	[rendimiento] [decimal](10, 2) NULL,
 	[productividad] [decimal](10, 2) NULL,
+	[piezas_entrega] [int] NULL,
+	[piezas_recepcion] [int] NULL,
+	[tipo_planilla] [nvarchar](255) NULL,
+	[kilos_premium] [decimal](18, 2) NULL,
+	[premium] [decimal](5, 2) NULL,
 PRIMARY KEY CLUSTERED 
 (
 	[cod_detalle_informe] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[detalle_planilla_pst]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  Table [dbo].[detalle_planilla_pst]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -200,7 +205,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[informes_turno]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  Table [dbo].[informes_turno]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -220,7 +225,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[planillas_pst]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  Table [dbo].[planillas_pst]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -254,7 +259,7 @@ UNIQUE NONCLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[registro_planilla_pst]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  Table [dbo].[registro_planilla_pst]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -276,7 +281,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[roles]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  Table [dbo].[roles]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -290,7 +295,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[sala]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  Table [dbo].[sala]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -305,7 +310,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tiempos_muertos]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  Table [dbo].[tiempos_muertos]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -324,7 +329,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[tipo_planilla]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  Table [dbo].[tipo_planilla]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -338,7 +343,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  Table [dbo].[usuarios_pst]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  Table [dbo].[usuarios_pst]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -357,7 +362,7 @@ PRIMARY KEY CLUSTERED
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
-/****** Object:  View [dbo].[v_data_usuario]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  View [dbo].[v_data_usuario]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -380,7 +385,7 @@ INNER JOIN
     pst_2.dbo.roles ON pst_2.dbo.roles.cod_rol = pst_2.dbo.usuarios_pst.cod_rol;
 
 GO
-/****** Object:  View [dbo].[v_informe_por_turno]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  View [dbo].[v_informe_por_turno]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -417,7 +422,7 @@ GROUP BY
     dp.kilos_entrega,
     dp.kilos_recepcion;
 GO
-/****** Object:  View [dbo].[v_planilla_pst]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  View [dbo].[v_planilla_pst]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -467,7 +472,7 @@ ORDER BY
     pst_2.dbo.planillas_pst.fec_turno,
     pst_2.dbo.planillas_pst.fec_crea_planilla;
 GO
-/****** Object:  View [dbo].[v_registro_planilla_pst]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  View [dbo].[v_registro_planilla_pst]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -499,7 +504,7 @@ LEFT OUTER JOIN
     pst_2.dbo.destino AS de ON rp.cod_destino = de.cod_destino;
 
 GO
-/****** Object:  View [dbo].[v_planillas_pst_excel]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  View [dbo].[v_planillas_pst_excel]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -561,7 +566,7 @@ ORDER BY
     pst_2.dbo.planillas_pst.fec_turno,
     pst_2.dbo.planillas_pst.fec_crea_planilla;
 GO
-/****** Object:  UserDefinedFunction [dbo].[fn_GetDetalleProcesamiento]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  UserDefinedFunction [dbo].[fn_GetDetalleProcesamiento]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -577,6 +582,8 @@ AS
 RETURN
 (
     SELECT 
+	emp.descripcion,
+	emp.cod_empresa,
     dp.cod_sala,
     tp.cod_tipo_planilla,
     tp.nombre as tipo_planilla,
@@ -598,12 +605,18 @@ JOIN pst_2.dbo.destino d ON rp.cod_destino = d.cod_destino
 JOIN pst_2.dbo.calibre cal ON rp.cod_calibre = cal.cod_calib
 JOIN pst_2.dbo.calidad cld ON rp.cod_calidad = cld.cod_cald
 JOIN pst_2.dbo.tipo_planilla tp ON p.cod_tipo_planilla = tp.cod_tipo_planilla
+JOIN bdsystem.dbo.empresas emp ON emp.cod_empresa = p.cod_empresa
 WHERE p.fec_turno = @fecha 
 AND p.cod_turno = @turno
+AND (
+    (tp.nombre = 'Porciones' AND c_fin.nombre IN ('PORCION SIN PIEL', 'PORCION CON PIEL', 'PORCIONES'))
+    OR
+    (tp.nombre != 'Porciones' AND cld.nombre = 'PREMIUM' AND c_fin.nombre != 'COLLARES EN MITADES')
+)
 
 );
 GO
-/****** Object:  UserDefinedFunction [dbo].[fn_GetInformacionPorSala]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  UserDefinedFunction [dbo].[fn_GetInformacionPorSala]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -626,6 +639,8 @@ RETURN
         SUM(p.tiempo_trabajado) as horas_trabajadas ,
         SUM(dp.kilos_entrega) as kilos_entrega_total,
         SUM(dp.kilos_recepcion) as kilos_recepcion_total,
+		SUM(dp.piezas_entrega) as piezas_entrega_total,
+		SUM(dp.piezas_recepcion) as piezas_recepcion_total,
         CASE 
             WHEN tp.cod_tipo_planilla = 2 THEN SUM(dp.embolsado_terminado)
             ELSE NULL
@@ -647,7 +662,7 @@ RETURN
         tp.cod_tipo_planilla
 )
 GO
-/****** Object:  UserDefinedFunction [dbo].[fn_GetInformesDiarios]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  UserDefinedFunction [dbo].[fn_GetInformesDiarios]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -666,8 +681,6 @@ RETURN
         CONCAT(u.nombre, ' ', u.apellido) as jefe_turno_nom,
 		u.cod_usuario as jefe_turno,
         COUNT(DISTINCT p.cod_planilla) as cantidad_planillas,
-        AVG(dp.dotacion) as dotacion_promedio,
-        ROUND(AVG(dp.productividad), 2) as productividad_promedio,
         SUM(dp.kilos_entrega) as total_kilos_entrega,
         SUM(dp.kilos_recepcion) as total_kilos_recepcion,
         -- Agregamos un campo para poder ordenar después
@@ -688,7 +701,7 @@ RETURN
         u.apellido
 );
 GO
-/****** Object:  UserDefinedFunction [dbo].[fn_GetTiemposMuertos]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  UserDefinedFunction [dbo].[fn_GetTiemposMuertos]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -704,6 +717,8 @@ RETURN
 (
     SELECT 
     dp.cod_sala,
+	d.nombre,
+	d.cod_departamento,
     tp.cod_tipo_planilla,
     tp.nombre as tipo_planilla,
     tm.causa as motivo,
@@ -713,11 +728,70 @@ FROM pst_2.dbo.planillas_pst p
 JOIN pst_2.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
 JOIN pst_2.dbo.tiempos_muertos tm ON p.cod_planilla = tm.cod_planilla
 JOIN pst_2.dbo.tipo_planilla tp ON p.cod_tipo_planilla = tp.cod_tipo_planilla
+JOIN pst_2.dbo.departamentos d ON tm.cod_departamento = d.cod_departamento
+
 WHERE p.fec_turno = @fecha 
 AND p.cod_turno = @turno
 );
 GO
-/****** Object:  View [dbo].[v_resumen_diario]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  UserDefinedFunction [dbo].[fn_tiempos_muertos_dashboard]    Script Date: 03-03-2025 12:19:12 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+-- Creamos la función nuevamente
+CREATE FUNCTION [dbo].[fn_tiempos_muertos_dashboard]
+(
+    @fecha_inicio DATE,
+    @fecha_fin DATE,
+    @tipo_planilla VARCHAR(50)
+)
+RETURNS TABLE
+AS
+RETURN
+(
+    SELECT 
+        p.fec_turno,
+        CASE p.cod_turno 
+            WHEN 1 THEN 'Día'
+            WHEN 2 THEN 'Tarde'
+            WHEN 3 THEN 'Noche'
+        END AS turno_nombre,
+        d.nombre AS departamento,
+        SUM(tm.duracion_minutos) as total_minutos_muertos,
+        CASE 
+            WHEN SUM(p.tiempo_trabajado * 60) > 0 
+            THEN ROUND((SUM(tm.duracion_minutos) * 100.0 / SUM(p.tiempo_trabajado * 60)), 2)
+            ELSE 0 
+        END as porcentaje_tiempo_muerto,
+        s.nombre AS sala,
+        tp.nombre as tipo_planilla,
+        STUFF((
+            SELECT ', ' + causa
+            FROM pst_2.dbo.tiempos_muertos tm2
+            WHERE tm2.cod_planilla = p.cod_planilla
+            FOR XML PATH('')), 1, 2, '') as causas
+    FROM pst_2.dbo.planillas_pst p
+    INNER JOIN pst_2.dbo.tipo_planilla tp ON p.cod_tipo_planilla = tp.cod_tipo_planilla
+    INNER JOIN pst_2.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
+    INNER JOIN pst_2.dbo.sala s ON dp.cod_sala = s.cod_sala
+    INNER JOIN pst_2.dbo.tiempos_muertos tm ON p.cod_planilla = tm.cod_planilla
+    INNER JOIN pst_2.dbo.departamentos d ON tm.cod_departamento = d.cod_departamento
+    WHERE 
+        p.fec_turno BETWEEN @fecha_inicio AND @fecha_fin
+        AND tp.nombre = @tipo_planilla
+        AND p.guardado = 1
+    GROUP BY 
+        p.fec_turno,
+        p.cod_turno,
+        d.nombre,
+        s.nombre,
+        tp.nombre,
+        p.cod_planilla
+);
+GO
+/****** Object:  View [dbo].[v_resumen_diario]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -750,7 +824,7 @@ WHERE
 GROUP BY 
     p.fec_turno;
 GO
-/****** Object:  View [dbo].[v_resumen_informes]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  View [dbo].[v_resumen_informes]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -779,7 +853,7 @@ WHERE
 GROUP BY 
     i.cod_informe, i.fecha_turno, i.cod_turno;
 GO
-/****** Object:  View [dbo].[v_resumen_turno]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  View [dbo].[v_resumen_turno]    Script Date: 03-03-2025 12:19:12 ******/
 SET ANSI_NULLS ON
 GO
 SET QUOTED_IDENTIFIER ON
@@ -812,19 +886,40 @@ GROUP BY
     p.fec_turno,
     t.NomTurno;
 GO
-/****** Object:  Index [idx_detalle_informe_sala_informe]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  View [dbo].[vw_analisis_informes]    Script Date: 03-03-2025 12:19:12 ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+CREATE VIEW [dbo].[vw_analisis_informes]
+AS
+SELECT i.cod_informe, i.fecha_turno, i.cod_turno, CASE i.cod_turno WHEN 1 THEN 'Día' WHEN 2 THEN 'Tarde' WHEN 3 THEN 'Noche' END AS turno_nombre, i.cod_jefe_turno, u.nombre AS jefe_turno_nombre, i.fecha_creacion, s.cod_sala, s.nombre, d.tipo_planilla, d.dotacion_real, d.dotacion_esperada, CASE WHEN d .dotacion_esperada > 0 THEN ((d .dotacion_esperada - d .dotacion_real) 
+         * 100.0 / d .dotacion_esperada) ELSE 0 END AS porcentaje_ausentismo, d.kilos_entrega, d.kilos_recepcion, d.kilos_premium, d.premium AS porcentaje_premium, d.horas_trabajadas, d.tiempo_muerto_minutos, d.horas_trabajadas * 60 - d.tiempo_muerto_minutos AS minutos_efectivos, d.rendimiento, d.productividad, CASE WHEN d .horas_trabajadas > 0 AND 
+         d .dotacion_real > 0 THEN d .kilos_recepcion / (d .horas_trabajadas * d .dotacion_real) ELSE 0 END AS productividad_kg_hora_persona, CASE WHEN d .kilos_entrega > 0 THEN (d .kilos_premium * 100.0 / d .kilos_entrega) ELSE 0 END AS rendimiento_premium, DATEPART(WEEK, i.fecha_turno) AS semana, DATEPART(MONTH, i.fecha_turno) AS mes, DATEPART(YEAR, i.fecha_turno) 
+         AS año, DATEPART(WEEKDAY, i.fecha_turno) AS dia_semana, CASE WHEN d .horas_trabajadas > 0 THEN (d .tiempo_muerto_minutos * 100.0 / (d .horas_trabajadas * 60)) ELSE 0 END AS porcentaje_tiempo_muerto, i.comentarios, i.estado, d.piezas_entrega, d.piezas_recepcion
+FROM  dbo.informes_turno AS i INNER JOIN
+         dbo.detalle_informe_sala AS d ON i.cod_informe = d.cod_informe INNER JOIN
+         dbo.sala AS s ON d.cod_sala = s.cod_sala LEFT OUTER JOIN
+         dbo.usuarios_pst AS u ON i.cod_jefe_turno = u.cod_usuario
+WHERE (i.estado = 1)
+GO
+/****** Object:  Index [idx_detalle_informe_sala_informe]    Script Date: 03-03-2025 12:19:12 ******/
 CREATE NONCLUSTERED INDEX [idx_detalle_informe_sala_informe] ON [dbo].[detalle_informe_sala]
 (
 	[cod_informe] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
-/****** Object:  Index [idx_informes_turno_fecha]    Script Date: 20-02-2025 15:31:54 ******/
+/****** Object:  Index [idx_informes_turno_fecha]    Script Date: 03-03-2025 12:19:12 ******/
 CREATE NONCLUSTERED INDEX [idx_informes_turno_fecha] ON [dbo].[informes_turno]
 (
 	[fecha_turno] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, SORT_IN_TEMPDB = OFF, DROP_EXISTING = OFF, ONLINE = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 GO
 ALTER TABLE [dbo].[departamentos] ADD  DEFAULT ((1)) FOR [activo]
+GO
+ALTER TABLE [dbo].[detalle_informe_sala] ADD  DEFAULT ((0)) FOR [kilos_premium]
+GO
+ALTER TABLE [dbo].[detalle_informe_sala] ADD  DEFAULT ((0)) FOR [premium]
 GO
 ALTER TABLE [dbo].[informes_turno] ADD  DEFAULT (getdate()) FOR [fecha_creacion]
 GO
@@ -862,6 +957,158 @@ ALTER TABLE [dbo].[tiempos_muertos] CHECK CONSTRAINT [FK_tiempos_muertos_departa
 GO
 ALTER TABLE [dbo].[usuarios_pst]  WITH CHECK ADD FOREIGN KEY([cod_rol])
 REFERENCES [dbo].[roles] ([cod_rol])
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPane1', @value=N'[0E232FF0-B466-11cf-A24F-00AA00A3EFFF, 1.00]
+Begin DesignProperties = 
+   Begin PaneConfigurations = 
+      Begin PaneConfiguration = 0
+         NumPanes = 4
+         Configuration = "(H (1[51] 4[10] 2[20] 3) )"
+      End
+      Begin PaneConfiguration = 1
+         NumPanes = 3
+         Configuration = "(H (1 [50] 4 [25] 3))"
+      End
+      Begin PaneConfiguration = 2
+         NumPanes = 3
+         Configuration = "(H (1 [50] 2 [25] 3))"
+      End
+      Begin PaneConfiguration = 3
+         NumPanes = 3
+         Configuration = "(H (4 [30] 2 [40] 3))"
+      End
+      Begin PaneConfiguration = 4
+         NumPanes = 2
+         Configuration = "(H (1 [56] 3))"
+      End
+      Begin PaneConfiguration = 5
+         NumPanes = 2
+         Configuration = "(H (2 [66] 3))"
+      End
+      Begin PaneConfiguration = 6
+         NumPanes = 2
+         Configuration = "(H (4 [50] 3))"
+      End
+      Begin PaneConfiguration = 7
+         NumPanes = 1
+         Configuration = "(V (3))"
+      End
+      Begin PaneConfiguration = 8
+         NumPanes = 3
+         Configuration = "(H (1[56] 4[18] 2) )"
+      End
+      Begin PaneConfiguration = 9
+         NumPanes = 2
+         Configuration = "(H (1 [75] 4))"
+      End
+      Begin PaneConfiguration = 10
+         NumPanes = 2
+         Configuration = "(H (1[66] 2) )"
+      End
+      Begin PaneConfiguration = 11
+         NumPanes = 2
+         Configuration = "(H (4 [60] 2))"
+      End
+      Begin PaneConfiguration = 12
+         NumPanes = 1
+         Configuration = "(H (1) )"
+      End
+      Begin PaneConfiguration = 13
+         NumPanes = 1
+         Configuration = "(V (4))"
+      End
+      Begin PaneConfiguration = 14
+         NumPanes = 1
+         Configuration = "(V (2))"
+      End
+      ActivePaneConfig = 0
+   End
+   Begin DiagramPane = 
+      Begin Origin = 
+         Top = 0
+         Left = 0
+      End
+      Begin Tables = 
+         Begin Table = "i"
+            Begin Extent = 
+               Top = 67
+               Left = 59
+               Bottom = 314
+               Right = 356
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "d"
+            Begin Extent = 
+               Top = 33
+               Left = 1294
+               Bottom = 617
+               Right = 2047
+            End
+            DisplayFlags = 280
+            TopColumn = 2
+         End
+         Begin Table = "s"
+            Begin Extent = 
+               Top = 207
+               Left = 789
+               Bottom = 420
+               Right = 1064
+            End
+            DisplayFlags = 280
+            TopColumn = 0
+         End
+         Begin Table = "u"
+            Begin Extent = 
+               Top = 205
+               Left = 490
+               Bottom = 452
+               Right = 765
+            End
+            DisplayFlags = 280
+            TopColumn = 3
+         End
+      End
+   End
+   Begin SQLPane = 
+   End
+   Begin DataPane = 
+      Begin ParameterDefaults = ""
+      End
+      Begin ColumnWidths = 9
+         Width = 284
+         Width = 750
+         Width = 750
+         Width = 750
+         Width = 750
+         Width = 750
+         Width = 750
+         Width = 750
+         Width = 750
+      End
+   End
+   Begin CriteriaPane = 
+      Begin ColumnWidths = 11
+         Column = 1440
+         Alias = 900
+         Table = 1170
+         Output = 720
+         Append = 1400
+         NewValue = 1170
+         SortType = 1350
+         SortOrder = 1410
+         GroupBy = 1350
+         Filter = 1350
+         Or = 1350
+         Or = 1350
+         Or = 1350
+      End
+   End
+End
+' , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'vw_analisis_informes'
+GO
+EXEC sys.sp_addextendedproperty @name=N'MS_DiagramPaneCount', @value=1 , @level0type=N'SCHEMA',@level0name=N'dbo', @level1type=N'VIEW',@level1name=N'vw_analisis_informes'
 GO
 USE [master]
 GO

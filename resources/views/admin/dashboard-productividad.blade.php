@@ -78,8 +78,8 @@
                                 <label for="metaProductividad" class="text-sm font-medium text-gray-700">Meta:</label>
                                 <input type="number" id="metaProductividad"
                                     class="w-24 px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    value="800" step="1">
-                                <span class="text-sm text-gray-500">kg/hora/persona</span>
+                                    value="10000" step="1">
+                                <span class="text-sm text-gray-500" id="unidadMeta">kg</span>
                             </div>
                         </div>
                     </div>
@@ -90,16 +90,6 @@
                 <div class="col-span-2 bg-white p-6 rounded-lg shadow">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-semibold">Rendimiento Semanal</h3>
-                        <div class="flex items-center space-x-2">
-                            <label for="turnoSelectorRendimiento" class="text-sm font-medium text-gray-700">Turno:</label>
-                            <select id="turnoSelectorRendimiento"
-                                class="w-32 px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <option value="todos">Todos</option>
-                                <option value="Día">Día</option>
-                                <option value="Tarde">Tarde</option>
-                                <option value="Noche">Noche</option>
-                            </select>
-                        </div>
                     </div>
                     <div id="rendimientoChart" class="h-[400px]"></div>
                 </div>
@@ -140,7 +130,7 @@
             const tipoPlanillaSelect = document.getElementById('tipo_planilla');
             const metaProductividadInput = document.getElementById('metaProductividad');
             const turnoSelector = document.getElementById('turnoSelector');
-            const turnoSelectorRendimiento = document.getElementById('turnoSelectorRendimiento');
+            const unidadMeta = document.getElementById('unidadMeta');
 
             function formatDate(dateString) {
                 const date = new Date(dateString);
@@ -166,14 +156,14 @@
 
                 // Mensaje de no datos disponibles
                 const mensajeNoDatos = `
-                                    <div class="flex flex-col items-center justify-center p-6 text-gray-500">
-                                        <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
-                                        </svg>
-                                        <p class="text-lg font-semibold">No hay datos disponibles</p>
-                                        <p class="text-sm">Para la fecha ${new Date(fecha).toLocaleDateString()} y línea ${tipoPlanilla}</p>
-                                    </div>
-                                `;
+                                                        <div class="flex flex-col items-center justify-center p-6 text-gray-500">
+                                                            <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
+                                                            </svg>
+                                                            <p class="text-lg font-semibold">No hay datos disponibles</p>
+                                                            <p class="text-sm">Para la fecha ${new Date(fecha).toLocaleDateString()} y línea ${tipoPlanilla}</p>
+                                                        </div>
+                                                    `;
 
                 // Función para limpiar y mostrar mensaje
                 const mostrarMensajeNoDatos = () => {
@@ -253,7 +243,6 @@
                 }
 
                 const turnoSeleccionado = turnoSelector.value;
-                const turnoSeleccionadoRendimiento = turnoSelectorRendimiento.value;
                 const turnos = ['Día', 'Tarde', 'Noche'];
 
                 // Gráfico de Productividad
@@ -267,7 +256,15 @@
                                 formatDate(row.fecha_turno) === dia.fechaFormateada &&
                                 row.turno_nombre === turno
                             );
-                            return turnoData ? Number(turnoData.productividad_kg_hora_persona) : null;
+                            // Si es Porciones, usar kilos_recepcion, si no usar piezas_recepcion
+                            if (turnoData) {
+                                if (tipoPlanillaSelect.value === 'Porciones') {
+                                    return Number(turnoData.kilos_recepcion);
+                                } else {
+                                    return Number(turnoData.piezas_recepcion);
+                                }
+                            }
+                            return null;
                         })
                     }));
                 } else {
@@ -279,14 +276,22 @@
                                 formatDate(row.fecha_turno) === dia.fechaFormateada &&
                                 row.turno_nombre === turnoSeleccionado
                             );
-                            return turnoData ? Number(turnoData.productividad_kg_hora_persona) : null;
+                            // Si es Porciones, usar kilos_recepcion, si no usar piezas_recepcion
+                            if (turnoData) {
+                                if (tipoPlanillaSelect.value === 'Porciones') {
+                                    return Number(turnoData.kilos_recepcion);
+                                } else {
+                                    return Number(turnoData.piezas_recepcion);
+                                }
+                            }
+                            return null;
                         })
                     }];
                 }
 
                 // Determinar la unidad de medida según el tipo de planilla
                 const tipoPlanilla = tipoPlanillaSelect.value;
-                const unidadMedida = (tipoPlanilla === 'Porciones') ? 'kg/prs/hr' : 'pzs/prs/hr';
+                const unidadMedida = (tipoPlanilla === 'Porciones') ? 'Kilos' : 'Piezas';
 
                 const optionsProductividad = {
                     series: seriesProductividad,
@@ -304,7 +309,7 @@
                         enabled: true,
                         formatter: function (val) {
                             if (val === null || val === 0) return '';
-                            return val.toFixed(2);
+                            return Math.round(val); // Redondear valores
                         },
                         style: {
                             fontSize: '12px',
@@ -325,14 +330,19 @@
                     },
                     yaxis: {
                         title: {
-                            text: `Productividad (${unidadMedida})`
+                            text: `${unidadMedida} Recepción`
                         },
-                        min: 0,
-                        max: Math.ceil(parseFloat(metaProductividadInput.value) * 1.2),
-                        tickAmount: 10,
                         labels: {
                             formatter: function (val) {
                                 return Math.round(val);
+                            }
+                        }
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function (val) {
+                                if (val === null) return 'Sin datos';
+                                return Math.round(val) + ` ${unidadMedida}`;
                             }
                         }
                     },
@@ -350,17 +360,9 @@
                                         right: 10
                                     }
                                 },
-                                text: 'Meta de Productividad'
+                                text: `Meta: ${metaProductividadInput.value} ${tipoPlanillaSelect.value === 'Porciones' ? 'kg' : 'pzs'}`
                             }
                         }]
-                    },
-                    tooltip: {
-                        y: {
-                            formatter: function (val) {
-                                if (val === null) return 'Sin datos';
-                                return val.toFixed(2) + ` ${unidadMedida}`;
-                            }
-                        }
                     }
                 };
 
@@ -804,7 +806,13 @@
             tipoPlanillaSelect.addEventListener('change', cargarDatos);
             metaProductividadInput.addEventListener('change', cargarDatos);
             turnoSelector.addEventListener('change', cargarDatos);
-            turnoSelectorRendimiento.addEventListener('change', cargarDatos);
+
+            // Actualizar la unidad de la meta cuando cambie el tipo de planilla
+            tipoPlanillaSelect.addEventListener('change', function () {
+                const unidadMeta = document.getElementById('unidadMeta');
+                unidadMeta.textContent = this.value === 'Porciones' ? 'kg' : 'pzs';
+                cargarDatos();
+            });
 
             // Cargar datos iniciales
             cargarDatos();

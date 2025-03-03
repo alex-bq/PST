@@ -287,8 +287,8 @@
                                                                 ->where('cod_tipo_planilla', $sala->cod_tipo_planilla);
 
                                                             $rendimientoPremium = 0;
-                                                            if ($sala->kilos_entrega_total > 0) {
-                                                                $rendimientoPremium = ($procesamientoSala->sum('kilos') / $sala->kilos_entrega_total) * 100;
+                                                            if ($sala->kilos_recepcion_total > 0) {
+                                                                $rendimientoPremium = ($procesamientoSala->sum('kilos') / $sala->kilos_recepcion_total) * 100;
                                                             }
                                                         @endphp
                                                         {{ number_format($rendimientoPremium, 1) }}%
@@ -367,7 +367,7 @@
                                                             {{ number_format($sala->kilos_entrega_total, 1) }} kg
                                                         </p>
                                                     </div>
-                                                    @if($sala->tipo_planilla !== 'PORCIONES')
+                                                    @if($sala->tipo_planilla !== 'Porciones')
                                                         <div class="flex-grow-1">
                                                             <p class="text-muted small mb-1">Piezas</p>
                                                             <p class="fw-medium" data-piezas-entrega="{{ $sala->piezas_entrega_total }}">
