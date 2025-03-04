@@ -134,11 +134,10 @@
 
             function formatDate(dateString) {
                 const date = new Date(dateString);
-                return date.toLocaleDateString('es-CL', {
-                    day: '2-digit',
-                    month: '2-digit',
-                    year: 'numeric'
-                });
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
             }
 
             function formatearTiempo(minutos) {
@@ -156,14 +155,14 @@
 
                 // Mensaje de no datos disponibles
                 const mensajeNoDatos = `
-                                                        <div class="flex flex-col items-center justify-center p-6 text-gray-500">
-                                                            <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
-                                                            </svg>
-                                                            <p class="text-lg font-semibold">No hay datos disponibles</p>
-                                                            <p class="text-sm">Para la fecha ${new Date(fecha).toLocaleDateString()} y línea ${tipoPlanilla}</p>
-                                                        </div>
-                                                    `;
+                                                                                                                                    <div class="flex flex-col items-center justify-center p-6 text-gray-500">
+                                                                                                                                        <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
+                                                                                                                                        </svg>
+                                                                                                                                        <p class="text-lg font-semibold">No hay datos disponibles</p>
+                                                                                                                                        <p class="text-sm">Para la fecha ${new Date(fecha).toLocaleDateString()} y línea ${tipoPlanilla}</p>
+                                                                                                                                    </div>
+                                                                                                                                `;
 
                 // Función para limpiar y mostrar mensaje
                 const mostrarMensajeNoDatos = () => {
@@ -190,7 +189,7 @@
                     document.getElementById('kpiDotacion').textContent = '--';
                 };
 
-                fetch(`/pst/public/api/dashboard-data?fecha=${fecha}&tipo_planilla=${tipoPlanilla}`)
+                fetch(`/pst2/public/api/dashboard-data?fecha=${fecha}&tipo_planilla=${tipoPlanilla}`)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status}`);
@@ -198,6 +197,8 @@
                         return response.json();
                     })
                     .then(data => {
+                        console.log('Datos originales:', data);
+
                         // Verificar si hay datos
                         if (!data.produccion || data.produccion.length === 0) {
                             console.log('No hay datos de producción');
@@ -205,6 +206,7 @@
                             return;
                         }
 
+                        console.log('Enviando datos a actualizarGraficos:', data.produccion);
                         // Si hay datos, actualizar gráficos
                         actualizarGraficos(data.produccion);
 
@@ -224,6 +226,8 @@
             }
 
             function actualizarGraficos(data) {
+                console.log('Inicio actualizarGraficos con datos:', data);
+
                 // Obtener la fecha seleccionada y calcular el inicio/fin de la semana
                 const fechaSeleccionada = new Date(fechaInput.value);
                 const inicioSemana = new Date(fechaSeleccionada);
@@ -242,31 +246,40 @@
                     });
                 }
 
+                console.log('Días de la semana generados:', diasSemana);
+
                 const turnoSeleccionado = turnoSelector.value;
                 const turnos = ['Día', 'Tarde', 'Noche'];
 
                 // Gráfico de Productividad
                 let seriesProductividad;
                 if (turnoSeleccionado === 'todos') {
-                    seriesProductividad = turnos.map(turno => ({
-                        name: `${turno}`,
-                        type: 'bar',
-                        data: diasSemana.map(dia => {
-                            const turnoData = data.find(row =>
-                                formatDate(row.fecha_turno) === dia.fechaFormateada &&
-                                row.turno_nombre === turno
-                            );
-                            // Si es Porciones, usar kilos_recepcion, si no usar piezas_recepcion
-                            if (turnoData) {
-                                if (tipoPlanillaSelect.value === 'Porciones') {
-                                    return Number(turnoData.kilos_recepcion);
-                                } else {
-                                    return Number(turnoData.piezas_recepcion);
+                    seriesProductividad = turnos.map(turno => {
+                        const serieData = {
+                            name: turno,
+                            type: 'bar',
+                            data: diasSemana.map(dia => {
+                                const turnoData = data.find(row => {
+                                    console.log('Comparando fechas:', {
+                                        rowFecha: row.fecha_turno,
+                                        diaFecha: formatDate(dia.fecha),
+                                        rowTurno: row.turno_nombre,
+                                        turno: turno
+                                    });
+                                    return row.fecha_turno === formatDate(dia.fecha) &&
+                                        row.turno_nombre === turno;
+                                });
+
+                                if (turnoData) {
+                                    return tipoPlanillaSelect.value === 'Porciones' ?
+                                        Number(turnoData.kilos_recepcion) :
+                                        Number(turnoData.piezas_recepcion);
                                 }
-                            }
-                            return null;
-                        })
-                    }));
+                                return null;
+                            })
+                        };
+                        return serieData;
+                    });
                 } else {
                     seriesProductividad = [{
                         name: 'Productividad',
@@ -366,42 +379,47 @@
                     }
                 };
 
-                // Calcular rendimientos totales por día
-                const rendimientosPorDia = diasSemana.map(dia => {
-                    // Obtener todos los turnos de ese día
-                    const turnosDelDia = data.filter(row => formatDate(row.fecha_turno) === dia.fechaFormateada);
+                // Gráfico de Rendimiento
+                let seriesRendimiento = [{
+                    name: 'General',
+                    type: 'line',
+                    data: diasSemana.map(dia => {
+                        const datosDia = data.filter(row =>
+                            row.fecha_turno === dia.fechaFormateada &&
+                            (turnoSeleccionado === 'todos' || row.turno_nombre === turnoSeleccionado)
+                        );
 
-                    if (turnosDelDia.length === 0) return { rendimiento: null, rendimientoPremium: null };
+                        console.log(`Datos para ${dia.fechaFormateada} (General):`, datosDia);
 
-                    // Sumar los kilos totales del día
-                    const kilosEntregaTotal = turnosDelDia.reduce((sum, row) => sum + Number(row.kilos_entrega || 0), 0);
-                    const kilosRecepcionTotal = turnosDelDia.reduce((sum, row) => sum + Number(row.kilos_recepcion || 0), 0);
-                    const kilosPremiumTotal = turnosDelDia.reduce((sum, row) => sum + Number(row.kilos_premium || 0), 0);
+                        if (datosDia.length > 0) {
+                            const rendimientoPromedio = datosDia.reduce((sum, row) =>
+                                sum + Number(row.rendimiento), 0) / datosDia.length;
+                            return rendimientoPromedio;
+                        }
+                        return null;
+                    })
+                }, {
+                    name: 'Premium',
+                    type: 'line',
+                    data: diasSemana.map(dia => {
+                        const datosDia = data.filter(row =>
+                            row.fecha_turno === dia.fechaFormateada &&
+                            (turnoSeleccionado === 'todos' || row.turno_nombre === turnoSeleccionado)
+                        );
 
-                    // Calcular rendimientos
-                    const rendimientoTotal = kilosEntregaTotal > 0 ? (kilosRecepcionTotal * 100 / kilosEntregaTotal) : 0;
-                    // Corregido: Premium sobre kilos de recepción
-                    const rendimientoPremiumTotal = kilosRecepcionTotal > 0 ? (kilosPremiumTotal * 100 / kilosRecepcionTotal) : 0;
+                        console.log(`Datos para ${dia.fechaFormateada} (Premium):`, datosDia);
 
-                    return {
-                        rendimiento: rendimientoTotal,
-                        rendimientoPremium: rendimientoPremiumTotal
-                    };
-                });
+                        if (datosDia.length > 0) {
+                            const rendimientoPremiumPromedio = datosDia.reduce((sum, row) =>
+                                sum + Number(row.rendimiento_premium), 0) / datosDia.length;
+                            return rendimientoPremiumPromedio;
+                        }
+                        return null;
+                    })
+                }];
 
-                // Series de rendimiento
-                const seriesRendimiento = [
-                    {
-                        name: 'General',
-                        type: 'line',
-                        data: rendimientosPorDia.map(d => d.rendimiento)
-                    },
-                    {
-                        name: 'Premium ',
-                        type: 'line',
-                        data: rendimientosPorDia.map(d => d.rendimientoPremium)
-                    }
-                ];
+                // Agregar logs para verificar
+                console.log('Series Rendimiento procesadas:', seriesRendimiento);
 
                 const optionsRendimiento = {
                     series: seriesRendimiento,
@@ -419,8 +437,7 @@
                     dataLabels: {
                         enabled: true,
                         formatter: function (val) {
-                            if (val === null || val === 0) return '';
-                            return Math.round(val) + '%';
+                            return val !== null ? val.toFixed(2) + '%' : '0%';
                         },
                         offsetY: -10
                     },
@@ -457,7 +474,7 @@
                         tickAmount: 10,
                         labels: {
                             formatter: function (val) {
-                                return Math.round(val);
+                                return val !== null ? val.toFixed(2) : '0';
                             }
                         }
                     },
@@ -473,34 +490,56 @@
                         shared: true,
                         y: {
                             formatter: function (val) {
-                                if (val === null) return 'Sin datos';
-                                return val.toFixed(2) + '%';
+                                return val !== null ? val.toFixed(2) + '%' : '0%';
                             }
                         }
                     }
                 };
 
-                // Nuevo gráfico de dotación
+                // Gráfico de Dotación
+                let seriesDotacion = [{
+                    name: 'Dotación Real',
+                    type: 'line',
+                    data: diasSemana.map(dia => {
+                        const datosDia = data.filter(row =>
+                            row.fecha_turno === dia.fechaFormateada &&
+                            (turnoSeleccionado === 'todos' || row.turno_nombre === turnoSeleccionado)
+                        );
+
+                        console.log(`Datos para ${dia.fechaFormateada} (Dotación Real):`, datosDia);
+
+                        if (datosDia.length > 0) {
+                            const dotacionRealPromedio = datosDia.reduce((sum, row) =>
+                                sum + Number(row.dotacion_real), 0) / datosDia.length;
+                            return dotacionRealPromedio;
+                        }
+                        return null;
+                    })
+                }, {
+                    name: 'Dotación Esperada',
+                    type: 'line',
+                    data: diasSemana.map(dia => {
+                        const datosDia = data.filter(row =>
+                            row.fecha_turno === dia.fechaFormateada &&
+                            (turnoSeleccionado === 'todos' || row.turno_nombre === turnoSeleccionado)
+                        );
+
+                        console.log(`Datos para ${dia.fechaFormateada} (Dotación Esperada):`, datosDia);
+
+                        if (datosDia.length > 0) {
+                            const dotacionEsperadaPromedio = datosDia.reduce((sum, row) =>
+                                sum + Number(row.dotacion_esperada), 0) / datosDia.length;
+                            return dotacionEsperadaPromedio;
+                        }
+                        return null;
+                    })
+                }];
+
+                // Agregar logs para verificar
+                console.log('Series Dotación procesadas:', seriesDotacion);
+
                 const optionsDotacion = {
-                    series: [{
-                        name: 'Dotación Real',
-                        type: 'line',
-                        data: diasSemana.map(dia => {
-                            const turnoData = data.find(row =>
-                                formatDate(row.fecha_turno) === dia.fechaFormateada
-                            );
-                            return turnoData ? Number(turnoData.dotacion_real) : null;
-                        })
-                    }, {
-                        name: 'Dotación Esperada',
-                        type: 'line',
-                        data: diasSemana.map(dia => {
-                            const turnoData = data.find(row =>
-                                formatDate(row.fecha_turno) === dia.fechaFormateada
-                            );
-                            return turnoData ? Number(turnoData.dotacion_esperada) : null;
-                        })
-                    }],
+                    series: seriesDotacion,
                     chart: {
                         height: 300,
                         type: 'line',
@@ -554,25 +593,47 @@
                 };
 
                 // Gráfico de distribución de tiempo diario
+                let seriesTiemposDiarios = [{
+                    name: 'Horas Trabajadas',
+                    data: diasSemana.map(dia => {
+                        const datosDia = data.filter(row =>
+                            row.fecha_turno === dia.fechaFormateada &&
+                            (turnoSeleccionado === 'todos' || row.turno_nombre === turnoSeleccionado)
+                        );
+
+                        console.log(`Datos para ${dia.fechaFormateada} (Horas Trabajadas):`, datosDia);
+
+                        if (datosDia.length > 0) {
+                            const horasTrabajadasPromedio = datosDia.reduce((sum, row) =>
+                                sum + Number(row.minutos_efectivos), 0) / datosDia.length;
+                            return horasTrabajadasPromedio;
+                        }
+                        return null;
+                    })
+                }, {
+                    name: 'Tiempo Muerto',
+                    data: diasSemana.map(dia => {
+                        const datosDia = data.filter(row =>
+                            row.fecha_turno === dia.fechaFormateada &&
+                            (turnoSeleccionado === 'todos' || row.turno_nombre === turnoSeleccionado)
+                        );
+
+                        console.log(`Datos para ${dia.fechaFormateada} (Tiempo Muerto):`, datosDia);
+
+                        if (datosDia.length > 0) {
+                            const tiempoMuertoPromedio = datosDia.reduce((sum, row) =>
+                                sum + Number(row.tiempo_muerto_minutos), 0) / datosDia.length;
+                            return tiempoMuertoPromedio;
+                        }
+                        return null;
+                    })
+                }];
+
+                // Agregar logs para verificar
+                console.log('Series Tiempos procesadas:', seriesTiemposDiarios);
+
                 const optionsTiempoDiario = {
-                    series: [{
-                        name: 'Horas Trabajadas',
-                        data: diasSemana.map(dia => {
-                            const turnoData = data.find(row =>
-                                formatDate(row.fecha_turno) === dia.fechaFormateada
-                            );
-                            // Convertir horas trabajadas a minutos para mantener consistencia
-                            return turnoData ? Number(turnoData.horas_trabajadas * 60) : null;
-                        })
-                    }, {
-                        name: 'Tiempo Muerto',
-                        data: diasSemana.map(dia => {
-                            const turnoData = data.find(row =>
-                                formatDate(row.fecha_turno) === dia.fechaFormateada
-                            );
-                            return turnoData ? Number(turnoData.tiempo_muerto_minutos) : null;
-                        })
-                    }],
+                    series: seriesTiemposDiarios,
                     chart: {
                         type: 'bar',
                         height: 300,
@@ -625,6 +686,27 @@
                     }
                 };
 
+                // Después de procesar cada serie
+                console.log('Series Rendimiento:', seriesRendimiento);
+                console.log('Series Dotación:', seriesDotacion);
+                console.log('Series Tiempos:', seriesTiemposDiarios);
+
+                // Antes de renderizar cada gráfico
+                console.log('Datos gráfico rendimiento:', {
+                    series: optionsRendimiento.series,
+                    categorias: optionsRendimiento.xaxis.categories
+                });
+
+                console.log('Datos gráfico dotación:', {
+                    series: optionsDotacion.series,
+                    categorias: optionsDotacion.xaxis.categories
+                });
+
+                console.log('Datos gráfico tiempos:', {
+                    series: optionsTiempoDiario.series,
+                    categorias: optionsTiempoDiario.xaxis.categories
+                });
+
                 // Renderizar gráficos
                 document.querySelector("#productividadChart").innerHTML = '';
                 document.querySelector("#rendimientoChart").innerHTML = '';
@@ -639,7 +721,6 @@
                 // Calcular KPIs
                 const kpis = calcularKPIs(data);
                 actualizarKPIs(kpis);
-
             }
 
             function calcularKPIs(data) {

@@ -21,7 +21,7 @@ class DashboardController extends Controller
             $finSemana = $fecha->copy()->endOfWeek();
 
             // Obtener datos de producción
-            $produccionQuery = DB::table('pst_2.dbo.vw_analisis_informes')
+            $produccionQuery = DB::table('pst.dbo.vw_analisis_informes')
                 ->where('estado', 1)
                 ->where('tipo_planilla', $tipoPlanilla)
                 ->whereBetween('fecha_turno', [
@@ -34,7 +34,7 @@ class DashboardController extends Controller
 
             // Obtener datos de tiempos muertos con parámetros correctamente formateados
             $tiemposMuertosQuery = DB::select("
-                SELECT * FROM pst_2.dbo.fn_tiempos_muertos_dashboard(
+                SELECT * FROM pst.dbo.fn_tiempos_muertos_dashboard(
                     '{$inicioSemana->format('Y-m-d')}',
                     '{$finSemana->format('Y-m-d')}',
                     '{$tipoPlanilla}'

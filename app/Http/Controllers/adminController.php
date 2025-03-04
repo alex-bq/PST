@@ -17,7 +17,7 @@ class adminController extends Controller
             return redirect('/main');
         }
 
-        $cortes = DB::table('pst_2.dbo.corte')->select('*')->get();
+        $cortes = DB::table('pst.dbo.corte')->select('*')->get();
 
 
         return view('admin.mantencion.corte', compact('cortes'));
@@ -29,14 +29,14 @@ class adminController extends Controller
         } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
             return redirect('/main');
         }
-        $corteExistente = DB::table('pst_2.dbo.corte')
+        $corteExistente = DB::table('pst.dbo.corte')
             ->where('nombre', $request->nombre)
             ->first();
 
         if ($corteExistente) {
             return response()->json(['message' => 'El corte ya existe en la base de datos.', 'error' => 1]);
         }
-        DB::table('pst_2.dbo.corte')->insert([
+        DB::table('pst.dbo.corte')->insert([
             'nombre' => $request->nombre,
             'activo' => $request->activo,
         ]);
@@ -51,7 +51,7 @@ class adminController extends Controller
             return redirect('/main');
         }
         try {
-            $affectedRows = DB::table('pst_2.dbo.corte')
+            $affectedRows = DB::table('pst.dbo.corte')
                 ->where('cod_corte', $request->cod_corte)
                 ->update([
                     'nombre' => $request->nombre,
@@ -59,7 +59,7 @@ class adminController extends Controller
                 ]);
 
             if ($affectedRows > 0) {
-                $corteActualizado = DB::table('pst_2.dbo.corte')->where('cod_corte', $request->id)->first();
+                $corteActualizado = DB::table('pst.dbo.corte')->where('cod_corte', $request->id)->first();
                 return response()->json(['message' => 'Corte actualizado exitosamente.', 'corte' => $corteActualizado, 'error' => 0]);
             } else {
                 return response()->json(['message' => 'No se encontró el corte a actualizar.', 'error' => 1]);
@@ -77,7 +77,7 @@ class adminController extends Controller
         } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
             return redirect('/main');
         }
-        $calidades = DB::table('pst_2.dbo.calidad')->select('*')->get();
+        $calidades = DB::table('pst.dbo.calidad')->select('*')->get();
         return view('admin.mantencion.calidad', compact('calidades'));
     }
 
@@ -88,14 +88,14 @@ class adminController extends Controller
         } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
             return redirect('/main');
         }
-        $calidadExistente = DB::table('pst_2.dbo.calidad')
+        $calidadExistente = DB::table('pst.dbo.calidad')
             ->where('nombre', $request->nombre)
             ->first();
 
         if ($calidadExistente) {
             return response()->json(['message' => 'La calidad ya existe en la base de datos.', 'error' => 1]);
         }
-        DB::table('pst_2.dbo.calidad')->insert([
+        DB::table('pst.dbo.calidad')->insert([
             'nombre' => $request->nombre,
             'activo' => $request->activo,
         ]);
@@ -110,7 +110,7 @@ class adminController extends Controller
             return redirect('/main');
         }
         try {
-            $affectedRows = DB::table('pst_2.dbo.calidad')
+            $affectedRows = DB::table('pst.dbo.calidad')
                 ->where('cod_cald', $request->cod_cald)
                 ->update([
                     'nombre' => $request->nombre,
@@ -118,7 +118,7 @@ class adminController extends Controller
                 ]);
 
             if ($affectedRows > 0) {
-                $calidadActualizada = DB::table('pst_2.dbo.calidad')->where('cod_cald', $request->id)->first();
+                $calidadActualizada = DB::table('pst.dbo.calidad')->where('cod_cald', $request->id)->first();
                 return response()->json(['message' => 'Calidad actualizada exitosamente.', 'calidad' => $calidadActualizada, 'error' => 0]);
             } else {
                 return response()->json(['message' => 'No se encontró la calidad a actualizar.', 'error' => 1]);
@@ -135,7 +135,7 @@ class adminController extends Controller
         } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
             return redirect('/main');
         }
-        $destinos = DB::table('pst_2.dbo.destino')->select('*')->get();
+        $destinos = DB::table('pst.dbo.destino')->select('*')->get();
 
 
         return view('admin.mantencion.destino', compact('destinos'));
@@ -147,14 +147,14 @@ class adminController extends Controller
         } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
             return redirect('/main');
         }
-        $destinoExistente = DB::table('pst_2.dbo.destino')
+        $destinoExistente = DB::table('pst.dbo.destino')
             ->where('nombre', $request->nombre)
             ->first();
 
         if ($destinoExistente) {
             return response()->json(['message' => 'El destino ya existe en la base de datos.', 'error' => 1]);
         }
-        DB::table('pst_2.dbo.destino')->insert([
+        DB::table('pst.dbo.destino')->insert([
             'nombre' => $request->nombre,
             'activo' => $request->activo,
         ]);
@@ -169,7 +169,7 @@ class adminController extends Controller
             return redirect('/main');
         }
         try {
-            $affectedRows = DB::table('pst_2.dbo.destino')
+            $affectedRows = DB::table('pst.dbo.destino')
                 ->where('cod_destino', $request->cod_destino)
                 ->update([
                     'nombre' => $request->nombre,
@@ -177,7 +177,7 @@ class adminController extends Controller
                 ]);
 
             if ($affectedRows > 0) {
-                $destinoActualizado = DB::table('pst_2.dbo.destino')->where('cod_destino', $request->id)->first();
+                $destinoActualizado = DB::table('pst.dbo.destino')->where('cod_destino', $request->id)->first();
                 return response()->json(['message' => 'Destino actualizado exitosamente.', 'destino' => $destinoActualizado, 'error' => 0]);
             } else {
                 return response()->json(['message' => 'No se encontró el destino a actualizar.', 'error' => 1]);
@@ -193,7 +193,7 @@ class adminController extends Controller
         } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
             return redirect('/main');
         }
-        $calibres = DB::table('pst_2.dbo.calibre')->select('*')->get();
+        $calibres = DB::table('pst.dbo.calibre')->select('*')->get();
 
 
         return view('admin.mantencion.calibre', compact('calibres'));
@@ -205,14 +205,14 @@ class adminController extends Controller
         } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
             return redirect('/main');
         }
-        $calibreExistente = DB::table('pst_2.dbo.calibre')
+        $calibreExistente = DB::table('pst.dbo.calibre')
             ->where('nombre', $request->nombre)
             ->first();
 
         if ($calibreExistente) {
             return response()->json(['message' => 'El calibre ya existe en la base de datos.', 'error' => 1]);
         }
-        DB::table('pst_2.dbo.calibre')->insert([
+        DB::table('pst.dbo.calibre')->insert([
             'nombre' => $request->nombre,
             'activo' => $request->activo,
         ]);
@@ -227,7 +227,7 @@ class adminController extends Controller
             return redirect('/main');
         }
         try {
-            $affectedRows = DB::table('pst_2.dbo.calibre')
+            $affectedRows = DB::table('pst.dbo.calibre')
                 ->where('cod_calib', $request->cod_calib)
                 ->update([
                     'nombre' => $request->nombre,
@@ -235,7 +235,7 @@ class adminController extends Controller
                 ]);
 
             if ($affectedRows > 0) {
-                $calibreActualizado = DB::table('pst_2.dbo.calibre')->where('cod_calib', $request->id)->first();
+                $calibreActualizado = DB::table('pst.dbo.calibre')->where('cod_calib', $request->id)->first();
                 return response()->json(['message' => 'Calibre actualizado exitosamente.', 'calibre' => $calibreActualizado, 'error' => 0]);
             } else {
                 return response()->json(['message' => 'No se encontró el calibre a actualizar.', 'error' => 1]);
@@ -251,7 +251,7 @@ class adminController extends Controller
         } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
             return redirect('/main');
         }
-        $salas = DB::table('pst_2.dbo.sala')->select('*')->get();
+        $salas = DB::table('pst.dbo.sala')->select('*')->get();
         return view('admin.mantencion.sala', compact('salas'));
     }
 
@@ -262,14 +262,14 @@ class adminController extends Controller
         } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
             return redirect('/main');
         }
-        $salaExistente = DB::table('pst_2.dbo.sala')
+        $salaExistente = DB::table('pst.dbo.sala')
             ->where('nombre', $request->nombre)
             ->first();
 
         if ($salaExistente) {
             return response()->json(['message' => 'La sala ya existe en la base de datos.', 'error' => 1]);
         }
-        DB::table('pst_2.dbo.sala')->insert([
+        DB::table('pst.dbo.sala')->insert([
             'nombre' => $request->nombre,
             'activo' => $request->activo,
         ]);
@@ -284,7 +284,7 @@ class adminController extends Controller
             return redirect('/main');
         }
         try {
-            $affectedRows = DB::table('pst_2.dbo.sala')
+            $affectedRows = DB::table('pst.dbo.sala')
                 ->where('cod_sala', $request->cod_sala)
                 ->update([
                     'nombre' => $request->nombre,
@@ -292,7 +292,7 @@ class adminController extends Controller
                 ]);
 
             if ($affectedRows > 0) {
-                $salaActualizada = DB::table('pst_2.dbo.sala')->where('cod_sala', $request->id)->first();
+                $salaActualizada = DB::table('pst.dbo.sala')->where('cod_sala', $request->id)->first();
                 return response()->json(['message' => 'Sala actualizada exitosamente.', 'sala' => $salaActualizada, 'error' => 0]);
             } else {
                 return response()->json(['message' => 'No se encontró la sala a actualizar.', 'error' => 1]);
@@ -318,8 +318,8 @@ class adminController extends Controller
         } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
             return redirect('/main');
         }
-        $usuarios = DB::table('pst_2.dbo.v_data_usuario')->select('*')->orderBy('cod_rol')->get();
-        $roles = DB::table('pst_2.dbo.roles')->select('*')->orderBy('nombre_rol')->get();
+        $usuarios = DB::table('pst.dbo.v_data_usuario')->select('*')->orderBy('cod_rol')->get();
+        $roles = DB::table('pst.dbo.roles')->select('*')->orderBy('nombre_rol')->get();
 
 
         return view('admin.mantencion.usuario', compact('usuarios', 'roles'));
@@ -331,14 +331,14 @@ class adminController extends Controller
         } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
             return redirect('/main');
         }
-        $usuarioExistente = DB::table('pst_2.dbo.usuarios_pst')
+        $usuarioExistente = DB::table('pst.dbo.usuarios_pst')
             ->where('usuario', $request->usuario)
             ->first();
 
         if ($usuarioExistente) {
             return response()->json(['message' => 'El usuario ya existe en la base de datos.', 'error' => 1]);
         }
-        DB::table('pst_2.dbo.usuarios_pst')->insert([
+        DB::table('pst.dbo.usuarios_pst')->insert([
             'usuario' => $request->usuario,
             'pass' => $request->contra,
             'nombre' => $request->nombre,
@@ -357,7 +357,7 @@ class adminController extends Controller
             return redirect('/main');
         }
         try {
-            $affectedRows = DB::table('pst_2.dbo.usuarios_pst')
+            $affectedRows = DB::table('pst.dbo.usuarios_pst')
                 ->where('cod_usuario', $request->cod_usuario)
                 ->update([
                     'usuario' => $request->usuario,
@@ -369,7 +369,7 @@ class adminController extends Controller
                 ]);
 
             if ($affectedRows > 0) {
-                $usuarioActualizado = DB::table('pst_2.dbo.usuarios_pst')->where('cod_usuario', $request->id)->first();
+                $usuarioActualizado = DB::table('pst.dbo.usuarios_pst')->where('cod_usuario', $request->id)->first();
                 return response()->json(['message' => 'Usuario actualizado exitosamente.', 'corte' => $usuarioActualizado, 'error' => 0]);
             } else {
                 return response()->json(['message' => 'No se encontró el usuario a actualizar.', 'error' => 1]);

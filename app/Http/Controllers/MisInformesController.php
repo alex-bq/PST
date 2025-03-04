@@ -28,11 +28,11 @@ class MisInformesController extends Controller
                 CONCAT(u.nombre, ' ', u.apellido) as jefe_turno,
                 SUM(dp.kilos_entrega) as total_kilos_entrega,
                 SUM(dp.kilos_recepcion) as total_kilos_recepcion
-            FROM pst_2.dbo.planillas_pst p
+            FROM pst.dbo.planillas_pst p
             JOIN bdsystem.dbo.turno t ON p.cod_turno = t.CodTurno
-            JOIN pst_2.dbo.usuarios_pst u ON p.cod_jefe_turno = u.cod_usuario
-            JOIN pst_2.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
-            LEFT JOIN pst_2.dbo.informes_turno i ON p.fec_turno = i.fecha_turno 
+            JOIN pst.dbo.usuarios_pst u ON p.cod_jefe_turno = u.cod_usuario
+            JOIN pst.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
+            LEFT JOIN pst.dbo.informes_turno i ON p.fec_turno = i.fecha_turno 
                 AND p.cod_turno = i.cod_turno
             WHERE u.cod_usuario = ? 
                 AND p.guardado = 1 
@@ -65,10 +65,10 @@ class MisInformesController extends Controller
                 CONCAT(u.nombre, ' ', u.apellido) as jefe_turno,
                 SUM(d.kilos_entrega) as total_kilos_entrega,
                 SUM(d.kilos_recepcion) as total_kilos_recepcion
-            FROM pst_2.dbo.informes_turno i
+            FROM pst.dbo.informes_turno i
             JOIN bdsystem.dbo.turno t ON i.cod_turno = t.CodTurno
-            JOIN pst_2.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
-            JOIN pst_2.dbo.detalle_informe_sala d ON i.cod_informe = d.cod_informe
+            JOIN pst.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
+            JOIN pst.dbo.detalle_informe_sala d ON i.cod_informe = d.cod_informe
             WHERE i.cod_jefe_turno = ? 
                 AND i.estado = 1
                 AND i.fecha_turno >= ?
@@ -90,12 +90,12 @@ class MisInformesController extends Controller
     {
         try {
             // Primero eliminamos los detalles
-            DB::table('pst_2.dbo.detalle_informe_sala')
+            DB::table('pst.dbo.detalle_informe_sala')
                 ->where('cod_informe', $cod_informe)
                 ->delete();
 
             // Luego eliminamos el informe
-            DB::table('pst_2.dbo.informes_turno')
+            DB::table('pst.dbo.informes_turno')
                 ->where('cod_informe', $cod_informe)
                 ->delete();
 
@@ -112,10 +112,10 @@ class MisInformesController extends Controller
         try {
             \Log::info('Parámetros de búsqueda:', $request->all());
 
-            $query = DB::table('pst_2.dbo.informes_turno as i')
+            $query = DB::table('pst.dbo.informes_turno as i')
                 ->join('bdsystem.dbo.turno as t', 'i.cod_turno', '=', 't.CodTurno')
-                ->join('pst_2.dbo.usuarios_pst as u', 'i.cod_jefe_turno', '=', 'u.cod_usuario')
-                ->join('pst_2.dbo.detalle_informe_sala as d', 'i.cod_informe', '=', 'd.cod_informe')
+                ->join('pst.dbo.usuarios_pst as u', 'i.cod_jefe_turno', '=', 'u.cod_usuario')
+                ->join('pst.dbo.detalle_informe_sala as d', 'i.cod_informe', '=', 'd.cod_informe')
                 ->select(
                     'i.fecha_turno',
                     'i.cod_turno as turno',

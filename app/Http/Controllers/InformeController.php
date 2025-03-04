@@ -30,10 +30,10 @@ class InformeController extends Controller
         try {
             \Log::info('Parámetros de búsqueda:', $request->all());
 
-            $query = DB::table('pst_2.dbo.informes_turno as i')
+            $query = DB::table('pst.dbo.informes_turno as i')
                 ->join('bdsystem.dbo.turno as t', 'i.cod_turno', '=', 't.CodTurno')
-                ->join('pst_2.dbo.usuarios_pst as u', 'i.cod_jefe_turno', '=', 'u.cod_usuario')
-                ->join('pst_2.dbo.detalle_informe_sala as d', 'i.cod_informe', '=', 'd.cod_informe')
+                ->join('pst.dbo.usuarios_pst as u', 'i.cod_jefe_turno', '=', 'u.cod_usuario')
+                ->join('pst.dbo.detalle_informe_sala as d', 'i.cod_informe', '=', 'd.cod_informe')
                 ->select(
                     'i.fecha_turno',
                     'i.cod_turno as turno',
@@ -90,7 +90,7 @@ class InformeController extends Controller
 
             // Llamar a la función usando el nombre completo de la base de datos
             $informes = DB::select("
-                SELECT * FROM pst_2.dbo.fn_GetInformesDiarios(?)",
+                SELECT * FROM pst.dbo.fn_GetInformesDiarios(?)",
                 [$fecha]
             );
 
@@ -124,30 +124,30 @@ class InformeController extends Controller
         try {
             // Obtener datos del informe
             $informe = DB::select("
-                SELECT * FROM pst_2.dbo.fn_GetInformesDiarios(?)
+                SELECT * FROM pst.dbo.fn_GetInformesDiarios(?)
                 WHERE orden_turno = ?
             ", [$fecha, $turno])[0];
 
             // Obtener información por sala
             $informacion_sala = DB::select("
-                SELECT * FROM pst_2.dbo.fn_GetInformacionPorSala(?, ?)
+                SELECT * FROM pst.dbo.fn_GetInformacionPorSala(?, ?)
             ", [$fecha, $turno]);
 
             // Obtener detalle de procesamiento
             $detalle_procesamiento = DB::select("
-                SELECT * FROM pst_2.dbo.fn_GetDetalleProcesamiento(?, ?)
+                SELECT * FROM pst.dbo.fn_GetDetalleProcesamiento(?, ?)
             ", [$fecha, $turno]);
 
             // Obtener suma de kilos para porciones terminadas
             $porcionTerminada = DB::select("
                 SELECT SUM(kilos) AS porcionTerminada
-                FROM pst_2.dbo.fn_GetDetalleProcesamiento(?, ?)
+                FROM pst.dbo.fn_GetDetalleProcesamiento(?, ?)
                 WHERE corte_final IN ('PORCION SIN PIEL', 'PORCION CON PIEL', 'PORCIONES')
             ", [$fecha, $turno])[0]->porcionTerminada ?? 0;
 
             // Obtener tiempos muertos
             $tiempos_muertos = DB::select("
-                SELECT * FROM pst_2.dbo.fn_GetTiemposMuertos(?, ?)
+                SELECT * FROM pst.dbo.fn_GetTiemposMuertos(?, ?)
             ", [$fecha, $turno]);
 
             return view('informes.detalle-turno', compact(
@@ -198,7 +198,7 @@ class InformeController extends Controller
             $fechaCreacion = Carbon::now()->format('Ymd H:i:s');
 
             // Crear el informe
-            $informe = DB::table('pst_2.dbo.informes_turno')->insertGetId([
+            $informe = DB::table('pst.dbo.informes_turno')->insertGetId([
                 'fecha_turno' => $fechaTurno,
                 'cod_turno' => (int) $request->cod_turno,
                 'cod_jefe_turno' => $request->cod_jefe_turno,
@@ -210,7 +210,7 @@ class InformeController extends Controller
 
             // Insertar detalles por sala
             foreach ($request->salas as $sala) {
-                DB::table('pst_2.dbo.detalle_informe_sala')->insert([
+                DB::table('pst.dbo.detalle_informe_sala')->insert([
                     'cod_informe' => $informe,
                     'cod_sala' => (int) $sala['cod_sala'],
                     'dotacion_real' => (int) $sala['dotacion_real'],
@@ -255,7 +255,7 @@ class InformeController extends Controller
     {
         try {
             $fechaTurno = Carbon::parse($request->fecha)->format('Ymd');
-            $existeInforme = DB::table('pst_2.dbo.informes_turno')
+            $existeInforme = DB::table('pst.dbo.informes_turno')
                 ->where('fecha_turno', $fechaTurno)
                 ->where('cod_turno', $request->turno)
                 ->exists();
@@ -288,10 +288,10 @@ class InformeController extends Controller
                     
                     
 					
-                FROM pst_2.dbo.informes_turno i
+                FROM pst.dbo.informes_turno i
                 JOIN bdsystem.dbo.turno t ON i.cod_turno = t.CodTurno
-                JOIN pst_2.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
-                JOIN pst_2.dbo.detalle_informe_sala d ON i.cod_informe = d.cod_informe
+                JOIN pst.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
+                JOIN pst.dbo.detalle_informe_sala d ON i.cod_informe = d.cod_informe
 
                 WHERE i.fecha_turno = ?  AND i.cod_turno = ?
 
@@ -325,20 +325,20 @@ class InformeController extends Controller
     d.piezas_recepcion as piezas_recepcion_total,
     d.dotacion_real,
     d.dotacion_esperada
-FROM pst_2.dbo.detalle_informe_sala d
-JOIN pst_2.dbo.sala s ON d.cod_sala = s.cod_sala
-JOIN pst_2.dbo.informes_turno i ON i.cod_informe = d.cod_informe
+FROM pst.dbo.detalle_informe_sala d
+JOIN pst.dbo.sala s ON d.cod_sala = s.cod_sala
+JOIN pst.dbo.informes_turno i ON i.cod_informe = d.cod_informe
 WHERE d.cod_informe = ?
             ", [$informe->cod_informe]);
 
             // Obtener detalle de procesamiento
             $detalle_procesamiento = DB::select("
-                SELECT * FROM pst_2.dbo.fn_GetDetalleProcesamiento(?, ?)
+                SELECT * FROM pst.dbo.fn_GetDetalleProcesamiento(?, ?)
             ", [$fecha, $turno]);
 
             // Obtener tiempos muertos
             $tiempos_muertos = DB::select("
-                SELECT * FROM pst_2.dbo.fn_GetTiemposMuertos(?, ?)
+                SELECT * FROM pst.dbo.fn_GetTiemposMuertos(?, ?)
             ", [$fecha, $turno]);
 
             // Obtener resumen
@@ -358,8 +358,8 @@ WHERE d.cod_informe = ?
                     SUM(d.kilos_recepcion) as total_kilos_recepcion,
                     AVG(d.rendimiento) as rendimiento_promedio,
                     AVG(d.productividad) as productividad_promedio
-                FROM pst_2.dbo.informes_turno i
-                JOIN pst_2.dbo.detalle_informe_sala d ON i.cod_informe = d.cod_informe
+                FROM pst.dbo.informes_turno i
+                JOIN pst.dbo.detalle_informe_sala d ON i.cod_informe = d.cod_informe
                 WHERE i.cod_informe = ?
                 GROUP BY i.cod_informe, i.fecha_turno, i.cod_turno
             ", [$informe->cod_informe])[0];

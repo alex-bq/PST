@@ -666,7 +666,7 @@
                     body: JSON.stringify({
                         fecha: '{{ $fecha }}',
                         turno: {{ $turno }}
-                                                                                })
+                                                                                    })
                 });
 
                 const data = await response.json();
@@ -794,7 +794,7 @@
                         if (data.status === 'success') {
                             toastr.success('Informe guardado correctamente');
                             setTimeout(() => {
-                                window.location.href = '/pst/public/mis-informes';
+                                window.location.href = '/pst2/public/mis-informes';
                             }, 1500);
                         } else {
                             throw new Error(data.message || 'Error al guardar el informe');
