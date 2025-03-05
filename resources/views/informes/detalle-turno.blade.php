@@ -536,6 +536,88 @@
             </div>
         @endforeach
 
+        <!-- Sección de Empaque Premium -->
+        <div class="tipo-planilla-section">
+            <h3 class="tipo-planilla-title">Empaque </h3>
+            <div class="salas-grid">
+                <div class="card w-full max-w-2xl mb-[10px]">
+                    <div class="card-header bg-primary/5 pb-2">
+                        <div class="text-xl flex items-center justify-between">
+                            <span class="flex items-center gap-2">
+                                Detalle
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body pt-4">
+                        <!-- Dotación Section -->
+                        <div class="mb-4">
+                            <h5 class="d-flex align-items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="text-primary me-2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                                Dotación
+                            </h5>
+                            <div class="row">
+                                <div class="col-6">
+                                    <label class="form-label text-muted small mb-1">Real</label>
+                                    <input type="number" class="form-control form-control-sm dotacion-input" min="0"
+                                        value="0" data-area="empaque" onclick="this.select()"
+                                        onchange="actualizarDotacionTotal()">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label text-muted small mb-1">Esperada</label>
+                                    <input type="number" class="form-control form-control-sm dotacion-esperada-input"
+                                        min="0" value="0" data-area="empaque" onclick="this.select()"
+                                        onchange="actualizarDotacionTotal()">
+                                </div>
+                            </div>
+                        </div>
+                        @if(count($empaque_premium) > 0)
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr class="text-muted small">
+                                            <th class="border-0">Producto</th>
+                                            <th class="border-0">Empresa</th>
+                                            <th class="border-0 text-end">Lotes</th>
+                                            <th class="border-0 text-end">Kilos</th>
+                                            <th class="border-0 text-end">Piezas</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="small">
+                                        @foreach($empaque_premium as $premium)
+                                            <tr>
+                                                <td class="border-0">{{ $premium->Producto }}</td>
+                                                <td class="border-0">{{ $premium->Empresa }}</td>
+                                                <td class="border-0 text-end">{{ $premium->Cantidad_Lotes }}</td>
+                                                <td class="border-0 text-end">{{ number_format($premium->Total_Kilos, 1, ',', '.') }}</td>
+                                                <td class="border-0 text-end">{{ number_format($premium->Total_Piezas, 0, ',', '.') }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                    <tfoot class="small fw-bold">
+                                        <tr>
+                                            <td class="border-0" colspan="3"></td>
+                                            <td class="border-0 text-end">{{ number_format(collect($empaque_premium)->sum('Total_Kilos'), 1, ',', '.') }}</td>
+                                            <td class="border-0 text-end">{{ number_format(collect($empaque_premium)->sum('Total_Piezas'), 0, ',', '.') }}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        @else
+                            <div class="alert alert-info py-2 small">
+                                No hay datos de empaque premium para este turno.
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="card mb-4 comentarios-card">
 
@@ -569,28 +651,38 @@
 
                 inputsReal.forEach(input => {
                     totalReal += parseInt(input.value) || 0;
-                    // Actualizar productividad para cada sala
-                    const salaCard = input.closest('.sala-card');
-                    if (salaCard) {
+                    
+                    // Actualizar productividad para cada sala o área
+                    if (input.dataset.area === 'empaque') {
+                        // Cálculo específico para empaque
                         const dotacion = parseInt(input.value) || 0;
-                        const horasTrabajadas = parseFloat(salaCard.querySelector('[data-horas-trabajadas]')?.dataset?.horasTrabajadas) || 0;
-                        const tipoPlanilla = salaCard.dataset.tipoPlanilla;
+                        const totalPiezas = Array.from(document.querySelectorAll('.detail-table tbody tr'))
+                            .reduce((sum, row) => sum + (parseInt(row.cells[4]?.textContent.replace(/[^\d.-]/g, '')) || 0), 0);
+                        
+                    } else {
+                        // Cálculo existente para salas
+                        const salaCard = input.closest('.sala-card');
+                        if (salaCard) {
+                            const dotacion = parseInt(input.value) || 0;
+                            const horasTrabajadas = parseFloat(salaCard.querySelector('[data-horas-trabajadas]')?.dataset?.horasTrabajadas) || 0;
+                            const tipoPlanilla = salaCard.dataset.tipoPlanilla;
 
-                        let productividad = 0;
-                        if (horasTrabajadas > 0 && dotacion > 0) {
-                            if (tipoPlanilla === 'Porciones') {
-                                const kilosRecepcion = parseFloat(salaCard.querySelector('[data-kilos-recepcion]')?.textContent?.replace(/[^\d.-]/g, '')) || 0;
-                                productividad = kilosRecepcion / (horasTrabajadas * dotacion);
-                            } else {
-                                const piezasRecepcion = parseInt(salaCard.querySelector('[data-piezas-recepcion]')?.textContent?.replace(/[^\d.-]/g, '')) || 0;
-                                productividad = piezasRecepcion / (horasTrabajadas * dotacion);
+                            let productividad = 0;
+                            if (horasTrabajadas > 0 && dotacion > 0) {
+                                if (tipoPlanilla === 'Porciones') {
+                                    const kilosRecepcion = parseFloat(salaCard.querySelector('[data-kilos-recepcion]')?.textContent?.replace(/[^\d.-]/g, '')) || 0;
+                                    productividad = kilosRecepcion / (horasTrabajadas * dotacion);
+                                } else {
+                                    const piezasRecepcion = parseInt(salaCard.querySelector('[data-piezas-recepcion]')?.textContent?.replace(/[^\d.-]/g, '')) || 0;
+                                    productividad = piezasRecepcion / (horasTrabajadas * dotacion);
+                                }
                             }
-                        }
 
-                        const productividadElement = salaCard.querySelector('.productividad-valor');
-                        if (productividadElement) {
-                            const unidad = tipoPlanilla === 'Porciones' ? '<label class="form-label text-muted small mb-1">kg/pers/hr</label>' : '<label class="form-label text-muted small mb-1"> pzs/pers/hr</label>';
-                            productividadElement.innerHTML = productividad > 0 ? productividad.toFixed(1) + unidad : '-' + unidad;
+                            const productividadElement = salaCard.querySelector('.productividad-valor');
+                            if (productividadElement) {
+                                const unidad = tipoPlanilla === 'Porciones' ? '<label class="form-label text-muted small mb-1">kg/pers/hr</label>' : '<label class="form-label text-muted small mb-1">pzs/pers/hr</label>';
+                                productividadElement.innerHTML = productividad > 0 ? productividad.toFixed(1) + unidad : '-' + unidad;
+                            }
                         }
                     }
                 });
@@ -704,11 +796,15 @@
         function enviarDatos() {
             try {
                 const salas = document.querySelectorAll('.sala-card[data-sala-id]');
+                console.log(parseInt(document.querySelector('.dotacion-input[data-area="empaque"]')?.value) || 0 + 'd_real_empaque');
+                console.log(parseInt(document.querySelector('.dotacion-esperada-input[data-area="empaque"]')?.value) || 0 + 'd_esperada_empaque');
                 const datosInforme = {
                     fecha_turno: '{{ $fecha }}',
                     cod_turno: {{ $turno }},
                     cod_jefe_turno: '{{ $informe->jefe_turno ?? "" }}',
                     comentarios: document.getElementById('comentarios_turno')?.value,
+                    d_real_empaque: parseInt(document.querySelector('.dotacion-input[data-area="empaque"]')?.value) || 0,
+                    d_esperada_empaque: parseInt(document.querySelector('.dotacion-esperada-input[data-area="empaque"]')?.value) || 0,
                     salas: Array.from(salas).map(sala => {
                         // Obtener los valores numéricos limpiando el formato
                         const getNumericValue = (selector) => {

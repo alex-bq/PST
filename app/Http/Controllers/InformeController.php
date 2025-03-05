@@ -150,6 +150,32 @@ class InformeController extends Controller
                 SELECT * FROM pst.dbo.fn_GetTiemposMuertos(?, ?)
             ", [$fecha, $turno]);
 
+            // Obtener datos de empaque premium
+            $empaque_premium = DB::select("
+                SELECT 
+                    CAST(Registro_Sistema AS DATE) AS Fecha,
+                    N_Turno AS Turno,
+                    Producto,
+                    Empresa,
+                    COUNT(DISTINCT N_Lote) AS Cantidad_Lotes,
+                    SUM(CAST(N_PNom AS FLOAT)) AS Total_Kilos,
+                    SUM(piezas) AS Total_Piezas
+                FROM bdsystem.dbo.v_empaque
+                WHERE 
+                    CAST(Registro_Sistema AS DATE) = ?
+                    AND N_IDTurno = ?
+                    AND N_Calidad = 'PREMIUM'
+                GROUP BY 
+                    CAST(Registro_Sistema AS DATE),
+                    N_Turno,
+                    Producto,
+                    Empresa
+                ORDER BY 
+                    CAST(Registro_Sistema AS DATE) DESC,
+                    N_Turno,
+                    SUM(CAST(N_PNom AS FLOAT)) DESC
+            ", [$fecha, $turno]);
+
             return view('informes.detalle-turno', compact(
                 'fecha',
                 'turno',
@@ -157,7 +183,8 @@ class InformeController extends Controller
                 'informacion_sala',
                 'detalle_procesamiento',
                 'porcionTerminada',
-                'tiempos_muertos'
+                'tiempos_muertos',
+                'empaque_premium'
             ));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Error al cargar el detalle del turno: ' . $e->getMessage());
@@ -174,6 +201,8 @@ class InformeController extends Controller
                 'cod_turno' => 'required|integer|min:1',
                 'cod_jefe_turno' => 'required',
                 'comentarios' => 'required|string',
+                'd_real_empaque' => 'nullable|integer|min:0',
+                'd_esperada_empaque' => 'nullable|integer|min:0',
                 'salas' => 'required|array|min:1',
                 'salas.*.cod_sala' => 'required|integer|min:1',
                 'salas.*.dotacion_real' => 'required|integer|min:0',
@@ -205,6 +234,8 @@ class InformeController extends Controller
                 'cod_usuario_crea' => auth()->id(),
                 'comentarios' => $request->comentarios,
                 'fecha_creacion' => $fechaCreacion,
+                'd_real_empaque' => (int) $request->d_real_empaque,
+                'd_esperada_empaque' => (int) $request->d_esperada_empaque,
                 'estado' => 1
             ]);
 
@@ -280,30 +311,29 @@ class InformeController extends Controller
                 SELECT 
                     i.cod_informe,
                     i.fecha_turno as fecha,
-					t.NomTurno as turno,
+                    t.NomTurno as turno,
                     i.cod_turno as orden_turno,
-					CONCAT(u.nombre, ' ', u.apellido) as jefe_turno_nom,
+                    CONCAT(u.nombre, ' ', u.apellido) as jefe_turno_nom,
                     u.cod_usuario as jefe_turno,
-                    i.comentarios
-                    
-                    
-					
+                    i.comentarios,
+                    i.d_real_empaque,
+                    i.d_esperada_empaque
                 FROM pst.dbo.informes_turno i
                 JOIN bdsystem.dbo.turno t ON i.cod_turno = t.CodTurno
                 JOIN pst.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
                 JOIN pst.dbo.detalle_informe_sala d ON i.cod_informe = d.cod_informe
-
-                WHERE i.fecha_turno = ?  AND i.cod_turno = ?
-
-				GROUP BY 
-					i.cod_informe,
-					i.fecha_turno,
-					t.NomTurno,
-					i.cod_turno,
-					u.nombre,
-					u.apellido,
-					u.cod_usuario,
-					i.comentarios
+                WHERE i.fecha_turno = ? AND i.cod_turno = ?
+                GROUP BY 
+                    i.cod_informe,
+                    i.fecha_turno,
+                    t.NomTurno,
+                    i.cod_turno,
+                    u.nombre,
+                    u.apellido,
+                    u.cod_usuario,
+                    i.comentarios,
+                    i.d_real_empaque,
+                    i.d_esperada_empaque
             ", [$fecha, $turno])[0];
 
             // Obtener información por sala desde la tabla
@@ -364,16 +394,31 @@ WHERE d.cod_informe = ?
                 GROUP BY i.cod_informe, i.fecha_turno, i.cod_turno
             ", [$informe->cod_informe])[0];
 
-            // Agregar dd() para ver todos los datos
-            // dd([
-            //     'fecha' => $fecha,
-            //     'turno' => $turno,
-            //     'informe' => $informe,
-            //     'informacion_sala' => $informacion_sala,
-            //     'detalle_procesamiento' => $detalle_procesamiento,
-            //     'tiempos_muertos' => $tiempos_muertos,
-            //     'resumen' => $resumen
-            // ]);
+            // Obtener datos de empaque premium
+            $empaque_premium = DB::select("
+                SELECT 
+                    CAST(Registro_Sistema AS DATE) AS Fecha,
+                    N_Turno AS Turno,
+                    Producto,
+                    Empresa,
+                    COUNT(DISTINCT N_Lote) AS Cantidad_Lotes,
+                    SUM(CAST(N_PNom AS FLOAT)) AS Total_Kilos,
+                    SUM(piezas) AS Total_Piezas
+                FROM bdsystem.dbo.v_empaque
+                WHERE 
+                    CAST(Registro_Sistema AS DATE) = ?
+                    AND N_IDTurno = ?
+                    AND N_Calidad = 'PREMIUM'
+                GROUP BY 
+                    CAST(Registro_Sistema AS DATE),
+                    N_Turno,
+                    Producto,
+                    Empresa
+                ORDER BY 
+                    CAST(Registro_Sistema AS DATE) DESC,
+                    N_Turno,
+                    SUM(CAST(N_PNom AS FLOAT)) DESC
+            ", [$fecha, $turno]);
 
             return view('informes.show', compact(
                 'fecha',
@@ -382,7 +427,7 @@ WHERE d.cod_informe = ?
                 'informacion_sala',
                 'detalle_procesamiento',
                 'tiempos_muertos',
-                'resumen'
+                'empaque_premium'
             ));
 
         } catch (\Exception $e) {

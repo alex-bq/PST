@@ -27,13 +27,28 @@
                         <option value="Filete" selected>Filete</option>
                         <option value="Porciones">Porciones</option>
                         <option value="HG">HG</option>
+                        <option value="Empaque">Empaque</option>
                     </select>
+                    
+                    <!-- Selector de Turno (movido aquí) -->
+                    <div class="flex items-center space-x-2">
+                        <label for="turnoSelector" class="text-sm font-medium text-gray-700">Turno:</label>
+                        <select id="turnoSelector"
+                            class="w-32 px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="todos">Todos</option>
+                            <option value="Día">Día</option>
+                            <option value="Tarde">Tarde</option>
+                            <option value="Noche">Noche</option>
+                        </select>
+                    </div>
                 </div>
             </div>
         </div>
 
         <!-- Panel de KPIs -->
         <div class="p-6">
+            <!-- Título para los indicadores semanales -->
+            <h3 class="text-base font-medium text-gray-700 mb-3">Indicadores Semanales</h3>
             <div class="grid grid-cols-5 gap-4 mb-6">
                 <div class="bg-white p-4 rounded-lg shadow">
                     <h4 class="text-sm font-semibold text-gray-600">Dotación vs Esperada</h4>
@@ -57,23 +72,15 @@
                 </div>
             </div>
 
+            <!-- Título para los gráficos -->
+            <h3 class="text-base font-medium text-gray-700 mb-3">Gráficos por Turno: <span id="turnoTitulo">Todos</span></h3>
             <!-- Gráficos principales -->
-            <div class="grid grid-cols-6 gap-6">
+            <div class="grid grid-cols-6 gap-6" id="graficos-produccion">
                 <!-- Gráfico de Productividad (ocupa 4/6) -->
                 <div class="col-span-4 bg-white p-6 rounded-lg shadow">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">Productividad por Turno</h3>
+                        <h3 class="text-lg font-semibold hidden">Productividad por Turno</h3>
                         <div class="flex items-center space-x-4">
-                            <div class="flex items-center space-x-2">
-                                <label for="turnoSelector" class="text-sm font-medium text-gray-700">Turno:</label>
-                                <select id="turnoSelector"
-                                    class="w-32 px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="todos">Todos</option>
-                                    <option value="Día">Día</option>
-                                    <option value="Tarde">Tarde</option>
-                                    <option value="Noche">Noche</option>
-                                </select>
-                            </div>
                             <div class="flex items-center space-x-2">
                                 <label for="metaProductividad" class="text-sm font-medium text-gray-700">Meta:</label>
                                 <input type="number" id="metaProductividad"
@@ -89,7 +96,7 @@
                 <!-- Gráfico de Rendimiento (ocupa 2/6) -->
                 <div class="col-span-2 bg-white p-6 rounded-lg shadow">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">Rendimiento Semanal</h3>
+                        <h3 class="text-lg font-semibold hidden">Rendimiento Semanal</h3>
                     </div>
                     <div id="rendimientoChart" class="h-[400px]"></div>
                 </div>
@@ -97,7 +104,7 @@
                 <!-- Gráfico de Dotación -->
                 <div class="col-span-2 bg-white p-6 rounded-lg shadow">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">Dotación Semanal</h3>
+                        <h3 class="text-lg font-semibold hidden">Dotación Semanal</h3>
                     </div>
                     <div id="dotacionChart" class="h-[300px]"></div>
                 </div>
@@ -105,7 +112,7 @@
                 <!-- Gráfico de Tiempos Muertos -->
                 <div class="col-span-2 bg-white p-6 rounded-lg shadow">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">Distribución de Tiempo Diario</h3>
+                        <h3 class="text-lg font-semibold hidden">Distribución de Tiempo Diario</h3>
                     </div>
                     <div id="tiemposMuertosChart" class="h-[300px]"></div>
                 </div>
@@ -113,9 +120,44 @@
                 <!-- Gráfico de Tiempos Muertos por Departamento -->
                 <div class="col-span-2 bg-white p-6 rounded-lg shadow">
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">Tiempos Muertos por Departamento</h3>
+                        <h3 class="text-lg font-semibold hidden">Tiempos Muertos por Departamento</h3>
                     </div>
                     <div id="tiemposMuertosSemanalChart" class="h-[300px]"></div>
+                </div>
+            </div>
+
+            <!-- Gráficos de Empaque (ocultos por defecto) -->
+            <div class="grid grid-cols-6 gap-6 hidden" id="graficos-empaque">
+                <!-- Gráfico de Kilos por Producto -->
+                <div class="col-span-3 bg-white p-6 rounded-lg shadow">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Kilos por Producto</h3>
+                    </div>
+                    <div id="kilosProductoChart" class="w-full h-[400px]"></div>
+                </div>
+
+                <!-- Gráfico de Piezas por Producto -->
+                <div class="col-span-3 bg-white p-6 rounded-lg shadow">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Piezas por Producto</h3>
+                    </div>
+                    <div id="piezasProductoChart" class="w-full h-[400px]"></div>
+                </div>
+
+                <!-- Gráfico de Distribución por Empresa -->
+                <div class="col-span-3 bg-white p-6 rounded-lg shadow">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Distribución por Empresa</h3>
+                    </div>
+                    <div id="distribucionEmpresaChart" class="w-full h-[400px]"></div>
+                </div>
+
+                <!-- Gráfico de Cantidad de Lotes -->
+                <div class="col-span-3 bg-white p-6 rounded-lg shadow">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Cantidad de Lotes por Día</h3>
+                    </div>
+                    <div id="lotesChart" class="w-full h-[400px]"></div>
                 </div>
             </div>
         </div>
@@ -141,6 +183,53 @@
                 });
             }
 
+            function formatDateForComparison(dateString) {
+                // Asegurarnos de que la fecha se interprete correctamente sin ajustes de zona horaria
+                // Formato esperado: YYYY-MM-DD
+                const parts = dateString.split('-');
+                if (parts.length === 3) {
+                    // Usar los componentes de la fecha para crear una fecha en la zona horaria local
+                    const year = parseInt(parts[0]);
+                    const month = parseInt(parts[1]) - 1; // Meses en JS son 0-indexed
+                    const day = parseInt(parts[2]);
+                    
+                    // Crear fecha con componentes específicos (esto evita problemas de zona horaria)
+                    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                }
+                
+                // Si el formato no es el esperado, intentar con el método anterior
+                const date = new Date(dateString);
+                return date.getFullYear() + '-' + 
+                       String(date.getMonth() + 1).padStart(2, '0') + '-' + 
+                       String(date.getDate()).padStart(2, '0');
+            }
+
+            // Función auxiliar para depurar fechas
+            function debugDate(dateString, label) {
+                // Crear fecha sin ajustes de zona horaria si es posible
+                let date;
+                const parts = dateString.split('-');
+                if (parts.length === 3) {
+                    const year = parseInt(parts[0]);
+                    const month = parseInt(parts[1]) - 1; // Meses en JS son 0-11
+                    const day = parseInt(parts[2]);
+                    date = new Date(year, month, day);
+                } else {
+                    date = new Date(dateString);
+                }
+                
+                console.log(`${label}:`, {
+                    original: dateString,
+                    date: date,
+                    year: date.getFullYear(),
+                    month: date.getMonth() + 1,
+                    day: date.getDate(),
+                    dayOfWeek: date.getDay(),
+                    formatted: formatDateForComparison(dateString)
+                });
+                return date;
+            }
+
             function formatearTiempo(minutos) {
                 const horas = Math.floor(minutos / 60);
                 const minutosRestantes = Math.floor(minutos % 60);
@@ -153,7 +242,41 @@
             function cargarDatos() {
                 const fecha = fechaInput.value;
                 console.log('Fecha enviada a la API:', fecha);
+                debugDate(fecha, 'Fecha seleccionada para API');
                 const tipoPlanilla = tipoPlanillaSelect.value;
+
+                // Limpiar gráficos existentes
+                const contenedores = [
+                    "#productividadChart",
+                    "#rendimientoChart",
+                    "#dotacionChart",
+                    "#tiemposDiariosChart",
+                    "#tiemposMuertosChart",
+                    "#tiemposMuertosSemanalChart",
+                    "#kilosProductoChart",
+                    "#piezasProductoChart",
+                    "#distribucionEmpresaChart",
+                    "#lotesChart"
+                ];
+
+                // Destruir los gráficos existentes si existen
+                if (window.charts) {
+                    for (let chartId in window.charts) {
+                        if (window.charts[chartId]) {
+                            window.charts[chartId].destroy();
+                            window.charts[chartId] = null;
+                        }
+                    }
+                } else {
+                    window.charts = {};
+                }
+
+                contenedores.forEach(selector => {
+                    const contenedor = document.querySelector(selector);
+                    if (contenedor) {
+                        contenedor.innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">Cargando datos...</p></div>';
+                    }
+                });
 
                 // Mensaje de no datos disponibles
                 const mensajeNoDatos = `
@@ -173,7 +296,11 @@
                         "#rendimientoChart",
                         "#dotacionChart",
                         "#tiemposMuertosChart",
-                        "#tiemposMuertosSemanalChart"
+                        "#tiemposMuertosSemanalChart",
+                        "#kilosProductoChart",
+                        "#piezasProductoChart",
+                        "#distribucionEmpresaChart",
+                        "#lotesChart"
                     ];
 
                     contenedores.forEach(selector => {
@@ -200,15 +327,35 @@
                     })
                     .then(data => {
                         console.log('Datos recibidos de la API:', data);
-                        // Verificar si hay datos
+                        
+                        // Verificar el tipo de planilla y los datos correspondientes
+                        if (tipoPlanilla === 'Empaque') {
+                            if (!data.empaque || data.empaque.length === 0) {
+                                console.log('No hay datos de empaque');
+                                document.querySelectorAll("#kilosProductoChart, #piezasProductoChart, #distribucionEmpresaChart, #lotesChart")
+                                    .forEach(el => {
+                                        el.innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
+                                    });
+                            } else {
+                                actualizarGraficosEmpaque(data.empaque);
+                            }
+                            return;
+                        }
+                        
+                        // Verificar si hay datos de producción
                         if (!data.produccion || data.produccion.length === 0) {
                             console.log('No hay datos de producción');
                             mostrarMensajeNoDatos();
                             return;
                         }
+                        
+                        // Depurar fechas de los datos recibidos
+                        data.produccion.forEach(item => {
+                            debugDate(item.fecha_turno, `Fecha turno (${item.turno_nombre})`);
+                        });
 
                         // Si hay datos, actualizar gráficos
-                        actualizarGraficos(data.produccion);
+                        actualizarGraficos(data);
 
                         // Actualizar gráfico de tiempos muertos solo si hay datos
                         if (data.tiempos_muertos && data.tiempos_muertos.length > 0) {
@@ -227,26 +374,60 @@
 
             function actualizarGraficos(data) {
                 // Obtener la fecha seleccionada y calcular el inicio/fin de la semana
-                const fechaSeleccionada = new Date(fechaInput.value);
-                const inicioSemana = new Date(fechaSeleccionada);
-                inicioSemana.setDate(fechaSeleccionada.getDate() - fechaSeleccionada.getDay() + 1); // Lunes
-                const finSemana = new Date(inicioSemana);
-                finSemana.setDate(inicioSemana.getDate() + 6); // Domingo
+                // Crear fecha sin ajustes de zona horaria
+                const fechaPartes = fechaInput.value.split('-');
+                const year = parseInt(fechaPartes[0]);
+                const month = parseInt(fechaPartes[1]) - 1; // Meses en JS son 0-11
+                const day = parseInt(fechaPartes[2]);
+                const fechaSeleccionada = new Date(year, month, day);
 
-                // Generar array con todos los días de la semana
-                const diasSemana = [];
-                const nombresDias = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-                for (let d = new Date(inicioSemana); d <= finSemana; d.setDate(d.getDate() + 1)) {
-                    diasSemana.push({
-                        fecha: new Date(d),
-                        nombreDia: nombresDias[d.getDay() === 0 ? 6 : d.getDay() - 1],
-                        fechaFormateada: formatDate(d)
-                    });
+                // Si es empaque, mostrar gráficos específicos y salir
+                if (tipoPlanillaSelect.value === 'Empaque') {
+                    return;
                 }
 
-                const turnoSeleccionado = turnoSelector.value;
-                const turnos = ['Día', 'Tarde', 'Noche'];
+                // Calcular el inicio de la semana (lunes)
+                const diaSemana = fechaSeleccionada.getDay(); // 0 = domingo, 1 = lunes, ...
+                const diasHastaLunes = diaSemana === 0 ? 6 : diaSemana - 1; // Ajustar para que la semana comience el lunes
+                const inicioSemana = new Date(fechaSeleccionada);
+                inicioSemana.setDate(fechaSeleccionada.getDate() - diasHastaLunes);
 
+                // Calcular el fin de la semana (domingo)
+                const finSemana = new Date(inicioSemana);
+                finSemana.setDate(inicioSemana.getDate() + 6);
+
+                // Crear un array con los días de la semana
+                const diasSemana = [];
+                for (let i = 0; i < 7; i++) {
+                    const fecha = new Date(inicioSemana);
+                    fecha.setDate(inicioSemana.getDate() + i);
+                    diasSemana.push(fecha.toISOString().split('T')[0]); // Formato YYYY-MM-DD
+                }
+
+                // Obtener los datos de la semana
+                const datosSemana = data.produccion || [];
+                
+                // Filtrar por turno si es necesario
+                const turnoSeleccionado = turnoSelector.value;
+                let datosFiltrados = datosSemana;
+                
+                if (turnoSeleccionado !== 'todos') {
+                    datosFiltrados = datosSemana.filter(item => item.turno_nombre === turnoSeleccionado);
+                }
+
+                // Si no hay datos, mostrar mensaje y salir
+                if (!datosFiltrados || datosFiltrados.length === 0) {
+                    console.log('No hay datos de producción');
+                    document.querySelectorAll("#productividadChart, #rendimientoChart, #dotacionChart, #tiemposDiariosChart, #tiemposMuertosChart")
+                        .forEach(el => {
+                            el.innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
+                        });
+                    return;
+                }
+
+                // Lista de turnos para el gráfico de productividad
+                const turnos = ['Día', 'Tarde', 'Noche'];
+                
                 // Gráfico de Productividad
                 let seriesProductividad;
                 if (turnoSeleccionado === 'todos') {
@@ -254,19 +435,34 @@
                         name: `${turno}`,
                         type: 'bar',
                         data: diasSemana.map(dia => {
-                            const turnoData = data.find(row =>
-                                formatDate(row.fecha_turno) === dia.fechaFormateada &&
-                                row.turno_nombre === turno
-                            );
-                            // Si es Porciones, usar kilos_recepcion, si no usar piezas_recepcion
-                            if (turnoData) {
+                            // Filtrar todos los registros del mismo día y turno
+                            const turnoDataArray = datosFiltrados.filter(row => {
+                                const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
+                                return fechaTurnoFormateada === dia && row.turno_nombre === turno;
+                            });
+                            
+                            // Si no hay datos para este día y turno, retornar null
+                            if (turnoDataArray.length === 0) return null;
+                            
+                            // Sumar todas las piezas o kilos de recepción
+                            let total = 0;
+                            turnoDataArray.forEach(turnoData => {
+                                // Si es Porciones, usar kilos_recepcion, si no usar piezas_recepcion
                                 if (tipoPlanillaSelect.value === 'Porciones') {
-                                    return Number(turnoData.kilos_recepcion);
+                                    total += Number(turnoData.kilos_recepcion || 0);
+                                } else if (tipoPlanillaSelect.value === 'Empaque') {
+                                    total += Number(turnoData.empaque || 0);
                                 } else {
-                                    return Number(turnoData.piezas_recepcion);
+                                    total += Number(turnoData.piezas_recepcion || 0);
                                 }
-                            }
-                            return null;
+                            });
+                            
+                            console.log(`Total para ${dia} - Turno ${turno}:`, {
+                                registros: turnoDataArray.length,
+                                total: total
+                            });
+                            
+                            return total;
                         })
                     }));
                 } else {
@@ -274,26 +470,41 @@
                         name: 'Productividad',
                         type: 'bar',
                         data: diasSemana.map(dia => {
-                            const turnoData = data.find(row =>
-                                formatDate(row.fecha_turno) === dia.fechaFormateada &&
-                                row.turno_nombre === turnoSeleccionado
-                            );
-                            // Si es Porciones, usar kilos_recepcion, si no usar piezas_recepcion
-                            if (turnoData) {
+                            // Filtrar todos los registros del mismo día y turno seleccionado
+                            const turnoDataArray = datosFiltrados.filter(row => {
+                                const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
+                                return fechaTurnoFormateada === dia && row.turno_nombre === turnoSeleccionado;
+                            });
+                            
+                            // Si no hay datos para este día y turno, retornar null
+                            if (turnoDataArray.length === 0) return null;
+                            
+                            // Sumar todas las piezas o kilos de recepción
+                            let total = 0;
+                            turnoDataArray.forEach(turnoData => {
+                                // Si es Porciones, usar kilos_recepcion, si no usar piezas_recepcion
                                 if (tipoPlanillaSelect.value === 'Porciones') {
-                                    return Number(turnoData.kilos_recepcion);
+                                    total += Number(turnoData.kilos_recepcion || 0);
+                                } else if (tipoPlanillaSelect.value === 'Empaque') {
+                                    total += Number(turnoData.empaque || 0);
                                 } else {
-                                    return Number(turnoData.piezas_recepcion);
+                                    total += Number(turnoData.piezas_recepcion || 0);
                                 }
-                            }
-                            return null;
+                            });
+                            
+                            console.log(`Total para ${dia} - Turno ${turnoSeleccionado}:`, {
+                                registros: turnoDataArray.length,
+                                total: total
+                            });
+                            
+                            return total;
                         })
                     }];
                 }
-
+                
                 // Determinar la unidad de medida según el tipo de planilla
                 const tipoPlanilla = tipoPlanillaSelect.value;
-                const unidadMedida = (tipoPlanilla === 'Porciones') ? 'Kilos' : 'Piezas';
+                const unidadMedida = (tipoPlanilla === 'Porciones') ? 'Kilos' : (tipoPlanilla === 'Empaque') ? 'Unidades' : 'Piezas';
 
                 const optionsProductividad = {
                     series: seriesProductividad,
@@ -321,10 +532,9 @@
                     colors: ['#008FFB', '#00E396', '#FEB019'],
                     xaxis: {
                         categories: diasSemana.map(dia => {
-                            const fecha = new Date(dia.fecha);
-                            const nombreDia = fecha.toLocaleDateString('es-ES', { weekday: 'short' });
-                            const numeroDia = fecha.getDate();
-                            return `${numeroDia} ${nombreDia}`;
+                            const fecha = new Date(dia);
+                            // Formatear como dd/mm
+                            return `${fecha.getDate().toString().padStart(2, '0')}/${(fecha.getMonth() + 1).toString().padStart(2, '0')}`;
                         }),
                         title: {
                             text: 'Fecha'
@@ -362,7 +572,7 @@
                                         right: 10
                                     }
                                 },
-                                text: `Meta: ${metaProductividadInput.value} ${tipoPlanillaSelect.value === 'Porciones' ? 'kg' : 'pzs'}`
+                                text: `Meta: ${metaProductividadInput.value} ${tipoPlanillaSelect.value === 'Porciones' ? 'kg' : (tipoPlanillaSelect.value === 'Empaque') ? 'unidades' : 'pzs'}`
                             }
                         }]
                     }
@@ -370,8 +580,11 @@
 
                 // Calcular rendimientos totales por día
                 const rendimientosPorDia = diasSemana.map(dia => {
-                    // Obtener todos los turnos de ese día
-                    const turnosDelDia = data.filter(row => formatDate(row.fecha_turno) === dia.fechaFormateada);
+                    // Obtener todos los turnos de ese día según el filtro seleccionado
+                    const turnosDelDia = datosFiltrados.filter(row => {
+                        const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
+                        return fechaTurnoFormateada === dia;
+                    });
 
                     if (turnosDelDia.length === 0) return { rendimiento: null, rendimientoPremium: null };
 
@@ -431,20 +644,19 @@
                         horizontalAlign: 'left'
                     },
                     colors: ['#FF4560', '#775DD0'],
-                    markers: {
-                        size: 6,
-                        shape: "circle",
-                        strokeWidth: 2,
-                        hover: {
-                            size: 8
+                    title: {
+                        text: '',
+                        align: 'left',
+                        style: {
+                            fontSize: '16px',
+                            fontWeight: 'bold'
                         }
                     },
                     xaxis: {
                         categories: diasSemana.map(dia => {
-                            const fecha = new Date(dia.fecha);
-                            const nombreDia = fecha.toLocaleDateString('es-ES', { weekday: 'short' });
-                            const numeroDia = fecha.getDate();
-                            return `${numeroDia} ${nombreDia}`;
+                            const fecha = new Date(dia);
+                            // Formatear como dd/mm
+                            return `${fecha.getDate().toString().padStart(2, '0')}/${(fecha.getMonth() + 1).toString().padStart(2, '0')}`;
                         }),
                         title: {
                             text: 'Fecha'
@@ -461,14 +673,6 @@
                             formatter: function (val) {
                                 return Math.round(val);
                             }
-                        }
-                    },
-                    title: {
-                        text: '',
-                        align: 'left',
-                        style: {
-                            fontSize: '16px',
-                            fontWeight: 'bold'
                         }
                     },
                     tooltip: {
@@ -488,19 +692,33 @@
                         name: 'Dotación Real',
                         type: 'line',
                         data: diasSemana.map(dia => {
-                            const turnoData = data.find(row =>
-                                formatDate(row.fecha_turno) === dia.fechaFormateada
-                            );
-                            return turnoData ? Number(turnoData.dotacion_real) : null;
+                            // Filtrar según el turno seleccionado
+                            const turnosDelDia = datosFiltrados.filter(row => {
+                                const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
+                                return fechaTurnoFormateada === dia;
+                            });
+                            
+                            if (turnosDelDia.length === 0) return null;
+                            
+                            // Sumar dotación real de todos los turnos del día
+                            const dotacionRealTotal = turnosDelDia.reduce((sum, row) => sum + Number(row.dotacion_real || 0), 0);
+                            return dotacionRealTotal;
                         })
                     }, {
                         name: 'Dotación Esperada',
                         type: 'line',
                         data: diasSemana.map(dia => {
-                            const turnoData = data.find(row =>
-                                formatDate(row.fecha_turno) === dia.fechaFormateada
-                            );
-                            return turnoData ? Number(turnoData.dotacion_esperada) : null;
+                            // Filtrar según el turno seleccionado
+                            const turnosDelDia = datosFiltrados.filter(row => {
+                                const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
+                                return fechaTurnoFormateada === dia;
+                            });
+                            
+                            if (turnosDelDia.length === 0) return null;
+                            
+                            // Sumar dotación esperada de todos los turnos del día
+                            const dotacionEsperadaTotal = turnosDelDia.reduce((sum, row) => sum + Number(row.dotacion_esperada || 0), 0);
+                            return dotacionEsperadaTotal;
                         })
                     }],
                     chart: {
@@ -525,10 +743,9 @@
                     },
                     xaxis: {
                         categories: diasSemana.map(dia => {
-                            const fecha = new Date(dia.fecha);
-                            const nombreDia = fecha.toLocaleDateString('es-ES', { weekday: 'short' });
-                            const numeroDia = fecha.getDate();
-                            return `${numeroDia} ${nombreDia}`;
+                            const fecha = new Date(dia);
+                            // Formatear como dd/mm
+                            return `${fecha.getDate().toString().padStart(2, '0')}/${(fecha.getMonth() + 1).toString().padStart(2, '0')}`;
                         }),
                         title: {
                             text: 'Fecha'
@@ -560,19 +777,32 @@
                     series: [{
                         name: 'Horas Trabajadas',
                         data: diasSemana.map(dia => {
-                            const turnoData = data.find(row =>
-                                formatDate(row.fecha_turno) === dia.fechaFormateada
-                            );
-                            // Convertir horas trabajadas a minutos para mantener consistencia
-                            return turnoData ? Number(turnoData.horas_trabajadas * 60) : null;
+                            // Filtrar según el turno seleccionado
+                            const turnosDelDia = datosFiltrados.filter(row => {
+                                const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
+                                return fechaTurnoFormateada === dia;
+                            });
+                            
+                            if (turnosDelDia.length === 0) return null;
+                            
+                            // Sumar horas trabajadas de todos los turnos del día (convertidas a minutos)
+                            const horasTrabajadasTotal = turnosDelDia.reduce((sum, row) => sum + Number(row.horas_trabajadas || 0) * 60, 0);
+                            return horasTrabajadasTotal;
                         })
                     }, {
                         name: 'Tiempo Muerto',
                         data: diasSemana.map(dia => {
-                            const turnoData = data.find(row =>
-                                formatDate(row.fecha_turno) === dia.fechaFormateada
-                            );
-                            return turnoData ? Number(turnoData.tiempo_muerto_minutos) : null;
+                            // Filtrar según el turno seleccionado
+                            const turnosDelDia = datosFiltrados.filter(row => {
+                                const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
+                                return fechaTurnoFormateada === dia;
+                            });
+                            
+                            if (turnosDelDia.length === 0) return null;
+                            
+                            // Sumar tiempo muerto de todos los turnos del día
+                            const tiempoMuertoTotal = turnosDelDia.reduce((sum, row) => sum + Number(row.tiempo_muerto_minutos || 0), 0);
+                            return tiempoMuertoTotal;
                         })
                     }],
                     chart: {
@@ -586,22 +816,28 @@
                     plotOptions: {
                         bar: {
                             horizontal: false,
-                            columnWidth: '70%'
+                            columnWidth: '70%',
+                            dataLabels: {
+                                position: 'center'
+                            }
                         }
                     },
-                    colors: ['#10B981', '#EF4444'],
+                    colors: ['#10B981', '#EF4444'], // Verde para horas trabajadas, Rojo para tiempo muerto
                     dataLabels: {
                         enabled: true,
                         formatter: function (val) {
                             return formatearTiempo(val);
+                        },
+                        style: {
+                            fontSize: '12px',
+                            colors: ['#fff'] // Color blanco para el texto de las etiquetas
                         }
                     },
                     xaxis: {
                         categories: diasSemana.map(dia => {
-                            const fecha = new Date(dia.fecha);
-                            const nombreDia = fecha.toLocaleDateString('es-ES', { weekday: 'short' });
-                            const numeroDia = fecha.getDate();
-                            return `${numeroDia} ${nombreDia}`;
+                            const fecha = new Date(dia);
+                            // Formatear como dd/mm
+                            return `${fecha.getDate().toString().padStart(2, '0')}/${(fecha.getMonth() + 1).toString().padStart(2, '0')}`;
                         })
                     },
                     yaxis: {
@@ -633,6 +869,34 @@
                 document.querySelector("#dotacionChart").innerHTML = '';
                 document.querySelector("#tiemposMuertosChart").innerHTML = '';
 
+                // Actualizar título de los gráficos según el turno seleccionado
+                const tituloTurno = turnoSelector.value === 'todos' ? '' : ` - Turno ${turnoSelector.value}`;
+                
+                // Actualizar títulos de los gráficos
+                optionsProductividad.title = {
+                    text: `Productividad por Turno${tituloTurno}`,
+                    align: 'left',
+                    style: { fontSize: '14px', fontWeight: 'bold' }
+                };
+                
+                optionsRendimiento.title = {
+                    text: `Rendimiento Semanal${tituloTurno}`,
+                    align: 'left',
+                    style: { fontSize: '14px', fontWeight: 'bold' }
+                };
+                
+                optionsDotacion.title = {
+                    text: `Dotación Real vs Esperada${tituloTurno}`,
+                    align: 'left',
+                    style: { fontSize: '14px', fontWeight: 'bold' }
+                };
+                
+                optionsTiempoDiario.title = {
+                    text: `Distribución de Tiempo Diario${tituloTurno}`,
+                    align: 'left',
+                    style: { fontSize: '14px', fontWeight: 'bold' }
+                };
+
                 new ApexCharts(document.querySelector("#productividadChart"), optionsProductividad).render();
                 new ApexCharts(document.querySelector("#rendimientoChart"), optionsRendimiento).render();
                 new ApexCharts(document.querySelector("#dotacionChart"), optionsDotacion).render();
@@ -642,11 +906,263 @@
                 const kpis = calcularKPIs(data);
                 actualizarKPIs(kpis);
 
+                // Actualizar gráfico de tiempos muertos por departamento
+                if (data.tiempos_muertos && Array.isArray(data.tiempos_muertos)) {
+                    actualizarGraficoTiemposMuertosSemanales(data.tiempos_muertos);
+                } else {
+                    console.log('No hay datos de tiempos muertos disponibles');
+                    document.querySelector("#tiemposMuertosSemanalChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos de tiempos muertos disponibles</p></div>';
+                }
+            }
+
+            function actualizarGraficosEmpaque(data) {
+                console.log('Iniciando actualización de gráficos de empaque');
+                console.log('Datos recibidos en actualizarGraficosEmpaque:', data);
+                
+                if (!data || data.length === 0) {
+                    console.log('No hay datos de empaque');
+                    document.querySelectorAll("#kilosProductoChart, #piezasProductoChart, #distribucionEmpresaChart, #lotesChart")
+                        .forEach(el => {
+                            el.innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
+                        });
+                    return;
+                }
+
+                // Limpiar los contenedores de gráficos existentes
+                document.querySelectorAll("#kilosProductoChart, #piezasProductoChart, #distribucionEmpresaChart, #lotesChart")
+                    .forEach(el => {
+                        el.innerHTML = '';
+                    });
+                
+                // Filtrar por turno seleccionado
+                const turnoSeleccionado = turnoSelector.value;
+                
+                let datosFiltrados = data;
+                
+                if (turnoSeleccionado !== 'todos') {
+                    datosFiltrados = data.filter(item => item.turno === turnoSeleccionado);
+                }
+                
+                if (datosFiltrados.length === 0) {
+                    console.log('No hay datos para el turno seleccionado');
+                    document.querySelectorAll("#kilosProductoChart, #piezasProductoChart, #distribucionEmpresaChart, #lotesChart")
+                        .forEach(el => {
+                            el.innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles para el turno seleccionado</p></div>';
+                        });
+                    return;
+                }
+
+                // 1. Gráfico de Kilos por Producto
+                const kilosPorProducto = {};
+                datosFiltrados.forEach(item => {
+                    if (!kilosPorProducto[item.Producto]) {
+                        kilosPorProducto[item.Producto] = 0;
+                    }
+                    kilosPorProducto[item.Producto] += parseFloat(item.total_kilos);
+                });
+
+                const optionsKilosProducto = {
+                    series: [{
+                        name: 'Kilos',
+                        data: Object.values(kilosPorProducto)
+                    }],
+                    chart: {
+                        type: 'bar',
+                        height: 400
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            columnWidth: '55%',
+                            endingShape: 'rounded'
+                        },
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    stroke: {
+                        show: true,
+                        width: 2,
+                        colors: ['transparent']
+                    },
+                    xaxis: {
+                        categories: Object.keys(kilosPorProducto),
+                    },
+                    yaxis: {
+                        title: {
+                            text: 'Kilos'
+                        }
+                    },
+                    fill: {
+                        opacity: 1
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function (val) {
+                                return val.toFixed(1) + " kg";
+                            }
+                        }
+                    }
+                };
+
+                const chartKilosProducto = new ApexCharts(document.querySelector("#kilosProductoChart"), optionsKilosProducto);
+                chartKilosProducto.render();
+                window.charts = window.charts || {};
+                window.charts.kilosProducto = chartKilosProducto;
+
+                // 2. Gráfico de Piezas por Producto
+                const piezasPorProducto = {};
+                datosFiltrados.forEach(item => {
+                    if (!piezasPorProducto[item.Producto]) {
+                        piezasPorProducto[item.Producto] = 0;
+                    }
+                    piezasPorProducto[item.Producto] += parseInt(item.total_piezas);
+                });
+
+                const optionsPiezasProducto = {
+                    series: [{
+                        name: 'Piezas',
+                        data: Object.values(piezasPorProducto)
+                    }],
+                    chart: {
+                        type: 'bar',
+                        height: 400
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            columnWidth: '55%',
+                            endingShape: 'rounded'
+                        },
+                    },
+                    dataLabels: {
+                        enabled: false
+                    },
+                    stroke: {
+                        show: true,
+                        width: 2,
+                        colors: ['transparent']
+                    },
+                    xaxis: {
+                        categories: Object.keys(piezasPorProducto),
+                    },
+                    yaxis: {
+                        title: {
+                            text: 'Piezas'
+                        }
+                    },
+                    fill: {
+                        opacity: 1
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function (val) {
+                                return val.toFixed(0);
+                            }
+                        }
+                    }
+                };
+
+                const chartPiezasProducto = new ApexCharts(document.querySelector("#piezasProductoChart"), optionsPiezasProducto);
+                chartPiezasProducto.render();
+                window.charts.piezasProducto = chartPiezasProducto;
+
+                // 3. Gráfico de Distribución por Empresa
+                const kilosPorEmpresa = {};
+                datosFiltrados.forEach(item => {
+                    if (!kilosPorEmpresa[item.Empresa]) {
+                        kilosPorEmpresa[item.Empresa] = 0;
+                    }
+                    kilosPorEmpresa[item.Empresa] += parseFloat(item.total_kilos);
+                });
+
+                const optionsDistribucionEmpresa = {
+                    series: Object.values(kilosPorEmpresa),
+                    chart: {
+                        type: 'pie',
+                        height: 400
+                    },
+                    labels: Object.keys(kilosPorEmpresa),
+                    responsive: [{
+                        breakpoint: 480,
+                        options: {
+                            chart: {
+                                width: 200
+                            },
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }],
+                    tooltip: {
+                        y: {
+                            formatter: function (val) {
+                                return val.toFixed(1) + " kg";
+                            }
+                        }
+                    }
+                };
+
+                const chartDistribucionEmpresa = new ApexCharts(document.querySelector("#distribucionEmpresaChart"), optionsDistribucionEmpresa);
+                chartDistribucionEmpresa.render();
+                window.charts.distribucionEmpresa = chartDistribucionEmpresa;
+
+                // 4. Gráfico de Cantidad de Lotes
+                const lotesPorDia = {};
+                datosFiltrados.forEach(item => {
+                    const fecha = item.fecha_turno;
+                    if (!lotesPorDia[fecha]) {
+                        lotesPorDia[fecha] = 0;
+                    }
+                    lotesPorDia[fecha] += parseInt(item.cantidad_lotes);
+                });
+
+                // Ordenar fechas
+                const fechasOrdenadas = Object.keys(lotesPorDia).sort();
+
+                const optionsLotes = {
+                    series: [{ data: fechasOrdenadas.map(fecha => lotesPorDia[fecha]) }],
+                    chart: {
+                        height: 400,
+                        type: 'line',
+                    },
+                    stroke: {
+                        width: 3,
+                        curve: 'smooth',
+                        colors: ['#F59E0B']
+                    },
+                    xaxis: {
+                        categories: fechasOrdenadas.map(fecha => {
+                            // Formatear fecha como dd/mm
+                            const partes = fecha.split('-');
+                            return `${partes[2]}/${partes[1]}`;
+                        }),
+                    },
+                    yaxis: {
+                        title: {
+                            text: 'Cantidad de Lotes'
+                        }
+                    },
+                    markers: {
+                        size: 5,
+                    },
+                    tooltip: {
+                        x: {
+                            formatter: function(val, opts) {
+                                return fechasOrdenadas[opts.dataPointIndex];
+                            }
+                        }
+                    }
+                };
+
+                const chartLotes = new ApexCharts(document.querySelector("#lotesChart"), optionsLotes);
+                chartLotes.render();
+                window.charts.lotes = chartLotes;
             }
 
             function calcularKPIs(data) {
                 // Suma total de dotaciones y otros valores de la semana
-                const totales = data.reduce((acc, row) => {
+                const totales = data.produccion.reduce((acc, row) => {
                     // Sumar dotaciones
                     acc.dotacionReal += Number(row.dotacion_real) || 0;
                     acc.dotacionEsperada += Number(row.dotacion_esperada) || 0;
@@ -701,42 +1217,44 @@
             function actualizarGraficoTiemposMuertosSemanales(data) {
                 if (!data || data.length === 0) {
                     console.log('No hay datos de tiempos muertos');
+                    document.querySelector("#tiemposMuertosSemanalChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
                     return;
                 }
 
-                const container = document.querySelector("#tiemposMuertosSemanalChart");
-                if (!container) return;
-
-                // Limpiar el contenedor
-                container.innerHTML = '';
-
-                // Agrupar datos por departamento
-                const departamentosData = data.reduce((acc, item) => {
-                    const depto = item.departamento || 'Sin departamento';
-                    if (!acc[depto]) {
-                        acc[depto] = {
-                            tiempoMuerto: 0,
-                            horasTrabajadas: 0
-                        };
+                // Agrupar tiempos muertos por departamento
+                const tiemposPorDepartamento = {};
+                data.forEach(item => {
+                    const departamento = item.departamento || 'Sin departamento';
+                    if (!tiemposPorDepartamento[departamento]) {
+                        tiemposPorDepartamento[departamento] = 0;
                     }
-                    acc[depto].tiempoMuerto += parseInt(item.total_minutos_muertos) || 0;
-                    acc[depto].horasTrabajadas += parseFloat(item.horas_trabajadas || 0) * 60;
-                    return acc;
-                }, {});
+                    tiemposPorDepartamento[departamento] += Number(item.tiempo_muerto) || 0;
+                });
 
-                const seriesData = Object.entries(departamentosData)
-                    .map(([depto, datos]) => ({
-                        departamento: depto,
-                        tiempoMuerto: datos.tiempoMuerto,
-                        horasTrabajadas: datos.horasTrabajadas
-                    }))
-                    .sort((a, b) => b.tiempoMuerto - a.tiempoMuerto);
+                // Convertir a series para el gráfico
+                const departamentos = Object.keys(tiemposPorDepartamento);
+                const tiempos = departamentos.map(dep => tiemposPorDepartamento[dep]);
 
-                const options = {
-                    series: [{
-                        name: 'Tiempo Muerto',
-                        data: seriesData.map(item => item.tiempoMuerto)
-                    }],
+                // Si no hay datos, mostrar mensaje
+                if (departamentos.length === 0) {
+                    console.log('No hay datos de tiempos muertos por departamento');
+                    document.querySelector("#tiemposMuertosSemanalChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
+                    return;
+                }
+
+                // Ordenar por tiempo (de mayor a menor)
+                const datosCombinados = departamentos.map((dep, i) => ({ 
+                    departamento: dep, 
+                    tiempo: tiempos[i] 
+                }));
+
+                datosCombinados.sort((a, b) => b.tiempo - a.tiempo);
+
+                // Tomar los 5 departamentos con más tiempo muerto
+                const top5Departamentos = datosCombinados.slice(0, 5);
+
+                const optionsTiemposMuertosSemanales = {
+                    series: [{ data: top5Departamentos.map(d => d.tiempo) }],
                     chart: {
                         type: 'bar',
                         height: 300,
@@ -746,19 +1264,15 @@
                     },
                     plotOptions: {
                         bar: {
+                            borderRadius: 4,
                             horizontal: true,
-                            barHeight: '70%',
                             distributed: true,
                             dataLabels: {
-                                position: 'center'
+                                position: 'top'
                             }
                         }
                     },
-                    colors: [
-                        '#008FFB', '#00E396', '#FEB019', '#FF4560', '#775DD0',
-                        '#546E7A', '#26a69a', '#D10CE8', '#FF6B6B', '#4CAF50',
-                        '#2196F3', '#FF9800', '#795548', '#607D8B'
-                    ],
+                    colors: ['#F87171', '#FB923C', '#FBBF24', '#A3E635', '#34D399'],
                     dataLabels: {
                         enabled: true,
                         formatter: function (val) {
@@ -766,24 +1280,37 @@
                         },
                         style: {
                             fontSize: '12px',
-                            colors: ['#fff'],
-                            fontWeight: 'bold'
+                            colors: ['#304758']
                         }
                     },
-                    legend: {
-                        show: false
-                    },
                     xaxis: {
-                        categories: seriesData.map(item => item.departamento),
+                        categories: top5Departamentos.map(d => d.departamento),
                         labels: {
                             formatter: function (val) {
                                 return formatearTiempo(val);
                             }
+                        },
+                        title: {
+                            text: 'Tiempo (hh:mm)'
                         }
                     },
                     yaxis: {
-                        title: {
-                            text: 'Departamentos'
+                        labels: {
+                            formatter: function (val) {
+                                // Limitar longitud del texto
+                                if (typeof val === 'string' && val.length > 15) {
+                                    return val.substring(0, 15) + '...';
+                                }
+                                return val;
+                            }
+                        }
+                    },
+                    title: {
+                        text: `Tiempos Muertos por Departamento${turnoSelector.value === 'todos' ? '' : ` - Turno ${turnoSelector.value}`}`,
+                        align: 'left',
+                        style: {
+                            fontSize: '14px',
+                            fontWeight: 'bold'
                         }
                     },
                     tooltip: {
@@ -795,26 +1322,37 @@
                     }
                 };
 
-                try {
-                    new ApexCharts(container, options).render();
-                } catch (error) {
-                    console.error('Error al renderizar el gráfico:', error);
-                    container.innerHTML = 'Error al cargar el gráfico';
-                }
+                document.querySelector("#tiemposMuertosSemanalChart").innerHTML = '';
+                new ApexCharts(document.querySelector("#tiemposMuertosSemanalChart"), optionsTiemposMuertosSemanales).render();
             }
-
+            
             // Eventos para recargar datos
             fechaInput.addEventListener('change', cargarDatos);
-            tipoPlanillaSelect.addEventListener('change', cargarDatos);
-            metaProductividadInput.addEventListener('change', cargarDatos);
-            turnoSelector.addEventListener('change', cargarDatos);
-
-            // Actualizar la unidad de la meta cuando cambie el tipo de planilla
-            tipoPlanillaSelect.addEventListener('change', function () {
+            tipoPlanillaSelect.addEventListener('change', function() {
+                const tipoPlanilla = tipoPlanillaSelect.value;
                 const unidadMeta = document.getElementById('unidadMeta');
-                unidadMeta.textContent = this.value === 'Porciones' ? 'kg' : 'pzs';
+                unidadMeta.textContent = tipoPlanilla === 'Porciones' ? 'kg' : (tipoPlanilla === 'Empaque') ? 'unidades' : 'pzs';
+                
+                // Mostrar u ocultar gráficos según el tipo de planilla
+                const graficosProduccion = document.getElementById('graficos-produccion');
+                const graficosEmpaque = document.getElementById('graficos-empaque');
+                
+                if (tipoPlanilla === 'Empaque') {
+                    graficosProduccion.classList.add('hidden');
+                    graficosEmpaque.classList.remove('hidden');
+                } else {
+                    graficosProduccion.classList.remove('hidden');
+                    graficosEmpaque.classList.add('hidden');
+                }
+                
                 cargarDatos();
             });
+            turnoSelector.addEventListener('change', function() {
+                // Actualizar el título con el turno seleccionado
+                document.getElementById('turnoTitulo').textContent = this.value === 'todos' ? 'Todos' : this.value;
+                cargarDatos();
+            });
+            metaProductividadInput.addEventListener('change', cargarDatos);
 
             // Cargar datos iniciales
             cargarDatos();

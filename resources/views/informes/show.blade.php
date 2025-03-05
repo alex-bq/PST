@@ -197,19 +197,24 @@
 
         <div class="turno-info">
             <div class="turno-info-grid">
+                @php
+                    $dotacion_esperada_total = collect($informacion_sala)->sum('dotacion_esperada') + ($informe->d_esperada_empaque ?? 0);
+                    $dotacion_real_total = collect($informacion_sala)->sum('dotacion_real') + ($informe->d_real_empaque ?? 0);
+                    $ausentismo = $dotacion_esperada_total > 0 ? 
+                        round((($dotacion_esperada_total - $dotacion_real_total) / $dotacion_esperada_total) * 100, 1) : 0;
+                @endphp
                 <div class="turno-info-item">
                     <strong>Dotación Esperada Total</strong>
-                    <span id="dotacion-esperada-total">-</span>
+                    <span>{{ $dotacion_esperada_total }}</span>
                 </div>
                 <div class="turno-info-item">
                     <strong>Dotación Total</strong>
-                    <span id="dotacion-total">-</span>
+                    <span>{{ $dotacion_real_total }}</span>
                 </div>
                 <div class="turno-info-item">
                     <strong>Ausentismo</strong>
-                    <span id="porcentaje-ausentismo">-</span>
+                    <span>{{ $ausentismo }}%</span>
                 </div>
-
             </div>
         </div>
 
@@ -284,7 +289,7 @@
                                                         @php
                                                             $procesamientoSala = collect($detalle_procesamiento)
                                                                 ->where('cod_sala', $sala->cod_sala)
-                                                                ->where('cod_tipo_planilla', $sala->cod_tipo_planilla);
+                                                                ->where('tipo_planilla', $sala->tipo_planilla);
 
                                                             $rendimientoPremium = 0;
                                                             if ($sala->kilos_recepcion_total > 0) {
@@ -358,8 +363,15 @@
                                                 @php
                                                     $procesamientoSala = collect($detalle_procesamiento)
                                                         ->where('cod_sala', $sala->cod_sala)
-                                                        ->where('cod_tipo_planilla', $sala->cod_tipo_planilla);
+                                                        ->where('tipo_planilla', $sala->tipo_planilla);
+
+                                                    // Convertir a JSON para debugging
+                                                    $procesamientoSalaJson = json_encode($procesamientoSala);
                                                 @endphp
+                                                <script>
+                                                    console.log('Sala: {{ $sala->nombre_sala }} ({{ $sala->cod_sala }}), Tipo: {{ $sala->tipo_planilla }} ({{ $sala->cod_tipo_planilla }})');
+                                                    console.log('Datos de procesamiento:', {!! $procesamientoSalaJson !!});
+                                                </script>
                                                 <div class="d-flex flex-row flex-wrap gap-3">
                                                     <div class="flex-grow-1">
                                                         <p class="text-muted small mb-1">Kilos</p>
@@ -463,6 +475,16 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody>
+                                                        @php
+                                                            $procesamientoSala = collect($detalle_procesamiento)
+                                                                ->where('cod_sala', $sala->cod_sala)
+                                                                ->where('tipo_planilla', $sala->tipo_planilla);
+                                                        @endphp
+                                                        <script>
+                                                            console.log('MODAL - Sala: {{ $sala->nombre_sala }} ({{ $sala->cod_sala }}), Tipo: {{ $sala->tipo_planilla }} ({{ $sala->cod_tipo_planilla }})');
+                                                            console.log('MODAL - Datos de procesamiento:', {!! json_encode($procesamientoSala) !!});
+                                                            console.log('MODAL - Todos los datos:', {!! json_encode($detalle_procesamiento) !!});
+                                                        </script>
                                                         @foreach($procesamientoSala as $proceso)
                                                             <tr>
                                                                 <td>{{ $proceso->descripcion }}</td>
@@ -535,6 +557,89 @@
                 </div>
             </div>
         @endforeach
+
+
+        <!-- Sección de Empaque Premium -->
+        <div class="tipo-planilla-section">
+            <h3 class="tipo-planilla-title">Empaque</h3>
+            <div class="salas-grid">
+                <div class="card w-full max-w-2xl mb-[10px]">
+                    <div class="card-header bg-primary/5 pb-2">
+                        <div class="text-xl flex items-center justify-between">
+                            <span class="flex items-center gap-2">
+                                Detalle
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body pt-4">
+                        <!-- Dotación Section -->
+                        <div class="mb-4">
+                            <h5 class="d-flex align-items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="text-primary me-2">
+                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                                Dotación
+                            </h5>
+                            <div class="row">
+                                <div class="col-6">
+                                    <label class="form-label text-muted small mb-1">Real</label>
+                                    <input type="number" class="form-control form-control-sm" 
+                                        value="{{ $informe->d_real_empaque }}" disabled>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label text-muted small mb-1">Esperada</label>
+                                    <input type="number" class="form-control form-control-sm"
+                                        value="{{ $informe->d_esperada_empaque }}" disabled>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if(count($empaque_premium) > 0)
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr class="text-muted small">
+                                            <th class="border-0">Producto</th>
+                                            <th class="border-0">Empresa</th>
+                                            <th class="border-0 text-end">Lotes</th>
+                                            <th class="border-0 text-end">Kilos</th>
+                                            <th class="border-0 text-end">Piezas</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="small">
+                                        @foreach($empaque_premium as $premium)
+                                            <tr>
+                                                <td class="border-0">{{ $premium->Producto }}</td>
+                                                <td class="border-0">{{ $premium->Empresa }}</td>
+                                                <td class="border-0 text-end">{{ $premium->Cantidad_Lotes }}</td>
+                                                <td class="border-0 text-end">{{ number_format($premium->Total_Kilos, 1, ',', '.') }}</td>
+                                                <td class="border-0 text-end">{{ number_format($premium->Total_Piezas, 0, ',', '.') }}</td>
+                                            </tr>
+                                        @endforeach
+                                    </tbody>
+                                    <tfoot class="small fw-bold">
+                                        <tr>
+                                            <td class="border-0" colspan="3"></td>
+                                            <td class="border-0 text-end">{{ number_format(collect($empaque_premium)->sum('Total_Kilos'), 1, ',', '.') }}</td>
+                                            <td class="border-0 text-end">{{ number_format(collect($empaque_premium)->sum('Total_Piezas'), 0, ',', '.') }}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        @else
+                            <div class="alert alert-info py-2 small">
+                                No hay datos de empaque premium para este turno.
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
 
 
         <div class="card mb-4 comentarios-card">
