@@ -963,7 +963,7 @@
                             <div class="col-md-5">
                                 <label for="horaTermino" class="form-label">Hora de Término</label>
                                 <input type="time" class="form-control form-control-lg" id="horaTermino"
-                                    name="hora_termino" required>
+                                    name="hora_termino_muerto" required>
                             </div>
                             <div class="col-md-2 d-flex align-items-end">
                                 <button type="submit" class="btn btn-success btn-lg w-100">Agregar</button>
