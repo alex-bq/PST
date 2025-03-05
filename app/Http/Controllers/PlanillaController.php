@@ -616,12 +616,16 @@ class PlanillaController extends Controller
     public function guardarTiempoMuerto(Request $request)
     {
         try {
+            // Obtener la hora de término del campo correcto
+            $horaTermino = $request->input('hora_termino_muerto');
+
+
             DB::table('pst.dbo.tiempos_muertos')->insert([
                 'cod_planilla' => $request->input('idPlanilla'),
                 'cod_departamento' => $request->input('cod_departamento'),
                 'causa' => $request->input('causa'),
                 'hora_inicio' => $request->input('hora_inicio'),
-                'hora_termino' => $request->input('hora_termino'),
+                'hora_termino' => $horaTermino,
                 'duracion_minutos' => $request->input('duracion_minutos')
             ]);
 

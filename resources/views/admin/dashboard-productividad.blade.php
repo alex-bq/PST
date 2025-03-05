@@ -29,7 +29,7 @@
                         <option value="HG">HG</option>
                         <option value="Empaque">Empaque</option>
                     </select>
-                    
+
                     <!-- Selector de Turno (movido aquí) -->
                     <div class="flex items-center space-x-2">
                         <label for="turnoSelector" class="text-sm font-medium text-gray-700">Turno:</label>
@@ -73,7 +73,8 @@
             </div>
 
             <!-- Título para los gráficos -->
-            <h3 class="text-base font-medium text-gray-700 mb-3">Gráficos por Turno: <span id="turnoTitulo">Todos</span></h3>
+            <h3 class="text-base font-medium text-gray-700 mb-3">Gráficos por Turno: <span id="turnoTitulo">Todos</span>
+            </h3>
             <!-- Gráficos principales -->
             <div class="grid grid-cols-6 gap-6" id="graficos-produccion">
                 <!-- Gráfico de Productividad (ocupa 4/6) -->
@@ -184,48 +185,74 @@
             }
 
             function formatDateForComparison(dateString) {
-                // Asegurarnos de que la fecha se interprete correctamente sin ajustes de zona horaria
-                // Formato esperado: YYYY-MM-DD
-                const parts = dateString.split('-');
-                if (parts.length === 3) {
-                    // Usar los componentes de la fecha para crear una fecha en la zona horaria local
-                    const year = parseInt(parts[0]);
-                    const month = parseInt(parts[1]) - 1; // Meses en JS son 0-indexed
-                    const day = parseInt(parts[2]);
-                    
-                    // Crear fecha con componentes específicos (esto evita problemas de zona horaria)
-                    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                // Si la fecha ya viene en formato ISO (YYYY-MM-DD), asegurarnos de que se interprete correctamente
+                if (typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                    return dateString; // Ya está en el formato correcto YYYY-MM-DD
                 }
-                
-                // Si el formato no es el esperado, intentar con el método anterior
-                const date = new Date(dateString);
-                return date.getFullYear() + '-' + 
-                       String(date.getMonth() + 1).padStart(2, '0') + '-' + 
-                       String(date.getDate()).padStart(2, '0');
+
+                // Para fechas que vienen de la API, pueden incluir información de tiempo
+                let date;
+                if (typeof dateString === 'string') {
+                    // Intentar extraer componentes de fecha si viene en otro formato
+                    const parts = dateString.split(/[-T ]/);
+                    if (parts.length >= 3) {
+                        // Usar los componentes de la fecha para crear una fecha UTC
+                        const year = parseInt(parts[0]);
+                        const month = parseInt(parts[1]) - 1; // Meses en JS son 0-indexed
+                        const day = parseInt(parts[2]);
+
+                        // Crear fecha UTC para evitar ajustes de zona horaria
+                        date = new Date(Date.UTC(year, month, day));
+                    } else {
+                        // Si no podemos parsear, usar el constructor estándar
+                        date = new Date(dateString);
+                    }
+                } else {
+                    // Si no es string, asumir que es un objeto Date
+                    date = new Date(dateString);
+                }
+
+                // Formatear como YYYY-MM-DD usando UTC para evitar problemas de zona horaria
+                return date.getUTCFullYear() + '-' +
+                    String(date.getUTCMonth() + 1).padStart(2, '0') + '-' +
+                    String(date.getUTCDate()).padStart(2, '0');
             }
 
             // Función auxiliar para depurar fechas
             function debugDate(dateString, label) {
                 // Crear fecha sin ajustes de zona horaria si es posible
                 let date;
-                const parts = dateString.split('-');
-                if (parts.length === 3) {
-                    const year = parseInt(parts[0]);
-                    const month = parseInt(parts[1]) - 1; // Meses en JS son 0-11
-                    const day = parseInt(parts[2]);
-                    date = new Date(year, month, day);
+                let utcDate;
+
+                if (typeof dateString === 'string') {
+                    const parts = dateString.split(/[-T ]/);
+                    if (parts.length >= 3) {
+                        const year = parseInt(parts[0]);
+                        const month = parseInt(parts[1]) - 1; // Meses en JS son 0-11
+                        const day = parseInt(parts[2]);
+                        date = new Date(year, month, day);
+                        utcDate = new Date(Date.UTC(year, month, day));
+                    } else {
+                        date = new Date(dateString);
+                        utcDate = new Date(dateString);
+                    }
                 } else {
                     date = new Date(dateString);
+                    utcDate = new Date(dateString);
                 }
-                
+
                 console.log(`${label}:`, {
                     original: dateString,
-                    date: date,
+                    date: date.toString(),
+                    utcDate: utcDate.toString(),
                     year: date.getFullYear(),
                     month: date.getMonth() + 1,
                     day: date.getDate(),
+                    utcDay: utcDate.getUTCDate(),
                     dayOfWeek: date.getDay(),
-                    formatted: formatDateForComparison(dateString)
+                    formatted: formatDateForComparison(dateString),
+                    localString: date.toLocaleDateString(),
+                    isoString: date.toISOString()
                 });
                 return date;
             }
@@ -280,14 +307,14 @@
 
                 // Mensaje de no datos disponibles
                 const mensajeNoDatos = `
-                                                                <div class="flex flex-col items-center justify-center p-6 text-gray-500">
-                                                                    <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
-                                                                    </svg>
-                                                                    <p class="text-lg font-semibold">No hay datos disponibles</p>
-                                                                    <p class="text-sm">Para la fecha ${new Date(fecha).toLocaleDateString()} y línea ${tipoPlanilla}</p>
-                                                                </div>
-                                                            `;
+                                                                                        <div class="flex flex-col items-center justify-center p-6 text-gray-500">
+                                                                                            <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
+                                                                                            </svg>
+                                                                                            <p class="text-lg font-semibold">No hay datos disponibles</p>
+                                                                                            <p class="text-sm">Para la fecha ${new Date(fecha).toLocaleDateString()} y línea ${tipoPlanilla}</p>
+                                                                                        </div>
+                                                                                    `;
 
                 // Función para limpiar y mostrar mensaje
                 const mostrarMensajeNoDatos = () => {
@@ -327,7 +354,13 @@
                     })
                     .then(data => {
                         console.log('Datos recibidos de la API:', data);
-                        
+
+                        // Depurar fechas de los datos recibidos
+                        if (data.produccion && data.produccion.length > 0) {
+                            console.log('Ejemplo de fecha de la API:', data.produccion[0].fecha_turno);
+                            console.log('Fecha formateada para comparación:', formatDateForComparison(data.produccion[0].fecha_turno));
+                        }
+
                         // Verificar el tipo de planilla y los datos correspondientes
                         if (tipoPlanilla === 'Empaque') {
                             if (!data.empaque || data.empaque.length === 0) {
@@ -341,14 +374,14 @@
                             }
                             return;
                         }
-                        
+
                         // Verificar si hay datos de producción
                         if (!data.produccion || data.produccion.length === 0) {
                             console.log('No hay datos de producción');
                             mostrarMensajeNoDatos();
                             return;
                         }
-                        
+
                         // Depurar fechas de los datos recibidos
                         data.produccion.forEach(item => {
                             debugDate(item.fecha_turno, `Fecha turno (${item.turno_nombre})`);
@@ -359,7 +392,16 @@
 
                         // Actualizar gráfico de tiempos muertos solo si hay datos
                         if (data.tiempos_muertos && data.tiempos_muertos.length > 0) {
-                            actualizarGraficoTiemposMuertosSemanales(data.tiempos_muertos);
+                            // Filtrar por turno si es necesario
+                            let tiemposMuertosFiltrados = data.tiempos_muertos;
+                            const turnoSeleccionado = turnoSelector.value;
+
+                            if (turnoSeleccionado !== 'todos') {
+                                tiemposMuertosFiltrados = data.tiempos_muertos.filter(item => item.turno_nombre === turnoSeleccionado);
+                                console.log('Tiempos muertos filtrados por turno:', turnoSeleccionado, tiemposMuertosFiltrados);
+                            }
+
+                            actualizarGraficoTiemposMuertosSemanales(tiemposMuertosFiltrados, turnoSeleccionado);
                         } else {
                             document.querySelector("#tiemposMuertosSemanalChart").innerHTML = mensajeNoDatos;
                         }
@@ -379,7 +421,10 @@
                 const year = parseInt(fechaPartes[0]);
                 const month = parseInt(fechaPartes[1]) - 1; // Meses en JS son 0-11
                 const day = parseInt(fechaPartes[2]);
-                const fechaSeleccionada = new Date(year, month, day);
+                // Usar UTC para evitar problemas de zona horaria
+                const fechaSeleccionada = new Date(Date.UTC(year, month, day));
+
+                console.log('Fecha seleccionada (UTC):', fechaSeleccionada.toISOString());
 
                 // Si es empaque, mostrar gráficos específicos y salir
                 if (tipoPlanillaSelect.value === 'Empaque') {
@@ -387,30 +432,41 @@
                 }
 
                 // Calcular el inicio de la semana (lunes)
-                const diaSemana = fechaSeleccionada.getDay(); // 0 = domingo, 1 = lunes, ...
+                // Usamos getUTCDay para mantener consistencia con UTC
+                const diaSemana = fechaSeleccionada.getUTCDay(); // 0 = domingo, 1 = lunes, ...
                 const diasHastaLunes = diaSemana === 0 ? 6 : diaSemana - 1; // Ajustar para que la semana comience el lunes
                 const inicioSemana = new Date(fechaSeleccionada);
-                inicioSemana.setDate(fechaSeleccionada.getDate() - diasHastaLunes);
+                inicioSemana.setUTCDate(fechaSeleccionada.getUTCDate() - diasHastaLunes);
 
                 // Calcular el fin de la semana (domingo)
                 const finSemana = new Date(inicioSemana);
-                finSemana.setDate(inicioSemana.getDate() + 6);
+                finSemana.setUTCDate(inicioSemana.getUTCDate() + 6);
 
                 // Crear un array con los días de la semana
                 const diasSemana = [];
                 for (let i = 0; i < 7; i++) {
                     const fecha = new Date(inicioSemana);
-                    fecha.setDate(inicioSemana.getDate() + i);
-                    diasSemana.push(fecha.toISOString().split('T')[0]); // Formato YYYY-MM-DD
+                    fecha.setUTCDate(inicioSemana.getUTCDate() + i);
+
+                    // Formatear la fecha manualmente para evitar problemas de zona horaria
+                    const year = fecha.getUTCFullYear();
+                    const month = String(fecha.getUTCMonth() + 1).padStart(2, '0');
+                    const day = String(fecha.getUTCDate()).padStart(2, '0');
+                    const fechaFormateada = `${year}-${month}-${day}`;
+
+                    diasSemana.push(fechaFormateada); // Formato YYYY-MM-DD
                 }
+
+                // Depurar los días de la semana calculados
+                console.log('Días de la semana calculados:', diasSemana);
 
                 // Obtener los datos de la semana
                 const datosSemana = data.produccion || [];
-                
+
                 // Filtrar por turno si es necesario
                 const turnoSeleccionado = turnoSelector.value;
                 let datosFiltrados = datosSemana;
-                
+
                 if (turnoSeleccionado !== 'todos') {
                     datosFiltrados = datosSemana.filter(item => item.turno_nombre === turnoSeleccionado);
                 }
@@ -427,7 +483,7 @@
 
                 // Lista de turnos para el gráfico de productividad
                 const turnos = ['Día', 'Tarde', 'Noche'];
-                
+
                 // Gráfico de Productividad
                 let seriesProductividad;
                 if (turnoSeleccionado === 'todos') {
@@ -438,12 +494,19 @@
                             // Filtrar todos los registros del mismo día y turno
                             const turnoDataArray = datosFiltrados.filter(row => {
                                 const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
-                                return fechaTurnoFormateada === dia && row.turno_nombre === turno;
+                                const coincide = fechaTurnoFormateada === dia && row.turno_nombre === turno;
+
+                                // Depurar la comparación de fechas (solo para algunos registros para no saturar la consola)
+                                if (row.turno_nombre === 'Día') {
+                                    console.log(`Comparando fechas: API=${row.fecha_turno}, Formateada=${fechaTurnoFormateada}, Día gráfico=${dia}, Coincide=${coincide}`);
+                                }
+
+                                return coincide;
                             });
-                            
+
                             // Si no hay datos para este día y turno, retornar null
                             if (turnoDataArray.length === 0) return null;
-                            
+
                             // Sumar todas las piezas o kilos de recepción
                             let total = 0;
                             turnoDataArray.forEach(turnoData => {
@@ -456,12 +519,12 @@
                                     total += Number(turnoData.piezas_recepcion || 0);
                                 }
                             });
-                            
+
                             console.log(`Total para ${dia} - Turno ${turno}:`, {
                                 registros: turnoDataArray.length,
                                 total: total
                             });
-                            
+
                             return total;
                         })
                     }));
@@ -473,12 +536,19 @@
                             // Filtrar todos los registros del mismo día y turno seleccionado
                             const turnoDataArray = datosFiltrados.filter(row => {
                                 const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
-                                return fechaTurnoFormateada === dia && row.turno_nombre === turnoSeleccionado;
+                                const coincide = fechaTurnoFormateada === dia && row.turno_nombre === turnoSeleccionado;
+
+                                // Depurar la comparación de fechas (solo para algunos registros para no saturar la consola)
+                                if (row.turno_nombre === 'Día') {
+                                    console.log(`Comparando fechas: API=${row.fecha_turno}, Formateada=${fechaTurnoFormateada}, Día gráfico=${dia}, Coincide=${coincide}`);
+                                }
+
+                                return coincide;
                             });
-                            
+
                             // Si no hay datos para este día y turno, retornar null
                             if (turnoDataArray.length === 0) return null;
-                            
+
                             // Sumar todas las piezas o kilos de recepción
                             let total = 0;
                             turnoDataArray.forEach(turnoData => {
@@ -491,17 +561,17 @@
                                     total += Number(turnoData.piezas_recepcion || 0);
                                 }
                             });
-                            
+
                             console.log(`Total para ${dia} - Turno ${turnoSeleccionado}:`, {
                                 registros: turnoDataArray.length,
                                 total: total
                             });
-                            
+
                             return total;
                         })
                     }];
                 }
-                
+
                 // Determinar la unidad de medida según el tipo de planilla
                 const tipoPlanilla = tipoPlanillaSelect.value;
                 const unidadMedida = (tipoPlanilla === 'Porciones') ? 'Kilos' : (tipoPlanilla === 'Empaque') ? 'Unidades' : 'Piezas';
@@ -532,9 +602,15 @@
                     colors: ['#008FFB', '#00E396', '#FEB019'],
                     xaxis: {
                         categories: diasSemana.map(dia => {
-                            const fecha = new Date(dia);
-                            // Formatear como dd/mm
-                            return `${fecha.getDate().toString().padStart(2, '0')}/${(fecha.getMonth() + 1).toString().padStart(2, '0')}`;
+                            // Crear fecha usando UTC para evitar problemas de zona horaria
+                            const parts = dia.split('-');
+                            const year = parseInt(parts[0]);
+                            const month = parseInt(parts[1]) - 1;
+                            const day = parseInt(parts[2]);
+                            const fecha = new Date(Date.UTC(year, month, day));
+
+                            // Formatear como dd/mm usando UTC
+                            return `${fecha.getUTCDate().toString().padStart(2, '0')}/${(fecha.getUTCMonth() + 1).toString().padStart(2, '0')}`;
                         }),
                         title: {
                             text: 'Fecha'
@@ -635,7 +711,7 @@
                         enabled: true,
                         formatter: function (val) {
                             if (val === null || val === 0) return '';
-                            return Math.round(val) + '%';
+                            return val.toFixed(2) + '%';
                         },
                         offsetY: -10
                     },
@@ -654,9 +730,15 @@
                     },
                     xaxis: {
                         categories: diasSemana.map(dia => {
-                            const fecha = new Date(dia);
-                            // Formatear como dd/mm
-                            return `${fecha.getDate().toString().padStart(2, '0')}/${(fecha.getMonth() + 1).toString().padStart(2, '0')}`;
+                            // Crear fecha usando UTC para evitar problemas de zona horaria
+                            const parts = dia.split('-');
+                            const year = parseInt(parts[0]);
+                            const month = parseInt(parts[1]) - 1;
+                            const day = parseInt(parts[2]);
+                            const fecha = new Date(Date.UTC(year, month, day));
+
+                            // Formatear como dd/mm usando UTC
+                            return `${fecha.getUTCDate().toString().padStart(2, '0')}/${(fecha.getUTCMonth() + 1).toString().padStart(2, '0')}`;
                         }),
                         title: {
                             text: 'Fecha'
@@ -697,9 +779,9 @@
                                 const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
                                 return fechaTurnoFormateada === dia;
                             });
-                            
+
                             if (turnosDelDia.length === 0) return null;
-                            
+
                             // Sumar dotación real de todos los turnos del día
                             const dotacionRealTotal = turnosDelDia.reduce((sum, row) => sum + Number(row.dotacion_real || 0), 0);
                             return dotacionRealTotal;
@@ -713,9 +795,9 @@
                                 const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
                                 return fechaTurnoFormateada === dia;
                             });
-                            
+
                             if (turnosDelDia.length === 0) return null;
-                            
+
                             // Sumar dotación esperada de todos los turnos del día
                             const dotacionEsperadaTotal = turnosDelDia.reduce((sum, row) => sum + Number(row.dotacion_esperada || 0), 0);
                             return dotacionEsperadaTotal;
@@ -743,9 +825,15 @@
                     },
                     xaxis: {
                         categories: diasSemana.map(dia => {
-                            const fecha = new Date(dia);
-                            // Formatear como dd/mm
-                            return `${fecha.getDate().toString().padStart(2, '0')}/${(fecha.getMonth() + 1).toString().padStart(2, '0')}`;
+                            // Crear fecha usando UTC para evitar problemas de zona horaria
+                            const parts = dia.split('-');
+                            const year = parseInt(parts[0]);
+                            const month = parseInt(parts[1]) - 1;
+                            const day = parseInt(parts[2]);
+                            const fecha = new Date(Date.UTC(year, month, day));
+
+                            // Formatear como dd/mm usando UTC
+                            return `${fecha.getUTCDate().toString().padStart(2, '0')}/${(fecha.getUTCMonth() + 1).toString().padStart(2, '0')}`;
                         }),
                         title: {
                             text: 'Fecha'
@@ -782,9 +870,9 @@
                                 const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
                                 return fechaTurnoFormateada === dia;
                             });
-                            
+
                             if (turnosDelDia.length === 0) return null;
-                            
+
                             // Sumar horas trabajadas de todos los turnos del día (convertidas a minutos)
                             const horasTrabajadasTotal = turnosDelDia.reduce((sum, row) => sum + Number(row.horas_trabajadas || 0) * 60, 0);
                             return horasTrabajadasTotal;
@@ -797,9 +885,9 @@
                                 const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
                                 return fechaTurnoFormateada === dia;
                             });
-                            
+
                             if (turnosDelDia.length === 0) return null;
-                            
+
                             // Sumar tiempo muerto de todos los turnos del día
                             const tiempoMuertoTotal = turnosDelDia.reduce((sum, row) => sum + Number(row.tiempo_muerto_minutos || 0), 0);
                             return tiempoMuertoTotal;
@@ -835,9 +923,15 @@
                     },
                     xaxis: {
                         categories: diasSemana.map(dia => {
-                            const fecha = new Date(dia);
-                            // Formatear como dd/mm
-                            return `${fecha.getDate().toString().padStart(2, '0')}/${(fecha.getMonth() + 1).toString().padStart(2, '0')}`;
+                            // Crear fecha usando UTC para evitar problemas de zona horaria
+                            const parts = dia.split('-');
+                            const year = parseInt(parts[0]);
+                            const month = parseInt(parts[1]) - 1;
+                            const day = parseInt(parts[2]);
+                            const fecha = new Date(Date.UTC(year, month, day));
+
+                            // Formatear como dd/mm usando UTC
+                            return `${fecha.getUTCDate().toString().padStart(2, '0')}/${(fecha.getUTCMonth() + 1).toString().padStart(2, '0')}`;
                         })
                     },
                     yaxis: {
@@ -871,26 +965,26 @@
 
                 // Actualizar título de los gráficos según el turno seleccionado
                 const tituloTurno = turnoSelector.value === 'todos' ? '' : ` - Turno ${turnoSelector.value}`;
-                
+
                 // Actualizar títulos de los gráficos
                 optionsProductividad.title = {
                     text: `Productividad por Turno${tituloTurno}`,
                     align: 'left',
                     style: { fontSize: '14px', fontWeight: 'bold' }
                 };
-                
+
                 optionsRendimiento.title = {
                     text: `Rendimiento Semanal${tituloTurno}`,
                     align: 'left',
                     style: { fontSize: '14px', fontWeight: 'bold' }
                 };
-                
+
                 optionsDotacion.title = {
                     text: `Dotación Real vs Esperada${tituloTurno}`,
                     align: 'left',
                     style: { fontSize: '14px', fontWeight: 'bold' }
                 };
-                
+
                 optionsTiempoDiario.title = {
                     text: `Distribución de Tiempo Diario${tituloTurno}`,
                     align: 'left',
@@ -908,7 +1002,7 @@
 
                 // Actualizar gráfico de tiempos muertos por departamento
                 if (data.tiempos_muertos && Array.isArray(data.tiempos_muertos)) {
-                    actualizarGraficoTiemposMuertosSemanales(data.tiempos_muertos);
+                    actualizarGraficoTiemposMuertosSemanales(data.tiempos_muertos, turnoSelector.value);
                 } else {
                     console.log('No hay datos de tiempos muertos disponibles');
                     document.querySelector("#tiemposMuertosSemanalChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos de tiempos muertos disponibles</p></div>';
@@ -918,7 +1012,7 @@
             function actualizarGraficosEmpaque(data) {
                 console.log('Iniciando actualización de gráficos de empaque');
                 console.log('Datos recibidos en actualizarGraficosEmpaque:', data);
-                
+
                 if (!data || data.length === 0) {
                     console.log('No hay datos de empaque');
                     document.querySelectorAll("#kilosProductoChart, #piezasProductoChart, #distribucionEmpresaChart, #lotesChart")
@@ -933,16 +1027,16 @@
                     .forEach(el => {
                         el.innerHTML = '';
                     });
-                
+
                 // Filtrar por turno seleccionado
                 const turnoSeleccionado = turnoSelector.value;
-                
+
                 let datosFiltrados = data;
-                
+
                 if (turnoSeleccionado !== 'todos') {
                     datosFiltrados = data.filter(item => item.turno === turnoSeleccionado);
                 }
-                
+
                 if (datosFiltrados.length === 0) {
                     console.log('No hay datos para el turno seleccionado');
                     document.querySelectorAll("#kilosProductoChart, #piezasProductoChart, #distribucionEmpresaChart, #lotesChart")
@@ -1148,7 +1242,7 @@
                     },
                     tooltip: {
                         x: {
-                            formatter: function(val, opts) {
+                            formatter: function (val, opts) {
                                 return fechasOrdenadas[opts.dataPointIndex];
                             }
                         }
@@ -1214,12 +1308,16 @@
                 document.getElementById('kpiDotacion').textContent = `${kpis.dotacion}%`;
             }
 
-            function actualizarGraficoTiemposMuertosSemanales(data) {
+            function actualizarGraficoTiemposMuertosSemanales(data, turnoSeleccionado) {
                 if (!data || data.length === 0) {
                     console.log('No hay datos de tiempos muertos');
                     document.querySelector("#tiemposMuertosSemanalChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
                     return;
                 }
+
+                // Depurar los datos recibidos
+                console.log('Datos de tiempos muertos recibidos:', data);
+                console.log('Turno seleccionado:', turnoSeleccionado);
 
                 // Agrupar tiempos muertos por departamento
                 const tiemposPorDepartamento = {};
@@ -1228,7 +1326,7 @@
                     if (!tiemposPorDepartamento[departamento]) {
                         tiemposPorDepartamento[departamento] = 0;
                     }
-                    tiemposPorDepartamento[departamento] += Number(item.tiempo_muerto) || 0;
+                    tiemposPorDepartamento[departamento] += Number(item.total_minutos_muertos) || 0;
                 });
 
                 // Convertir a series para el gráfico
@@ -1243,9 +1341,9 @@
                 }
 
                 // Ordenar por tiempo (de mayor a menor)
-                const datosCombinados = departamentos.map((dep, i) => ({ 
-                    departamento: dep, 
-                    tiempo: tiempos[i] 
+                const datosCombinados = departamentos.map((dep, i) => ({
+                    departamento: dep,
+                    tiempo: tiempos[i]
                 }));
 
                 datosCombinados.sort((a, b) => b.tiempo - a.tiempo);
@@ -1306,7 +1404,7 @@
                         }
                     },
                     title: {
-                        text: `Tiempos Muertos por Departamento${turnoSelector.value === 'todos' ? '' : ` - Turno ${turnoSelector.value}`}`,
+                        text: `Tiempos Muertos por Departamento${turnoSeleccionado === 'todos' ? '' : ` - Turno ${turnoSeleccionado}`}`,
                         align: 'left',
                         style: {
                             fontSize: '14px',
@@ -1325,18 +1423,18 @@
                 document.querySelector("#tiemposMuertosSemanalChart").innerHTML = '';
                 new ApexCharts(document.querySelector("#tiemposMuertosSemanalChart"), optionsTiemposMuertosSemanales).render();
             }
-            
+
             // Eventos para recargar datos
             fechaInput.addEventListener('change', cargarDatos);
-            tipoPlanillaSelect.addEventListener('change', function() {
+            tipoPlanillaSelect.addEventListener('change', function () {
                 const tipoPlanilla = tipoPlanillaSelect.value;
                 const unidadMeta = document.getElementById('unidadMeta');
                 unidadMeta.textContent = tipoPlanilla === 'Porciones' ? 'kg' : (tipoPlanilla === 'Empaque') ? 'unidades' : 'pzs';
-                
+
                 // Mostrar u ocultar gráficos según el tipo de planilla
                 const graficosProduccion = document.getElementById('graficos-produccion');
                 const graficosEmpaque = document.getElementById('graficos-empaque');
-                
+
                 if (tipoPlanilla === 'Empaque') {
                     graficosProduccion.classList.add('hidden');
                     graficosEmpaque.classList.remove('hidden');
@@ -1344,10 +1442,10 @@
                     graficosProduccion.classList.remove('hidden');
                     graficosEmpaque.classList.add('hidden');
                 }
-                
+
                 cargarDatos();
             });
-            turnoSelector.addEventListener('change', function() {
+            turnoSelector.addEventListener('change', function () {
                 // Actualizar el título con el turno seleccionado
                 document.getElementById('turnoTitulo').textContent = this.value === 'todos' ? 'Todos' : this.value;
                 cargarDatos();
