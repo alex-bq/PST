@@ -136,6 +136,11 @@ class InformeController extends Controller
             // Obtener detalle de procesamiento
             $detalle_procesamiento = DB::select("
                 SELECT * FROM pst.dbo.fn_GetDetalleProcesamiento(?, ?)
+                ORDER BY 
+                descripcion,
+                calidad,
+                corte_final
+                ;
             ", [$fecha, $turno]);
 
             // Obtener suma de kilos para porciones terminadas
@@ -199,10 +204,13 @@ class InformeController extends Controller
             $request->validate([
                 'fecha_turno' => 'required|date',
                 'cod_turno' => 'required|integer|min:1',
-                'cod_jefe_turno' => 'required',
+                'cod_jefe_turno' => 'required|string',
                 'comentarios' => 'required|string',
-                'd_real_empaque' => 'nullable|integer|min:0',
+                'd_real_empaque' => 'required|integer|min:1',
                 'd_esperada_empaque' => 'nullable|integer|min:0',
+                'horas_trabajadas_empaque' => 'required|numeric|min:0.1',
+                'tiempo_muerto_empaque' => 'nullable|integer|min:0',
+                'productividad_empaque' => 'nullable|numeric|min:0',
                 'salas' => 'required|array|min:1',
                 'salas.*.cod_sala' => 'required|integer|min:1',
                 'salas.*.dotacion_real' => 'required|integer|min:0',
@@ -236,6 +244,9 @@ class InformeController extends Controller
                 'fecha_creacion' => $fechaCreacion,
                 'd_real_empaque' => (int) $request->d_real_empaque,
                 'd_esperada_empaque' => (int) $request->d_esperada_empaque,
+                'horas_trabajadas_empaque' => (float) $request->horas_trabajadas_empaque,
+                'tiempo_muerto_empaque' => (int) $request->tiempo_muerto_empaque,
+                'productividad_empaque' => (float) $request->productividad_empaque,
                 'estado' => 1
             ]);
 
@@ -317,7 +328,10 @@ class InformeController extends Controller
                     u.cod_usuario as jefe_turno,
                     i.comentarios,
                     i.d_real_empaque,
-                    i.d_esperada_empaque
+                    i.d_esperada_empaque,
+                    i.horas_trabajadas_empaque,
+                    i.tiempo_muerto_empaque,
+                    i.productividad_empaque
                 FROM pst.dbo.informes_turno i
                 JOIN bdsystem.dbo.turno t ON i.cod_turno = t.CodTurno
                 JOIN pst.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
@@ -333,7 +347,10 @@ class InformeController extends Controller
                     u.cod_usuario,
                     i.comentarios,
                     i.d_real_empaque,
-                    i.d_esperada_empaque
+                    i.d_esperada_empaque,
+                    i.horas_trabajadas_empaque,
+                    i.tiempo_muerto_empaque,
+                    i.productividad_empaque
             ", [$fecha, $turno])[0];
 
             // Obtener información por sala desde la tabla
@@ -364,6 +381,11 @@ WHERE d.cod_informe = ?
             // Obtener detalle de procesamiento
             $detalle_procesamiento = DB::select("
                 SELECT * FROM pst.dbo.fn_GetDetalleProcesamiento(?, ?)
+                ORDER BY 
+                descripcion,
+                calidad,
+                corte_final
+                ;
             ", [$fecha, $turno]);
 
             // Obtener tiempos muertos

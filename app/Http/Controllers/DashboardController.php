@@ -39,6 +39,16 @@ class DashboardController extends Controller
                     WHERE 
                         CAST(Registro_Sistema AS DATE) BETWEEN ? AND ?
                         AND N_Calidad = 'PREMIUM'
+                        AND (
+                            (N_IDTurno = 1 AND CAST(Registro_Sistema AS TIME) BETWEEN '08:00:00' AND '17:30:00')
+                            OR 
+                            (N_IDTurno = 3 AND (
+                                CAST(Registro_Sistema AS TIME) BETWEEN '20:00:00' AND '23:59:59'
+                                OR 
+                                CAST(Registro_Sistema AS TIME) BETWEEN '00:00:00' AND '05:30:00'
+                            ))
+                        )
+                        AND N_MotivoSalida IN('Despacho a Cliente','En Stock')
                     GROUP BY 
                         CAST(Registro_Sistema AS DATE),
                         N_Turno,
@@ -50,7 +60,29 @@ class DashboardController extends Controller
                         SUM(CAST(N_PNom AS FLOAT)) DESC
                 ", [$inicioSemana->format('Y-m-d'), $finSemana->format('Y-m-d')]);
 
+                // Obtener datos de productividad de empaque
+                $productividadEmpaqueQuery = DB::select("
+                    SELECT 
+                        i.fecha_turno,
+                        i.cod_turno,
+                        t.NomTurno AS turno,
+                        i.d_real_empaque AS dotacion_real,
+                        i.d_esperada_empaque AS dotacion_esperada,
+                        i.horas_trabajadas_empaque,
+                        i.tiempo_muerto_empaque,
+                        i.productividad_empaque
+                    FROM pst.dbo.informes_turno i
+                    JOIN bdsystem.dbo.turno t ON i.cod_turno = t.CodTurno
+                    WHERE 
+                        i.fecha_turno BETWEEN ? AND ?
+                        AND i.estado = 1
+                    ORDER BY 
+                        i.fecha_turno DESC,
+                        i.cod_turno
+                ", [$inicioSemana->format('Y-m-d'), $finSemana->format('Y-m-d')]);
+
                 $response['empaque'] = $empaqueQuery;
+                $response['productividad_empaque'] = $productividadEmpaqueQuery;
             } else {
                 // Obtener datos de producción para otros tipos de planilla
                 $produccionQuery = DB::table('pst.dbo.vw_analisis_informes')

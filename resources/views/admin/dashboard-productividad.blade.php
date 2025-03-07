@@ -129,6 +129,29 @@
 
             <!-- Gráficos de Empaque (ocultos por defecto) -->
             <div class="grid grid-cols-6 gap-6 hidden" id="graficos-empaque">
+                <!-- Gráfico de Productividad Empaque -->
+                <div class="col-span-6 bg-white p-6 rounded-lg shadow">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Productividad de Empaque</h3>
+                    </div>
+                    <div id="productividadEmpaqueChart" class="w-full h-[400px]"></div>
+                </div>
+
+                <!-- Gráfico de Dotación Empaque -->
+                <div class="col-span-3 bg-white p-6 rounded-lg shadow">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Dotación de Empaque</h3>
+                    </div>
+                    <div id="dotacionEmpaqueChart" class="w-full h-[400px]"></div>
+                </div>
+
+                <!-- Gráfico de Horas Trabajadas y Tiempo Muerto -->
+                <div class="col-span-3 bg-white p-6 rounded-lg shadow">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-semibold">Horas Trabajadas y Tiempo Muerto</h3>
+                    </div>
+                    <div id="horasTrabajadasEmpaqueChart" class="w-full h-[400px]"></div>
+                </div>
                 <!-- Gráfico de Kilos por Producto -->
                 <div class="col-span-3 bg-white p-6 rounded-lg shadow">
                     <div class="flex justify-between items-center mb-4">
@@ -218,6 +241,24 @@
                     String(date.getUTCDate()).padStart(2, '0');
             }
 
+            function formatDateForDisplay(dateString) {
+                if (!dateString) return '';
+                
+                // Si la fecha ya viene en formato ISO (YYYY-MM-DD), convertirla a objeto Date
+                let date;
+                if (typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                    const parts = dateString.split('-');
+                    date = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                } else {
+                    date = new Date(dateString);
+                }
+                
+                // Formatear como DD/MM
+                const day = String(date.getDate()).padStart(2, '0');
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                return `${day}/${month}`;
+            }
+
             // Función auxiliar para depurar fechas
             function debugDate(dateString, label) {
                 // Crear fecha sin ajustes de zona horaria si es posible
@@ -283,7 +324,10 @@
                     "#kilosProductoChart",
                     "#piezasProductoChart",
                     "#distribucionEmpresaChart",
-                    "#lotesChart"
+                    "#lotesChart",
+                    "#productividadEmpaqueChart",
+                    "#dotacionEmpaqueChart",
+                    "#horasTrabajadasEmpaqueChart"
                 ];
 
                 // Destruir los gráficos existentes si existen
@@ -307,14 +351,14 @@
 
                 // Mensaje de no datos disponibles
                 const mensajeNoDatos = `
-                                                                                        <div class="flex flex-col items-center justify-center p-6 text-gray-500">
-                                                                                            <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
-                                                                                            </svg>
-                                                                                            <p class="text-lg font-semibold">No hay datos disponibles</p>
-                                                                                            <p class="text-sm">Para la fecha ${new Date(fecha).toLocaleDateString()} y línea ${tipoPlanilla}</p>
-                                                                                        </div>
-                                                                                    `;
+                                                                                            <div class="flex flex-col items-center justify-center p-6 text-gray-500">
+                                                                                                <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
+                                                                                                </svg>
+                                                                                                <p class="text-lg font-semibold">No hay datos disponibles</p>
+                                                                                                <p class="text-sm">Para la fecha ${new Date(fecha).toLocaleDateString()} y línea ${tipoPlanilla}</p>
+                                                                                            </div>
+                                                                                        `;
 
                 // Función para limpiar y mostrar mensaje
                 const mostrarMensajeNoDatos = () => {
@@ -327,7 +371,10 @@
                         "#kilosProductoChart",
                         "#piezasProductoChart",
                         "#distribucionEmpresaChart",
-                        "#lotesChart"
+                        "#lotesChart",
+                        "#productividadEmpaqueChart",
+                        "#dotacionEmpaqueChart",
+                        "#horasTrabajadasEmpaqueChart"
                     ];
 
                     contenedores.forEach(selector => {
@@ -370,7 +417,7 @@
                                         el.innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
                                     });
                             } else {
-                                actualizarGraficosEmpaque(data.empaque);
+                                actualizarGraficosProductos(data.empaque);
                             }
                             return;
                         }
@@ -428,6 +475,7 @@
 
                 // Si es empaque, mostrar gráficos específicos y salir
                 if (tipoPlanillaSelect.value === 'Empaque') {
+                    mostrarDashboardEmpaque(data);
                     return;
                 }
 
@@ -1009,16 +1057,16 @@
                 }
             }
 
-            function actualizarGraficosEmpaque(data) {
-                console.log('Iniciando actualización de gráficos de empaque');
-                console.log('Datos recibidos en actualizarGraficosEmpaque:', data);
+            function actualizarGraficosProductos(data) {
+                console.log('Iniciando actualización de gráficos de productos de empaque');
+                console.log('Datos recibidos en actualizarGraficosProductos:', data);
 
                 if (!data || data.length === 0) {
-                    console.log('No hay datos de empaque');
-                    document.querySelectorAll("#kilosProductoChart, #piezasProductoChart, #distribucionEmpresaChart, #lotesChart")
-                        .forEach(el => {
-                            el.innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
-                        });
+                    console.log('No hay datos de productos de empaque');
+                    document.querySelector("#kilosProductoChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
+                    document.querySelector("#piezasProductoChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
+                    document.querySelector("#distribucionEmpresaChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
+                    document.querySelector("#lotesChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
                     return;
                 }
 
@@ -1254,6 +1302,278 @@
                 window.charts.lotes = chartLotes;
             }
 
+            function mostrarDashboardEmpaque(data) {
+                console.log('Mostrando dashboard de empaque');
+                console.log('Datos recibidos:', data);
+
+                // Mostrar gráficos de empaque
+                const graficosEmpaque = document.getElementById('graficos-empaque');
+                graficosEmpaque.classList.remove('hidden');
+
+                // Ocultar gráficos de producción
+                const graficosProduccion = document.getElementById('graficos-produccion');
+                graficosProduccion.classList.add('hidden');
+
+                // Actualizar gráficos de productividad de empaque
+                actualizarGraficosEmpaque(data.productividad_empaque);
+                
+                // Actualizar gráficos de productos de empaque
+                actualizarGraficosProductos(data.empaque);
+            }
+
+            function actualizarGraficosEmpaque(data) {
+                // Verificar si hay datos de productividad de empaque
+                if (!data || data.length === 0) {
+                    console.log('No hay datos de productividad de empaque');
+                    document.querySelector("#productividadEmpaqueChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
+                    document.querySelector("#dotacionEmpaqueChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
+                    document.querySelector("#horasTrabajadasEmpaqueChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
+                    return;
+                }
+
+                // Obtener los datos de productividad de empaque
+                const datosProductividad = data;
+                console.log('Datos de productividad de empaque:', datosProductividad);
+
+                // Calcular el inicio y fin de la semana
+                const fechaPartes = fechaInput.value.split('-');
+                const year = parseInt(fechaPartes[0]);
+                const month = parseInt(fechaPartes[1]) - 1; // Meses en JS son 0-11
+                const day = parseInt(fechaPartes[2]);
+                const fechaSeleccionada = new Date(Date.UTC(year, month, day));
+
+                const diaSemana = fechaSeleccionada.getUTCDay(); // 0 = domingo, 1 = lunes, ...
+                const diasHastaLunes = diaSemana === 0 ? 6 : diaSemana - 1; // Ajustar para que la semana comience el lunes
+                const inicioSemana = new Date(fechaSeleccionada);
+                inicioSemana.setUTCDate(fechaSeleccionada.getUTCDate() - diasHastaLunes);
+
+                // Crear un array con los días de la semana
+                const diasSemana = [];
+                for (let i = 0; i < 7; i++) {
+                    const fecha = new Date(inicioSemana);
+                    fecha.setUTCDate(inicioSemana.getUTCDate() + i);
+                    diasSemana.push(formatDateForComparison(fecha.toISOString().split('T')[0]));
+                }
+
+                // Filtrar datos por turno seleccionado
+                const turnoSeleccionado = turnoSelector.value;
+
+                let datosFiltrados = datosProductividad;
+
+                if (turnoSeleccionado !== 'todos') {
+                    datosFiltrados = datosProductividad.filter(row => row.turno === turnoSeleccionado);
+                }
+
+                // Gráfico de productividad
+                const optionsProductividad = {
+                    series: [{
+                        name: 'Productividad',
+                        data: diasSemana.map(dia => {
+                            const turnosDelDia = datosFiltrados.filter(row => {
+                                const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
+                                return fechaTurnoFormateada === dia;
+                            });
+
+                            if (turnosDelDia.length === 0) return null;
+
+                            // Calcular el promedio de productividad de todos los turnos del día
+                            const productividadTotal = turnosDelDia.reduce((sum, row) => sum + Number(row.productividad_empaque || 0), 0);
+                            return parseFloat((productividadTotal / turnosDelDia.length).toFixed(1));
+                        })
+                    }],
+                    chart: {
+                        height: 350,
+                        type: 'line',
+                        toolbar: {
+                            show: false
+                        }
+                    },
+                    stroke: {
+                        width: 3,
+                        curve: 'smooth'
+                    },
+                    colors: ['#4e73df'],
+                    xaxis: {
+                        categories: diasSemana.map(dia => formatDateForDisplay(dia)),
+                        labels: {
+                            style: {
+                                fontSize: '12px'
+                            }
+                        }
+                    },
+                    yaxis: {
+                        title: {
+                            text: 'Productividad (pzs/pers/hr)'
+                        },
+                        min: 0
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function (val) {
+                                return val !== null ? val.toFixed(1) + ' pzs/pers/hr' : 'Sin datos';
+                            }
+                        }
+                    },
+                    title: {
+                        text: 'Productividad Semanal de Empaque',
+                        align: 'center',
+                        style: {
+                            fontSize: '16px',
+                            fontWeight: 'bold'
+                        }
+                    }
+                };
+
+                // Gráfico de dotación
+                const optionsDotacion = {
+                    series: [{
+                        name: 'Dotación Real',
+                        data: diasSemana.map(dia => {
+                            const turnosDelDia = datosFiltrados.filter(row => {
+                                const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
+                                return fechaTurnoFormateada === dia;
+                            });
+
+                            if (turnosDelDia.length === 0) return null;
+
+                            // Sumar dotación real de todos los turnos del día
+                            const dotacionRealTotal = turnosDelDia.reduce((sum, row) => sum + Number(row.dotacion_real || 0), 0);
+                            return dotacionRealTotal;
+                        })
+                    }],
+                    chart: {
+                        height: 350,
+                        type: 'bar',
+                        toolbar: {
+                            show: false
+                        }
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            columnWidth: '55%',
+                            endingShape: 'rounded'
+                        }
+                    },
+                    colors: ['#1cc88a'],
+                    xaxis: {
+                        categories: diasSemana.map(dia => formatDateForDisplay(dia)),
+                        labels: {
+                            style: {
+                                fontSize: '12px'
+                            }
+                        }
+                    },
+                    yaxis: {
+                        title: {
+                            text: 'Dotación'
+                        },
+                        min: 0
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function (val) {
+                                return val !== null ? val + ' personas' : 'Sin datos';
+                            }
+                        }
+                    },
+                    title: {
+                        text: 'Dotación Semanal de Empaque',
+                        align: 'center',
+                        style: {
+                            fontSize: '16px',
+                            fontWeight: 'bold'
+                        }
+                    }
+                };
+
+                // Gráfico de horas trabajadas y tiempo muerto
+                const optionsHorasTrabajadas = {
+                    series: [{
+                        name: 'Horas Trabajadas',
+                        data: diasSemana.map(dia => {
+                            const turnosDelDia = datosFiltrados.filter(row => {
+                                const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
+                                return fechaTurnoFormateada === dia;
+                            });
+
+                            if (turnosDelDia.length === 0) return null;
+
+                            // Sumar horas trabajadas de todos los turnos del día
+                            const horasTrabajadasTotal = turnosDelDia.reduce((sum, row) => sum + Number(row.horas_trabajadas_empaque || 0), 0);
+                            return parseFloat(horasTrabajadasTotal.toFixed(1));
+                        })
+                    }, {
+                        name: 'Tiempo Muerto (horas)',
+                        data: diasSemana.map(dia => {
+                            const turnosDelDia = datosFiltrados.filter(row => {
+                                const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
+                                return fechaTurnoFormateada === dia;
+                            });
+
+                            if (turnosDelDia.length === 0) return null;
+
+                            // Sumar tiempo muerto de todos los turnos del día (convertir minutos a horas)
+                            const tiempoMuertoTotal = turnosDelDia.reduce((sum, row) => sum + Number(row.tiempo_muerto_empaque || 0), 0);
+                            return parseFloat((tiempoMuertoTotal / 60).toFixed(1));
+                        })
+                    }],
+                    chart: {
+                        height: 350,
+                        type: 'bar',
+                        toolbar: {
+                            show: false
+                        }
+                    },
+                    plotOptions: {
+                        bar: {
+                            horizontal: false,
+                            columnWidth: '55%',
+                            endingShape: 'rounded'
+                        }
+                    },
+                    colors: ['#36b9cc', '#e74a3b'],
+                    xaxis: {
+                        categories: diasSemana.map(dia => formatDateForDisplay(dia)),
+                        labels: {
+                            style: {
+                                fontSize: '12px'
+                            }
+                        }
+                    },
+                    yaxis: {
+                        title: {
+                            text: 'Horas'
+                        },
+                        min: 0
+                    },
+                    tooltip: {
+                        y: {
+                            formatter: function (val) {
+                                return val !== null ? val.toFixed(1) + ' horas' : 'Sin datos';
+                            }
+                        }
+                    },
+                    title: {
+                        text: 'Horas Trabajadas y Tiempo Muerto Semanal',
+                        align: 'center',
+                        style: {
+                            fontSize: '16px',
+                            fontWeight: 'bold'
+                        }
+                    }
+                };
+
+                // Renderizar gráficos
+                document.querySelector("#productividadEmpaqueChart").innerHTML = '';
+                document.querySelector("#dotacionEmpaqueChart").innerHTML = '';
+                document.querySelector("#horasTrabajadasEmpaqueChart").innerHTML = '';
+
+                new ApexCharts(document.querySelector("#productividadEmpaqueChart"), optionsProductividad).render();
+                new ApexCharts(document.querySelector("#dotacionEmpaqueChart"), optionsDotacion).render();
+                new ApexCharts(document.querySelector("#horasTrabajadasEmpaqueChart"), optionsHorasTrabajadas).render();
+            }
+
             function calcularKPIs(data) {
                 // Suma total de dotaciones y otros valores de la semana
                 const totales = data.produccion.reduce((acc, row) => {
@@ -1362,12 +1682,9 @@
                     },
                     plotOptions: {
                         bar: {
-                            borderRadius: 4,
-                            horizontal: true,
-                            distributed: true,
-                            dataLabels: {
-                                position: 'top'
-                            }
+                            horizontal: false,
+                            columnWidth: '55%',
+                            endingShape: 'rounded'
                         }
                     },
                     colors: ['#F87171', '#FB923C', '#FBBF24', '#A3E635', '#34D399'],

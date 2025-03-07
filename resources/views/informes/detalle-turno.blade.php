@@ -277,37 +277,39 @@
                                                 Indicadores
                                             </h5>
                                             <div class="d-flex flex-row flex-wrap gap-3">
-                                                <!-- Rendimiento Premium -->
-                                                <div class="flex-grow-1">
-                                                    <p class="text-muted small mb-1">Premium</p>
-                                                    <p class="fw-medium premium-valor">
-                                                        @php
-                                                            $procesamientoSala = collect($detalle_procesamiento)
-                                                                ->where('cod_sala', $sala->cod_sala)
-                                                                ->where('cod_tipo_planilla', $sala->cod_tipo_planilla);
+                                                @php
+                                                    $procesamientoSala = collect($detalle_procesamiento)
+                                                        ->where('cod_sala', $sala->cod_sala)
+                                                        ->where('cod_tipo_planilla', $sala->cod_tipo_planilla);
 
-                                                            $rendimientoPremium = 0;
-                                                            if ($sala->kilos_recepcion_total > 0) {
-                                                                $rendimientoPremium = ($procesamientoSala->sum('kilos') / $sala->kilos_recepcion_total) * 100;
-                                                            }
-                                                        @endphp
+                                                    $rendimientoPremium = 0;
+                                                    if ($sala->kilos_recepcion_total > 0) {
+                                                        $rendimientoPremium = ($procesamientoSala->sum('kilos') / $sala->kilos_recepcion_total) * 100;
+                                                    }
+
+                                                    $rendimientoGeneral = 0;
+                                                    if ($sala->kilos_entrega_total > 0) {
+                                                        $rendimientoGeneral = ($sala->kilos_recepcion_total / $sala->kilos_entrega_total) * 100;
+                                                    }
+                                                @endphp
+
+                                                <!-- Indicador Premium/Rendimiento General -->
+                                                <div class="flex-grow-1">
+                                                    <p class="text-muted small mb-1">{{ $sala->tipo_planilla == 'Porciones' ? 'Rendimiento General' : 'Premium' }}</p>
+                                                    <p class="fw-medium premium-valor">
                                                         {{ number_format($rendimientoPremium, 1) }}%
                                                     </p>
                                                 </div>
 
-                                                <!-- Rendimiento General -->
+                                                <!-- Rendimiento General (solo para no-Porciones) -->
+                                                @if($sala->tipo_planilla != 'Porciones')
                                                 <div class="flex-grow-1">
                                                     <p class="text-muted small mb-1">Rendimiento</p>
                                                     <p class="fw-medium rendimiento-valor">
-                                                        @php
-                                                            $rendimientoGeneral = 0;
-                                                            if ($sala->kilos_entrega_total > 0) {
-                                                                $rendimientoGeneral = ($sala->kilos_recepcion_total / $sala->kilos_entrega_total) * 100;
-                                                            }
-                                                        @endphp
                                                         {{ number_format($rendimientoGeneral, 1) }}%
                                                     </p>
                                                 </div>
+                                                @endif
 
                                                 <!-- Productividad -->
                                                 <div class="flex-grow-1">
@@ -389,15 +391,18 @@
                                                     <div class="flex-grow-1">
                                                         <p class="text-muted small mb-1">Kilos</p>
                                                         <p class="font-medium"
-                                                            data-kilos-recepcion="{{ number_format($sala->kilos_recepcion_total, 1) }}">
-                                                            {{ number_format($sala->kilos_recepcion_total, 1) }} kg
+                                                            data-kilos-recepcion="{{ number_format($procesamientoSala->sum('kilos'), 1) }}">
+                                                            {{ number_format($procesamientoSala->sum('kilos'), 1) }} kg
                                                         </p>
                                                     </div>
                                                     <div class="flex-grow-1">
                                                         <p class="text-muted small mb-1">Kilos Premium</p>
+                                                        @php
+                                                            $kilosPremium = $procesamientoSala->where('calidad', 'PREMIUM')->sum('kilos');
+                                                        @endphp
                                                         <p class="font-medium"
-                                                            data-kilos-recepcion="{{ number_format($procesamientoSala->sum('kilos'), 1) }}">
-                                                            {{ number_format($procesamientoSala->sum('kilos'), 1) }} kg
+                                                            data-kilos-premium="{{ number_format($kilosPremium, 1) }}">
+                                                            {{ number_format($kilosPremium, 1) }} kg
                                                         </p>
                                                     </div>
                                                     <div class="flex-grow-1">
@@ -454,7 +459,9 @@
                                                 <table class="detail-table">
                                                     <thead>
                                                         <tr>
+                                                            <th>Nro Planilla</th>
                                                             <th>Empresa</th>
+                                                            <th>Corte Inicial</th>
                                                             <th>Corte Final</th>
                                                             <th>Calibre</th>
                                                             <th>Calidad</th>
@@ -465,7 +472,9 @@
                                                     <tbody>
                                                         @foreach($procesamientoSala as $proceso)
                                                             <tr>
+                                                                <td>{{ $proceso->cod_planilla }}</td>
                                                                 <td>{{ $proceso->descripcion }}</td>
+                                                                <td>{{ $proceso->corte_inicial }}</td>
                                                                 <td>{{ $proceso->corte_final }}</td>
                                                                 <td>{{ $proceso->calibre }}</td>
                                                                 <td>{{ $proceso->calidad }}</td>
@@ -476,7 +485,7 @@
                                                     </tbody>
                                                     <tfoot>
                                                         <tr>
-                                                            <td colspan="4" class="text-end"><strong>Totales:</strong></td>
+                                                            <td colspan="6" class="text-end"><strong>Totales:</strong></td>
                                                             <td><strong>{{ number_format($procesamientoSala->sum('piezas'), 0) }}</strong>
                                                             </td>
                                                             <td><strong>{{ number_format($procesamientoSala->sum('kilos'), 1) }}
@@ -567,13 +576,56 @@
                                     <label class="form-label text-muted small mb-1">Real</label>
                                     <input type="number" class="form-control form-control-sm dotacion-input" min="0"
                                         value="0" data-area="empaque" onclick="this.select()"
-                                        onchange="actualizarDotacionTotal()">
+                                        onchange="actualizarDotacionTotal(); calcularProductividadEmpaque()">
                                 </div>
                                 <div class="col-6">
                                     <label class="form-label text-muted small mb-1">Esperada</label>
                                     <input type="number" class="form-control form-control-sm dotacion-esperada-input"
                                         min="0" value="0" data-area="empaque" onclick="this.select()"
                                         onchange="actualizarDotacionTotal()">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Indicadores Section -->
+                        <div class="mb-4">
+                            <h5 class="d-flex align-items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="text-primary me-2">
+                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                                </svg>
+                                Indicadores
+                            </h5>
+                            <div class="row">
+                                <div class="col-4 mb-3">
+                                    <label class="form-label text-muted small mb-1">Horas Trabajadas</label>
+                                    <div class="d-flex">
+                                        <input type="number" class="form-control form-control-sm me-1 horas-trabajadas-empaque" min="0"
+                                            value="3" onclick="this.select()" data-area="empaque" onchange="calcularProductividadEmpaque()">
+                                        <span class="mt-1 me-1">h</span>
+                                        <input type="number" class="form-control form-control-sm me-1 minutos-trabajados-empaque" min="0" max="59"
+                                            value="42" onclick="this.select()" data-area="empaque" onchange="calcularProductividadEmpaque()">
+                                        <span class="mt-1">m</span>
+                                    </div>
+                                </div>
+                                <div class="col-4 mb-3">
+                                    <label class="form-label text-muted small mb-1">Tiempo Muerto</label>
+                                    <div class="d-flex">
+                                        <input type="number" class="form-control form-control-sm me-1 horas-muertas-empaque" min="0"
+                                            value="0" onclick="this.select()" data-area="empaque" onchange="calcularProductividadEmpaque()">
+                                        <span class="mt-1 me-1">h</span>
+                                        <input type="number" class="form-control form-control-sm me-1 minutos-muertos-empaque" min="0" max="59"
+                                            value="0" onclick="this.select()" data-area="empaque" onchange="calcularProductividadEmpaque()">
+                                        <span class="mt-1">m</span>
+                                    </div>
+                                </div>
+                                <div class="col-4 mb-3">
+                                    <label class="form-label text-muted small mb-1">Productividad</label>
+                                    <div class="d-flex align-items-center">
+                                        <div class="fw-bold productividad-empaque">0.0</div>
+                                        <span class="ms-2">pzs/pers/hr</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -595,16 +647,24 @@
                                                 <td class="border-0">{{ $premium->Producto }}</td>
                                                 <td class="border-0">{{ $premium->Empresa }}</td>
                                                 <td class="border-0 text-end">{{ $premium->Cantidad_Lotes }}</td>
-                                                <td class="border-0 text-end">{{ number_format($premium->Total_Kilos, 1, ',', '.') }}</td>
-                                                <td class="border-0 text-end">{{ number_format($premium->Total_Piezas, 0, ',', '.') }}</td>
+                                                <td class="border-0 text-end">
+                                                    {{ number_format($premium->Total_Kilos, 1, ',', '.') }}
+                                                </td>
+                                                <td class="border-0 text-end">
+                                                    {{ number_format($premium->Total_Piezas, 0, ',', '.') }}
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
                                     <tfoot class="small fw-bold">
                                         <tr>
                                             <td class="border-0" colspan="3"></td>
-                                            <td class="border-0 text-end">{{ number_format(collect($empaque_premium)->sum('Total_Kilos'), 1, ',', '.') }}</td>
-                                            <td class="border-0 text-end">{{ number_format(collect($empaque_premium)->sum('Total_Piezas'), 0, ',', '.') }}</td>
+                                            <td class="border-0 text-end">
+                                                {{ number_format(collect($empaque_premium)->sum('Total_Kilos'), 1, ',', '.') }}
+                                            </td>
+                                            <td class="border-0 text-end">
+                                                {{ number_format(collect($empaque_premium)->sum('Total_Piezas'), 0, ',', '.') }}
+                                            </td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -642,6 +702,42 @@
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        function calcularProductividadEmpaque() {
+            try {
+                // Obtener valores de los inputs
+                const dotacionReal = parseInt(document.querySelector('.dotacion-input[data-area="empaque"]')?.value) || 0;
+                const horasTrabajadas = parseInt(document.querySelector('.horas-trabajadas-empaque')?.value) || 0;
+                const minutosTrabajados = parseInt(document.querySelector('.minutos-trabajados-empaque')?.value) || 0;
+                
+                // Calcular horas trabajadas en formato decimal
+                const horasTrabajadasDecimal = horasTrabajadas + (minutosTrabajados / 60);
+                
+                // Obtener el total de piezas de la tabla de empaque premium
+                const totalPiezas = Array.from(document.querySelectorAll('table tbody tr td:nth-child(5)'))
+                    .reduce((sum, cell) => {
+                        const text = cell.textContent.trim().replace(/[^\d.-]/g, '');
+                        return sum + (parseInt(text) || 0);
+                    }, 0);
+                
+                // Calcular productividad (piezas / (dotación * horas trabajadas))
+                let productividad = 0;
+                if (dotacionReal > 0 && horasTrabajadasDecimal > 0) {
+                    productividad = totalPiezas / (dotacionReal * horasTrabajadasDecimal);
+                }
+                
+                // Actualizar el texto de productividad
+                const productividadElement = document.querySelector('.productividad-empaque');
+                if (productividadElement) {
+                    productividadElement.textContent = productividad.toFixed(1);
+                }
+                
+                return productividad;
+            } catch (error) {
+                console.error('Error al calcular productividad de empaque:', error);
+                return 0;
+            }
+        }
+        
         function actualizarDotacionTotal() {
             try {
                 let totalReal = 0;
@@ -651,14 +747,14 @@
 
                 inputsReal.forEach(input => {
                     totalReal += parseInt(input.value) || 0;
-                    
+
                     // Actualizar productividad para cada sala o área
                     if (input.dataset.area === 'empaque') {
                         // Cálculo específico para empaque
                         const dotacion = parseInt(input.value) || 0;
                         const totalPiezas = Array.from(document.querySelectorAll('.detail-table tbody tr'))
                             .reduce((sum, row) => sum + (parseInt(row.cells[4]?.textContent.replace(/[^\d.-]/g, '')) || 0), 0);
-                        
+
                     } else {
                         // Cálculo existente para salas
                         const salaCard = input.closest('.sala-card');
@@ -724,6 +820,21 @@
                     return false;
                 }
 
+                // Validar dotación de empaque
+                const dotacionRealEmpaque = parseInt(document.querySelector('.dotacion-input[data-area="empaque"]')?.value) || 0;
+                if (dotacionRealEmpaque === 0) {
+                    toastr.error('Debe ingresar la dotación real de empaque');
+                    return false;
+                }
+
+                // Validar horas trabajadas de empaque
+                const horasTrabajadasEmpaque = parseInt(document.querySelector('.horas-trabajadas-empaque')?.value) || 0;
+                const minutosTrabajadasEmpaque = parseInt(document.querySelector('.minutos-trabajados-empaque')?.value) || 0;
+                if (horasTrabajadasEmpaque === 0 && minutosTrabajadasEmpaque === 0) {
+                    toastr.error('Debe ingresar las horas trabajadas de empaque');
+                    return false;
+                }
+
                 // Validar que todas las salas tengan datos
                 let datosValidos = true;
                 salas.forEach((sala) => {
@@ -758,7 +869,7 @@
                     body: JSON.stringify({
                         fecha: '{{ $fecha }}',
                         turno: {{ $turno }}
-                                                                                    })
+                                                                                                    })
                 });
 
                 const data = await response.json();
@@ -798,6 +909,21 @@
                 const salas = document.querySelectorAll('.sala-card[data-sala-id]');
                 console.log(parseInt(document.querySelector('.dotacion-input[data-area="empaque"]')?.value) || 0 + 'd_real_empaque');
                 console.log(parseInt(document.querySelector('.dotacion-esperada-input[data-area="empaque"]')?.value) || 0 + 'd_esperada_empaque');
+                // Calcular horas trabajadas y tiempo muerto para empaque
+                const horasTrabajadasEmpaque = parseInt(document.querySelector('.horas-trabajadas-empaque')?.value) || 0;
+                const minutosTrabajadasEmpaque = parseInt(document.querySelector('.minutos-trabajados-empaque')?.value) || 0;
+                const horasMuertasEmpaque = parseInt(document.querySelector('.horas-muertas-empaque')?.value) || 0;
+                const minutosMuertosEmpaque = parseInt(document.querySelector('.minutos-muertos-empaque')?.value) || 0;
+                
+                // Convertir a decimal (horas.minutos)
+                const horasTrabajadasEmpaqueDecimal = horasTrabajadasEmpaque + (minutosTrabajadasEmpaque / 60);
+                
+                // Convertir a minutos totales para tiempo muerto
+                const tiempoMuertoEmpaqueMinutos = (horasMuertasEmpaque * 60) + minutosMuertosEmpaque;
+                
+                // Obtener la productividad calculada
+                const productividadEmpaque = calcularProductividadEmpaque();
+
                 const datosInforme = {
                     fecha_turno: '{{ $fecha }}',
                     cod_turno: {{ $turno }},
@@ -805,6 +931,9 @@
                     comentarios: document.getElementById('comentarios_turno')?.value,
                     d_real_empaque: parseInt(document.querySelector('.dotacion-input[data-area="empaque"]')?.value) || 0,
                     d_esperada_empaque: parseInt(document.querySelector('.dotacion-esperada-input[data-area="empaque"]')?.value) || 0,
+                    horas_trabajadas_empaque: horasTrabajadasEmpaqueDecimal,
+                    tiempo_muerto_empaque: tiempoMuertoEmpaqueMinutos,
+                    productividad_empaque: productividadEmpaque,
                     salas: Array.from(salas).map(sala => {
                         // Obtener los valores numéricos limpiando el formato
                         const getNumericValue = (selector) => {
@@ -907,6 +1036,9 @@
         }
 
         // Inicializar cuando el DOM esté cargado
-        document.addEventListener('DOMContentLoaded', actualizarDotacionTotal);
+        document.addEventListener('DOMContentLoaded', function() {
+            actualizarDotacionTotal();
+            calcularProductividadEmpaque();
+        });
     </script>
 @endsection

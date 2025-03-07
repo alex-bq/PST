@@ -200,7 +200,7 @@
                 @php
                     $dotacion_esperada_total = collect($informacion_sala)->sum('dotacion_esperada') + ($informe->d_esperada_empaque ?? 0);
                     $dotacion_real_total = collect($informacion_sala)->sum('dotacion_real') + ($informe->d_real_empaque ?? 0);
-                    $ausentismo = $dotacion_esperada_total > 0 ? 
+                    $ausentismo = $dotacion_esperada_total > 0 ?
                         round((($dotacion_esperada_total - $dotacion_real_total) / $dotacion_esperada_total) * 100, 1) : 0;
                 @endphp
                 <div class="turno-info-item">
@@ -265,8 +265,9 @@
                                                 <div class="col-6">
                                                     <label class="form-label text-muted small mb-1">Esperada</label>
                                                     <input type="number" class="form-control form-control-sm dotacion-esperada-input"
-                                                        min="0" value="{{ $sala->dotacion_esperada }}" data-sala-id="{{ $sala->cod_sala }}"
-                                                        onchange="actualizarDotacionTotal()" disabled>
+                                                        min="0" value="{{ $sala->dotacion_esperada }}"
+                                                        data-sala-id="{{ $sala->cod_sala }}" onchange="actualizarDotacionTotal()"
+                                                        disabled>
                                                 </div>
                                             </div>
                                         </div>
@@ -282,37 +283,39 @@
                                                 Indicadores
                                             </h5>
                                             <div class="d-flex flex-row flex-wrap gap-3">
-                                                <!-- Rendimiento Premium -->
-                                                <div class="flex-grow-1">
-                                                    <p class="text-muted small mb-1">Premium</p>
-                                                    <p class="fw-medium premium-valor">
-                                                        @php
-                                                            $procesamientoSala = collect($detalle_procesamiento)
-                                                                ->where('cod_sala', $sala->cod_sala)
-                                                                ->where('tipo_planilla', $sala->tipo_planilla);
+                                                @php
+                                                    $procesamientoSala = collect($detalle_procesamiento)
+                                                        ->where('cod_sala', $sala->cod_sala)
+                                                        ->where('tipo_planilla', $sala->tipo_planilla);
 
-                                                            $rendimientoPremium = 0;
-                                                            if ($sala->kilos_recepcion_total > 0) {
-                                                                $rendimientoPremium = ($procesamientoSala->sum('kilos') / $sala->kilos_recepcion_total) * 100;
-                                                            }
-                                                        @endphp
+                                                    $rendimientoPremium = 0;
+                                                    if ($sala->kilos_recepcion_total > 0) {
+                                                        $rendimientoPremium = ($procesamientoSala->sum('kilos') / $sala->kilos_recepcion_total) * 100;
+                                                    }
+
+                                                    $rendimientoGeneral = 0;
+                                                    if ($sala->kilos_entrega_total > 0) {
+                                                        $rendimientoGeneral = ($sala->kilos_recepcion_total / $sala->kilos_entrega_total) * 100;
+                                                    }
+                                                @endphp
+
+                                                <!-- Indicador Premium/Rendimiento General -->
+                                                <div class="flex-grow-1">
+                                                    <p class="text-muted small mb-1">{{ $sala->tipo_planilla == 'Porciones' ? 'Rendimiento General' : 'Premium' }}</p>
+                                                    <p class="fw-medium premium-valor">
                                                         {{ number_format($rendimientoPremium, 1) }}%
                                                     </p>
                                                 </div>
 
-                                                <!-- Rendimiento General -->
+                                                <!-- Rendimiento General (solo para no-Porciones) -->
+                                                @if($sala->tipo_planilla != 'Porciones')
                                                 <div class="flex-grow-1">
                                                     <p class="text-muted small mb-1">Rendimiento</p>
                                                     <p class="fw-medium rendimiento-valor">
-                                                        @php
-                                                            $rendimientoGeneral = 0;
-                                                            if ($sala->kilos_entrega_total > 0) {
-                                                                $rendimientoGeneral = ($sala->kilos_recepcion_total / $sala->kilos_entrega_total) * 100;
-                                                            }
-                                                        @endphp
                                                         {{ number_format($rendimientoGeneral, 1) }}%
                                                     </p>
                                                 </div>
+                                                @endif
 
                                                 <!-- Productividad -->
                                                 <div class="flex-grow-1">
@@ -401,15 +404,18 @@
                                                     <div class="flex-grow-1">
                                                         <p class="text-muted small mb-1">Kilos</p>
                                                         <p class="font-medium"
-                                                            data-kilos-recepcion="{{ number_format($sala->kilos_recepcion_total, 1) }}">
-                                                            {{ number_format($sala->kilos_recepcion_total, 1) }} kg
+                                                            data-kilos-recepcion="{{ number_format($procesamientoSala->sum('kilos'), 1) }}">
+                                                            {{ number_format($procesamientoSala->sum('kilos'), 1) }} kg
                                                         </p>
                                                     </div>
                                                     <div class="flex-grow-1">
                                                         <p class="text-muted small mb-1">Kilos Premium</p>
+                                                        @php
+                                                            $kilosPremium = $procesamientoSala->where('calidad', 'PREMIUM')->sum('kilos');
+                                                        @endphp
                                                         <p class="font-medium"
-                                                            data-kilos-recepcion="{{ number_format($procesamientoSala->sum('kilos'), 1) }}">
-                                                            {{ number_format($procesamientoSala->sum('kilos'), 1) }} kg
+                                                            data-kilos-premium="{{ number_format($kilosPremium, 1) }}">
+                                                            {{ number_format($kilosPremium, 1) }} kg
                                                         </p>
                                                     </div>
                                                     <div class="flex-grow-1">
@@ -466,7 +472,9 @@
                                                 <table class="detail-table">
                                                     <thead>
                                                         <tr>
+                                                            <th>Nro Planilla</th>
                                                             <th>Empresa</th>
+                                                            <th>Corte Inicial</th>
                                                             <th>Corte Final</th>
                                                             <th>Calibre</th>
                                                             <th>Calidad</th>
@@ -487,7 +495,9 @@
                                                         </script>
                                                         @foreach($procesamientoSala as $proceso)
                                                             <tr>
+                                                                <td>{{ $proceso->cod_planilla }}</td>
                                                                 <td>{{ $proceso->descripcion }}</td>
+                                                                <td>{{ $proceso->corte_inicial }}</td>
                                                                 <td>{{ $proceso->corte_final }}</td>
                                                                 <td>{{ $proceso->calibre }}</td>
                                                                 <td>{{ $proceso->calidad }}</td>
@@ -498,7 +508,7 @@
                                                     </tbody>
                                                     <tfoot>
                                                         <tr>
-                                                            <td colspan="4" class="text-end"><strong>Totales:</strong></td>
+                                                            <td colspan="6" class="text-end"><strong>Totales:</strong></td>
                                                             <td><strong>{{ number_format($procesamientoSala->sum('piezas'), 0) }}</strong>
                                                             </td>
                                                             <td><strong>{{ number_format($procesamientoSala->sum('kilos'), 1) }}
@@ -588,13 +598,56 @@
                             <div class="row">
                                 <div class="col-6">
                                     <label class="form-label text-muted small mb-1">Real</label>
-                                    <input type="number" class="form-control form-control-sm" 
+                                    <input type="number" class="form-control form-control-sm"
                                         value="{{ $informe->d_real_empaque }}" disabled>
                                 </div>
                                 <div class="col-6">
                                     <label class="form-label text-muted small mb-1">Esperada</label>
                                     <input type="number" class="form-control form-control-sm"
                                         value="{{ $informe->d_esperada_empaque }}" disabled>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Indicadores Section -->
+                        <div class="mb-4">
+                            <h5 class="d-flex align-items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="text-primary me-2">
+                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                                </svg>
+                                Indicadores
+                            </h5>
+                            <div class="row">
+                                <div class="col-4 mb-3">
+                                    <label class="form-label text-muted small mb-1">Horas Trabajadas</label>
+                                    <div class="d-flex">
+                                        <input type="number" class="form-control form-control-sm me-1" min="0"
+                                            value="{{ floor($informe->horas_trabajadas_empaque) }}" disabled>
+                                        <span class="mt-1 me-1">h</span>
+                                        <input type="number" class="form-control form-control-sm me-1" min="0" max="59"
+                                            value="{{ round(($informe->horas_trabajadas_empaque - floor($informe->horas_trabajadas_empaque)) * 60) }}" disabled>
+                                        <span class="mt-1">m</span>
+                                    </div>
+                                </div>
+                                <div class="col-4 mb-3">
+                                    <label class="form-label text-muted small mb-1">Tiempo Muerto</label>
+                                    <div class="d-flex">
+                                        <input type="number" class="form-control form-control-sm me-1" min="0"
+                                            value="{{ floor($informe->tiempo_muerto_empaque / 60) }}" disabled>
+                                        <span class="mt-1 me-1">h</span>
+                                        <input type="number" class="form-control form-control-sm me-1" min="0" max="59"
+                                            value="{{ $informe->tiempo_muerto_empaque % 60 }}" disabled>
+                                        <span class="mt-1">m</span>
+                                    </div>
+                                </div>
+                                <div class="col-4 mb-3">
+                                    <label class="form-label text-muted small mb-1">Productividad</label>
+                                    <div class="d-flex align-items-center">
+                                        <div class="fw-bold">{{ number_format($informe->productividad_empaque, 1) }}</div>
+                                        <span class="ms-2">pzs/pers/hr</span>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -617,16 +670,24 @@
                                                 <td class="border-0">{{ $premium->Producto }}</td>
                                                 <td class="border-0">{{ $premium->Empresa }}</td>
                                                 <td class="border-0 text-end">{{ $premium->Cantidad_Lotes }}</td>
-                                                <td class="border-0 text-end">{{ number_format($premium->Total_Kilos, 1, ',', '.') }}</td>
-                                                <td class="border-0 text-end">{{ number_format($premium->Total_Piezas, 0, ',', '.') }}</td>
+                                                <td class="border-0 text-end">
+                                                    {{ number_format($premium->Total_Kilos, 1, ',', '.') }}
+                                                </td>
+                                                <td class="border-0 text-end">
+                                                    {{ number_format($premium->Total_Piezas, 0, ',', '.') }}
+                                                </td>
                                             </tr>
                                         @endforeach
                                     </tbody>
                                     <tfoot class="small fw-bold">
                                         <tr>
                                             <td class="border-0" colspan="3"></td>
-                                            <td class="border-0 text-end">{{ number_format(collect($empaque_premium)->sum('Total_Kilos'), 1, ',', '.') }}</td>
-                                            <td class="border-0 text-end">{{ number_format(collect($empaque_premium)->sum('Total_Piezas'), 0, ',', '.') }}</td>
+                                            <td class="border-0 text-end">
+                                                {{ number_format(collect($empaque_premium)->sum('Total_Kilos'), 1, ',', '.') }}
+                                            </td>
+                                            <td class="border-0 text-end">
+                                                {{ number_format(collect($empaque_premium)->sum('Total_Piezas'), 0, ',', '.') }}
+                                            </td>
                                         </tr>
                                     </tfoot>
                                 </table>
@@ -651,7 +712,7 @@
             </div>
         </div>
 
-        
+
 
     </div>
 
@@ -719,9 +780,9 @@
             }
         }
 
-        
 
-        
+
+
 
         // Inicializar cuando el DOM esté cargado
         document.addEventListener('DOMContentLoaded', actualizarDotacionTotal);
