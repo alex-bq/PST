@@ -602,10 +602,10 @@
                                     <label class="form-label text-muted small mb-1">Horas Trabajadas</label>
                                     <div class="d-flex">
                                         <input type="number" class="form-control form-control-sm me-1 horas-trabajadas-empaque" min="0"
-                                            value="3" onclick="this.select()" data-area="empaque" onchange="calcularProductividadEmpaque()">
+                                            value="0" onclick="this.select()" data-area="empaque" onchange="calcularProductividadEmpaque()">
                                         <span class="mt-1 me-1">h</span>
                                         <input type="number" class="form-control form-control-sm me-1 minutos-trabajados-empaque" min="0" max="59"
-                                            value="42" onclick="this.select()" data-area="empaque" onchange="calcularProductividadEmpaque()">
+                                            value="0" onclick="this.select()" data-area="empaque" onchange="calcularProductividadEmpaque()">
                                         <span class="mt-1">m</span>
                                     </div>
                                 </div>
