@@ -220,7 +220,7 @@
                 console.log('Buscando con parámetros:', { fecha, turno });
 
                 // Construir la URL
-                const searchUrl = `${window.location.origin}/pst/public/informes/search?fecha=${fecha}&turno=${turno}`;
+                const searchUrl = `${window.location.origin}/pst2/public/informes/search?fecha=${fecha}&turno=${turno}`;
                 console.log('URL de búsqueda:', searchUrl);
 
                 // Mostrar indicador de carga
@@ -240,51 +240,51 @@
                                 });
 
                                 const row = `
-                                                <tr class="hover:bg-gray-50">
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        ${fechaFormateada}
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        ${informe.NomTurno}
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                        ${informe.jefe_turno}
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-                                                        ${Number(informe.total_kilos_entrega).toFixed(1)}
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-                                                        ${Number(informe.total_kilos_recepcion).toFixed(1)}
-                                                    </td>
-                                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                        <a href="/pst/public/informes/detalle/${informe.fecha_turno}/${informe.turno}"
-                                                            class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200">
-                                                            Ver Detalle
-                                                        </a>
-                                                    </td>
-                                                </tr>
-                                            `;
+                                                    <tr class="hover:bg-gray-50">
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                            ${fechaFormateada}
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                            ${informe.NomTurno}
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                                            ${informe.jefe_turno}
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                                            ${Number(informe.total_kilos_entrega).toFixed(1)}
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                                                            ${Number(informe.total_kilos_recepcion).toFixed(1)}
+                                                        </td>
+                                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                                            <a href="/pst2/public/informes/detalle/${informe.fecha_turno}/${informe.turno}"
+                                                                class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200">
+                                                                Ver Detalle
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                `;
                                 resultsBody.insertAdjacentHTML('beforeend', row);
                             });
                         } else {
                             resultsBody.innerHTML = `
-                                                <tr>
-                                                    <td colspan="6" class="px-6 py-4 text-center text-gray-500">
-                                                        No se encontraron resultados
-                                                    </td>
-                                                </tr>
-                                            `;
+                                                    <tr>
+                                                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">
+                                                            No se encontraron resultados
+                                                        </td>
+                                                    </tr>
+                                                `;
                         }
                     })
                     .catch(error => {
                         console.error('Error en la búsqueda:', error);
                         resultsBody.innerHTML = `
-                                            <tr>
-                                                <td colspan="6" class="px-6 py-4 text-center text-red-500">
-                                                    Error al realizar la búsqueda: ${error.message}
-                                                </td>
-                                            </tr>
-                                        `;
+                                                <tr>
+                                                    <td colspan="6" class="px-6 py-4 text-center text-red-500">
+                                                        Error al realizar la búsqueda: ${error.message}
+                                                    </td>
+                                                </tr>
+                                            `;
                     });
             });
         });

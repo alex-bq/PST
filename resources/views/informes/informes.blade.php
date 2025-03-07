@@ -224,7 +224,7 @@
                 resultsBody.innerHTML = '<tr><td colspan="6" class="text-center">Buscando...</td></tr>';
 
                 // Construir la URL
-                const searchUrl = `${window.location.origin}/pst/public/informes/search?fecha=${fecha}&turno=${turno}`;
+                const searchUrl = `${window.location.origin}/pst2/public/informes/search?fecha=${fecha}&turno=${turno}`;
 
                 fetch(searchUrl)
                     .then(response => response.json())
@@ -240,40 +240,40 @@
                                 });
 
                                 const row = `
-                                                        <tr>
-                                                            <td>${fechaFormateada}</td>
-                                                            <td>${informe.NomTurno}</td>
-                                                            <td>${informe.jefe_turno}</td>
+                                                            <tr>
+                                                                <td>${fechaFormateada}</td>
+                                                                <td>${informe.NomTurno}</td>
+                                                                <td>${informe.jefe_turno}</td>
 
-                                                            <td>
-                                                                <a href="/pst/public/informes/detalle/${informe.fecha_turno}/${informe.turno}"
-                                                                    class="btn-detail">
-                                                                    Ver Detalle
-                                                                </a>
-                                                            </td>
-                                                        </tr>
-                                                    `;
+                                                                <td>
+                                                                    <a href="/pst2/public/informes/detalle/${informe.fecha_turno}/${informe.turno}"
+                                                                        class="btn-detail">
+                                                                        Ver Detalle
+                                                                    </a>
+                                                                </td>
+                                                            </tr>
+                                                        `;
                                 resultsBody.insertAdjacentHTML('beforeend', row);
                             });
                         } else {
                             resultsBody.innerHTML = `
-                                                    <tr>
-                                                        <td colspan="6" class="text-center">
-                                                            No se encontraron resultados
-                                                        </td>
-                                                    </tr>
-                                                `;
+                                                        <tr>
+                                                            <td colspan="6" class="text-center">
+                                                                No se encontraron resultados
+                                                            </td>
+                                                        </tr>
+                                                    `;
                         }
                     })
                     .catch(error => {
                         console.error('Error en la búsqueda:', error);
                         resultsBody.innerHTML = `
-                                                <tr>
-                                                    <td colspan="6" class="text-center text-red-500">
-                                                        Error al realizar la búsqueda: ${error.message}
-                                                    </td>
-                                                </tr>
-                                            `;
+                                                    <tr>
+                                                        <td colspan="6" class="text-center text-red-500">
+                                                            Error al realizar la búsqueda: ${error.message}
+                                                        </td>
+                                                    </tr>
+                                                `;
                     });
             });
         });

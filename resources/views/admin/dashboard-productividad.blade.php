@@ -243,7 +243,7 @@
 
             function formatDateForDisplay(dateString) {
                 if (!dateString) return '';
-                
+
                 // Si la fecha ya viene en formato ISO (YYYY-MM-DD), convertirla a objeto Date
                 let date;
                 if (typeof dateString === 'string' && dateString.match(/^\d{4}-\d{2}-\d{2}$/)) {
@@ -252,7 +252,7 @@
                 } else {
                     date = new Date(dateString);
                 }
-                
+
                 // Formatear como DD/MM
                 const day = String(date.getDate()).padStart(2, '0');
                 const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -351,14 +351,14 @@
 
                 // Mensaje de no datos disponibles
                 const mensajeNoDatos = `
-                                                                                            <div class="flex flex-col items-center justify-center p-6 text-gray-500">
-                                                                                                <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
-                                                                                                </svg>
-                                                                                                <p class="text-lg font-semibold">No hay datos disponibles</p>
-                                                                                                <p class="text-sm">Para la fecha ${new Date(fecha).toLocaleDateString()} y línea ${tipoPlanilla}</p>
-                                                                                            </div>
-                                                                                        `;
+                                                                                                <div class="flex flex-col items-center justify-center p-6 text-gray-500">
+                                                                                                    <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
+                                                                                                    </svg>
+                                                                                                    <p class="text-lg font-semibold">No hay datos disponibles</p>
+                                                                                                    <p class="text-sm">Para la fecha ${new Date(fecha).toLocaleDateString()} y línea ${tipoPlanilla}</p>
+                                                                                                </div>
+                                                                                            `;
 
                 // Función para limpiar y mostrar mensaje
                 const mostrarMensajeNoDatos = () => {
@@ -392,7 +392,7 @@
                     document.getElementById('kpiDotacion').textContent = '--';
                 };
 
-                fetch(`/pst/public/api/dashboard-data?fecha=${fecha}&tipo_planilla=${tipoPlanilla}`)
+                fetch(`/pst2/public/api/dashboard-data?fecha=${fecha}&tipo_planilla=${tipoPlanilla}`)
                     .then(response => {
                         if (!response.ok) {
                             throw new Error(`HTTP error! status: ${response.status}`);
@@ -1316,7 +1316,7 @@
 
                 // Actualizar gráficos de productividad de empaque
                 actualizarGraficosEmpaque(data.productividad_empaque);
-                
+
                 // Actualizar gráficos de productos de empaque
                 actualizarGraficosProductos(data.empaque);
             }
