@@ -222,7 +222,7 @@
 
                 <div class="modal-body">
                     <!-- Aquí se mostrará la información de la planilla -->
-                    <iframe id="iframePlanilla" style="width:100%;height:500px;" frameborder="0"></iframe>
+                    <iframe id="iframePlanilla" style="width:100%;height:700px;" frameborder="0"></iframe>
                 </div>
             </div>
         </div>
