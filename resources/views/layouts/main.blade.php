@@ -53,7 +53,7 @@
                         <a href="#" data-url="{{ route('planillas') }}">Planillas</a>
                     </li>
 
-                    @if(session('user')['cod_rol'] == 3)
+                    @if(session('user')['cod_rol'] == 3 || session('user')['cod_rol'] == 4)
                         <li>
                             <a href="#" data-url="{{ route('mUsuario') }}">Usuarios</a>
                         </li>

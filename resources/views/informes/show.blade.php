@@ -301,7 +301,9 @@
 
                                                 <!-- Indicador Premium/Rendimiento General -->
                                                 <div class="flex-grow-1">
-                                                    <p class="text-muted small mb-1">{{ $sala->tipo_planilla == 'Porciones' ? 'Rendimiento General' : 'Premium' }}</p>
+                                                    <p class="text-muted small mb-1">
+                                                        {{ $sala->tipo_planilla == 'Porciones' ? 'Rendimiento General' : 'Premium' }}
+                                                    </p>
                                                     <p class="fw-medium premium-valor">
                                                         {{ number_format($rendimientoPremium, 1) }}%
                                                     </p>
@@ -309,12 +311,12 @@
 
                                                 <!-- Rendimiento General (solo para no-Porciones) -->
                                                 @if($sala->tipo_planilla != 'Porciones')
-                                                <div class="flex-grow-1">
-                                                    <p class="text-muted small mb-1">Rendimiento</p>
-                                                    <p class="fw-medium rendimiento-valor">
-                                                        {{ number_format($rendimientoGeneral, 1) }}%
-                                                    </p>
-                                                </div>
+                                                    <div class="flex-grow-1">
+                                                        <p class="text-muted small mb-1">Rendimiento</p>
+                                                        <p class="fw-medium rendimiento-valor">
+                                                            {{ number_format($rendimientoGeneral, 1) }}%
+                                                        </p>
+                                                    </div>
                                                 @endif
 
                                                 <!-- Productividad -->
@@ -627,7 +629,8 @@
                                             value="{{ floor($informe->horas_trabajadas_empaque) }}" disabled>
                                         <span class="mt-1 me-1">h</span>
                                         <input type="number" class="form-control form-control-sm me-1" min="0" max="59"
-                                            value="{{ round(($informe->horas_trabajadas_empaque - floor($informe->horas_trabajadas_empaque)) * 60) }}" disabled>
+                                            value="{{ round(($informe->horas_trabajadas_empaque - floor($informe->horas_trabajadas_empaque)) * 60) }}"
+                                            disabled>
                                         <span class="mt-1">m</span>
                                     </div>
                                 </div>

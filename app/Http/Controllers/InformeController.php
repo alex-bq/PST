@@ -185,6 +185,8 @@ class InformeController extends Controller
                     N_Turno,
                     SUM(CAST(N_PNom AS FLOAT)) DESC
             ", [$fecha, $turno]);
+            // dd($empaque_premium, $detalle_procesamiento, $tiempos_muertos, $informacion_sala, $informe, $porcionTerminada);
+
 
             return view('informes.detalle-turno', compact(
                 'fecha',
@@ -367,7 +369,7 @@ class InformeController extends Controller
     CASE d.tipo_planilla 
         WHEN 'Filete' THEN 1
         WHEN 'Porciones' THEN 2
-        WHEN 'HG' THEN 4
+        WHEN 'HG' THEN 3
         ELSE NULL
     END as cod_tipo_planilla,
     d.horas_trabajadas,
@@ -446,6 +448,10 @@ WHERE d.cod_informe = ?
                     N_Turno,
                     SUM(CAST(N_PNom AS FLOAT)) DESC
             ", [$fecha, $turno]);
+
+            // dd($empaque_premium);
+
+
 
             return view('informes.show', compact(
                 'fecha',
