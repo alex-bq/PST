@@ -34,7 +34,7 @@
                             <option value="Empaque">Empaque</option>
                         </select>
 
-                        <!-- Selector de Turno (movido aquí) -->
+                        <!-- Selector de Turno -->
                         <div class="flex items-center space-x-2">
                             <label for="turnoSelector" class="text-sm font-medium text-gray-700">Turno:</label>
                             <select id="turnoSelector"
@@ -45,12 +45,6 @@
                                 <option value="Noche">Noche</option>
                             </select>
                         </div>
-
-                        <!-- Botón para ocultar/mostrar gráficos -->
-                        <button id="btnToggleGraficos"
-                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            Ocultar Gráficos
-                        </button>
                     </div>
                 </div>
             </div>
@@ -229,6 +223,20 @@
             </div>
         </div>
     </div>
+
+    <!-- Agregar el overlay de carga después del contenedor de imágenes capturadas -->
+    <div id="loading-overlay" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+            <h3 class="text-lg font-semibold mb-4 text-center" id="loading-message">Generando PDF...</h3>
+
+            <div class="w-full bg-gray-200 rounded-full h-4 mb-4">
+                <div id="progress-bar" class="bg-blue-600 h-4 rounded-full transition-all duration-300" style="width: 0%">
+                </div>
+            </div>
+
+            <p class="text-sm text-gray-600 text-center" id="loading-detail">Preparando datos...</p>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -247,36 +255,38 @@
             const turnoSelector = document.getElementById('turnoSelector');
             const unidadMeta = document.getElementById('unidadMeta');
 
-            // Botón para ocultar/mostrar gráficos
-            const btnToggleGraficos = document.getElementById('btnToggleGraficos');
+            // Eliminar estas variables y el código relacionado
+            // const btnToggleGraficos = document.getElementById('btnToggleGraficos');
             const graficosProduccion = document.getElementById('graficos-produccion');
             const graficosEmpaque = document.getElementById('graficos-empaque');
 
-            // Estado para controlar si los gráficos están visibles
-            let graficosVisibles = true;
+            // Eliminar el estado para controlar si los gráficos están visibles
+            // let graficosVisibles = true;
 
-            // Evento para el botón de ocultar/mostrar gráficos
-            btnToggleGraficos.addEventListener('click', function () {
-                if (graficosVisibles) {
-                    // Ocultar gráficos
-                    if (tipoPlanillaSelect.value === 'Empaque') {
-                        graficosEmpaque.classList.add('hidden');
-                    } else {
-                        graficosProduccion.classList.add('hidden');
-                    }
-                    btnToggleGraficos.textContent = 'Mostrar Gráficos';
-                    graficosVisibles = false;
+            // Eliminar el evento para el botón de ocultar/mostrar gráficos
+            // btnToggleGraficos.addEventListener('click', function () {...});
+
+            // Resto del código...
+
+            // Modificar la función que cambia el tipo de planilla
+            tipoPlanillaSelect.addEventListener('change', function () {
+                const tipoPlanilla = tipoPlanillaSelect.value;
+                const unidadMeta = document.getElementById('unidadMeta');
+                unidadMeta.textContent = tipoPlanilla === 'Porciones' ? 'kg' : (tipoPlanilla === 'Empaque') ? 'unidades' : 'pzs';
+
+                // Mostrar u ocultar gráficos según el tipo de planilla (simplificado)
+                if (tipoPlanilla === 'Empaque') {
+                    graficosProduccion.classList.add('hidden');
+                    graficosEmpaque.classList.remove('hidden');
                 } else {
-                    // Mostrar gráficos
-                    if (tipoPlanillaSelect.value === 'Empaque') {
-                        graficosEmpaque.classList.remove('hidden');
-                    } else {
-                        graficosProduccion.classList.remove('hidden');
-                    }
-                    btnToggleGraficos.textContent = 'Ocultar Gráficos';
-                    graficosVisibles = true;
+                    graficosProduccion.classList.remove('hidden');
+                    graficosEmpaque.classList.add('hidden');
                 }
+
+                cargarDatos();
             });
+
+            // Resto del código...
 
             function formatDate(dateString) {
                 const date = new Date(dateString);
@@ -427,14 +437,14 @@
 
                 // Mensaje de no datos disponibles
                 const mensajeNoDatos = `
-                                                                                                                                                                                                                        <div class="flex flex-col items-center justify-center p-6 text-gray-500">
-                                                                                                                                                                                                                            <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                                                                                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
-                                                                                                                                                                                                                            </svg>
-                                                                                                                                                                                                                            <p class="text-lg font-semibold">No hay datos disponibles</p>
-                                                                                                                                                                                                                            <p class="text-sm">Para la fecha ${new Date(fecha).toLocaleDateString()} y línea ${tipoPlanilla}</p>
-                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                    `;
+                                                                                                                    <div class="flex flex-col items-center justify-center p-6 text-gray-500">
+                                                                                                                        <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
+                                                                                                                        </svg>
+                                                                                                                        <p class="text-lg font-semibold">No hay datos disponibles</p>
+                                                                                                                        <p class="text-sm">Para la fecha ${new Date(fecha).toLocaleDateString()} y línea ${tipoPlanilla}</p>
+                                                                                                                    </div>
+                                                                                                                `;
 
                 // Función para limpiar y mostrar mensaje
                 const mostrarMensajeNoDatos = () => {
@@ -1779,25 +1789,6 @@
 
             // Eventos para recargar datos
             fechaInput.addEventListener('change', cargarDatos);
-            tipoPlanillaSelect.addEventListener('change', function () {
-                const tipoPlanilla = tipoPlanillaSelect.value;
-                const unidadMeta = document.getElementById('unidadMeta');
-                unidadMeta.textContent = tipoPlanilla === 'Porciones' ? 'kg' : (tipoPlanilla === 'Empaque') ? 'unidades' : 'pzs';
-
-                // Mostrar u ocultar gráficos según el tipo de planilla
-                const graficosProduccion = document.getElementById('graficos-produccion');
-                const graficosEmpaque = document.getElementById('graficos-empaque');
-
-                if (tipoPlanilla === 'Empaque') {
-                    graficosProduccion.classList.add('hidden');
-                    graficosEmpaque.classList.remove('hidden');
-                } else {
-                    graficosProduccion.classList.remove('hidden');
-                    graficosEmpaque.classList.add('hidden');
-                }
-
-                cargarDatos();
-            });
             turnoSelector.addEventListener('change', function () {
                 // Actualizar el título con el turno seleccionado
                 document.getElementById('turnoTitulo').textContent = this.value === 'todos' ? 'Todos' : this.value;
@@ -2022,36 +2013,32 @@
                 location.reload();
             });
 
-            // Agregar después de la inicialización de jsPDF
+            // Funciones para el overlay de carga
+            function showLoadingOverlay(message = 'Generando PDF...', detail = 'Preparando datos...') {
+                const overlay = document.getElementById('loading-overlay');
+                const messageEl = document.getElementById('loading-message');
+                const detailEl = document.getElementById('loading-detail');
+                const progressBar = document.getElementById('progress-bar');
 
-            // Funciones para controlar el loading
-            function showLoading(text = 'Generando PDF...', subtext = 'Por favor, espere mientras se procesan los gráficos') {
-                const overlay = document.getElementById('loadingOverlay');
-                const loadingText = document.getElementById('loadingText');
-                const loadingSubtext = document.getElementById('loadingSubtext');
-                const progressBar = document.getElementById('loadingProgress');
-                const stepText = document.getElementById('loadingStep');
-
-                loadingText.textContent = text;
-                loadingSubtext.textContent = subtext;
+                messageEl.textContent = message;
+                detailEl.textContent = detail;
                 progressBar.style.width = '0%';
-                stepText.textContent = 'Iniciando proceso...';
+
                 overlay.classList.remove('hidden');
                 document.body.style.overflow = 'hidden'; // Prevenir scroll
             }
 
-            function updateLoadingProgress(progress, stepText) {
-                const progressBar = document.getElementById('loadingProgress');
-                const stepElement = document.getElementById('loadingStep');
+            function updateLoadingProgress(percent, detail = null) {
+                const progressBar = document.getElementById('progress-bar');
+                progressBar.style.width = `${percent}%`;
 
-                progressBar.style.width = `${progress}%`;
-                if (stepText) {
-                    stepElement.textContent = stepText;
+                if (detail) {
+                    document.getElementById('loading-detail').textContent = detail;
                 }
             }
 
-            function hideLoading() {
-                const overlay = document.getElementById('loadingOverlay');
+            function hideLoadingOverlay() {
+                const overlay = document.getElementById('loading-overlay');
                 overlay.classList.add('hidden');
                 document.body.style.overflow = ''; // Restaurar scroll
             }
@@ -2060,91 +2047,116 @@
             btnCapturar.onclick = async function () {
                 try {
                     btnCapturar.disabled = true;
-                    showLoading('Preparando PDF', 'Iniciando captura de gráficos');
-
-                    const tipos = ['Filete', 'Porciones', 'HG', 'Empaque'];
+                    showLoadingOverlay('Generando PDF', 'Iniciando captura de gráficos...');
 
                     // Capturar todos los gráficos
+                    const tipos = ['Filete', 'Porciones', 'HG', 'Empaque'];
+
                     for (let i = 0; i < tipos.length; i++) {
                         const tipo = tipos[i];
-                        const progress = (i / tipos.length) * 50; // Primera mitad del progreso
+                        const progress = Math.floor((i / tipos.length) * 50); // Primera mitad del progreso
                         updateLoadingProgress(progress, `Capturando gráficos de ${tipo}...`);
                         await capturarGraficos(tipo);
                     }
 
-                    updateLoadingProgress(50, 'Gráficos capturados. Preparando PDF...');
+                    updateLoadingProgress(50, 'Procesando imágenes...');
 
-                    // Esperar 5 segundos para que se carguen bien las imágenes
-                    await new Promise(resolve => setTimeout(resolve, 5000));
+                    // Esperar para que se carguen bien las imágenes
+                    await new Promise(resolve => setTimeout(resolve, 3000));
 
-                    updateLoadingProgress(75, 'Generando PDF...');
+                    updateLoadingProgress(60, 'Generando documento PDF...');
 
-                    // Generar y descargar el PDF automáticamente
+                    // Generar y descargar el PDF
                     await generarYDescargarPDF();
 
-                    updateLoadingProgress(100, '¡PDF generado con éxito!');
-
-                    // Esperar un momento antes de recargar
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    location.reload();
-
+                    // La recarga de la página ya está incluida en generarYDescargarPDF
                 } catch (error) {
                     console.error('Error en el proceso:', error);
                     alert('Ocurrió un error al generar el PDF');
+                    hideLoadingOverlay();
                     btnCapturar.disabled = false;
                     btnCapturar.textContent = 'Generar PDF';
-                } finally {
-                    hideLoading();
                 }
             };
 
-            // Modificar la función generarYDescargarPDF para quitar su propio manejo de estado
+            // Modificar la función generarYDescargarPDF
             async function generarYDescargarPDF() {
-                const fecha = document.getElementById('fecha').value;
+                try {
+                    updateLoadingProgress(70, 'Creando páginas del PDF...');
 
-                // Crear nuevo documento PDF
-                const doc = new jsPDF({
-                    orientation: 'landscape',
-                    unit: 'mm',
-                    format: 'a4'
-                });
+                    // Crear nuevo documento PDF
+                    const doc = new jsPDF({
+                        orientation: 'landscape',
+                        unit: 'mm',
+                        format: 'a4'
+                    });
 
-                const tipos = ['Filete', 'Porciones', 'HG', 'Empaque'];
-                const pageWidth = doc.internal.pageSize.getWidth();
-                const pageHeight = doc.internal.pageSize.getHeight();
-                const margin = 10;
-                const imageHeight = pageHeight - (margin * 2) - 20;
+                    const tipos = ['Filete', 'Porciones', 'HG', 'Empaque'];
+                    const fecha = document.getElementById('fecha').value;
+                    const pageWidth = doc.internal.pageSize.getWidth();
+                    const pageHeight = doc.internal.pageSize.getHeight();
+                    const margin = 10;
+                    const imageHeight = pageHeight - (margin * 2) - 20;
 
-                for (let i = 0; i < tipos.length; i++) {
-                    const tipo = tipos[i];
-                    updateLoadingProgress(75 + (i * 5), `Agregando página de ${tipo}...`);
+                    for (let i = 0; i < tipos.length; i++) {
+                        const tipo = tipos[i];
+                        const progress = 70 + Math.floor((i / tipos.length) * 20); // Del 70% al 90%
+                        updateLoadingProgress(progress, `Agregando página de ${tipo}...`);
 
-                    if (i > 0) {
-                        doc.addPage();
+                        if (i > 0) {
+                            doc.addPage();
+                        }
+
+                        // Agregar título
+                        doc.setFontSize(16);
+                        doc.setFont('helvetica', 'bold');
+                        doc.text(`${tipo} - ${fecha}`, margin, margin + 10);
+
+                        // Agregar imagen
+                        if (window.capturedImages[tipo]) {
+                            try {
+                                doc.addImage(
+                                    window.capturedImages[tipo],
+                                    'PNG',
+                                    margin,
+                                    margin + 20,
+                                    pageWidth - (margin * 2),
+                                    imageHeight,
+                                    undefined,
+                                    'FAST'
+                                );
+                            } catch (error) {
+                                console.error(`Error al agregar imagen de ${tipo}:`, error);
+                                doc.setFontSize(12);
+                                doc.setTextColor(255, 0, 0);
+                                doc.text(`Error al cargar gráficos de ${tipo}`, margin, margin + 30);
+                            }
+                        } else {
+                            doc.setFontSize(12);
+                            doc.setTextColor(255, 0, 0);
+                            doc.text(`No hay datos disponibles para ${tipo}`, margin, margin + 30);
+                        }
                     }
 
-                    // ... resto del código de generación del PDF ...
-                }
+                    updateLoadingProgress(90, 'Finalizando y descargando PDF...');
 
-                // Guardar el PDF
-                doc.save(`dashboard-productividad-${fecha}.pdf`);
+                    // Guardar el PDF
+                    doc.save(`dashboard-productividad-${fecha}.pdf`);
+
+                    updateLoadingProgress(100, 'PDF generado correctamente');
+
+                    // Esperar un momento antes de recargar
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+
+                    // Recargar la página
+                    location.reload();
+
+                } catch (error) {
+                    console.error('Error al generar PDF:', error);
+                    alert('Error al generar el PDF');
+                    hideLoadingOverlay();
+                }
             }
         });
     </script>
 @endsection
-
-<!-- Agregar justo después del @section('content') -->
-<div id="loadingOverlay"
-    class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex flex-col items-center justify-center">
-    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full mx-4">
-        <div class="text-center mb-4">
-            <h3 id="loadingText" class="text-lg font-semibold text-gray-700 mb-2">Generando PDF...</h3>
-            <p id="loadingSubtext" class="text-sm text-gray-500">Por favor, espere mientras se procesan los gráficos</p>
-        </div>
-        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
-            <div id="loadingProgress" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
-                style="width: 0%"></div>
-        </div>
-        <p id="loadingStep" class="text-sm text-gray-600 text-center">Iniciando proceso...</p>
-    </div>
-</div>
