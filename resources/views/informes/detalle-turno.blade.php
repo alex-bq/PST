@@ -284,12 +284,12 @@
 
                                                     $rendimientoPremium = 0;
                                                     if ($sala->kilos_recepcion_total > 0) {
-                                                        $rendimientoPremium = ($procesamientoSala->sum('kilos') / $sala->kilos_recepcion_total) * 100;
+                                                        $rendimientoPremium = ($procesamientoSala->where('calidad', 'PREMIUM')->sum('kilos') / $sala->kilos_recepcion_total) * 100;
                                                     }
 
                                                     $rendimientoGeneral = 0;
                                                     if ($sala->kilos_entrega_total > 0) {
-                                                        $rendimientoGeneral = ($sala->kilos_recepcion_total / $sala->kilos_entrega_total) * 100;
+                                                        $rendimientoGeneral = ($procesamientoSala->sum('kilos') / $sala->kilos_entrega_total) * 100;
                                                     }
                                                 @endphp
 

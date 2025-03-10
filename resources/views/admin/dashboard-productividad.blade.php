@@ -8,181 +8,224 @@
 @endsection
 
 @section('content')
-    <div class="flex min-h-screen w-full flex-col">
-        <!-- Navbar -->
-        <div class="border-b bg-white">
-            <div class="flex h-16 items-center px-4">
-                <h2 class="text-lg font-semibold">Dashboard de Productividad</h2>
-                <div class="ml-auto flex items-center space-x-4">
-                    <!-- Selector de Fecha -->
-                    <div class="relative">
-                        <input type="date" id="fecha"
-                            class="w-[240px] px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
-                            value="{{ date('Y-m-d') }}" max="{{ date('Y-m-d') }}">
+    <!-- Modificar la estructura principal para poder ocultar todo -->
+    <div id="contenido-principal">
+        <div class="flex min-h-screen w-full flex-col">
+            <!-- Contenedor principal que se podrá ocultar -->
+
+            <!-- Navbar -->
+            <div class="border-b bg-white">
+                <div class="flex h-16 items-center px-4">
+                    <h2 class="text-lg font-semibold">Dashboard de Productividad</h2>
+                    <div class="ml-auto flex items-center space-x-4">
+                        <!-- Selector de Fecha -->
+                        <div class="relative">
+                            <input type="date" id="fecha"
+                                class="w-[240px] px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer"
+                                value="{{ date('Y-m-d') }}" max="{{ date('Y-m-d') }}">
+                        </div>
+
+                        <!-- Selector de Línea -->
+                        <select id="tipo_planilla"
+                            class="w-[180px] px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer bg-white">
+                            <option value="Filete" selected>Filete</option>
+                            <option value="Porciones">Porciones</option>
+                            <option value="HG">HG</option>
+                            <option value="Empaque">Empaque</option>
+                        </select>
+
+                        <!-- Selector de Turno (movido aquí) -->
+                        <div class="flex items-center space-x-2">
+                            <label for="turnoSelector" class="text-sm font-medium text-gray-700">Turno:</label>
+                            <select id="turnoSelector"
+                                class="w-32 px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="todos">Todos</option>
+                                <option value="Día">Día</option>
+                                <option value="Tarde">Tarde</option>
+                                <option value="Noche">Noche</option>
+                            </select>
+                        </div>
+
+                        <!-- Botón para ocultar/mostrar gráficos -->
+                        <button id="btnToggleGraficos"
+                            class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            Ocultar Gráficos
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Panel de KPIs -->
+            <div class="p-6">
+                <!-- Título para los indicadores semanales -->
+                <h3 class="text-base font-medium text-gray-700 mb-3">Indicadores Semanales</h3>
+                <div class="grid grid-cols-5 gap-4 mb-6">
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h4 class="text-sm font-semibold text-gray-600">Dotación vs Esperada</h4>
+                        <p class="text-2xl font-bold text-purple-600" id="kpiDotacion">--%</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h4 class="text-sm font-semibold text-gray-600">Ausentismo Promedio</h4>
+                        <p class="text-2xl font-bold text-indigo-600" id="kpiAusentismo">--%</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h4 class="text-sm font-semibold text-gray-600">Tiempo Efectivo</h4>
+                        <p class="text-2xl font-bold text-green-600" id="kpiTiempoEfectivo">--%</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h4 class="text-sm font-semibold text-gray-600">Rendimiento General</h4>
+                        <p class="text-2xl font-bold text-orange-600" id="kpiRendimientoGeneral">--%</p>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg shadow" id="indicadorRendimientoPremium">
+                        <h4 class="text-sm font-semibold text-gray-600">Rendimiento Premium</h4>
+                        <p class="text-2xl font-bold text-blue-600" id="kpiRendimientoPremium">--%</p>
+                    </div>
+                </div>
+
+                <!-- Contenedor para gráficos individuales (visible por defecto) -->
+                <div id="graficos-individuales">
+                    <!-- Título para los gráficos -->
+                    <h3 class="text-base font-medium text-gray-700 mb-3">Gráficos por Turno: <span
+                            id="turnoTitulo">Todos</span>
+                    </h3>
+
+                    <!-- Gráficos principales -->
+                    <div class="grid grid-cols-6 gap-6" id="graficos-produccion">
+                        <!-- Gráfico de Productividad (ocupa 4/6) -->
+                        <div class="col-span-4 bg-white p-6 rounded-lg shadow">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold hidden">Productividad por Turno</h3>
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex items-center space-x-2">
+                                        <label for="metaProductividad"
+                                            class="text-sm font-medium text-gray-700">Meta:</label>
+                                        <input type="number" id="metaProductividad"
+                                            class="w-24 px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            value="10000" step="1">
+                                        <span class="text-sm text-gray-500" id="unidadMeta">kg</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="productividadChart" class="h-[400px]"></div>
+                        </div>
+
+                        <!-- Gráfico de Rendimiento (ocupa 2/6) -->
+                        <div class="col-span-2 bg-white p-6 rounded-lg shadow">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold hidden">Rendimiento Semanal</h3>
+                            </div>
+                            <div id="rendimientoChart" class="h-[400px]"></div>
+                        </div>
+
+                        <!-- Gráfico de Dotación -->
+                        <div class="col-span-2 bg-white p-6 rounded-lg shadow">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold hidden">Dotación Semanal</h3>
+                            </div>
+                            <div id="dotacionChart" class="h-[300px]"></div>
+                        </div>
+
+                        <!-- Gráfico de Tiempos Muertos -->
+                        <div class="col-span-2 bg-white p-6 rounded-lg shadow">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold hidden">Distribución de Tiempo Diario</h3>
+                            </div>
+                            <div id="tiemposMuertosChart" class="h-[300px]"></div>
+                        </div>
+
+                        <!-- Gráfico de Tiempos Muertos por Departamento -->
+                        <div class="col-span-2 bg-white p-6 rounded-lg shadow">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold hidden">Tiempos Muertos por Departamento</h3>
+                            </div>
+                            <div id="tiemposMuertosSemanalChart" class="h-[300px]"></div>
+                        </div>
                     </div>
 
-                    <!-- Selector de Línea -->
-                    <select id="tipo_planilla"
-                        class="w-[180px] px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer bg-white">
-                        <option value="Filete" selected>Filete</option>
-                        <option value="Porciones">Porciones</option>
-                        <option value="HG">HG</option>
-                        <option value="Empaque">Empaque</option>
-                    </select>
+                    <!-- Gráficos de Empaque (ocultos por defecto) -->
+                    <div class="grid grid-cols-6 gap-6 hidden" id="graficos-empaque">
+                        <!-- Gráfico de Productividad por Turno (ahora ocupa 4/6) -->
+                        <div class="col-span-4 bg-white p-6 rounded-lg shadow mb-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold">Productividad por Turno (Kilos)</h3>
+                            </div>
+                            <div id="productividadTurnoEmpaqueChart" class="w-full h-[400px]"></div>
+                        </div>
 
-                    <!-- Selector de Turno (movido aquí) -->
-                    <div class="flex items-center space-x-2">
-                        <label for="turnoSelector" class="text-sm font-medium text-gray-700">Turno:</label>
-                        <select id="turnoSelector"
-                            class="w-32 px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="todos">Todos</option>
-                            <option value="Día">Día</option>
-                            <option value="Tarde">Tarde</option>
-                            <option value="Noche">Noche</option>
-                        </select>
+                        <!-- Gráfico de Distribución por Empresa (ahora ocupa 2/6 en la misma fila) -->
+                        <div class="col-span-2 bg-white p-6 rounded-lg shadow mb-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold">Distribución por Empresa</h3>
+                            </div>
+                            <div id="distribucionEmpresaChart" class="w-full h-[400px]"></div>
+                        </div>
+
+                        <!-- Gráfico de Dotación Real vs Esperada -->
+                        <div class="col-span-3 bg-white p-6 rounded-lg shadow mb-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold">Dotación Real vs Esperada</h3>
+                            </div>
+                            <div id="dotacionEmpaqueChart" class="w-full h-[350px]"></div>
+                        </div>
+
+                        <!-- Gráfico de Distribución de Tiempo Diario -->
+                        <div class="col-span-3 bg-white p-6 rounded-lg shadow mb-6">
+                            <div class="flex justify-between items-center mb-4">
+                                <h3 class="text-lg font-semibold">Distribución de Tiempo Diario</h3>
+                            </div>
+                            <div id="tiempoEmpaqueChart" class="w-full h-[350px]"></div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Panel de KPIs -->
-        <div class="p-6">
-            <!-- Título para los indicadores semanales -->
-            <h3 class="text-base font-medium text-gray-700 mb-3">Indicadores Semanales</h3>
-            <div class="grid grid-cols-5 gap-4 mb-6">
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <h4 class="text-sm font-semibold text-gray-600">Dotación vs Esperada</h4>
-                    <p class="text-2xl font-bold text-purple-600" id="kpiDotacion">--%</p>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <h4 class="text-sm font-semibold text-gray-600">Ausentismo Promedio</h4>
-                    <p class="text-2xl font-bold text-indigo-600" id="kpiAusentismo">--%</p>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <h4 class="text-sm font-semibold text-gray-600">Tiempo Efectivo</h4>
-                    <p class="text-2xl font-bold text-green-600" id="kpiTiempoEfectivo">--%</p>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <h4 class="text-sm font-semibold text-gray-600">Rendimiento General</h4>
-                    <p class="text-2xl font-bold text-orange-600" id="kpiRendimientoGeneral">--%</p>
-                </div>
-                <div class="bg-white p-4 rounded-lg shadow">
-                    <h4 class="text-sm font-semibold text-gray-600">Rendimiento Premium</h4>
-                    <p class="text-2xl font-bold text-blue-600" id="kpiRendimientoPremium">--%</p>
-                </div>
+    <!-- Contenedor de imágenes capturadas -->
+    <div id="imagenes-capturadas" class="hidden p-6">
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-base font-medium text-gray-700">Gráficos Capturados</h3>
+            <div class="flex space-x-4">
+                <button id="btnDescargarPDF"
+                    class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
+                    Descargar PDF
+                </button>
+                <button id="btnVolverDashboard"
+                    class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    Volver al Dashboard
+                </button>
             </div>
+        </div>
 
-            <!-- Título para los gráficos -->
-            <h3 class="text-base font-medium text-gray-700 mb-3">Gráficos por Turno: <span id="turnoTitulo">Todos</span>
-            </h3>
-            <!-- Gráficos principales -->
-            <div class="grid grid-cols-6 gap-6" id="graficos-produccion">
-                <!-- Gráfico de Productividad (ocupa 4/6) -->
-                <div class="col-span-4 bg-white p-6 rounded-lg shadow">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold hidden">Productividad por Turno</h3>
-                        <div class="flex items-center space-x-4">
-                            <div class="flex items-center space-x-2">
-                                <label for="metaProductividad" class="text-sm font-medium text-gray-700">Meta:</label>
-                                <input type="number" id="metaProductividad"
-                                    class="w-24 px-2 py-1 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                    value="10000" step="1">
-                                <span class="text-sm text-gray-500" id="unidadMeta">kg</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="productividadChart" class="h-[400px]"></div>
-                </div>
-
-                <!-- Gráfico de Rendimiento (ocupa 2/6) -->
-                <div class="col-span-2 bg-white p-6 rounded-lg shadow">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold hidden">Rendimiento Semanal</h3>
-                    </div>
-                    <div id="rendimientoChart" class="h-[400px]"></div>
-                </div>
-
-                <!-- Gráfico de Dotación -->
-                <div class="col-span-2 bg-white p-6 rounded-lg shadow">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold hidden">Dotación Semanal</h3>
-                    </div>
-                    <div id="dotacionChart" class="h-[300px]"></div>
-                </div>
-
-                <!-- Gráfico de Tiempos Muertos -->
-                <div class="col-span-2 bg-white p-6 rounded-lg shadow">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold hidden">Distribución de Tiempo Diario</h3>
-                    </div>
-                    <div id="tiemposMuertosChart" class="h-[300px]"></div>
-                </div>
-
-                <!-- Gráfico de Tiempos Muertos por Departamento -->
-                <div class="col-span-2 bg-white p-6 rounded-lg shadow">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold hidden">Tiempos Muertos por Departamento</h3>
-                    </div>
-                    <div id="tiemposMuertosSemanalChart" class="h-[300px]"></div>
-                </div>
+        <!-- Filete -->
+        <div class="mb-8">
+            <h4 class="text-lg font-semibold mb-4 bg-gray-100 p-2 rounded">Filete</h4>
+            <div class="w-full bg-white p-4 rounded-lg shadow">
+                <img id="imagen-filete" class="w-full" alt="Gráficos de Filete">
             </div>
+        </div>
 
-            <!-- Gráficos de Empaque (ocultos por defecto) -->
-            <div class="grid grid-cols-6 gap-6 hidden" id="graficos-empaque">
-                <!-- Gráfico de Productividad Empaque -->
-                <div class="col-span-6 bg-white p-6 rounded-lg shadow">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">Productividad de Empaque</h3>
-                    </div>
-                    <div id="productividadEmpaqueChart" class="w-full h-[400px]"></div>
-                </div>
+        <!-- Porciones -->
+        <div class="mb-8">
+            <h4 class="text-lg font-semibold mb-4 bg-gray-100 p-2 rounded">Porciones</h4>
+            <div class="w-full bg-white p-4 rounded-lg shadow">
+                <img id="imagen-porciones" class="w-full" alt="Gráficos de Porciones">
+            </div>
+        </div>
 
-                <!-- Gráfico de Dotación Empaque -->
-                <div class="col-span-3 bg-white p-6 rounded-lg shadow">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">Dotación de Empaque</h3>
-                    </div>
-                    <div id="dotacionEmpaqueChart" class="w-full h-[400px]"></div>
-                </div>
+        <!-- HG -->
+        <div class="mb-8">
+            <h4 class="text-lg font-semibold mb-4 bg-gray-100 p-2 rounded">HG</h4>
+            <div class="w-full bg-white p-4 rounded-lg shadow">
+                <img id="imagen-hg" class="w-full" alt="Gráficos de HG">
+            </div>
+        </div>
 
-                <!-- Gráfico de Horas Trabajadas y Tiempo Muerto -->
-                <div class="col-span-3 bg-white p-6 rounded-lg shadow">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">Horas Trabajadas y Tiempo Muerto</h3>
-                    </div>
-                    <div id="horasTrabajadasEmpaqueChart" class="w-full h-[400px]"></div>
-                </div>
-                <!-- Gráfico de Kilos por Producto -->
-                <div class="col-span-3 bg-white p-6 rounded-lg shadow">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">Kilos por Producto</h3>
-                    </div>
-                    <div id="kilosProductoChart" class="w-full h-[400px]"></div>
-                </div>
-
-                <!-- Gráfico de Piezas por Producto -->
-                <div class="col-span-3 bg-white p-6 rounded-lg shadow">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">Piezas por Producto</h3>
-                    </div>
-                    <div id="piezasProductoChart" class="w-full h-[400px]"></div>
-                </div>
-
-                <!-- Gráfico de Distribución por Empresa -->
-                <div class="col-span-3 bg-white p-6 rounded-lg shadow">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">Distribución por Empresa</h3>
-                    </div>
-                    <div id="distribucionEmpresaChart" class="w-full h-[400px]"></div>
-                </div>
-
-                <!-- Gráfico de Cantidad de Lotes -->
-                <div class="col-span-3 bg-white p-6 rounded-lg shadow">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-semibold">Cantidad de Lotes por Día</h3>
-                    </div>
-                    <div id="lotesChart" class="w-full h-[400px]"></div>
-                </div>
+        <!-- Empaque -->
+        <div class="mb-8">
+            <h4 class="text-lg font-semibold mb-4 bg-gray-100 p-2 rounded">Empaque</h4>
+            <div class="w-full bg-white p-4 rounded-lg shadow">
+                <img id="imagen-empaque" class="w-full" alt="Gráficos de Empaque">
             </div>
         </div>
     </div>
@@ -190,13 +233,50 @@
 
 @section('scripts')
     <script src="https://cdn.jsdelivr.net/npm/apexcharts@3.41.0/dist/apexcharts.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
+        // Inicializar jsPDF
+        window.jsPDF = window.jspdf.jsPDF;
+
         document.addEventListener('DOMContentLoaded', function () {
             const fechaInput = document.getElementById('fecha');
             const tipoPlanillaSelect = document.getElementById('tipo_planilla');
             const metaProductividadInput = document.getElementById('metaProductividad');
             const turnoSelector = document.getElementById('turnoSelector');
             const unidadMeta = document.getElementById('unidadMeta');
+
+            // Botón para ocultar/mostrar gráficos
+            const btnToggleGraficos = document.getElementById('btnToggleGraficos');
+            const graficosProduccion = document.getElementById('graficos-produccion');
+            const graficosEmpaque = document.getElementById('graficos-empaque');
+
+            // Estado para controlar si los gráficos están visibles
+            let graficosVisibles = true;
+
+            // Evento para el botón de ocultar/mostrar gráficos
+            btnToggleGraficos.addEventListener('click', function () {
+                if (graficosVisibles) {
+                    // Ocultar gráficos
+                    if (tipoPlanillaSelect.value === 'Empaque') {
+                        graficosEmpaque.classList.add('hidden');
+                    } else {
+                        graficosProduccion.classList.add('hidden');
+                    }
+                    btnToggleGraficos.textContent = 'Mostrar Gráficos';
+                    graficosVisibles = false;
+                } else {
+                    // Mostrar gráficos
+                    if (tipoPlanillaSelect.value === 'Empaque') {
+                        graficosEmpaque.classList.remove('hidden');
+                    } else {
+                        graficosProduccion.classList.remove('hidden');
+                    }
+                    btnToggleGraficos.textContent = 'Ocultar Gráficos';
+                    graficosVisibles = true;
+                }
+            });
 
             function formatDate(dateString) {
                 const date = new Date(dateString);
@@ -318,16 +398,12 @@
                     "#productividadChart",
                     "#rendimientoChart",
                     "#dotacionChart",
-                    "#tiemposDiariosChart",
                     "#tiemposMuertosChart",
                     "#tiemposMuertosSemanalChart",
-                    "#kilosProductoChart",
-                    "#piezasProductoChart",
                     "#distribucionEmpresaChart",
-                    "#lotesChart",
-                    "#productividadEmpaqueChart",
+                    "#productividadTurnoEmpaqueChart",
                     "#dotacionEmpaqueChart",
-                    "#horasTrabajadasEmpaqueChart"
+                    "#tiempoEmpaqueChart"
                 ];
 
                 // Destruir los gráficos existentes si existen
@@ -351,14 +427,14 @@
 
                 // Mensaje de no datos disponibles
                 const mensajeNoDatos = `
-                                                                                                <div class="flex flex-col items-center justify-center p-6 text-gray-500">
-                                                                                                    <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
-                                                                                                    </svg>
-                                                                                                    <p class="text-lg font-semibold">No hay datos disponibles</p>
-                                                                                                    <p class="text-sm">Para la fecha ${new Date(fecha).toLocaleDateString()} y línea ${tipoPlanilla}</p>
-                                                                                                </div>
-                                                                                            `;
+                                                                                                                                                                                                                        <div class="flex flex-col items-center justify-center p-6 text-gray-500">
+                                                                                                                                                                                                                            <svg class="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                                                                                                                                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M12 20a8 8 0 100-16 8 8 0 000 16z" />
+                                                                                                                                                                                                                            </svg>
+                                                                                                                                                                                                                            <p class="text-lg font-semibold">No hay datos disponibles</p>
+                                                                                                                                                                                                                            <p class="text-sm">Para la fecha ${new Date(fecha).toLocaleDateString()} y línea ${tipoPlanilla}</p>
+                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                    `;
 
                 // Función para limpiar y mostrar mensaje
                 const mostrarMensajeNoDatos = () => {
@@ -368,13 +444,10 @@
                         "#dotacionChart",
                         "#tiemposMuertosChart",
                         "#tiemposMuertosSemanalChart",
-                        "#kilosProductoChart",
-                        "#piezasProductoChart",
                         "#distribucionEmpresaChart",
-                        "#lotesChart",
-                        "#productividadEmpaqueChart",
+                        "#productividadTurnoEmpaqueChart",
                         "#dotacionEmpaqueChart",
-                        "#horasTrabajadasEmpaqueChart"
+                        "#tiempoEmpaqueChart"
                     ];
 
                     contenedores.forEach(selector => {
@@ -412,12 +485,12 @@
                         if (tipoPlanilla === 'Empaque') {
                             if (!data.empaque || data.empaque.length === 0) {
                                 console.log('No hay datos de empaque');
-                                document.querySelectorAll("#kilosProductoChart, #piezasProductoChart, #distribucionEmpresaChart, #lotesChart")
+                                document.querySelectorAll("#distribucionEmpresaChart")
                                     .forEach(el => {
                                         el.innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
                                     });
                             } else {
-                                actualizarGraficosProductos(data.empaque);
+                                mostrarDashboardEmpaque(data);
                             }
                             return;
                         }
@@ -568,6 +641,11 @@
                                 }
                             });
 
+                            // Para Filete, dividir las piezas por dos
+                            if (tipoPlanillaSelect.value === 'Filete') {
+                                total = total / 2;
+                            }
+
                             console.log(`Total para ${dia} - Turno ${turno}:`, {
                                 registros: turnoDataArray.length,
                                 total: total
@@ -609,6 +687,11 @@
                                     total += Number(turnoData.piezas_recepcion || 0);
                                 }
                             });
+
+                            // Para Filete, dividir las piezas por dos
+                            if (tipoPlanillaSelect.value === 'Filete') {
+                                total = total / 2;
+                            }
 
                             console.log(`Total para ${dia} - Turno ${turnoSeleccionado}:`, {
                                 registros: turnoDataArray.length,
@@ -729,18 +812,22 @@
                 });
 
                 // Series de rendimiento
-                const seriesRendimiento = [
+                let seriesRendimiento = [
                     {
                         name: 'General',
                         type: 'line',
                         data: rendimientosPorDia.map(d => d.rendimiento)
-                    },
-                    {
+                    }
+                ];
+
+                // Solo mostrar la serie Premium si NO es Porciones
+                if (tipoPlanillaSelect.value !== 'Porciones') {
+                    seriesRendimiento.push({
                         name: 'Premium ',
                         type: 'line',
                         data: rendimientosPorDia.map(d => d.rendimientoPremium)
-                    }
-                ];
+                    });
+                }
 
                 const optionsRendimiento = {
                     series: seriesRendimiento,
@@ -1012,7 +1099,7 @@
                 document.querySelector("#tiemposMuertosChart").innerHTML = '';
 
                 // Actualizar título de los gráficos según el turno seleccionado
-                const tituloTurno = turnoSelector.value === 'todos' ? '' : ` - Turno ${turnoSelector.value}`;
+                const tituloTurno = turnoSeleccionado === 'todos' ? '' : ` - Turno ${turnoSeleccionado}`;
 
                 // Actualizar títulos de los gráficos
                 optionsProductividad.title = {
@@ -1050,10 +1137,34 @@
 
                 // Actualizar gráfico de tiempos muertos por departamento
                 if (data.tiempos_muertos && Array.isArray(data.tiempos_muertos)) {
-                    actualizarGraficoTiemposMuertosSemanales(data.tiempos_muertos, turnoSelector.value);
+                    actualizarGraficoTiemposMuertosSemanales(data.tiempos_muertos, turnoSeleccionado);
                 } else {
                     console.log('No hay datos de tiempos muertos disponibles');
                     document.querySelector("#tiemposMuertosSemanalChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos de tiempos muertos disponibles</p></div>';
+                }
+            }
+
+            function mostrarDashboardEmpaque(data) {
+                console.log('Mostrando dashboard de empaque');
+                console.log('Datos recibidos:', data);
+
+                // Mostrar gráficos de empaque
+                const graficosEmpaque = document.getElementById('graficos-empaque');
+                graficosEmpaque.classList.remove('hidden');
+
+                // Ocultar gráficos de producción
+                const graficosProduccion = document.getElementById('graficos-produccion');
+                graficosProduccion.classList.add('hidden');
+
+                // Actualizar gráficos de productos de empaque
+                actualizarGraficosProductos(data.empaque);
+
+                // Actualizar gráficos de dotación y tiempo
+                if (data.productividad_empaque && data.productividad_empaque.length > 0) {
+                    actualizarGraficosDotacionTiempo(data.productividad_empaque);
+                } else {
+                    document.querySelector("#dotacionEmpaqueChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
+                    document.querySelector("#tiempoEmpaqueChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
                 }
             }
 
@@ -1063,15 +1174,13 @@
 
                 if (!data || data.length === 0) {
                     console.log('No hay datos de productos de empaque');
-                    document.querySelector("#kilosProductoChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
-                    document.querySelector("#piezasProductoChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
                     document.querySelector("#distribucionEmpresaChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
-                    document.querySelector("#lotesChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
+                    document.querySelector("#productividadTurnoEmpaqueChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
                     return;
                 }
 
                 // Limpiar los contenedores de gráficos existentes
-                document.querySelectorAll("#kilosProductoChart, #piezasProductoChart, #distribucionEmpresaChart, #lotesChart")
+                document.querySelectorAll("#distribucionEmpresaChart, #productividadTurnoEmpaqueChart")
                     .forEach(el => {
                         el.innerHTML = '';
                     });
@@ -1087,40 +1196,72 @@
 
                 if (datosFiltrados.length === 0) {
                     console.log('No hay datos para el turno seleccionado');
-                    document.querySelectorAll("#kilosProductoChart, #piezasProductoChart, #distribucionEmpresaChart, #lotesChart")
+                    document.querySelectorAll("#distribucionEmpresaChart, #productividadTurnoEmpaqueChart")
                         .forEach(el => {
                             el.innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles para el turno seleccionado</p></div>';
                         });
                     return;
                 }
 
-                // 1. Gráfico de Kilos por Producto
-                const kilosPorProducto = {};
+                // 1. Gráfico de Productividad por Turno
+                // Agrupar datos por fecha y turno
+                const kilosPorFechaTurno = {};
+                const fechasUnicas = [];
+
                 datosFiltrados.forEach(item => {
-                    if (!kilosPorProducto[item.Producto]) {
-                        kilosPorProducto[item.Producto] = 0;
+                    if (!fechasUnicas.includes(item.fecha_turno)) {
+                        fechasUnicas.push(item.fecha_turno);
                     }
-                    kilosPorProducto[item.Producto] += parseFloat(item.total_kilos);
+
+                    const key = `${item.fecha_turno}_${item.turno}`;
+                    if (!kilosPorFechaTurno[key]) {
+                        kilosPorFechaTurno[key] = {
+                            fecha: item.fecha_turno,
+                            turno: item.turno,
+                            kilos: 0
+                        };
+                    }
+                    kilosPorFechaTurno[key].kilos += parseFloat(item.total_kilos);
                 });
 
-                const optionsKilosProducto = {
-                    series: [{
-                        name: 'Kilos',
-                        data: Object.values(kilosPorProducto)
-                    }],
+                // Ordenar fechas
+                fechasUnicas.sort();
+
+                // Preparar series para el gráfico
+                const turnos = ['T. Dia', 'T. Tarde', 'T. Noche'];
+                const seriesProductividad = turnos.map(turno => {
+                    return {
+                        name: turno,
+                        data: fechasUnicas.map(fecha => {
+                            const key = `${fecha}_${turno}`;
+                            return kilosPorFechaTurno[key] ? kilosPorFechaTurno[key].kilos : 0;
+                        })
+                    };
+                });
+
+                const optionsProductividadTurno = {
+                    series: seriesProductividad,
                     chart: {
                         type: 'bar',
-                        height: 400
+                        height: 400,
+                        stacked: false,
+                        toolbar: {
+                            show: true
+                        }
                     },
                     plotOptions: {
                         bar: {
                             horizontal: false,
-                            columnWidth: '55%',
+                            columnWidth: '70%',
                             endingShape: 'rounded'
                         },
                     },
                     dataLabels: {
-                        enabled: false
+                        enabled: true,
+                        formatter: function (val) {
+                            if (val === 0) return '';
+                            return Math.round(val);
+                        }
                     },
                     stroke: {
                         show: true,
@@ -1128,69 +1269,23 @@
                         colors: ['transparent']
                     },
                     xaxis: {
-                        categories: Object.keys(kilosPorProducto),
+                        categories: fechasUnicas.map(fecha => {
+                            // Formatear fecha como dd/mm
+                            const partes = fecha.split('-');
+                            return `${partes[2]}/${partes[1]}`;
+                        }),
+                        title: {
+                            text: 'Fecha'
+                        }
                     },
                     yaxis: {
                         title: {
                             text: 'Kilos'
-                        }
-                    },
-                    fill: {
-                        opacity: 1
-                    },
-                    tooltip: {
-                        y: {
-                            formatter: function (val) {
-                                return val.toFixed(1) + " kg";
-                            }
-                        }
-                    }
-                };
-
-                const chartKilosProducto = new ApexCharts(document.querySelector("#kilosProductoChart"), optionsKilosProducto);
-                chartKilosProducto.render();
-                window.charts = window.charts || {};
-                window.charts.kilosProducto = chartKilosProducto;
-
-                // 2. Gráfico de Piezas por Producto
-                const piezasPorProducto = {};
-                datosFiltrados.forEach(item => {
-                    if (!piezasPorProducto[item.Producto]) {
-                        piezasPorProducto[item.Producto] = 0;
-                    }
-                    piezasPorProducto[item.Producto] += parseInt(item.total_piezas);
-                });
-
-                const optionsPiezasProducto = {
-                    series: [{
-                        name: 'Piezas',
-                        data: Object.values(piezasPorProducto)
-                    }],
-                    chart: {
-                        type: 'bar',
-                        height: 400
-                    },
-                    plotOptions: {
-                        bar: {
-                            horizontal: false,
-                            columnWidth: '55%',
-                            endingShape: 'rounded'
                         },
-                    },
-                    dataLabels: {
-                        enabled: false
-                    },
-                    stroke: {
-                        show: true,
-                        width: 2,
-                        colors: ['transparent']
-                    },
-                    xaxis: {
-                        categories: Object.keys(piezasPorProducto),
-                    },
-                    yaxis: {
-                        title: {
-                            text: 'Piezas'
+                        labels: {
+                            formatter: function (val) {
+                                return Math.round(val);
+                            }
                         }
                     },
                     fill: {
@@ -1199,17 +1294,30 @@
                     tooltip: {
                         y: {
                             formatter: function (val) {
-                                return val.toFixed(0);
+                                return Math.round(val) + " kg";
                             }
                         }
+                    },
+                    colors: ['#008FFB', '#00E396', '#FEB019'],
+                    title: {
+                        text: 'Productividad por Turno (Kilos)',
+                        align: 'center',
+                        style: {
+                            fontSize: '16px',
+                            fontWeight: 'bold'
+                        }
+                    },
+                    legend: {
+                        position: 'top'
                     }
                 };
 
-                const chartPiezasProducto = new ApexCharts(document.querySelector("#piezasProductoChart"), optionsPiezasProducto);
-                chartPiezasProducto.render();
-                window.charts.piezasProducto = chartPiezasProducto;
+                const chartProductividadTurno = new ApexCharts(document.querySelector("#productividadTurnoEmpaqueChart"), optionsProductividadTurno);
+                chartProductividadTurno.render();
+                window.charts = window.charts || {};
+                window.charts.productividadTurnoEmpaque = chartProductividadTurno;
 
-                // 3. Gráfico de Distribución por Empresa
+                // Gráfico de Distribución por Empresa
                 const kilosPorEmpresa = {};
                 datosFiltrados.forEach(item => {
                     if (!kilosPorEmpresa[item.Empresa]) {
@@ -1248,330 +1356,235 @@
                 const chartDistribucionEmpresa = new ApexCharts(document.querySelector("#distribucionEmpresaChart"), optionsDistribucionEmpresa);
                 chartDistribucionEmpresa.render();
                 window.charts.distribucionEmpresa = chartDistribucionEmpresa;
-
-                // 4. Gráfico de Cantidad de Lotes
-                const lotesPorDia = {};
-                datosFiltrados.forEach(item => {
-                    const fecha = item.fecha_turno;
-                    if (!lotesPorDia[fecha]) {
-                        lotesPorDia[fecha] = 0;
-                    }
-                    lotesPorDia[fecha] += parseInt(item.cantidad_lotes);
-                });
-
-                // Ordenar fechas
-                const fechasOrdenadas = Object.keys(lotesPorDia).sort();
-
-                const optionsLotes = {
-                    series: [{ data: fechasOrdenadas.map(fecha => lotesPorDia[fecha]) }],
-                    chart: {
-                        height: 400,
-                        type: 'line',
-                    },
-                    stroke: {
-                        width: 3,
-                        curve: 'smooth',
-                        colors: ['#F59E0B']
-                    },
-                    xaxis: {
-                        categories: fechasOrdenadas.map(fecha => {
-                            // Formatear fecha como dd/mm
-                            const partes = fecha.split('-');
-                            return `${partes[2]}/${partes[1]}`;
-                        }),
-                    },
-                    yaxis: {
-                        title: {
-                            text: 'Cantidad de Lotes'
-                        }
-                    },
-                    markers: {
-                        size: 5,
-                    },
-                    tooltip: {
-                        x: {
-                            formatter: function (val, opts) {
-                                return fechasOrdenadas[opts.dataPointIndex];
-                            }
-                        }
-                    }
-                };
-
-                const chartLotes = new ApexCharts(document.querySelector("#lotesChart"), optionsLotes);
-                chartLotes.render();
-                window.charts.lotes = chartLotes;
             }
 
-            function mostrarDashboardEmpaque(data) {
-                console.log('Mostrando dashboard de empaque');
-                console.log('Datos recibidos:', data);
+            function actualizarGraficosDotacionTiempo(data) {
+                console.log('Actualizando gráficos de dotación y tiempo con datos:', data);
 
-                // Mostrar gráficos de empaque
-                const graficosEmpaque = document.getElementById('graficos-empaque');
-                graficosEmpaque.classList.remove('hidden');
+                // Limpiar los contenedores de gráficos existentes
+                document.querySelectorAll("#dotacionEmpaqueChart, #tiempoEmpaqueChart")
+                    .forEach(el => {
+                        el.innerHTML = '';
+                    });
 
-                // Ocultar gráficos de producción
-                const graficosProduccion = document.getElementById('graficos-produccion');
-                graficosProduccion.classList.add('hidden');
+                // Filtrar por turno seleccionado
+                const turnoSeleccionado = turnoSelector.value;
 
-                // Actualizar gráficos de productividad de empaque
-                actualizarGraficosEmpaque(data.productividad_empaque);
+                let datosFiltrados = data;
 
-                // Actualizar gráficos de productos de empaque
-                actualizarGraficosProductos(data.empaque);
-            }
+                if (turnoSeleccionado !== 'todos') {
+                    datosFiltrados = data.filter(item => item.turno === turnoSeleccionado);
+                }
 
-            function actualizarGraficosEmpaque(data) {
-                // Verificar si hay datos de productividad de empaque
-                if (!data || data.length === 0) {
-                    console.log('No hay datos de productividad de empaque');
-                    document.querySelector("#productividadEmpaqueChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
-                    document.querySelector("#dotacionEmpaqueChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
-                    document.querySelector("#horasTrabajadasEmpaqueChart").innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles</p></div>';
+                if (datosFiltrados.length === 0) {
+                    console.log('No hay datos para el turno seleccionado');
+                    document.querySelectorAll("#dotacionEmpaqueChart, #tiempoEmpaqueChart")
+                        .forEach(el => {
+                            el.innerHTML = '<div class="flex h-full items-center justify-center"><p class="text-gray-500">No hay datos disponibles para el turno seleccionado</p></div>';
+                        });
                     return;
                 }
 
-                // Obtener los datos de productividad de empaque
-                const datosProductividad = data;
-                console.log('Datos de productividad de empaque:', datosProductividad);
+                // Preparar datos para los gráficos
+                let datosGraficos;
 
-                // Calcular el inicio y fin de la semana
-                const fechaPartes = fechaInput.value.split('-');
-                const year = parseInt(fechaPartes[0]);
-                const month = parseInt(fechaPartes[1]) - 1; // Meses en JS son 0-11
-                const day = parseInt(fechaPartes[2]);
-                const fechaSeleccionada = new Date(Date.UTC(year, month, day));
+                if (turnoSeleccionado === 'todos') {
+                    // Agrupar datos por fecha cuando se selecciona "todos"
+                    const datosPorFecha = {};
 
-                const diaSemana = fechaSeleccionada.getUTCDay(); // 0 = domingo, 1 = lunes, ...
-                const diasHastaLunes = diaSemana === 0 ? 6 : diaSemana - 1; // Ajustar para que la semana comience el lunes
-                const inicioSemana = new Date(fechaSeleccionada);
-                inicioSemana.setUTCDate(fechaSeleccionada.getUTCDate() - diasHastaLunes);
+                    datosFiltrados.forEach(item => {
+                        if (!datosPorFecha[item.fecha_turno]) {
+                            datosPorFecha[item.fecha_turno] = {
+                                fecha_turno: item.fecha_turno,
+                                dotacion_real: 0,
+                                dotacion_esperada: 0,
+                                horas_trabajadas_empaque: 0,
+                                tiempo_muerto_empaque: 0
+                            };
+                        }
 
-                // Crear un array con los días de la semana
-                const diasSemana = [];
-                for (let i = 0; i < 7; i++) {
-                    const fecha = new Date(inicioSemana);
-                    fecha.setUTCDate(inicioSemana.getUTCDate() + i);
-                    diasSemana.push(formatDateForComparison(fecha.toISOString().split('T')[0]));
+                        // Sumar valores
+                        datosPorFecha[item.fecha_turno].dotacion_real += Number(item.dotacion_real) || 0;
+                        datosPorFecha[item.fecha_turno].dotacion_esperada += Number(item.dotacion_esperada) || 0;
+                        datosPorFecha[item.fecha_turno].horas_trabajadas_empaque += Number(item.horas_trabajadas_empaque) || 0;
+                        datosPorFecha[item.fecha_turno].tiempo_muerto_empaque += Number(item.tiempo_muerto_empaque) || 0;
+                    });
+
+                    // Convertir objeto a array
+                    datosGraficos = Object.values(datosPorFecha);
+                } else {
+                    // Usar datos filtrados directamente
+                    datosGraficos = datosFiltrados;
                 }
 
-                // Filtrar datos por turno seleccionado
-                const turnoSeleccionado = turnoSelector.value;
+                // Ordenar datos por fecha
+                datosGraficos.sort((a, b) => {
+                    return new Date(a.fecha_turno) - new Date(b.fecha_turno);
+                });
 
-                let datosFiltrados = datosProductividad;
-
-                if (turnoSeleccionado !== 'todos') {
-                    datosFiltrados = datosProductividad.filter(row => row.turno === turnoSeleccionado);
-                }
-
-                // Gráfico de productividad
-                const optionsProductividad = {
-                    series: [{
-                        name: 'Productividad',
-                        data: diasSemana.map(dia => {
-                            const turnosDelDia = datosFiltrados.filter(row => {
-                                const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
-                                return fechaTurnoFormateada === dia;
-                            });
-
-                            if (turnosDelDia.length === 0) return null;
-
-                            // Calcular el promedio de productividad de todos los turnos del día
-                            const productividadTotal = turnosDelDia.reduce((sum, row) => sum + Number(row.productividad_empaque || 0), 0);
-                            return parseFloat((productividadTotal / turnosDelDia.length).toFixed(1));
-                        })
-                    }],
-                    chart: {
-                        height: 350,
-                        type: 'line',
-                        toolbar: {
-                            show: false
-                        }
-                    },
-                    stroke: {
-                        width: 3,
-                        curve: 'smooth'
-                    },
-                    colors: ['#4e73df'],
-                    xaxis: {
-                        categories: diasSemana.map(dia => formatDateForDisplay(dia)),
-                        labels: {
-                            style: {
-                                fontSize: '12px'
-                            }
-                        }
-                    },
-                    yaxis: {
-                        title: {
-                            text: 'Productividad (pzs/pers/hr)'
-                        },
-                        min: 0
-                    },
-                    tooltip: {
-                        y: {
-                            formatter: function (val) {
-                                return val !== null ? val.toFixed(1) + ' pzs/pers/hr' : 'Sin datos';
-                            }
-                        }
-                    },
-                    title: {
-                        text: 'Productividad Semanal de Empaque',
-                        align: 'center',
-                        style: {
-                            fontSize: '16px',
-                            fontWeight: 'bold'
-                        }
-                    }
-                };
-
-                // Gráfico de dotación
+                // 1. Gráfico de Dotación Real vs Esperada (líneas)
                 const optionsDotacion = {
                     series: [{
                         name: 'Dotación Real',
-                        data: diasSemana.map(dia => {
-                            const turnosDelDia = datosFiltrados.filter(row => {
-                                const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
-                                return fechaTurnoFormateada === dia;
-                            });
-
-                            if (turnosDelDia.length === 0) return null;
-
-                            // Sumar dotación real de todos los turnos del día
-                            const dotacionRealTotal = turnosDelDia.reduce((sum, row) => sum + Number(row.dotacion_real || 0), 0);
-                            return dotacionRealTotal;
-                        })
+                        data: datosGraficos.map(item => Number(item.dotacion_real) || 0)
+                    }, {
+                        name: 'Dotación Esperada',
+                        data: datosGraficos.map(item => Number(item.dotacion_esperada) || 0)
                     }],
                     chart: {
+                        type: 'line',
                         height: 350,
-                        type: 'bar',
                         toolbar: {
-                            show: false
+                            show: true
                         }
                     },
-                    plotOptions: {
-                        bar: {
-                            horizontal: false,
-                            columnWidth: '55%',
-                            endingShape: 'rounded'
+                    stroke: {
+                        width: [3, 3],
+                        curve: 'smooth'
+                    },
+                    markers: {
+                        size: 5
+                    },
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function (val) {
+                            return Math.round(val);
                         }
                     },
-                    colors: ['#1cc88a'],
                     xaxis: {
-                        categories: diasSemana.map(dia => formatDateForDisplay(dia)),
-                        labels: {
-                            style: {
-                                fontSize: '12px'
-                            }
+                        categories: datosGraficos.map(item => {
+                            // Formatear fecha como dd/mm
+                            const partes = item.fecha_turno.split('-');
+                            // Si es "todos", solo mostrar la fecha, de lo contrario mostrar fecha y turno
+                            return turnoSeleccionado === 'todos'
+                                ? `${partes[2]}/${partes[1]}`
+                                : `${partes[2]}/${partes[1]} (${item.turno})`;
+                        }),
+                        title: {
+                            text: 'Fecha' + (turnoSeleccionado === 'todos' ? '' : ' y Turno')
                         }
                     },
                     yaxis: {
                         title: {
-                            text: 'Dotación'
+                            text: 'Personas'
+                        },
+                        labels: {
+                            formatter: function (val) {
+                                return Math.round(val);
+                            }
                         },
                         min: 0
                     },
                     tooltip: {
                         y: {
                             formatter: function (val) {
-                                return val !== null ? val + ' personas' : 'Sin datos';
+                                return Math.round(val) + " personas";
                             }
                         }
                     },
+                    colors: ['#4e73df', '#1cc88a'],
                     title: {
-                        text: 'Dotación Semanal de Empaque',
+                        text: 'Dotación Real vs Esperada' + (turnoSeleccionado === 'todos' ? ' (Total Diario)' : ''),
                         align: 'center',
                         style: {
                             fontSize: '16px',
                             fontWeight: 'bold'
                         }
+                    },
+                    legend: {
+                        position: 'top'
                     }
                 };
 
-                // Gráfico de horas trabajadas y tiempo muerto
-                const optionsHorasTrabajadas = {
+                // 2. Gráfico de Distribución de Tiempo Diario
+                const optionsTiempo = {
                     series: [{
                         name: 'Horas Trabajadas',
-                        data: diasSemana.map(dia => {
-                            const turnosDelDia = datosFiltrados.filter(row => {
-                                const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
-                                return fechaTurnoFormateada === dia;
-                            });
-
-                            if (turnosDelDia.length === 0) return null;
-
-                            // Sumar horas trabajadas de todos los turnos del día
-                            const horasTrabajadasTotal = turnosDelDia.reduce((sum, row) => sum + Number(row.horas_trabajadas_empaque || 0), 0);
-                            return parseFloat(horasTrabajadasTotal.toFixed(1));
-                        })
+                        data: datosGraficos.map(item => Number(item.horas_trabajadas_empaque) || 0)
                     }, {
                         name: 'Tiempo Muerto (horas)',
-                        data: diasSemana.map(dia => {
-                            const turnosDelDia = datosFiltrados.filter(row => {
-                                const fechaTurnoFormateada = formatDateForComparison(row.fecha_turno);
-                                return fechaTurnoFormateada === dia;
-                            });
-
-                            if (turnosDelDia.length === 0) return null;
-
-                            // Sumar tiempo muerto de todos los turnos del día (convertir minutos a horas)
-                            const tiempoMuertoTotal = turnosDelDia.reduce((sum, row) => sum + Number(row.tiempo_muerto_empaque || 0), 0);
-                            return parseFloat((tiempoMuertoTotal / 60).toFixed(1));
+                        data: datosGraficos.map(item => {
+                            // Convertir minutos a horas
+                            const minutos = Number(item.tiempo_muerto_empaque) || 0;
+                            return parseFloat((minutos / 60).toFixed(2));
                         })
                     }],
                     chart: {
-                        height: 350,
                         type: 'bar',
+                        height: 350,
+                        stacked: true,
                         toolbar: {
-                            show: false
+                            show: true
                         }
                     },
                     plotOptions: {
                         bar: {
                             horizontal: false,
-                            columnWidth: '55%',
+                            columnWidth: '70%',
                             endingShape: 'rounded'
+                        },
+                    },
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function (val) {
+                            return val.toFixed(1) + 'h';
                         }
                     },
-                    colors: ['#36b9cc', '#e74a3b'],
+                    stroke: {
+                        show: true,
+                        width: 2,
+                        colors: ['transparent']
+                    },
                     xaxis: {
-                        categories: diasSemana.map(dia => formatDateForDisplay(dia)),
-                        labels: {
-                            style: {
-                                fontSize: '12px'
-                            }
+                        categories: datosGraficos.map(item => {
+                            // Formatear fecha como dd/mm
+                            const partes = item.fecha_turno.split('-');
+                            // Si es "todos", solo mostrar la fecha, de lo contrario mostrar fecha y turno
+                            return turnoSeleccionado === 'todos'
+                                ? `${partes[2]}/${partes[1]}`
+                                : `${partes[2]}/${partes[1]} (${item.turno})`;
+                        }),
+                        title: {
+                            text: 'Fecha' + (turnoSeleccionado === 'todos' ? '' : ' y Turno')
                         }
                     },
                     yaxis: {
                         title: {
                             text: 'Horas'
-                        },
-                        min: 0
+                        }
+                    },
+                    fill: {
+                        opacity: 1
                     },
                     tooltip: {
                         y: {
                             formatter: function (val) {
-                                return val !== null ? val.toFixed(1) + ' horas' : 'Sin datos';
+                                return val.toFixed(1) + " horas";
                             }
                         }
                     },
+                    colors: ['#36b9cc', '#e74a3b'],
                     title: {
-                        text: 'Horas Trabajadas y Tiempo Muerto Semanal',
+                        text: 'Distribución de Tiempo Diario' + (turnoSeleccionado === 'todos' ? ' (Total Diario)' : ''),
                         align: 'center',
                         style: {
                             fontSize: '16px',
                             fontWeight: 'bold'
                         }
+                    },
+                    legend: {
+                        position: 'top'
                     }
                 };
 
                 // Renderizar gráficos
-                document.querySelector("#productividadEmpaqueChart").innerHTML = '';
-                document.querySelector("#dotacionEmpaqueChart").innerHTML = '';
-                document.querySelector("#horasTrabajadasEmpaqueChart").innerHTML = '';
+                const chartDotacion = new ApexCharts(document.querySelector("#dotacionEmpaqueChart"), optionsDotacion);
+                chartDotacion.render();
+                window.charts.dotacionEmpaque = chartDotacion;
 
-                new ApexCharts(document.querySelector("#productividadEmpaqueChart"), optionsProductividad).render();
-                new ApexCharts(document.querySelector("#dotacionEmpaqueChart"), optionsDotacion).render();
-                new ApexCharts(document.querySelector("#horasTrabajadasEmpaqueChart"), optionsHorasTrabajadas).render();
+                const chartTiempo = new ApexCharts(document.querySelector("#tiempoEmpaqueChart"), optionsTiempo);
+                chartTiempo.render();
+                window.charts.tiempoEmpaque = chartTiempo;
             }
 
             function calcularKPIs(data) {
@@ -1623,7 +1636,22 @@
             function actualizarKPIs(kpis) {
                 document.getElementById('kpiAusentismo').textContent = `${kpis.ausentismo}%`;
                 document.getElementById('kpiTiempoEfectivo').textContent = `${kpis.tiempoEfectivo}%`;
-                document.getElementById('kpiRendimientoPremium').textContent = `${kpis.rendimientoPremium}%`;
+
+                // Mostrar u ocultar el indicador Rendimiento Premium dependiendo del tipo de planilla
+                const rendimientoPremiumElement = document.getElementById('indicadorRendimientoPremium');
+                if (tipoPlanillaSelect.value === 'Porciones') {
+                    // Ocultar el indicador si es Porciones
+                    if (rendimientoPremiumElement) {
+                        rendimientoPremiumElement.style.display = 'none';
+                    }
+                } else {
+                    // Mostrar el indicador si no es Porciones
+                    if (rendimientoPremiumElement) {
+                        rendimientoPremiumElement.style.display = '';
+                        document.getElementById('kpiRendimientoPremium').textContent = `${kpis.rendimientoPremium}%`;
+                    }
+                }
+
                 document.getElementById('kpiRendimientoGeneral').textContent = `${kpis.rendimientoGeneral}%`;
                 document.getElementById('kpiDotacion').textContent = `${kpis.dotacion}%`;
             }
@@ -1672,7 +1700,10 @@
                 const top5Departamentos = datosCombinados.slice(0, 5);
 
                 const optionsTiemposMuertosSemanales = {
-                    series: [{ data: top5Departamentos.map(d => d.tiempo) }],
+                    series: [{
+                        name: 'Tiempo Muerto',
+                        data: top5Departamentos.map(d => d.tiempo)
+                    }],
                     chart: {
                         type: 'bar',
                         height: 300,
@@ -1682,9 +1713,11 @@
                     },
                     plotOptions: {
                         bar: {
-                            horizontal: false,
-                            columnWidth: '55%',
-                            endingShape: 'rounded'
+                            horizontal: true,
+                            distributed: true,
+                            dataLabels: {
+                                position: 'top',
+                            },
                         }
                     },
                     colors: ['#F87171', '#FB923C', '#FBBF24', '#A3E635', '#34D399'],
@@ -1700,21 +1733,24 @@
                     },
                     xaxis: {
                         categories: top5Departamentos.map(d => d.departamento),
+                        title: {
+                            text: 'Tiempo (hh:mm)'
+                        },
                         labels: {
                             formatter: function (val) {
                                 return formatearTiempo(val);
                             }
-                        },
-                        title: {
-                            text: 'Tiempo (hh:mm)'
                         }
                     },
                     yaxis: {
                         labels: {
+                            style: {
+                                fontSize: '12px'
+                            },
                             formatter: function (val) {
-                                // Limitar longitud del texto
-                                if (typeof val === 'string' && val.length > 15) {
-                                    return val.substring(0, 15) + '...';
+                                // Limitar longitud del texto si es necesario
+                                if (typeof val === 'string' && val.length > 20) {
+                                    return val.substring(0, 20) + '...';
                                 }
                                 return val;
                             }
@@ -1771,6 +1807,344 @@
 
             // Cargar datos iniciales
             cargarDatos();
+
+            // Modificar la función capturarGraficos
+            async function capturarGraficos(tipoPlanilla) {
+                // Cambiar temporalmente a la línea seleccionada
+                const tipoAnterior = tipoPlanillaSelect.value;
+                tipoPlanillaSelect.value = tipoPlanilla;
+
+                try {
+                    // Esperar a que se carguen los datos y se actualicen los gráficos
+                    await cargarDatos();
+
+                    // Esperar 5 segundos para asegurar que los gráficos se hayan renderizado completamente
+                    await new Promise(resolve => setTimeout(resolve, 5000));
+
+                    // Determinar qué contenedor capturar
+                    const contenedor = tipoPlanilla === 'Empaque' ?
+                        document.getElementById('graficos-empaque') :
+                        document.getElementById('graficos-produccion');
+
+                    // Asegurarse de que el contenedor esté visible
+                    contenedor.classList.remove('hidden');
+
+                    // Actualizar el mensaje del botón con el progreso
+                    const btnCapturar = document.getElementById('btnCapturar');
+                    btnCapturar.textContent = `Capturando ${tipoPlanilla}...`;
+
+                    // Capturar la imagen
+                    const canvas = await html2canvas(contenedor, {
+                        scale: 2, // Mayor calidad
+                        logging: false,
+                        useCORS: true,
+                        allowTaint: true,
+                        backgroundColor: '#ffffff' // Asegurar fondo blanco
+                    });
+
+                    // Convertir a PNG
+                    const imageData = canvas.toDataURL('image/png');
+
+                    // Guardar en variable
+                    window.capturedImages = window.capturedImages || {};
+                    window.capturedImages[tipoPlanilla] = imageData;
+
+                    console.log(`Gráficos de ${tipoPlanilla} capturados correctamente`);
+
+                } catch (error) {
+                    console.error(`Error al capturar gráficos de ${tipoPlanilla}:`, error);
+                } finally {
+                    // Restaurar el tipo de planilla anterior
+                    tipoPlanillaSelect.value = tipoAnterior;
+                    await cargarDatos();
+
+                    // Esperar 1 segundo adicional antes de continuar
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+
+            // Modificar la función capturarTodosLosGraficos
+            async function capturarTodosLosGraficos() {
+                const contenidoPrincipal = document.getElementById('contenido-principal');
+                const imagenesCapturadas = document.getElementById('imagenes-capturadas');
+                const btnCapturar = document.getElementById('btnCapturar');
+
+                btnCapturar.textContent = 'Iniciando captura...';
+
+                const tipos = ['Filete', 'Porciones', 'HG', 'Empaque'];
+
+                try {
+                    for (const tipo of tipos) {
+                        await capturarGraficos(tipo);
+                    }
+
+                    // Ocultar todo el contenido principal y mostrar las capturas
+                    contenidoPrincipal.classList.add('hidden');
+                    imagenesCapturadas.classList.remove('hidden');
+
+                    // Actualizar las imágenes en el DOM
+                    tipos.forEach(tipo => {
+                        const imgElement = document.getElementById(`imagen-${tipo.toLowerCase()}`);
+                        if (window.capturedImages[tipo]) {
+                            imgElement.src = window.capturedImages[tipo];
+                        }
+                    });
+
+                } catch (error) {
+                    console.error('Error durante la captura:', error);
+                    throw error; // Propagar el error para manejarlo en el nivel superior
+                }
+            }
+
+            // Agregar evento para el botón de volver
+            document.getElementById('btnVolverDashboard').addEventListener('click', function () {
+                const contenidoPrincipal = document.getElementById('contenido-principal');
+                const imagenesCapturadas = document.getElementById('imagenes-capturadas');
+                const btnCapturar = document.getElementById('btnCapturar');
+
+                imagenesCapturadas.classList.add('hidden');
+                contenidoPrincipal.classList.remove('hidden');
+                btnCapturar.textContent = 'Capturar Gráficos';
+            });
+
+            // Modificar la creación del botón de captura
+            const btnCapturar = document.createElement('button');
+            btnCapturar.id = 'btnCapturar';
+            btnCapturar.textContent = 'Generar PDF';
+            btnCapturar.className = 'px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 ml-2';
+            btnCapturar.onclick = async function () {
+                try {
+                    btnCapturar.disabled = true;
+                    btnCapturar.textContent = 'Capturando gráficos...';
+
+                    // Capturar todos los gráficos
+                    await capturarTodosLosGraficos();
+
+                    // Esperar 5 segundos para que se carguen bien las imágenes
+                    await new Promise(resolve => setTimeout(resolve, 5000));
+
+                    // Generar y descargar el PDF automáticamente
+                    await generarYDescargarPDF();
+
+                    // La recarga de la página ya está incluida en generarYDescargarPDF
+                } catch (error) {
+                    console.error('Error en el proceso:', error);
+                    alert('Ocurrió un error al generar el PDF');
+                    btnCapturar.disabled = false;
+                    btnCapturar.textContent = 'Generar PDF';
+                }
+            };
+
+            // Agregar el botón junto a los otros controles
+            document.querySelector('.ml-auto.flex.items-center').appendChild(btnCapturar);
+
+            // Función para generar y descargar el PDF
+            async function generarYDescargarPDF() {
+                const btnDescargarPDF = document.getElementById('btnDescargarPDF');
+                const fecha = document.getElementById('fecha').value;
+
+                try {
+                    btnDescargarPDF.disabled = true;
+                    btnDescargarPDF.textContent = 'Generando PDF...';
+
+                    // Crear nuevo documento PDF
+                    const doc = new jsPDF({
+                        orientation: 'landscape',
+                        unit: 'mm',
+                        format: 'a4'
+                    });
+
+                    const tipos = ['Filete', 'Porciones', 'HG', 'Empaque'];
+                    const pageWidth = doc.internal.pageSize.getWidth();
+                    const pageHeight = doc.internal.pageSize.getHeight();
+                    const margin = 10;
+                    const imageHeight = pageHeight - (margin * 2) - 20; // 20mm para el título
+
+                    for (let i = 0; i < tipos.length; i++) {
+                        const tipo = tipos[i];
+
+                        if (i > 0) {
+                            doc.addPage();
+                        }
+
+                        // Agregar título
+                        doc.setFontSize(16);
+                        doc.setFont('helvetica', 'bold');
+                        doc.text(`${tipo} - ${fecha}`, margin, margin + 10);
+
+                        // Agregar imagen
+                        if (window.capturedImages[tipo]) {
+                            try {
+                                doc.addImage(
+                                    window.capturedImages[tipo],
+                                    'PNG',
+                                    margin,
+                                    margin + 20,
+                                    pageWidth - (margin * 2),
+                                    imageHeight,
+                                    undefined,
+                                    'FAST'
+                                );
+                            } catch (error) {
+                                console.error(`Error al agregar imagen de ${tipo}:`, error);
+                                // Agregar mensaje de error en el PDF
+                                doc.setFontSize(12);
+                                doc.setTextColor(255, 0, 0);
+                                doc.text(`Error al cargar gráficos de ${tipo}`, margin, margin + 30);
+                            }
+                        } else {
+                            // Si no hay imagen disponible
+                            doc.setFontSize(12);
+                            doc.setTextColor(255, 0, 0);
+                            doc.text(`No hay datos disponibles para ${tipo}`, margin, margin + 30);
+                        }
+                    }
+
+                    // Guardar el PDF
+                    doc.save(`dashboard-productividad-${fecha}.pdf`);
+
+                    // Esperar un momento antes de recargar
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1000);
+
+                } catch (error) {
+                    console.error('Error al generar PDF:', error);
+                    alert('Error al generar el PDF');
+                } finally {
+                    btnDescargarPDF.disabled = false;
+                    btnDescargarPDF.textContent = 'Descargar PDF';
+                }
+            }
+
+            // Modificar el evento del botón volver para que también recargue la página
+            document.getElementById('btnVolverDashboard').addEventListener('click', function () {
+                location.reload();
+            });
+
+            // Agregar después de la inicialización de jsPDF
+
+            // Funciones para controlar el loading
+            function showLoading(text = 'Generando PDF...', subtext = 'Por favor, espere mientras se procesan los gráficos') {
+                const overlay = document.getElementById('loadingOverlay');
+                const loadingText = document.getElementById('loadingText');
+                const loadingSubtext = document.getElementById('loadingSubtext');
+                const progressBar = document.getElementById('loadingProgress');
+                const stepText = document.getElementById('loadingStep');
+
+                loadingText.textContent = text;
+                loadingSubtext.textContent = subtext;
+                progressBar.style.width = '0%';
+                stepText.textContent = 'Iniciando proceso...';
+                overlay.classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Prevenir scroll
+            }
+
+            function updateLoadingProgress(progress, stepText) {
+                const progressBar = document.getElementById('loadingProgress');
+                const stepElement = document.getElementById('loadingStep');
+
+                progressBar.style.width = `${progress}%`;
+                if (stepText) {
+                    stepElement.textContent = stepText;
+                }
+            }
+
+            function hideLoading() {
+                const overlay = document.getElementById('loadingOverlay');
+                overlay.classList.add('hidden');
+                document.body.style.overflow = ''; // Restaurar scroll
+            }
+
+            // Modificar la función del botón de captura
+            btnCapturar.onclick = async function () {
+                try {
+                    btnCapturar.disabled = true;
+                    showLoading('Preparando PDF', 'Iniciando captura de gráficos');
+
+                    const tipos = ['Filete', 'Porciones', 'HG', 'Empaque'];
+
+                    // Capturar todos los gráficos
+                    for (let i = 0; i < tipos.length; i++) {
+                        const tipo = tipos[i];
+                        const progress = (i / tipos.length) * 50; // Primera mitad del progreso
+                        updateLoadingProgress(progress, `Capturando gráficos de ${tipo}...`);
+                        await capturarGraficos(tipo);
+                    }
+
+                    updateLoadingProgress(50, 'Gráficos capturados. Preparando PDF...');
+
+                    // Esperar 5 segundos para que se carguen bien las imágenes
+                    await new Promise(resolve => setTimeout(resolve, 5000));
+
+                    updateLoadingProgress(75, 'Generando PDF...');
+
+                    // Generar y descargar el PDF automáticamente
+                    await generarYDescargarPDF();
+
+                    updateLoadingProgress(100, '¡PDF generado con éxito!');
+
+                    // Esperar un momento antes de recargar
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    location.reload();
+
+                } catch (error) {
+                    console.error('Error en el proceso:', error);
+                    alert('Ocurrió un error al generar el PDF');
+                    btnCapturar.disabled = false;
+                    btnCapturar.textContent = 'Generar PDF';
+                } finally {
+                    hideLoading();
+                }
+            };
+
+            // Modificar la función generarYDescargarPDF para quitar su propio manejo de estado
+            async function generarYDescargarPDF() {
+                const fecha = document.getElementById('fecha').value;
+
+                // Crear nuevo documento PDF
+                const doc = new jsPDF({
+                    orientation: 'landscape',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const tipos = ['Filete', 'Porciones', 'HG', 'Empaque'];
+                const pageWidth = doc.internal.pageSize.getWidth();
+                const pageHeight = doc.internal.pageSize.getHeight();
+                const margin = 10;
+                const imageHeight = pageHeight - (margin * 2) - 20;
+
+                for (let i = 0; i < tipos.length; i++) {
+                    const tipo = tipos[i];
+                    updateLoadingProgress(75 + (i * 5), `Agregando página de ${tipo}...`);
+
+                    if (i > 0) {
+                        doc.addPage();
+                    }
+
+                    // ... resto del código de generación del PDF ...
+                }
+
+                // Guardar el PDF
+                doc.save(`dashboard-productividad-${fecha}.pdf`);
+            }
         });
     </script>
 @endsection
+
+<!-- Agregar justo después del @section('content') -->
+<div id="loadingOverlay"
+    class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex flex-col items-center justify-center">
+    <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full mx-4">
+        <div class="text-center mb-4">
+            <h3 id="loadingText" class="text-lg font-semibold text-gray-700 mb-2">Generando PDF...</h3>
+            <p id="loadingSubtext" class="text-sm text-gray-500">Por favor, espere mientras se procesan los gráficos</p>
+        </div>
+        <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+            <div id="loadingProgress" class="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+                style="width: 0%"></div>
+        </div>
+        <p id="loadingStep" class="text-sm text-gray-600 text-center">Iniciando proceso...</p>
+    </div>
+</div>
