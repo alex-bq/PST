@@ -331,6 +331,9 @@ $(document).ready(function () {
       $("#kilosRecepcion").val(totalKilos).prop("disabled", true);
       $("#piezasRecepcion").val(totalPiezas).prop("disabled", true);
     }
+
+    // Calcular y mostrar los kilos premium
+    calcularKilosPremium();
   }
 
   // Función auxiliar para formatear números
@@ -736,7 +739,7 @@ $(document).ready(function () {
     console.log("Enviando tiempo muerto:", {
       horaInicio: horaInicio,
       horaTermino: horaTermino,
-      nombreCampoTermino: $("#horaTermino").attr("name")
+      nombreCampoTermino: $("#horaTermino").attr("name"),
     });
 
     // Calcular duración en minutos
@@ -768,16 +771,19 @@ $(document).ready(function () {
       url: baseUrl + "/guardar-tiempo-muerto",
       data: formData,
       success: function (response) {
-        console.log("Respuesta del servidor al guardar tiempo muerto:", response);
+        console.log(
+          "Respuesta del servidor al guardar tiempo muerto:",
+          response
+        );
         if (response.success) {
           toastr.success("Tiempo muerto registrado correctamente");
           $("#formTiemposMuertos")[0].reset();
 
           // Recargar la lista de tiempos muertos
           cargarTiemposMuertos();
-          
+
           // Actualizar los indicadores para reflejar el nuevo tiempo muerto
-          setTimeout(function() {
+          setTimeout(function () {
             actualizarIndicadores();
           }, 500);
         } else {
@@ -791,7 +797,7 @@ $(document).ready(function () {
         console.error("Error al guardar tiempo muerto:", {
           status: status,
           error: error,
-          response: xhr.responseText
+          response: xhr.responseText,
         });
         toastr.error("Error al procesar la solicitud");
       },
@@ -1057,12 +1063,16 @@ $(document).ready(function () {
       // Calcular y actualizar el rendimiento
       const rendimiento = calcularRendimiento();
       $("#rendimiento").text(rendimiento.toFixed(1) + "%");
+
+      // Calcular y mostrar los kilos premium
+      calcularKilosPremium();
     });
   }
 
   // Inicialización
   $(document).ready(async function () {
     await actualizarIndicadores();
+    calcularKilosPremium();
   });
 
   // Actualizar cuando cambian los tiempos muertos
@@ -1097,6 +1107,14 @@ $(document).ready(function () {
 
     // Actualizar al cargar la página
     actualizarIndicadores();
+
+    // Actualizar kilos premium al cargar la página
+    calcularKilosPremium();
+
+    // Actualizar cuando cambia la tabla
+    $("#tabla-registros").on("DOMSubtreeModified", function () {
+      calcularKilosPremium();
+    });
   });
 
   // Función para actualizar los campos de recepción
@@ -1115,6 +1133,7 @@ $(document).ready(function () {
     calcularTiempoTrabajado();
     actualizarCamposRecepcion();
     actualizarIndicadores();
+    calcularKilosPremium();
     // Agregar event listener para recalcular cuando cambie la hora de término
     $("#hora_termino").on("change", function () {
       actualizarIndicadores();
@@ -1266,4 +1285,152 @@ document.addEventListener("DOMContentLoaded", function () {
       toastr.error("No se han realizado cambios en el formulario.");
     }
   });
+});
+
+// Función para calcular y mostrar los kilos premium
+function calcularKilosPremium() {
+  // Verificar si la planilla es de tipo porciones
+  const tipoPlanilla = parseInt($("#tipo_planilla").val());
+  if (tipoPlanilla === 2) {
+    // 2 = porciones
+    return; // No calculamos premium para planillas de porciones
+  }
+
+  let kilosPremium = 0;
+
+  // Primero intentamos buscar directamente en la tabla de totales
+  console.log("Buscando en tabla de totales...");
+
+  $("#totales tbody tr").each(function () {
+    // Obtener el texto de la columna de calidad (segunda columna)
+    const calidad = $(this).find("td:eq(1)").text().trim().toLowerCase();
+    if (!calidad) {
+      // Si no encontramos en td, buscar en th
+      const calidadTh = $(this).find("th:eq(1)").text().trim().toLowerCase();
+      if (calidadTh) {
+        console.log(`Calidad encontrada en th: ${calidadTh}`);
+      }
+    }
+
+    // Obtener kilos (cuarta columna)
+    const kilosText = $(this).find("td:eq(3)").text().trim();
+    const kilos = parseFloat(kilosText.replace(/,/g, "")) || 0;
+
+    console.log(
+      `Fila totales: Calidad="${calidad}", Kilos=${kilos}, Texto kilos="${kilosText}"`
+    );
+
+    // Verificar si la calidad es premium
+    if (
+      calidad === "premium" ||
+      calidad === "a" ||
+      calidad === "a+" ||
+      calidad.includes("premium") ||
+      calidad.includes("a+")
+    ) {
+      kilosPremium += kilos;
+      console.log(`Sumando ${kilos} kg premium, total: ${kilosPremium}`);
+    }
+  });
+
+  // Si no encontramos nada en totales, intentar con la tabla de registros
+  if (kilosPremium === 0) {
+    console.log("Intentando con tabla de registros detallados...");
+
+    // Imprimir estructura de la tabla para depuración
+    const tablaRegistros = $("#tabla-registros table");
+    console.log("Tabla encontrada:", tablaRegistros.length > 0);
+    if (tablaRegistros.length > 0) {
+      console.log("Encabezados de la tabla:");
+      $("#tabla-registros table thead th").each(function (index) {
+        console.log(`Columna ${index}: ${$(this).text().trim()}`);
+      });
+
+      // Ahora intentamos con cada fila
+      $("#tabla-registros table tbody tr").each(function (index) {
+        console.log(`Analizando fila ${index}:`);
+        $(this)
+          .find("td")
+          .each(function (colIndex) {
+            console.log(`  Col ${colIndex}: ${$(this).text().trim()}`);
+          });
+
+        // Intentar encontrar la columna de calidad y kilos basado en los encabezados
+        let calidadIndex = -1;
+        let kilosIndex = -1;
+
+        $("#tabla-registros table thead th").each(function (idx) {
+          const headerText = $(this).text().trim().toLowerCase();
+          if (headerText.includes("calidad")) {
+            calidadIndex = idx;
+          }
+          if (headerText.includes("kilo")) {
+            kilosIndex = idx;
+          }
+        });
+
+        if (calidadIndex >= 0 && kilosIndex >= 0) {
+          const calidad = $(this)
+            .find(`td:eq(${calidadIndex})`)
+            .text()
+            .trim()
+            .toLowerCase();
+          const kilosText = $(this).find(`td:eq(${kilosIndex})`).text().trim();
+          const kilos = parseFloat(kilosText.replace(/,/g, "")) || 0;
+
+          console.log(
+            `Usando índices: Calidad(${calidadIndex})="${calidad}", Kilos(${kilosIndex})=${kilos}`
+          );
+
+          if (
+            calidad === "premium" ||
+            calidad === "a" ||
+            calidad === "a+" ||
+            calidad.includes("premium") ||
+            calidad.includes("a+")
+          ) {
+            kilosPremium += kilos;
+            console.log(`Sumando ${kilos} kg premium, total: ${kilosPremium}`);
+          }
+        }
+      });
+    }
+  }
+
+  console.log("Total kilos premium calculados:", kilosPremium);
+
+  // Actualizar el indicador en el dashboard
+  $("#kilosPremium").text(kilosPremium.toFixed(2) + " kg");
+
+  // Calcular y mostrar el porcentaje de premium
+  const totalKilosText = $("#totalKilos").text().trim();
+  console.log("Texto total kilos:", totalKilosText);
+
+  const totalKilos = parseFloat(totalKilosText.replace(/,/g, "")) || 0;
+  console.log("Total kilos parseado:", totalKilos);
+
+  if (totalKilos > 0) {
+    const porcentajePremium = (kilosPremium / totalKilos) * 100;
+    $("#porcentajePremium").text(porcentajePremium.toFixed(2) + "%");
+    console.log("Porcentaje premium:", porcentajePremium.toFixed(2) + "%");
+  } else {
+    $("#porcentajePremium").text("0.0%");
+    console.log("Porcentaje premium: 0.0% (no hay kilos totales)");
+  }
+}
+
+$(document).ready(function () {
+  // Llamar a la función cuando la página esté lista solo si no es planilla de porciones
+  const tipoPlanilla = parseInt($("#tipo_planilla").val());
+  if (tipoPlanilla !== 2) {
+    setTimeout(function () {
+      calcularKilosPremium();
+      console.log("Cálculo inicial de kilos premium completado");
+    }, 1000);
+
+    // Actualizar cuando cambia cualquier tabla relevante
+    $("#tabla-registros, #totales").on("DOMSubtreeModified", function () {
+      calcularKilosPremium();
+    });
+  }
 });

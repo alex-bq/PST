@@ -156,6 +156,26 @@
                             </div>
                         </div>
                     </div>
+                    @if($desc_planilla->cod_tipo_planilla != 2)
+                    <div class="col-12">
+                        <div class="card border-0 bg-light">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="text-muted mb-2">
+                                            <i class="bi bi-percent me-2"></i>Premium
+                                        </h6>
+                                        <h4 class="mb-0" id="porcentajePremium">0.0%</h4>
+                                        <small class="text-muted" id="kilosPremium">0.00 kg</small>
+                                    </div>
+                                    <div class="fs-1 text-warning">
+                                        <i class="bi bi-star-fill"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
 

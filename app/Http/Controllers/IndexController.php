@@ -90,7 +90,7 @@ class IndexController extends Controller
         return view('index', compact('procesos', 'empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'jefes_turno', 'planillasHoy', 'planillas7dias', 'noGuardado', 'tipos_planilla'));
     }
 
-    public function planillas()
+    public function planillas(Request $request)
     {
         if (!session('user')) {
             return redirect('/login');
@@ -108,14 +108,67 @@ class IndexController extends Controller
 
         $planillas = DB::table('pst.dbo.v_planilla_pst')
             ->select('*')
-            ->where('guardado', 1)
-            ->orderByDesc('fec_turno');
+            ->where('guardado', 1);
 
+        // Aplicar filtro de rango de fechas
+        if ($request->filled('fechaInicio') && $request->filled('fechaFin')) {
+            $planillas->whereBetween('fec_turno', [
+                $request->fechaInicio,
+                $request->fechaFin
+            ]);
+        } elseif ($request->filled('fechaInicio')) {
+            $planillas->whereDate('fec_turno', '>=', $request->fechaInicio);
+        } elseif ($request->filled('fechaFin')) {
+            $planillas->whereDate('fec_turno', '<=', $request->fechaFin);
+        } else {
+            // Si no hay filtros de fecha, mostrar solo los últimos 3 meses
+            $tresMesesAtras = now()->subMonths(1)->format('Y-m-d');
+            $planillas->whereDate('fec_turno', '>=', $tresMesesAtras);
+        }
 
+        // Aplicar filtro de lote
+        if ($request->filled('filtroLote')) {
+            $planillas->where('lote', 'LIKE', '%' . $request->filtroLote . '%');
+        }
 
-        $planillas = $planillas->get();
+        if ($request->filled('filtroTurno') && $request->filtroTurno != ' ') {
+            $planillas->where('turno', $request->filtroTurno);
+        }
 
-        return view('admin.mantencion.planillas', compact('procesos', 'empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'jefes_turno', 'planillas', 'tipos_planilla'));
+        if ($request->filled('filtroProv') && $request->filtroProv != ' ') {
+            $planillas->where('proveedor', $request->filtroProv);
+        }
+
+        if ($request->filled('filtroEmpresa')) {
+            $planillas->where('empresa', $request->filtroEmpresa);
+        }
+
+        if ($request->filled('filtroEspecie')) {
+            $planillas->where('especie', $request->filtroEspecie);
+        }
+
+        if ($request->filled('filtroSupervisor')) {
+            $planillas->where('cod_supervisor', $request->filtroSupervisor);
+        }
+
+        if ($request->filled('filtroPlanillero')) {
+            $planillas->where('cod_planillero', $request->filtroPlanillero);
+        }
+
+        $planillas = $planillas->orderByDesc('fec_turno')->get();
+
+        return view('admin.mantencion.planillas', compact(
+            'procesos',
+            'empresas',
+            'proveedores',
+            'especies',
+            'turnos',
+            'supervisores',
+            'planilleros',
+            'jefes_turno',
+            'planillas',
+            'tipos_planilla'
+        ));
     }
     public function eliminarPlanilla($idPlanilla)
     {

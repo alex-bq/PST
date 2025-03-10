@@ -11,6 +11,12 @@ class DashboardController extends Controller
 {
     public function getData(Request $request)
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/main');
+        }
+
         try {
             // Establecer valores por defecto
             $fecha = $request->fecha ? Carbon::parse($request->fecha) : Carbon::today();

@@ -44,12 +44,17 @@ class InformeController extends Controller
                 )
                 ->where('i.estado', '=', 1);
 
-            if ($request->filled('fecha')) {
-                $query->whereDate('i.fecha_turno', '=', $request->fecha);
-            }
-
+            // Aplicar filtros si existen
             if ($request->filled('turno')) {
                 $query->where('i.cod_turno', '=', $request->turno);
+            }
+
+            // Si no hay filtro de fecha específico, limitar a 1 mes
+            if (!$request->filled('fecha')) {
+                $unMesAtras = now()->subMonth()->format('Y-m-d');
+                $query->whereDate('i.fecha_turno', '>=', $unMesAtras);
+            } else {
+                $query->whereDate('i.fecha_turno', '=', $request->fecha);
             }
 
             $results = $query->groupBy(

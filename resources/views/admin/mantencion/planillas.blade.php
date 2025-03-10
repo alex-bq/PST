@@ -19,118 +19,143 @@
         <div class="mb-3">
             <div class="row d-flex justify-content-between align-items-center">
                 <h1 class="mb-4">Planillas</h1>
-                <div class="col-md-3">
-                    <input type="text" class="form-control" id="filtroLote" name="filtroLote"
-                        placeholder="Filtrar por Lote">
-                </div>
 
-                <div class="col-md-6 text-end">
-                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#exampleModal"
-                        data-bs-href="{{ url('/nueva-planilla') }}">Nueva Planilla</button>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="mb-3">
-            <div class="accordion-container">
-
-                <a type="button" class="accordion-titulo btn btn-light btn-sm">Mas filtros<span
-                        class="toggle-icon"></span></a>
-                <div class="accordion-content">
-
-                    <form id="formularioFiltro">
-                        @csrf
-
-                        <div class="row">
-
-                            <div class="col-md-3">
-                                <input type="date" class="form-control" name="filtroFecha" placeholder="Filtrar por Fecha">
-                            </div>
-
-                            <div class="col-md-3">
-                                <select class="form-select js-example-basic-single " style="width: 100%" name="filtroTurno">
-                                    <option value=" " selected disabled>Turno </option>
-                                    <option value=" ">Sin Filtro Turno</option>
-                                    @foreach ($turnos as $turno)
-                                        <option value="{{ $turno->NomTurno }}">{{ $turno->NomTurno }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-md-3">
-                                <select class="form-select js-example-basic-single " style="width: 100%" name="filtroProv">
-                                    <option selected disabled>Proveedor</option>
-                                    <option value=" ">Sin Filtro Proveedor</option>
-                                    @foreach ($proveedores as $proveedor)
-                                        <option value="{{ $proveedor->descripcion }}">{{ $proveedor->descripcion }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <select class="form-select js-example-basic-single " style="width: 100%"
-                                    name="filtroEmpresa">
-                                    <option selected disabled>Filtro Empresa</option>
-                                    <option value=" ">Sin Filtro Empresa</option>
-
-                                    @foreach ($empresas as $empresa)
-                                        <option value="{{ $empresa->descripcion }}">{{ $empresa->descripcion }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-
-                        </div>
-                        <br>
-                        <div class="row">
-                            <div class="col-md-3">
-                                <select class="form-select js-example-basic-single " style="width: 100%"
-                                    name="filtroEspecie">
-                                    <option selected disabled>Filtro Especie</option>
-                                    <option value=" ">Sin Filtro Especie</option>
-
-                                    @foreach ($especies as $especie)
-                                        <option value="{{ $especie->descripcion }}">{{ $especie->descripcion }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <select class="form-select js-example-basic-single " style="width: 100%"
-                                    name="filtroSupervisor">
-                                    <option selected disabled>Filtro Supervisor</option>
-                                    <option value=" ">Sin Filtro Supervisor</option>
-
-                                    @foreach ($supervisores as $supervisor)
-                                        <option value="{{ $supervisor->cod_usuario }}">{{ $supervisor->nombre }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <select class="form-select js-example-basic-single " style="width: 100%"
-                                    name="filtroPlanillero">
-                                    <option selected disabled>Filtro Planillero</option>
-                                    <option value=" ">Sin Filtro Planillero</option>
-
-                                    @foreach ($planilleros as $planillero)
-                                        <option value="{{ $planillero->cod_usuario }}">{{ $planillero->nombre }}
-                                        </option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <div class="col-md-3">
-                                <button type="submit" class="btn btn-primary">Filtrar</button>
+                <form action="{{ route('planillas') }}" method="GET" id="formFiltros">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <input type="date" class="form-control" name="fechaInicio"
+                                    value="{{ request('fechaInicio') }}" placeholder="Fecha Inicio">
+                                <span class="input-group-text">hasta</span>
+                                <input type="date" class="form-control" name="fechaFin" value="{{ request('fechaFin') }}"
+                                    placeholder="Fecha Fin">
                             </div>
                         </div>
-                    </form>
+
+                        <div class="col-md-2">
+                            <button class="btn btn-primary" type="submit">Buscar</button>
+
+                        </div>
+
+                        <div class="col-md-2 text-end">
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal"
+                                data-bs-target="#exampleModal" data-bs-href="{{ url('/nueva-planilla') }}">Nueva
+                                Planilla</button>
+                        </div>
+                    </div>
+
+                    <div class="accordion-container mt-3">
+                        <a type="button" class="accordion-titulo btn btn-light btn-sm">Mas filtros<span
+                                class="toggle-icon"></span></a>
+                        <div class="accordion-content">
+                            <div class="row mt-3">
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" id="filtroLote" name="filtroLote"
+                                            placeholder="Filtrar por Lote" value="{{ request('filtroLote') }}">
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <div class="form-group">
+                                        <select class="form-select js-example-basic-single" style="width: 100%"
+                                            name="filtroTurno">
+                                            <option value="" selected disabled>Turno</option>
+                                            <option value="" {{ request('filtroTurno') == '' ? 'selected' : '' }}>Sin Filtro
+                                                Turno
+                                            </option>
+                                            @foreach ($turnos as $turno)
+                                                <option value="{{ $turno->NomTurno }}" {{ request('filtroTurno') == $turno->NomTurno ? 'selected' : '' }}>
+                                                    {{ $turno->NomTurno }}
+                                                </option>
+                                            @endforeach
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <select class="form-select js-example-basic-single" style="width: 100%"
+                                        name="filtroProv">
+                                        <option selected disabled>Proveedor</option>
+                                        <option value=" " selected disabled>Sin Filtro Proveedor</option>
+                                        @foreach ($proveedores as $proveedor)
+                                            <option value="{{ $proveedor->descripcion }}" {{ request('filtroProv') == $proveedor->descripcion ? 'selected' : '' }}>
+                                                {{ $proveedor->descripcion }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select js-example-basic-single" style="width: 100%"
+                                        name="filtroEmpresa">
+                                        <option selected disabled>Filtro Empresa</option>
+                                        <option value=" " selected disabled>Sin Filtro Empresa</option>
+
+                                        @foreach ($empresas as $empresa)
+                                            <option value="{{ $empresa->descripcion }}" {{ request('filtroEmpresa') == $empresa->descripcion ? 'selected' : '' }}>
+                                                {{ $empresa->descripcion }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+
+                            </div>
+                            <br>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <select class="form-select js-example-basic-single" style="width: 100%"
+                                        name="filtroEspecie">
+                                        <option selected disabled>Filtro Especie</option>
+                                        <option value=" " selected disabled>Sin Filtro Especie</option>
+
+                                        @foreach ($especies as $especie)
+                                            <option value="{{ $especie->descripcion }}" {{ request('filtroEspecie') == $especie->descripcion ? 'selected' : '' }}>
+                                                {{ $especie->descripcion }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select js-example-basic-single" style="width: 100%"
+                                        name="filtroSupervisor">
+                                        <option selected disabled>Filtro Supervisor</option>
+                                        <option value=" " selected disabled>Sin Filtro Supervisor</option>
+
+                                        @foreach ($supervisores as $supervisor)
+                                            <option value="{{ $supervisor->cod_usuario }}" {{ request('filtroSupervisor') == $supervisor->cod_usuario ? 'selected' : '' }}>
+                                                {{ $supervisor->nombre }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <select class="form-select js-example-basic-single" style="width: 100%"
+                                        name="filtroPlanillero">
+                                        <option selected disabled>Filtro Planillero</option>
+                                        <option value=" " selected disabled>Sin Filtro Planillero</option>
+
+                                        @foreach ($planilleros as $planillero)
+                                            <option value="{{ $planillero->cod_usuario }}" {{ request('filtroPlanillero') == $planillero->cod_usuario ? 'selected' : '' }}>
+                                                {{ $planillero->nombre }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <a href="{{ route('planillas') }}" class="btn btn-secondary">Limpiar</a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="col-md-6 text-end mt-3">
+
                 </div>
-
             </div>
-
         </div>
 
 
@@ -404,35 +429,53 @@
             }
         }
 
-
-
         function abrirModal(codPlanilla) {
             var url = "{{ url('/ver-planilla/') }}/" + codPlanilla;
             document.getElementById("iframePlanilla").src = url;
             $('#verPlanillaModal').modal('show');
         }
+
         $(function () {
             $(".accordion-titulo").click(function (e) {
-
                 e.preventDefault();
-
                 var contenido = $(this).next(".accordion-content");
-
-                if (contenido.css("display") == "none") { //open		
+                if (contenido.css("display") == "none") {
                     contenido.slideDown(250);
                     $(this).addClass("open");
-                }
-                else { //close		
+                } else {
                     contenido.slideUp(250);
                     $(this).removeClass("open");
                 }
-
             });
         });
-    </script>
-    <script>
-        var baseUrl = "{{ url('/') }}";
 
+        $('#codLote').on('blur', function () {
+            var loteValue = $(this).val();
+            if (loteValue.trim() !== '') {
+                $.ajax({
+                    type: 'POST',
+                    url: '{{ route('obtener_valores_lote') }}',
+                    data: {
+                        '_token': '{{ csrf_token() }}',
+                        'lote': loteValue
+                    },
+                    success: function (response) {
+                        $('select[name="empresa"]').val(response.cod_empresa)
+                        $('select[name="proveedor"]').val(response.cod_proveedor)
+                        $('select[name="especie"]').val(response.cod_especie)
+                        $('select[name="proceso"]').val(response.cod_sproceso)
+                        $('#mensajeError').hide()
+                    },
+                    error: function (xhr) {
+                        $('select[name="empresa"]').val('');
+                        $('select[name="proveedor"]').val('');
+                        $('select[name="especie"]').val('');
+                        $('select[name="proceso"]').val('');
+                        $('#mensajeError').text('El lote no existe.').show();
+                    }
+                });
+            }
+        });
         $(document).ready(function () {
 
 
@@ -534,164 +577,6 @@
                     }
                 });
             });
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-            var planillaSaved = sessionStorage.getItem("planillaSaved");
-
-            if (planillaSaved === "true") {
-                toastr.success("Planilla Guardada correctamente");
-                sessionStorage.removeItem("planillaSaved");
-            }
-            $('#codLote').on('blur', function () {
-
-                var loteValue = $(this).val();
-
-                if (loteValue.trim() !== '') {
-
-                    $.ajax({
-                        type: 'POST',
-                        url: '{{ route('obtener_valores_lote') }}',
-                        data: {
-                            '_token': '{{ csrf_token() }}',
-                            'lote': loteValue
-                        },
-                        success: function (response) {
-
-                            $('select[name="empresa"]').val(response.cod_empresa)
-                            $('select[name="proveedor"]').val(response.cod_proveedor)
-                            $('select[name="especie"]').val(response.cod_especie)
-                            $('select[name="proceso"]').val(response.cod_sproceso)
-
-                            $('#mensajeError').hide()
-                        },
-                        error: function (xhr) {
-                            $('select[name="empresa"]').val('');
-                            $('select[name="proveedor"]').val('');
-                            $('select[name="especie"]').val('');
-                            $('select[name="proceso"]').val('');
-                            $('#mensajeError').text('El lote no existe.').show();
-
-                        }
-
-
-                    });
-                }
-            });
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-
-
-            $('#formularioFiltro').submit(function (event) {
-                event.preventDefault();
-
-                $.ajax({
-                    type: 'POST',
-                    url: '{{ route('filtrar.tabla') }}',
-                    data: $(this).serialize(),
-                    dataType: 'json',
-                    success: function (response) {
-                        actualizarTabla(response.planillas);
-                    },
-                    error: function (xhr, status, error) {
-                        console.error('Error en la solicitud AJAX: ' + status + ' - ' + error);
-                    }
-                });
-            });
-
-
-            function actualizarTabla(planillas) {
-
-                $('#tabla-container  tbody').empty();
-
-
-                planillas.forEach(function (planilla) {
-
-
-
-                    var fila = '<tr class="table-row" onclick="window.location=\'' + '{{ url("/planilla/") }}/' + planilla.cod_planilla + '\';">' +
-                        '<td>' + planilla.cod_planilla + '</td>' +
-                        '<td>' + planilla.lote + '</td>' +
-                        '<td>' + formatDate(planilla.fec_turno) + '</td>' +
-                        '<td>' + planilla.turno + '</td>' +
-                        '<td>' + planilla.proveedor + '</td>' +
-                        '<td>' + planilla.empresa + '<td>' + planilla.especie + '</td>' +
-                        '<td>' + planilla.supervisor_nombre + '</td>' +
-                        '<td>' + planilla.planillero_nombre + '</td>' +
-
-                        '</tr>';
-                    $('#tabla-container tbody').append(fila);
-                });
-            }
-            function formatDate(dateString) {
-
-                var date = new Date(dateString);
-                var day = date.getDate() + 1;
-                var month = date.getMonth() + 1;
-                var year = date.getFullYear();
-                return day + '/' + month + '/' + year;
-            }
-        });
-    </script>
-    <script>
-        $(document).ready(function () {
-            var filtroLoteAnterior = '';
-            $('#filtroLote').on('input', function () {
-                var filtroLoteValue = $(this).val().trim();
-
-
-
-                if (filtroLoteValue !== filtroLoteAnterior) {
-                    $.ajax({
-                        type: 'POST',
-                        url: '{{ route('filtrar_lotes_en_tiempo_real') }}',
-                        data: {
-                            '_token': '{{ csrf_token() }}',
-                            'filtroLote': filtroLoteValue
-                        },
-                        dataType: 'json',
-                        success: function (response) {
-                            actualizarTabla(response.planillas);
-                        },
-                        error: function (xhr, status, error) {
-                            console.error('Error en la solicitud AJAX: ' + status + ' - ' + error);
-                        }
-                    });
-                    filtroLoteAnterior = filtroLoteValue;
-                }
-            });
-
-            function actualizarTabla(planillas) {
-                $('#tabla-container tbody').empty();
-
-                planillas.forEach(function (planilla) {
-
-
-                    var fila = '<tr class="table-row" onclick="window.location=\'' + '{{ url("/planilla/") }}/' + planilla.cod_planilla + '\';">' +
-                        '<td>' + planilla.cod_planilla + '</td>' +
-
-                        '<td>' + planilla.lote + '</td>' +
-                        '<td>' + formatDate(planilla.fec_turno) + '</td>' +
-                        '<td>' + planilla.turno + '</td>' +
-                        '<td>' + planilla.proveedor + '</td>' +
-                        '<td>' + planilla.empresa + '<td>' + planilla.especie + '</td>' +
-                        '<td>' + planilla.supervisor_nombre + '</td>' +
-                        '<td>' + planilla.planillero_nombre + '</td>' +
-                        '</tr>';
-                    $('#tabla-container tbody').append(fila);
-                });
-            }
-            function formatDate(dateString) {
-
-                var date = new Date(dateString);
-                var day = date.getDate() + 1;
-                var month = date.getMonth() + 1;
-                var year = date.getFullYear();
-                return day + '/' + month + '/' + year;
-            }
         });
     </script>
 @endsection

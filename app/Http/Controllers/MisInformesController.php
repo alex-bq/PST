@@ -10,8 +10,14 @@ class MisInformesController extends Controller
 {
     public function index()
     {
+        if (!session('user')) {
+            return redirect('/login');
+        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+            return redirect('/main');
+        }
+
         $user_id = session('user.cod_usuario');
-        $fecha_limite = now()->subDays(15)->format('Y-m-d'); // Fecha de hace 7 días
+        $fecha_limite = now()->subDays(7)->format('Y-m-d'); // Fecha de hace 7 días
 
         // Obtener los turnos de la base de datos
         $turnos = DB::table('bdsystem.dbo.turno')
