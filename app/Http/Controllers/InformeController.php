@@ -16,9 +16,9 @@ class InformeController extends Controller
         } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
             return redirect('/main');
         }
-        $turnos = DB::table('bdsystem.dbo.turno')
-            ->select('CodTurno', 'NomTurno')
-            ->orderBy('CodTurno')
+        $turnos = DB::table('administracion.dbo.tipos_turno')
+            ->select('id', 'nombre')
+            ->orderBy('id')
             ->get();
 
 
@@ -31,13 +31,13 @@ class InformeController extends Controller
             \Log::info('Parámetros de búsqueda:', $request->all());
 
             $query = DB::table('pst.dbo.informes_turno as i')
-                ->join('bdsystem.dbo.turno as t', 'i.cod_turno', '=', 't.CodTurno')
+                ->join('administracion.dbo.tipos_turno as t', 'i.cod_turno', '=', 't.id')
                 ->join('pst.dbo.usuarios_pst as u', 'i.cod_jefe_turno', '=', 'u.cod_usuario')
                 ->join('pst.dbo.detalle_informe_sala as d', 'i.cod_informe', '=', 'd.cod_informe')
                 ->select(
                     'i.fecha_turno',
                     'i.cod_turno as turno',
-                    't.NomTurno',
+                    't.nombre',
                     DB::raw("CONCAT(u.nombre, ' ', u.apellido) as jefe_turno"),
                     DB::raw('SUM(d.kilos_entrega) as total_kilos_entrega'),
                     DB::raw('SUM(d.kilos_recepcion) as total_kilos_recepcion')
@@ -60,7 +60,7 @@ class InformeController extends Controller
             $results = $query->groupBy(
                 'i.fecha_turno',
                 'i.cod_turno',
-                't.NomTurno',
+                't.nombre',
                 'u.nombre',
                 'u.apellido'
             )
@@ -329,7 +329,7 @@ class InformeController extends Controller
                 SELECT 
                     i.cod_informe,
                     i.fecha_turno as fecha,
-                    t.NomTurno as turno,
+                    t.nombre as turno,
                     i.cod_turno as orden_turno,
                     CONCAT(u.nombre, ' ', u.apellido) as jefe_turno_nom,
                     u.cod_usuario as jefe_turno,
@@ -340,14 +340,14 @@ class InformeController extends Controller
                     i.tiempo_muerto_empaque,
                     i.productividad_empaque
                 FROM pst.dbo.informes_turno i
-                JOIN bdsystem.dbo.turno t ON i.cod_turno = t.CodTurno
+                JOIN administracion.dbo.tipos_turno t ON i.cod_turno = t.id
                 JOIN pst.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
                 JOIN pst.dbo.detalle_informe_sala d ON i.cod_informe = d.cod_informe
                 WHERE i.fecha_turno = ? AND i.cod_turno = ?
                 GROUP BY 
                     i.cod_informe,
                     i.fecha_turno,
-                    t.NomTurno,
+                    t.nombre,
                     i.cod_turno,
                     u.nombre,
                     u.apellido,

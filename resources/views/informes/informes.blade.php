@@ -178,7 +178,7 @@
                 <select name="turno" id="turno" class="form-control">
                     <option value="">Todos los turnos</option>
                     @foreach($turnos as $turno)
-                        <option value="{{ $turno->CodTurno }}">{{ $turno->NomTurno }}</option>
+                        <option value="{{ $turno->id }}">{{ $turno->nombre }}</option>
                     @endforeach
                 </select>
             </div>
@@ -240,40 +240,40 @@
                                 });
 
                                 const row = `
-                                                            <tr>
-                                                                <td>${fechaFormateada}</td>
-                                                                <td>${informe.NomTurno}</td>
-                                                                <td>${informe.jefe_turno}</td>
+                                                                <tr>
+                                                                    <td>${fechaFormateada}</td>
+                                                                    <td>${informe.nombre_turno}</td>
+                                                                    <td>${informe.jefe_turno}</td>
 
-                                                                <td>
-                                                                    <a href="/pst2/public/informes/detalle/${informe.fecha_turno}/${informe.turno}"
-                                                                        class="btn-detail">
-                                                                        Ver Detalle
-                                                                    </a>
-                                                                </td>
-                                                            </tr>
-                                                        `;
+                                                                    <td>
+                                                                        <a href="/pst2/public/informes/detalle/${informe.fecha_turno}/${informe.turno}"
+                                                                            class="btn-detail">
+                                                                            Ver Detalle
+                                                                        </a>
+                                                                    </td>
+                                                                </tr>
+                                                            `;
                                 resultsBody.insertAdjacentHTML('beforeend', row);
                             });
                         } else {
                             resultsBody.innerHTML = `
-                                                        <tr>
-                                                            <td colspan="6" class="text-center">
-                                                                No se encontraron resultados
-                                                            </td>
-                                                        </tr>
-                                                    `;
+                                                            <tr>
+                                                                <td colspan="6" class="text-center">
+                                                                    No se encontraron resultados
+                                                                </td>
+                                                            </tr>
+                                                        `;
                         }
                     })
                     .catch(error => {
                         console.error('Error en la búsqueda:', error);
                         resultsBody.innerHTML = `
-                                                    <tr>
-                                                        <td colspan="6" class="text-center text-red-500">
-                                                            Error al realizar la búsqueda: ${error.message}
-                                                        </td>
-                                                    </tr>
-                                                `;
+                                                        <tr>
+                                                            <td colspan="6" class="text-center text-red-500">
+                                                                Error al realizar la búsqueda: ${error.message}
+                                                            </td>
+                                                        </tr>
+                                                    `;
                     });
             });
         });
