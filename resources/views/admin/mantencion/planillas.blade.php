@@ -65,8 +65,8 @@
                                                 Turno
                                             </option>
                                             @foreach ($turnos as $turno)
-                                                <option value="{{ $turno->NomTurno }}" {{ request('filtroTurno') == $turno->NomTurno ? 'selected' : '' }}>
-                                                    {{ $turno->NomTurno }}
+                                                <option value="{{ $turno->nombre }}" {{ request('filtroTurno') == $turno->nombre ? 'selected' : '' }}>
+                                                    {{ $turno->nombre }}
                                                 </option>
                                             @endforeach
                                         </select>
@@ -333,7 +333,7 @@
                                     <select class="form-select modalSelect" name="turno">
                                         <option selected disabled>Seleccione un turno</option>
                                         @foreach ($turnos as $turno)
-                                            <option value="{{ $turno->codTurno }}">{{ $turno->NomTurno }}</option>
+                                            <option value="{{ $turno->id }}">{{ $turno->nombre }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -348,12 +348,12 @@
                                         @if(session('user')['cod_rol'] == 2) disabled @endif>
                                         <option selected disabled>Seleccione un supervisor</option>
                                         @foreach ($supervisores as $supervisor)
-                                                                            <option value="{{ $supervisor->cod_usuario }}" @if(
-                                                                                session('user')['cod_rol'] == 2 &&
-                                                                                session('user')['cod_usuario'] == $supervisor->cod_usuario
-                                                                            ) selected @endif>
-                                                                                {{ $supervisor->nombre }}
-                                                                            </option>
+                                            <option value="{{ $supervisor->cod_usuario }}" @if(
+                                                session('user')['cod_rol'] == 2 &&
+                                                session('user')['cod_usuario'] == $supervisor->cod_usuario
+                                            ) selected @endif>
+                                                {{ $supervisor->nombre }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -365,12 +365,12 @@
                                         @if(session('user')['cod_rol'] == 1) disabled @endif>
                                         <option selected disabled>Seleccione un planillero</option>
                                         @foreach ($planilleros as $planillero)
-                                                                            <option value="{{ $planillero->cod_usuario }}" @if(
-                                                                                session('user')['cod_rol'] == 1 &&
-                                                                                session('user')['cod_usuario'] == $planillero->cod_usuario
-                                                                            ) selected @endif>
-                                                                                {{ $planillero->nombre }}
-                                                                            </option>
+                                            <option value="{{ $planillero->cod_usuario }}" @if(
+                                                session('user')['cod_rol'] == 1 &&
+                                                session('user')['cod_usuario'] == $planillero->cod_usuario
+                                            ) selected @endif>
+                                                {{ $planillero->nombre }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -382,12 +382,12 @@
                                         @if(session('user')['cod_rol'] == 4) disabled @endif>
                                         <option selected disabled>Seleccione un jefe de turno</option>
                                         @foreach ($jefes_turno as $jefe)
-                                                                            <option value="{{ $jefe->cod_usuario }}" @if(
-                                                                                session('user')['cod_rol'] == 4 &&
-                                                                                session('user')['cod_usuario'] == $jefe->cod_usuario
-                                                                            ) selected @endif>
-                                                                                {{ $jefe->nombre }}
-                                                                            </option>
+                                            <option value="{{ $jefe->cod_usuario }}" @if(
+                                                session('user')['cod_rol'] == 4 &&
+                                                session('user')['cod_usuario'] == $jefe->cod_usuario
+                                            ) selected @endif>
+                                                {{ $jefe->nombre }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>

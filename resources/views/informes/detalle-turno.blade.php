@@ -295,7 +295,9 @@
 
                                                 <!-- Indicador Premium/Rendimiento General -->
                                                 <div class="flex-grow-1">
-                                                    <p class="text-muted small mb-1">{{ $sala->tipo_planilla == 'Porciones' ? 'Rendimiento General' : 'Premium' }}</p>
+                                                    <p class="text-muted small mb-1">
+                                                        {{ $sala->tipo_planilla == 'Porciones' ? 'Rendimiento General' : 'Premium' }}
+                                                    </p>
                                                     <p class="fw-medium premium-valor">
                                                         {{ number_format($rendimientoPremium, 1) }}%
                                                     </p>
@@ -303,12 +305,12 @@
 
                                                 <!-- Rendimiento General (solo para no-Porciones) -->
                                                 @if($sala->tipo_planilla != 'Porciones')
-                                                <div class="flex-grow-1">
-                                                    <p class="text-muted small mb-1">Rendimiento</p>
-                                                    <p class="fw-medium rendimiento-valor">
-                                                        {{ number_format($rendimientoGeneral, 1) }}%
-                                                    </p>
-                                                </div>
+                                                    <div class="flex-grow-1">
+                                                        <p class="text-muted small mb-1">Rendimiento</p>
+                                                        <p class="fw-medium rendimiento-valor">
+                                                            {{ number_format($rendimientoGeneral, 1) }}%
+                                                        </p>
+                                                    </div>
                                                 @endif
 
                                                 <!-- Productividad -->
@@ -601,22 +603,29 @@
                                 <div class="col-4 mb-3">
                                     <label class="form-label text-muted small mb-1">Horas Trabajadas</label>
                                     <div class="d-flex">
-                                        <input type="number" class="form-control form-control-sm me-1 horas-trabajadas-empaque" min="0"
-                                            value="0" onclick="this.select()" data-area="empaque" onchange="calcularProductividadEmpaque()">
+                                        <input type="number"
+                                            class="form-control form-control-sm me-1 horas-trabajadas-empaque" min="0"
+                                            value="0" onclick="this.select()" data-area="empaque"
+                                            onchange="calcularProductividadEmpaque()">
                                         <span class="mt-1 me-1">h</span>
-                                        <input type="number" class="form-control form-control-sm me-1 minutos-trabajados-empaque" min="0" max="59"
-                                            value="0" onclick="this.select()" data-area="empaque" onchange="calcularProductividadEmpaque()">
+                                        <input type="number"
+                                            class="form-control form-control-sm me-1 minutos-trabajados-empaque" min="0"
+                                            max="59" value="0" onclick="this.select()" data-area="empaque"
+                                            onchange="calcularProductividadEmpaque()">
                                         <span class="mt-1">m</span>
                                     </div>
                                 </div>
                                 <div class="col-4 mb-3">
                                     <label class="form-label text-muted small mb-1">Tiempo Muerto</label>
                                     <div class="d-flex">
-                                        <input type="number" class="form-control form-control-sm me-1 horas-muertas-empaque" min="0"
-                                            value="0" onclick="this.select()" data-area="empaque" onchange="calcularProductividadEmpaque()">
+                                        <input type="number" class="form-control form-control-sm me-1 horas-muertas-empaque"
+                                            min="0" value="0" onclick="this.select()" data-area="empaque"
+                                            onchange="calcularProductividadEmpaque()">
                                         <span class="mt-1 me-1">h</span>
-                                        <input type="number" class="form-control form-control-sm me-1 minutos-muertos-empaque" min="0" max="59"
-                                            value="0" onclick="this.select()" data-area="empaque" onchange="calcularProductividadEmpaque()">
+                                        <input type="number"
+                                            class="form-control form-control-sm me-1 minutos-muertos-empaque" min="0"
+                                            max="59" value="0" onclick="this.select()" data-area="empaque"
+                                            onchange="calcularProductividadEmpaque()">
                                         <span class="mt-1">m</span>
                                     </div>
                                 </div>
@@ -708,36 +717,36 @@
                 const dotacionReal = parseInt(document.querySelector('.dotacion-input[data-area="empaque"]')?.value) || 0;
                 const horasTrabajadas = parseInt(document.querySelector('.horas-trabajadas-empaque')?.value) || 0;
                 const minutosTrabajados = parseInt(document.querySelector('.minutos-trabajados-empaque')?.value) || 0;
-                
+
                 // Calcular horas trabajadas en formato decimal
                 const horasTrabajadasDecimal = horasTrabajadas + (minutosTrabajados / 60);
-                
+
                 // Obtener el total de piezas de la tabla de empaque premium
                 const totalPiezas = Array.from(document.querySelectorAll('table tbody tr td:nth-child(5)'))
                     .reduce((sum, cell) => {
                         const text = cell.textContent.trim().replace(/[^\d.-]/g, '');
                         return sum + (parseInt(text) || 0);
                     }, 0);
-                
+
                 // Calcular productividad (piezas / (dotación * horas trabajadas))
                 let productividad = 0;
                 if (dotacionReal > 0 && horasTrabajadasDecimal > 0) {
                     productividad = totalPiezas / (dotacionReal * horasTrabajadasDecimal);
                 }
-                
+
                 // Actualizar el texto de productividad
                 const productividadElement = document.querySelector('.productividad-empaque');
                 if (productividadElement) {
                     productividadElement.textContent = productividad.toFixed(1);
                 }
-                
+
                 return productividad;
             } catch (error) {
                 console.error('Error al calcular productividad de empaque:', error);
                 return 0;
             }
         }
-        
+
         function actualizarDotacionTotal() {
             try {
                 let totalReal = 0;
@@ -869,7 +878,7 @@
                     body: JSON.stringify({
                         fecha: '{{ $fecha }}',
                         turno: {{ $turno }}
-                                                                                                    })
+                                                                                                        })
                 });
 
                 const data = await response.json();
@@ -914,13 +923,13 @@
                 const minutosTrabajadasEmpaque = parseInt(document.querySelector('.minutos-trabajados-empaque')?.value) || 0;
                 const horasMuertasEmpaque = parseInt(document.querySelector('.horas-muertas-empaque')?.value) || 0;
                 const minutosMuertosEmpaque = parseInt(document.querySelector('.minutos-muertos-empaque')?.value) || 0;
-                
+
                 // Convertir a decimal (horas.minutos)
                 const horasTrabajadasEmpaqueDecimal = horasTrabajadasEmpaque + (minutosTrabajadasEmpaque / 60);
-                
+
                 // Convertir a minutos totales para tiempo muerto
                 const tiempoMuertoEmpaqueMinutos = (horasMuertasEmpaque * 60) + minutosMuertosEmpaque;
-                
+
                 // Obtener la productividad calculada
                 const productividadEmpaque = calcularProductividadEmpaque();
 
@@ -1036,7 +1045,7 @@
         }
 
         // Inicializar cuando el DOM esté cargado
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             actualizarDotacionTotal();
             calcularProductividadEmpaque();
         });

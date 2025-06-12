@@ -44,6 +44,8 @@ Route::get('/descargar-planilla/{id}', [PlanillaController::class, 'descargarPla
 
 Route::post('/guardar-tiempo-muerto', [PlanillaController::class, 'guardarTiempoMuerto'])->name('guardarTiempoMuerto');
 
+Route::post('/actualizar-producto-objetivo', [PlanillaController::class, 'actualizarProductoObjetivo'])->name('actualizar.producto.objetivo');
+
 Route::get('/mantenedor-corte', [adminController::class, 'mCorte'])->name('mCorte');
 
 Route::post('/guardar-corte', [adminController::class, 'guardarCorte'])->name('guardarCorte');
@@ -76,7 +78,6 @@ Route::post('/editar-usuario', [adminController::class, 'editarUsuario'])->name(
 
 Route::get('/obtener-tiempos-muertos/{idPlanilla}', [PlanillaController::class, 'obtenerTiemposMuertos']);
 Route::get('/obtener-departamentos', [PlanillaController::class, 'obtenerDepartamentos'])->name('obtener.departamentos');
-
 
 Route::delete('/eliminar-tiempo-muerto/{id}', [PlanillaController::class, 'eliminarTiempoMuerto']);
 

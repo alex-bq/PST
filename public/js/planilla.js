@@ -415,7 +415,7 @@ $(document).ready(function () {
                 errores.push("Las piezas deben ser mayores a 0");
             }
         } else if (tipoPlanilla === TIPO_PORCION) {
-            // Para porción no validamos piezas
+            // Para planillas tipo porción no validamos piezas
             if (kilosEntrega <= 0 || kilosRecepcion <= 0) {
                 errores.push("Los kilos deben ser mayores a 0");
             }
@@ -1310,7 +1310,7 @@ $(document).ready(function () {
     const tipoPlanilla = parseInt($("#tipo_planilla").val());
     const TIPO_PORCION = 2; // Definir constante para el código de Porción
 
-    if (tipoPlanilla === TIPO_PORCION) {
+    if (tipoPlanilla === TIPO_PORCION || tipoPlanilla === 4) {
         $("#entrega_piezas, #recepcion_piezas").hide();
         $("#piezasEntrega, #piezasRecepcion").prop("required", false);
         $("#producto_terminado").show();
@@ -1453,11 +1453,10 @@ document.addEventListener("DOMContentLoaded", function () {
 
 // Función para calcular y mostrar los kilos premium
 function calcularKilosPremium() {
-    // Verificar si la planilla es de tipo porciones
+    // Verificar si la planilla es de tipo "Ahumado" o "Porciones"
     const tipoPlanilla = parseInt($("#tipo_planilla").val());
-    if (tipoPlanilla === 2) {
-        // 2 = porciones
-        return; // No calculamos premium para planillas de porciones
+    if (tipoPlanilla === 2 || tipoPlanilla === 4) {
+        return; // No calcular premium para porciones o ahumado
     }
 
     let kilosPremium = 0;
@@ -1595,9 +1594,9 @@ function calcularKilosPremium() {
 }
 
 $(document).ready(function () {
-    // Llamar a la función cuando la página esté lista solo si no es planilla de porciones
+    // Llamar a la función cuando la página esté lista solo si no es planilla de porciones o ahumado
     const tipoPlanilla = parseInt($("#tipo_planilla").val());
-    if (tipoPlanilla !== 2) {
+    if (tipoPlanilla !== 2 && tipoPlanilla !== 4) {
         setTimeout(function () {
             calcularKilosPremium();
             console.log("Cálculo inicial de kilos premium completado");

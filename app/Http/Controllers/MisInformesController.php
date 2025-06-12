@@ -20,22 +20,22 @@ class MisInformesController extends Controller
         $fecha_limite = now()->subDays(7)->format('Y-m-d'); // Fecha de hace 7 días
 
         // Obtener los turnos de la base de datos
-        $turnos = DB::table('bdsystem.dbo.turno')
-            ->select('CodTurno', 'NomTurno')
-            ->orderBy('CodTurno')
+        $turnos = DB::table('administracion.dbo.tipos_turno')
+            ->select('id', 'nombre')
+            ->orderBy('id')
             ->get();
 
         $informesPendientes = DB::select("
             SELECT
                 p.fec_turno,
-                t.CodTurno as turno,
-                t.NomTurno as Nomturno,
+                t.id as turno,
+                t.nombre as nombre_turno,
                 COUNT(DISTINCT p.cod_planilla) as cantidad_planillas,
                 CONCAT(u.nombre, ' ', u.apellido) as jefe_turno,
                 SUM(dp.kilos_entrega) as total_kilos_entrega,
                 SUM(dp.kilos_recepcion) as total_kilos_recepcion
             FROM pst.dbo.planillas_pst p
-            JOIN bdsystem.dbo.turno t ON p.cod_turno = t.CodTurno
+            JOIN administracion.dbo.tipos_turno t ON p.cod_turno = t.id
             JOIN pst.dbo.usuarios_pst u ON p.cod_jefe_turno = u.cod_usuario
             JOIN pst.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
             LEFT JOIN pst.dbo.informes_turno i ON p.fec_turno = i.fecha_turno 
@@ -46,11 +46,11 @@ class MisInformesController extends Controller
                 AND p.fec_turno >= ?
             GROUP BY 
                 p.fec_turno,
-                t.CodTurno,
-                t.NomTurno,
+                t.id,
+                t.nombre,
                 u.nombre,
                 u.apellido
-            ORDER BY p.fec_turno DESC, t.CodTurno",
+            ORDER BY p.fec_turno DESC, t.id",
             [$user_id, $fecha_limite]
         );
 
@@ -65,14 +65,14 @@ class MisInformesController extends Controller
         $informesCreados = DB::select("
             SELECT
                 i.fecha_turno as fec_turno,
-                t.CodTurno as turno,
-                t.NomTurno as Nomturno,
+                t.id as turno,
+                t.nombre as nombre_turno,
                 i.cod_informe,
                 CONCAT(u.nombre, ' ', u.apellido) as jefe_turno,
                 SUM(d.kilos_entrega) as total_kilos_entrega,
                 SUM(d.kilos_recepcion) as total_kilos_recepcion
             FROM pst.dbo.informes_turno i
-            JOIN bdsystem.dbo.turno t ON i.cod_turno = t.CodTurno
+            JOIN administracion.dbo.tipos_turno t ON i.cod_turno = t.id
             JOIN pst.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
             JOIN pst.dbo.detalle_informe_sala d ON i.cod_informe = d.cod_informe
             WHERE i.cod_jefe_turno = ? 
@@ -80,12 +80,12 @@ class MisInformesController extends Controller
                 AND i.fecha_turno >= ?
             GROUP BY 
                 i.fecha_turno,
-                t.CodTurno,
-                t.NomTurno,
+                t.id,
+                t.nombre,
                 i.cod_informe,
                 u.nombre,
                 u.apellido
-            ORDER BY i.fecha_turno DESC, t.CodTurno",
+            ORDER BY i.fecha_turno DESC, t.id",
             [$user_id, $fecha_limite]
         );
 
@@ -119,13 +119,13 @@ class MisInformesController extends Controller
             \Log::info('Parámetros de búsqueda:', $request->all());
 
             $query = DB::table('pst.dbo.informes_turno as i')
-                ->join('bdsystem.dbo.turno as t', 'i.cod_turno', '=', 't.CodTurno')
+                ->join('administracion.dbo.tipos_turno as t', 'i.cod_turno', '=', 't.id')
                 ->join('pst.dbo.usuarios_pst as u', 'i.cod_jefe_turno', '=', 'u.cod_usuario')
                 ->join('pst.dbo.detalle_informe_sala as d', 'i.cod_informe', '=', 'd.cod_informe')
                 ->select(
                     'i.fecha_turno',
                     'i.cod_turno as turno',
-                    't.NomTurno',
+                    't.nombre',
                     DB::raw("CONCAT(u.nombre, ' ', u.apellido) as jefe_turno"),
                     DB::raw('SUM(d.kilos_entrega) as total_kilos_entrega'),
                     DB::raw('SUM(d.kilos_recepcion) as total_kilos_recepcion')
@@ -143,7 +143,7 @@ class MisInformesController extends Controller
             $results = $query->groupBy(
                 'i.fecha_turno',
                 'i.cod_turno',
-                't.NomTurno',
+                't.nombre',
                 'u.nombre',
                 'u.apellido'
             )
