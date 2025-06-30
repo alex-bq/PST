@@ -13,7 +13,7 @@ class InformeController extends Controller
     {
         if (!session('user')) {
             return redirect('/login');
-        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+        } else if (session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2) {
             return redirect('/main');
         }
         $turnos = DB::table('administracion.dbo.tipos_turno')
@@ -127,11 +127,61 @@ class InformeController extends Controller
     public function getDetalleTurno($fecha, $turno)
     {
         try {
-            // Obtener datos del informe
-            $informe = DB::select("
+            // DEBUG: Agregar logging para diagnosticar el problema
+            \Log::info('Debugging getDetalleTurno:', [
+                'fecha' => $fecha,
+                'turno' => $turno,
+                'fecha_formatted' => \Carbon\Carbon::parse($fecha)->format('Y-m-d')
+            ]);
+
+            // Verificar primero si hay planillas para esta fecha/turno
+            $planillasExistentes = DB::select("
+                SELECT COUNT(*) as total,
+                       p.fec_turno,
+                       p.cod_turno,
+                       t.nombre as turno_nombre
+                FROM pst.dbo.planillas_pst p
+                JOIN administracion.dbo.tipos_turno t ON p.cod_turno = t.id
+                WHERE p.fec_turno = ? 
+                AND p.cod_turno = ? 
+                AND p.guardado = 1
+                GROUP BY p.fec_turno, p.cod_turno, t.nombre
+            ", [$fecha, $turno]);
+
+            \Log::info('Planillas existentes:', $planillasExistentes);
+
+            // Obtener datos del informe usando la función de BI
+            $informeResult = DB::select("
                 SELECT * FROM pst.dbo.fn_GetInformesDiarios(?)
                 WHERE orden_turno = ?
-            ", [$fecha, $turno])[0];
+            ", [$fecha, $turno]);
+
+            \Log::info('Resultado fn_GetInformesDiarios:', [
+                'count' => count($informeResult),
+                'data' => $informeResult
+            ]);
+
+            // Si no hay resultados de la función BI pero sí hay planillas, usar datos base
+            if (empty($informeResult)) {
+                if (!empty($planillasExistentes)) {
+                    // Crear objeto informe básico desde planillas existentes
+                    $planillaInfo = $planillasExistentes[0];
+                    $informe = (object) [
+                        'fecha_turno' => $fecha,
+                        'orden_turno' => $turno,
+                        'turno' => $planillaInfo->turno_nombre,
+                        'total_planillas' => $planillaInfo->total,
+                        'jefe_turno_nom' => 'Pendiente de verificar', // Temporal
+                        // Agregar más campos según necesidad
+                    ];
+
+                    \Log::info('Usando datos base de planillas:', (array) $informe);
+                } else {
+                    return redirect()->back()->with('error', 'No se encontraron planillas guardadas para esta fecha y turno.');
+                }
+            } else {
+                $informe = $informeResult[0];
+            }
 
             // Obtener información por sala
             $informacion_sala = DB::select("
@@ -149,11 +199,13 @@ class InformeController extends Controller
             ", [$fecha, $turno]);
 
             // Obtener suma de kilos para porciones terminadas
-            $porcionTerminada = DB::select("
+            $porcionTerminadaResult = DB::select("
                 SELECT SUM(kilos) AS porcionTerminada
                 FROM pst.dbo.fn_GetDetalleProcesamiento(?, ?)
                 WHERE corte_final IN ('PORCION SIN PIEL', 'PORCION CON PIEL', 'PORCIONES')
-            ", [$fecha, $turno])[0]->porcionTerminada ?? 0;
+            ", [$fecha, $turno]);
+
+            $porcionTerminada = !empty($porcionTerminadaResult) ? ($porcionTerminadaResult[0]->porcionTerminada ?? 0) : 0;
 
             // Obtener tiempos muertos
             $tiempos_muertos = DB::select("
@@ -185,8 +237,6 @@ class InformeController extends Controller
                     N_Turno,
                     SUM(CAST(N_PNom AS FLOAT)) DESC
             ", [$fecha, $turno]);
-            // dd($empaque_premium, $detalle_procesamiento, $tiempos_muertos, $informacion_sala, $informe, $porcionTerminada);
-
 
             return view('informes.detalle-turno', compact(
                 'fecha',
@@ -199,6 +249,10 @@ class InformeController extends Controller
                 'empaque_premium'
             ));
         } catch (\Exception $e) {
+            \Log::error('Error en getDetalleTurno:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
             return redirect()->back()->with('error', 'Error al cargar el detalle del turno: ' . $e->getMessage());
         }
     }

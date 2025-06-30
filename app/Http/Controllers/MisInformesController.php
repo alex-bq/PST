@@ -12,11 +12,12 @@ class MisInformesController extends Controller
     {
         if (!session('user')) {
             return redirect('/login');
-        } else if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+        } else if (session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2) {
             return redirect('/main');
         }
 
         $user_id = session('user.cod_usuario');
+        $user_rol = session('user.cod_rol');
         $fecha_limite = now()->subDays(7)->format('Y-m-d'); // Fecha de hace 7 días
 
         // Obtener los turnos de la base de datos
@@ -25,69 +26,129 @@ class MisInformesController extends Controller
             ->orderBy('id')
             ->get();
 
-        $informesPendientes = DB::select("
-            SELECT
-                p.fec_turno,
-                t.id as turno,
-                t.nombre as nombre_turno,
-                COUNT(DISTINCT p.cod_planilla) as cantidad_planillas,
-                CONCAT(u.nombre, ' ', u.apellido) as jefe_turno,
-                SUM(dp.kilos_entrega) as total_kilos_entrega,
-                SUM(dp.kilos_recepcion) as total_kilos_recepcion
-            FROM pst.dbo.planillas_pst p
-            JOIN administracion.dbo.tipos_turno t ON p.cod_turno = t.id
-            JOIN pst.dbo.usuarios_pst u ON p.cod_jefe_turno = u.cod_usuario
-            JOIN pst.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
-            LEFT JOIN pst.dbo.informes_turno i ON p.fec_turno = i.fecha_turno 
-                AND p.cod_turno = i.cod_turno
-            WHERE u.cod_usuario = ? 
-                AND p.guardado = 1 
-                AND i.cod_informe IS NULL
-                AND p.fec_turno >= ?
-            GROUP BY 
-                p.fec_turno,
-                t.id,
-                t.nombre,
-                u.nombre,
-                u.apellido
-            ORDER BY p.fec_turno DESC, t.id",
-            [$user_id, $fecha_limite]
-        );
+        // Modificar consulta según el rol
+        if ($user_rol == 3) { // Administrador ve todos los informes pendientes
+            $informesPendientes = DB::select("
+                SELECT
+                    p.fec_turno,
+                    t.id as turno,
+                    t.nombre as nombre_turno,
+                    COUNT(DISTINCT p.cod_planilla) as cantidad_planillas,
+                    CONCAT(u.nombre, ' ', u.apellido) as jefe_turno,
+                    SUM(dp.kilos_entrega) as total_kilos_entrega,
+                    SUM(dp.kilos_recepcion) as total_kilos_recepcion
+                FROM pst.dbo.planillas_pst p
+                JOIN administracion.dbo.tipos_turno t ON p.cod_turno = t.id
+                JOIN pst.dbo.usuarios_pst u ON p.cod_jefe_turno = u.cod_usuario
+                JOIN pst.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
+                LEFT JOIN pst.dbo.informes_turno i ON p.fec_turno = i.fecha_turno 
+                    AND p.cod_turno = i.cod_turno
+                WHERE p.guardado = 1 
+                    AND i.cod_informe IS NULL
+                    AND p.fec_turno >= ?
+                GROUP BY 
+                    p.fec_turno,
+                    t.id,
+                    t.nombre,
+                    u.nombre,
+                    u.apellido
+                ORDER BY p.fec_turno DESC, t.id",
+                [$fecha_limite]
+            );
+        } else { // Jefe de turno ve solo sus informes
+            $informesPendientes = DB::select("
+                SELECT
+                    p.fec_turno,
+                    t.id as turno,
+                    t.nombre as nombre_turno,
+                    COUNT(DISTINCT p.cod_planilla) as cantidad_planillas,
+                    CONCAT(u.nombre, ' ', u.apellido) as jefe_turno,
+                    SUM(dp.kilos_entrega) as total_kilos_entrega,
+                    SUM(dp.kilos_recepcion) as total_kilos_recepcion
+                FROM pst.dbo.planillas_pst p
+                JOIN administracion.dbo.tipos_turno t ON p.cod_turno = t.id
+                JOIN pst.dbo.usuarios_pst u ON p.cod_jefe_turno = u.cod_usuario
+                JOIN pst.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
+                LEFT JOIN pst.dbo.informes_turno i ON p.fec_turno = i.fecha_turno 
+                    AND p.cod_turno = i.cod_turno
+                WHERE u.cod_usuario = ? 
+                    AND p.guardado = 1 
+                    AND i.cod_informe IS NULL
+                    AND p.fec_turno >= ?
+                GROUP BY 
+                    p.fec_turno,
+                    t.id,
+                    t.nombre,
+                    u.nombre,
+                    u.apellido
+                ORDER BY p.fec_turno DESC, t.id",
+                [$user_id, $fecha_limite]
+            );
+        }
 
-        // // Agregar estos dd() para depuración
-        // dd([
-        //     'user_id' => $user_id,
-        //     'informesPendientes' => $informesPendientes,
-        //     'sql' => DB::getQueryLog() // Necesitas habilitar DB::enableQueryLog() al inicio
-        // ]);
-
-        // Informes ya creados
-        $informesCreados = DB::select("
-            SELECT
-                i.fecha_turno as fec_turno,
-                t.id as turno,
-                t.nombre as nombre_turno,
-                i.cod_informe,
-                CONCAT(u.nombre, ' ', u.apellido) as jefe_turno,
-                SUM(d.kilos_entrega) as total_kilos_entrega,
-                SUM(d.kilos_recepcion) as total_kilos_recepcion
-            FROM pst.dbo.informes_turno i
-            JOIN administracion.dbo.tipos_turno t ON i.cod_turno = t.id
-            JOIN pst.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
-            JOIN pst.dbo.detalle_informe_sala d ON i.cod_informe = d.cod_informe
-            WHERE i.cod_jefe_turno = ? 
-                AND i.estado = 1
-                AND i.fecha_turno >= ?
-            GROUP BY 
-                i.fecha_turno,
-                t.id,
-                t.nombre,
-                i.cod_informe,
-                u.nombre,
-                u.apellido
-            ORDER BY i.fecha_turno DESC, t.id",
-            [$user_id, $fecha_limite]
-        );
+        // Modificar consulta de informes creados según el rol
+        if ($user_rol == 3) { // Administrador ve todos los informes creados
+            $informesCreados = DB::select("
+                SELECT
+                    i.fecha_turno as fec_turno,
+                    t.id as turno,
+                    t.nombre as nombre_turno,
+                    i.cod_informe,
+                    CONCAT(u.nombre, ' ', u.apellido) as jefe_turno,
+                    SUM(d.kilos_entrega) as total_kilos_entrega,
+                    SUM(d.kilos_recepcion) as total_kilos_recepcion,
+                    i.estado,
+                    FORMAT(i.fecha_creacion, 'dd/MM/yyyy HH:mm') as fecha_creacion_formatted,
+                    i.fecha_creacion
+                FROM pst.dbo.informes_turno i
+                JOIN administracion.dbo.tipos_turno t ON i.cod_turno = t.id
+                JOIN pst.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
+                JOIN pst.dbo.detalle_informe_sala d ON i.cod_informe = d.cod_informe
+                WHERE i.fecha_turno >= ?
+                GROUP BY 
+                    i.fecha_turno,
+                    t.id,
+                    t.nombre,
+                    i.cod_informe,
+                    u.nombre,
+                    u.apellido,
+                    i.estado,
+                    i.fecha_creacion
+                ORDER BY i.fecha_turno DESC, t.id",
+                [$fecha_limite]
+            );
+        } else { // Jefe de turno ve solo sus informes
+            $informesCreados = DB::select("
+                SELECT
+                    i.fecha_turno as fec_turno,
+                    t.id as turno,
+                    t.nombre as nombre_turno,
+                    i.cod_informe,
+                    CONCAT(u.nombre, ' ', u.apellido) as jefe_turno,
+                    SUM(d.kilos_entrega) as total_kilos_entrega,
+                    SUM(d.kilos_recepcion) as total_kilos_recepcion,
+                    i.estado,
+                    FORMAT(i.fecha_creacion, 'dd/MM/yyyy HH:mm') as fecha_creacion_formatted,
+                    i.fecha_creacion
+                FROM pst.dbo.informes_turno i
+                JOIN administracion.dbo.tipos_turno t ON i.cod_turno = t.id
+                JOIN pst.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
+                JOIN pst.dbo.detalle_informe_sala d ON i.cod_informe = d.cod_informe
+                WHERE i.cod_jefe_turno = ? 
+                    AND i.fecha_turno >= ?
+                GROUP BY 
+                    i.fecha_turno,
+                    t.id,
+                    t.nombre,
+                    i.cod_informe,
+                    u.nombre,
+                    u.apellido,
+                    i.estado,
+                    i.fecha_creacion
+                ORDER BY i.fecha_turno DESC, t.id",
+                [$user_id, $fecha_limite]
+            );
+        }
 
         return view('informes.mis-informes', compact('informesPendientes', 'informesCreados', 'turnos'));
     }
@@ -128,9 +189,11 @@ class MisInformesController extends Controller
                     't.nombre',
                     DB::raw("CONCAT(u.nombre, ' ', u.apellido) as jefe_turno"),
                     DB::raw('SUM(d.kilos_entrega) as total_kilos_entrega'),
-                    DB::raw('SUM(d.kilos_recepcion) as total_kilos_recepcion')
-                )
-                ->where('i.estado', '=', 1);
+                    DB::raw('SUM(d.kilos_recepcion) as total_kilos_recepcion'),
+                    'i.estado',
+                    DB::raw("FORMAT(i.fecha_creacion, 'dd/MM/yyyy HH:mm') as fecha_creacion_formatted"),
+                    'i.fecha_creacion'
+                );
 
             if ($request->filled('fecha')) {
                 $query->whereDate('i.fecha_turno', '=', $request->fecha);
@@ -145,7 +208,9 @@ class MisInformesController extends Controller
                 'i.cod_turno',
                 't.nombre',
                 'u.nombre',
-                'u.apellido'
+                'u.apellido',
+                'i.estado',
+                'i.fecha_creacion'
             )
                 ->orderBy('i.fecha_turno', 'desc')
                 ->orderBy('i.cod_turno', 'asc')

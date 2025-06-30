@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Informe de Turno</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <button onclick="window.location.href='mis-informes.html'" class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                        <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                        Volver
+                    </button>
+                    <div>
+                        <h1 class="text-xl font-bold">Crear Informe de Turno</h1>
+                        <p class="text-sm text-gray-600">2024-01-15 - Turno Mañana - Jefe: Juan Pérez</p>
+                        <p class="text-xs text-blue-600">06:00 - 14:00 (8 horas)</p>
+                    </div>
+                </div>
+                <button onclick="guardarInforme()" class="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">
+                    <i data-lucide="save" class="h-4 w-4"></i>
+                    Guardar Informe
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto p-6 space-y-6">
+        <!-- Sala 1 -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6 border-b">
+                <h2 class="text-lg font-semibold">Sala 1</h2>
+            </div>
+            <div class="p-6 space-y-6">
+                <!-- Proceso Fileteo -->
+                <div class="border rounded-lg p-4 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-semibold text-lg">Fileteo</h3>
+                            <div class="flex gap-2 mt-1">
+                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-md text-sm">Seagarden</span>
+                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-md text-sm">Aqualink</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empresa Seagarden -->
+                    <div class="bg-gray-50 rounded-lg p-4 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-medium text-gray-900 flex items-center gap-2">
+                                <span class="px-2 py-1 bg-gray-200 text-gray-800 rounded-md text-sm">Seagarden</span>
+                            </h4>
+                            <div class="flex gap-2">
+                                <button onclick="mostrarModal('planillas-seagarden')" class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                                    <i data-lucide="file-text" class="h-4 w-4"></i>
+                                    Planillas
+                                </button>
+                                <button onclick="mostrarModal('productos-seagarden')" class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                                    <i data-lucide="package" class="h-4 w-4"></i>
+                                    Productos
+                                </button>
+                                <button onclick="mostrarModal('tiempos-seagarden')" class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                                    <i data-lucide="clock" class="h-4 w-4"></i>
+                                    Tiempos Muertos
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Grid de información operacional -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div class="bg-white p-3 rounded text-center">
+                                <p class="text-xs text-gray-600">Dotación</p>
+                                <p class="font-semibold">12 personas</p>
+                            </div>
+                            <div class="bg-white p-3 rounded text-center">
+                                <p class="text-xs text-gray-600">Horas Reales</p>
+                                <p class="font-semibold">6.5h</p>
+                            </div>
+                            <div class="bg-white p-3 rounded text-center">
+                                <p class="text-xs text-gray-600">Entrega MP</p>
+                                <p class="font-semibold">1,200 kg</p>
+                            </div>
+                            <div class="bg-white p-3 rounded text-center">
+                                <p class="text-xs text-gray-600">Recepcion Total</p>
+                                <p class="font-semibold">920 kg</p>
+                            </div>
+                        </div>
+
+                        <!-- Productividad -->
+                        <div class="space-y-3">
+                            <h5 class="text-sm font-medium text-gray-700">Productividad (kg/persona/hora)</h5>
+                            
+                            <!-- Títulos de los grupos -->
+                            <div class="grid grid-cols-4 gap-3">
+                                <div class="col-span-2 text-center">
+                                    <h6 class="text-xs font-medium text-gray-600 border-b pb-1">Productividad Total</h6>
+                                </div>
+                                <div class="col-span-2 text-center">
+                                    <h6 class="text-xs font-medium text-gray-600 border-b pb-1">Productividad Objetivo</h6>
+                                </div>
+                            </div>
+
+                            <!-- Valores en una sola fila -->
+                            <div class="grid grid-cols-4 gap-3">
+                                <div class="bg-blue-50 p-2 rounded text-center">
+                                    <p class="text-xs text-gray-600">Real Total</p>
+                                    <p class="font-semibold text-blue-700">11.9</p>
+                                </div>
+                                <div class="bg-blue-50 p-2 rounded text-center">
+                                    <p class="text-xs text-gray-600">Efectiva Total</p>
+                                    <p class="font-semibold text-blue-700">9.6</p>
+                                </div>
+                                <div class="bg-green-50 p-2 rounded text-center">
+                                    <p class="text-xs text-gray-600">Real Objetivo</p>
+                                    <p class="font-semibold text-green-700">10.9</p>
+                                </div>
+                                <div class="bg-green-50 p-2 rounded text-center">
+                                    <p class="text-xs text-gray-600">Efectiva Objetivo</p>
+                                    <p class="font-semibold text-green-700">8.9</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recepción de producto -->
+                        <div class="space-y-2">
+                            <h5 class="text-sm font-medium text-gray-700">Recepción de Producto (kg)</h5>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-white p-2 rounded text-center">
+                                    <p class="text-xs text-gray-600">PST Objetivo</p>
+                                    <p class="font-semibold">850</p>
+                                </div>
+                                <div class="bg-white p-2 rounded text-center">
+                                    <p class="text-xs text-gray-600">PST Total</p>
+                                    <p class="font-semibold">920</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empresa Aqualink -->
+                    <div class="bg-gray-50 rounded-lg p-4 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-medium text-gray-900 flex items-center gap-2">
+                                <span class="px-2 py-1 bg-gray-200 text-gray-800 rounded-md text-sm">Aqualink</span>
+                            </h4>
+                            <div class="flex gap-2">
+                                <button onclick="mostrarModal('planillas-aqualink')" class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                                    <i data-lucide="file-text" class="h-4 w-4"></i>
+                                    Planillas
+                                </button>
+                                <button onclick="mostrarModal('productos-aqualink')" class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                                    <i data-lucide="package" class="h-4 w-4"></i>
+                                    Productos
+                                </button>
+                                <button onclick="mostrarModal('tiempos-aqualink')" class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                                    <i data-lucide="clock" class="h-4 w-4"></i>
+                                    Tiempos Muertos
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Grid de información operacional -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div class="bg-white p-3 rounded text-center">
+                                <p class="text-xs text-gray-600">Dotación</p>
+                                <p class="font-semibold">6 personas</p>
+                            </div>
+                            <div class="bg-white p-3 rounded text-center">
+                                <p class="text-xs text-gray-600">Horas Reales</p>
+                                <p class="font-semibold">5.0h</p>
+                            </div>
+                            <div class="bg-white p-3 rounded text-center">
+                                <p class="text-xs text-gray-600">Entrega MP</p>
+                                <p class="font-semibold">650 kg</p>
+                            </div>
+                            <div class="bg-white p-3 rounded text-center">
+                                <p class="text-xs text-gray-600">Recepcion Total</p>
+                                <p class="font-semibold">500 kg</p>
+                            </div>
+                        </div>
+
+                        <!-- Productividad -->
+                        <div class="space-y-3">
+                            <h5 class="text-sm font-medium text-gray-700">Productividad (kg/persona/hora)</h5>
+                            
+                            <!-- Títulos de los grupos -->
+                            <div class="grid grid-cols-4 gap-3">
+                                <div class="col-span-2 text-center">
+                                    <h6 class="text-xs font-medium text-gray-600 border-b pb-1">Productividad Total</h6>
+                                </div>
+                                <div class="col-span-2 text-center">
+                                    <h6 class="text-xs font-medium text-gray-600 border-b pb-1">Productividad Objetivo</h6>
+                                </div>
+                            </div>
+
+                            <!-- Valores en una sola fila -->
+                            <div class="grid grid-cols-4 gap-3">
+                                <div class="bg-blue-50 p-2 rounded text-center">
+                                    <p class="text-xs text-gray-600">Real Total</p>
+                                    <p class="font-semibold text-blue-700">16.7</p>
+                                </div>
+                                <div class="bg-blue-50 p-2 rounded text-center">
+                                    <p class="text-xs text-gray-600">Efectiva Total</p>
+                                    <p class="font-semibold text-blue-700">10.4</p>
+                                </div>
+                                <div class="bg-green-50 p-2 rounded text-center">
+                                    <p class="text-xs text-gray-600">Real Objetivo</p>
+                                    <p class="font-semibold text-green-700">15.0</p>
+                                </div>
+                                <div class="bg-green-50 p-2 rounded text-center">
+                                    <p class="text-xs text-gray-600">Efectiva Objetivo</p>
+                                    <p class="font-semibold text-green-700">9.4</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recepción de producto -->
+                        <div class="space-y-2">
+                            <h5 class="text-sm font-medium text-gray-700">Recepción de Producto (kg)</h5>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-white p-2 rounded text-center">
+                                    <p class="text-xs text-gray-600">PST Objetivo</p>
+                                    <p class="font-semibold">450</p>
+                                </div>
+                                <div class="bg-white p-2 rounded text-center">
+                                    <p class="text-xs text-gray-600">PST Total</p>
+                                    <p class="font-semibold">500</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comentarios y Fotos por Sala -->
+                <div class="mt-6 space-y-4 border-t pt-4">
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium">Comentarios de Sala 1</label>
+                        <textarea placeholder="Observaciones específicas de Sala 1..." class="w-full px-3 py-2 border-2 border-blue-200 rounded-md focus:border-blue-400 focus:outline-none" rows="3"></textarea>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                            <i data-lucide="camera" class="h-4 w-4"></i>
+                            Adjuntar Fotos
+                        </button>
+                        <span class="text-sm text-gray-500">0 fotos adjuntas</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sala 2 -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6 border-b">
+                <h2 class="text-lg font-semibold">Sala 2</h2>
+            </div>
+            <div class="p-6 space-y-6">
+                <!-- Proceso Fileteo -->
+                <div class="border rounded-lg p-4 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-semibold text-lg">Fileteo</h3>
+                            <div class="flex gap-2 mt-1">
+                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-md text-sm">Seagarden</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empresa Seagarden -->
+                    <div class="bg-gray-50 rounded-lg p-4 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-medium text-gray-900 flex items-center gap-2">
+                                <span class="px-2 py-1 bg-gray-200 text-gray-800 rounded-md text-sm">Seagarden</span>
+                            </h4>
+                            <div class="flex gap-2">
+                                <button onclick="mostrarModal('planillas-seagarden-2')" class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                                    <i data-lucide="file-text" class="h-4 w-4"></i>
+                                    Planillas
+                                </button>
+                                <button onclick="mostrarModal('productos-seagarden-2')" class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                                    <i data-lucide="package" class="h-4 w-4"></i>
+                                    Productos
+                                </button>
+                                <button onclick="mostrarModal('tiempos-seagarden-2')" class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                                    <i data-lucide="clock" class="h-4 w-4"></i>
+                                    Tiempos Muertos
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Grid de información operacional -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                            <div class="bg-white p-3 rounded text-center">
+                                <p class="text-xs text-gray-600">Dotación</p>
+                                <p class="font-semibold">10 personas</p>
+                            </div>
+                            <div class="bg-white p-3 rounded text-center">
+                                <p class="text-xs text-gray-600">Horas Reales</p>
+                                <p class="font-semibold">7.0h</p>
+                            </div>
+                            <div class="bg-white p-3 rounded text-center">
+                                <p class="text-xs text-gray-600">Entrega MP</p>
+                                <p class="font-semibold">1,000 kg</p>
+                            </div>
+                            <div class="bg-white p-3 rounded text-center">
+                                <p class="text-xs text-gray-600">Recepcion Total</p>
+                                <p class="font-semibold">780 kg</p>
+                            </div>
+                        </div>
+
+                        <!-- Productividad -->
+                        <div class="space-y-3">
+                            <h5 class="text-sm font-medium text-gray-700">Productividad (kg/persona/hora)</h5>
+                            
+                            <!-- Títulos de los grupos -->
+                            <div class="grid grid-cols-4 gap-3">
+                                <div class="col-span-2 text-center">
+                                    <h6 class="text-xs font-medium text-gray-600 border-b pb-1">Productividad Total</h6>
+                                </div>
+                                <div class="col-span-2 text-center">
+                                    <h6 class="text-xs font-medium text-gray-600 border-b pb-1">Productividad Objetivo</h6>
+                                </div>
+                            </div>
+
+                            <!-- Valores en una sola fila -->
+                            <div class="grid grid-cols-4 gap-3">
+                                <div class="bg-blue-50 p-2 rounded text-center">
+                                    <p class="text-xs text-gray-600">Real Total</p>
+                                    <p class="font-semibold text-blue-700">11.1</p>
+                                </div>
+                                <div class="bg-blue-50 p-2 rounded text-center">
+                                    <p class="text-xs text-gray-600">Efectiva Total</p>
+                                    <p class="font-semibold text-blue-700">9.8</p>
+                                </div>
+                                <div class="bg-green-50 p-2 rounded text-center">
+                                    <p class="text-xs text-gray-600">Real Objetivo</p>
+                                    <p class="font-semibold text-green-700">10.3</p>
+                                </div>
+                                <div class="bg-green-50 p-2 rounded text-center">
+                                    <p class="text-xs text-gray-600">Efectiva Objetivo</p>
+                                    <p class="font-semibold text-green-700">9.0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recepción de producto -->
+                        <div class="space-y-2">
+                            <h5 class="text-sm font-medium text-gray-700">Recepción de Producto (kg)</h5>
+                            <div class="grid grid-cols-2 gap-3">
+                                <div class="bg-white p-2 rounded text-center">
+                                    <p class="text-xs text-gray-600">PST Objetivo</p>
+                                    <p class="font-semibold">720</p>
+                                </div>
+                                <div class="bg-white p-2 rounded text-center">
+                                    <p class="text-xs text-gray-600">PST Total</p>
+                                    <p class="font-semibold">780</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comentarios y Fotos por Sala -->
+                <div class="mt-6 space-y-4 border-t pt-4">
+                    <div class="space-y-2">
+                        <label class="text-sm font-medium">Comentarios de Sala 2</label>
+                        <textarea placeholder="Observaciones específicas de Sala 2..." class="w-full px-3 py-2 border-2 border-blue-200 rounded-md focus:border-blue-400 focus:outline-none" rows="3"></textarea>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <button class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                            <i data-lucide="camera" class="h-4 w-4"></i>
+                            Adjuntar Fotos
+                        </button>
+                        <span class="text-sm text-gray-500">0 fotos adjuntas</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comentarios Generales -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6 border-b">
+                <h2 class="text-xl font-semibold">Comentarios Generales del Turno</h2>
+                <p class="text-gray-600">Observaciones generales, incidencias y logros destacados</p>
+            </div>
+            <div class="p-6">
+                <textarea placeholder="Observaciones generales del turno, incidencias, logros destacados, coordinaciones especiales..." class="w-full px-3 py-2 border-2 border-blue-200 rounded-md focus:border-blue-400 focus:outline-none" rows="4"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para mostrar detalles -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg max-w-4xl max-h-[90vh] overflow-y-auto m-4">
+            <div class="p-6 border-b flex justify-between items-center">
+                <h3 id="modal-title" class="text-lg font-semibold"></h3>
+                <button onclick="cerrarModal()" class="text-gray-500 hover:text-gray-700">
+                    <i data-lucide="x" class="h-6 w-6"></i>
+                </button>
+            </div>
+            <div id="modal-content" class="p-6">
+                <!-- Contenido dinámico -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        
+        function guardarInforme() {
+            alert('Informe guardado exitosamente');
+            window.location.href = 'mis-informes.html';
+        }
+
+        function mostrarModal(tipo) {
+            const modal = document.getElementById('modal');
+            const title = document.getElementById('modal-title');
+            const content = document.getElementById('modal-content');
+            
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            
+            // Contenido según el tipo
+            if (tipo.includes('planillas')) {
+                title.textContent = 'Desglose por Planillas';
+                content.innerHTML = `
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="text-left py-2 px-4">ID Planilla</th>
+                                    <th class="text-left py-2 px-4">Operador</th>
+                                    <th class="text-left py-2 px-4">Kilos Entregados</th>
+                                    <th class="text-left py-2 px-4">Kilos Recibidos</th>
+                                    <th class="text-left py-2 px-4">Kilos Objetivo</th>
+                                    <th class="text-left py-2 px-4">Horas Trabajadas</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b">
+                                    <td class="py-2 px-4 font-medium">001</td>
+                                    <td class="py-2 px-4">Juan Pérez</td>
+                                    <td class="py-2 px-4">400 kg</td>
+                                    <td class="py-2 px-4">307 kg</td>
+                                    <td class="py-2 px-4">283 kg</td>
+                                    <td class="py-2 px-4">2.5 h</td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="py-2 px-4 font-medium">002</td>
+                                    <td class="py-2 px-4">María González</td>
+                                    <td class="py-2 px-4">400 kg</td>
+                                    <td class="py-2 px-4">307 kg</td>
+                                    <td class="py-2 px-4">284 kg</td>
+                                    <td class="py-2 px-4">2.0 h</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } else if (tipo.includes('productos')) {
+                title.textContent = 'Desglose por Productos';
+                content.innerHTML = `
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b">
+                                    <th class="text-left py-2 px-4">Producto</th>
+                                    <th class="text-left py-2 px-4">Calidad</th>
+                                    <th class="text-left py-2 px-4">Destino</th>
+                                    <th class="text-left py-2 px-4">Kg</th>
+                                    <th class="text-left py-2 px-4">%</th>
+                                    <th class="text-left py-2 px-4">Objetivo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr class="border-b">
+                                    <td class="py-2 px-4 font-medium">TRIM E → PORCION SIN PIEL → 4 oz</td>
+                                    <td class="py-2 px-4"><span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">PREMIUM</span></td>
+                                    <td class="py-2 px-4">CONGELADO</td>
+                                    <td class="py-2 px-4">260 kg</td>
+                                    <td class="py-2 px-4">28.3%</td>
+                                    <td class="py-2 px-4"><span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">SÍ</span></td>
+                                </tr>
+                                <tr class="border-b">
+                                    <td class="py-2 px-4 font-medium">TRIM E → PORCION SIN PIEL → 5 oz</td>
+                                    <td class="py-2 px-4"><span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">PREMIUM</span></td>
+                                    <td class="py-2 px-4">CONGELADO</td>
+                                    <td class="py-2 px-4">380 kg</td>
+                                    <td class="py-2 px-4">41.3%</td>
+                                    <td class="py-2 px-4"><span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">SÍ</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `;
+            } else if (tipo.includes('tiempos')) {
+                title.textContent = 'Análisis de Tiempos Muertos';
+                content.innerHTML = `
+                    <div class="space-y-3">
+                        <div class="border rounded-lg p-3">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-medium">Mantenimiento preventivo</p>
+                                    <p class="text-sm text-gray-600">Limpieza de equipos</p>
+                                </div>
+                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-sm">0.3h</span>
+                            </div>
+                        </div>
+                        <div class="border rounded-lg p-3">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <p class="font-medium">Cambio de producto</p>
+                                    <p class="text-sm text-gray-600">Transición filete a porción</p>
+                                </div>
+                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-sm">0.2h</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            lucide.createIcons();
+        }
+
+        function cerrarModal() {
+            const modal = document.getElementById('modal');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarModal();
+            }
+        });
+    </script>
+</body>
+</html>

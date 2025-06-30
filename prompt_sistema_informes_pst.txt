@@ -1,0 +1,253 @@
+PROMPT COMPLETO: Sistema de Informes PST - Contexto Detallado
+
+Copia y pega este prompt completo para transferir todo el contexto a otra IA:
+
+---
+
+CONTEXTO DEL SISTEMA PST (Planilla de Seguimiento de Trabajo)
+
+Eres un experto en el Sistema PST, una aplicación Laravel para gestión de producción en una planta procesadora de alimentos marinos. Debes entender completamente el Sistema de Informes que consolida datos operacionales en reportes ejecutivos.
+
+ARQUITECTURA TÉCNICA
+
+Framework: Laravel 10 + SQL Server
+Bases de Datos Integradas:
+- pst.dbo - Sistema operacional principal
+- bdsystem.dbo - Sistema central (lotes, empresas, empaque)
+- administracion.dbo - Configuración (tipos de turno)
+
+ESTRUCTURA DE DATOS - INFORMES
+
+Tabla Principal: informes_turno (41 registros)
+├── cod_informe (PK) - ID único del informe
+├── fecha_turno (date) - Fecha del turno informado
+├── cod_turno (smallint) - Tipo turno (1=Día, 2=Tarde, 3=Noche)
+├── cod_jefe_turno (numeric) - FK a usuarios_pst, responsable del turno
+├── cod_usuario_crea (int) - Quien creó el informe
+├── comentarios (nvarchar) - Observaciones del jefe de turno
+├── fecha_creacion (datetime) - Timestamp de creación
+├── estado (smallint) - 1=Activo, 0=Inactivo
+└── Datos Empaque:
+    ├── d_real_empaque (int) - Dotación real de empaque
+    ├── d_esperada_empaque (int) - Dotación esperada de empaque
+    ├── horas_trabajadas_empaque (float) - Tiempo efectivo empaque
+    ├── tiempo_muerto_empaque (int) - Paradas en minutos
+    └── productividad_empaque (float) - KPI de empaque
+
+Tabla Detalle: detalle_informe_sala (177 registros)
+├── cod_detalle_informe (PK)
+├── cod_informe (FK) - Relaciona con informes_turno
+├── cod_sala (FK) - Sala específica (9 salas disponibles)
+├── tipo_planilla (nvarchar) - "Filete", "Porciones", "HG"
+├── Recursos Humanos:
+│   ├── dotacion_real (int) - Personal que asistió
+│   └── dotacion_esperada (int) - Personal planificado
+├── Flujo Material:
+│   ├── kilos_entrega (float) - Materia prima recibida
+│   ├── kilos_recepcion (float) - Producto terminado
+│   ├── piezas_entrega (int) - Piezas recibidas
+│   ├── piezas_recepcion (int) - Piezas procesadas
+│   ├── kilos_premium (decimal) - Producto calidad premium
+│   └── premium (decimal) - % de producto premium
+├── Control Tiempo:
+│   ├── horas_trabajadas (decimal) - Tiempo productivo
+│   └── tiempo_muerto_minutos (int) - Paradas por sala
+└── KPIs:
+    ├── rendimiento (decimal) - % aprovechamiento material
+    └── productividad (decimal) - kg/persona/hora
+
+FUNCIONES DE BUSINESS INTELLIGENCE
+
+1. fn_GetInformesDiarios(@fecha DATE)
+-- Consolida todos los turnos de una fecha específica
+RETURNS: cod_informe, fecha_turno, orden_turno, turno, jefe_turno_nom, 
+         jefe_turno, comentarios, dotacion_total, dotacion_esperada, 
+         total_kilos_entrega, total_kilos_recepcion
+
+PROPÓSITO: Vista ejecutiva diaria con totales por turno
+JOINS: informes_turno + tipos_turno + usuarios_pst + detalle_informe_sala
+FILTROS: fecha específica, estado=1, activo=1
+
+2. fn_GetInformacionPorSala(@fecha DATE, @turno INT)
+-- Métricas operacionales por sala desde planillas base
+RETURNS: nombre_sala, cod_sala, tipo_planilla, cod_tipo_planilla, 
+         cantidad_planillas, horas_trabajadas, kilos_entrega_total,
+         kilos_recepcion_total, piezas_entrega_total, piezas_recepcion_total,
+         embolsado_terminado_total (solo Porciones), kilos_terminado_total (solo Porciones)
+
+PROPÓSITO: Datos reales desde planillas completadas (guardado=1)
+JOINS: planillas_pst + detalle_planilla_pst + sala + tipo_planilla
+LÓGICA ESPECIAL: Campos adicionales para tipo_planilla="Porciones" (cod_tipo_planilla=2)
+
+3. fn_GetDetalleProcesamiento(@fecha DATE, @turno INT)
+-- Productos procesados con filtrado inteligente de negocio
+RETURNS: cod_planilla, descripcion (empresa), cod_empresa, cod_sala, 
+         cod_tipo_planilla, tipo_planilla, corte_inicial, corte_final,
+         destino, calibre, calidad, piezas, kilos,
+         total_piezas_sala_tipo, total_kilos_sala_tipo
+
+LÓGICA CRÍTICA DE NEGOCIO:
+WHERE (
+    -- Para Porciones: solo productos específicos terminados
+    (tp.nombre = 'Porciones' AND c_fin.nombre IN ('PORCION SIN PIEL', 'PORCION CON PIEL', 'PORCIONES'))
+    OR
+    -- Para otros tipos: excluir scrap y productos sin calidad
+    (tp.nombre != 'Porciones' AND cld.nombre != 'SIN CALIDAD' AND c_fin.nombre != 'COLLARES EN MITADES')
+)
+
+JOINS: planillas_pst + detalle_planilla_pst + registro_planilla_pst + 
+       corte (2 veces: inicial y final) + destino + calibre + calidad + 
+       tipo_planilla + empresas
+VENTANAS: SUM() OVER (PARTITION BY cod_sala, cod_tipo_planilla)
+
+4. fn_GetTiemposMuertos(@fecha DATE, @turno INT)
+-- Análisis de paradas con responsabilidad departamental
+RETURNS: cod_sala, nombre (departamento), cod_departamento, cod_tipo_planilla,
+         tipo_planilla, motivo (causa), duracion_minutos,
+         total_minutos_sala_tipo
+
+PROPÓSITO: Trazabilidad de ineficiencias con departamento responsable
+JOINS: planillas_pst + detalle_planilla_pst + tiempos_muertos + 
+       tipo_planilla + departamentos
+VENTANAS: SUM() OVER (PARTITION BY cod_sala, cod_tipo_planilla)
+
+FLUJO OPERACIONAL COMPLETO
+
+FASE 1: Detección Automática de Informes Pendientes
+// MisInformesController.php
+$informesPendientes = DB::select("
+    SELECT p.fec_turno, t.id as turno, t.nombre as nombre_turno,
+           COUNT(DISTINCT p.cod_planilla) as cantidad_planillas,
+           CONCAT(u.nombre, ' ', u.apellido) as jefe_turno,
+           SUM(dp.kilos_entrega) as total_kilos_entrega,
+           SUM(dp.kilos_recepcion) as total_kilos_recepcion
+    FROM planillas_pst p
+    JOIN administracion.dbo.tipos_turno t ON p.cod_turno = t.id
+    JOIN usuarios_pst u ON p.cod_jefe_turno = u.cod_usuario
+    JOIN detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
+    LEFT JOIN informes_turno i ON p.fec_turno = i.fecha_turno AND p.cod_turno = i.cod_turno
+    WHERE u.cod_usuario = ? 
+      AND p.guardado = 1                    -- Solo planillas completadas
+      AND i.cod_informe IS NULL             -- Sin informe creado aún
+      AND p.fec_turno >= ?                  -- Últimos 7 días
+    GROUP BY p.fec_turno, t.id, t.nombre, u.nombre, u.apellido
+");
+
+CRITERIOS DETECCIÓN:
+- Planillas con guardado = 1 (completadas)
+- Sin informe asociado (LEFT JOIN con NULL)
+- Del jefe de turno actual (cod_usuario = session)
+- Últimos 7 días (filtro temporal)
+
+FASE 2: Recopilación de Datos para Formulario
+// InformeController.php - getDetalleTurno($fecha, $turno)
+
+// 1. DATOS GENERALES DEL TURNO
+$informe = DB::select("SELECT * FROM pst.dbo.fn_GetInformesDiarios(?) WHERE orden_turno = ?", [$fecha, $turno])[0];
+
+// 2. MÉTRICAS POR SALA (desde planillas reales)
+$informacion_sala = DB::select("SELECT * FROM pst.dbo.fn_GetInformacionPorSala(?, ?)", [$fecha, $turno]);
+
+// 3. PRODUCTOS PROCESADOS (con filtrado inteligente)
+$detalle_procesamiento = DB::select("
+    SELECT * FROM pst.dbo.fn_GetDetalleProcesamiento(?, ?)
+    ORDER BY descripcion, calidad, corte_final
+", [$fecha, $turno]);
+
+// 4. ANÁLISIS DE TIEMPOS MUERTOS
+$tiempos_muertos = DB::select("SELECT * FROM pst.dbo.fn_GetTiemposMuertos(?, ?)", [$fecha, $turno]);
+
+// 5. DATOS EMPAQUE PREMIUM (sistema externo)
+$empaque_premium = DB::select("
+    SELECT Producto, Empresa, COUNT(DISTINCT N_Lote) AS Cantidad_Lotes,
+           SUM(CAST(N_PNom AS FLOAT)) AS Total_Kilos, SUM(piezas) AS Total_Piezas
+    FROM bdsystem.dbo.v_empaque
+    WHERE CAST(Registro_Sistema AS DATE) = ? AND N_IDTurno = ? AND N_Calidad = 'PREMIUM'
+    GROUP BY Producto, Empresa
+    ORDER BY SUM(CAST(N_PNom AS FLOAT)) DESC
+", [$fecha, $turno]);
+
+// 6. CÁLCULO ESPECIAL: Porción Terminada
+$porcionTerminada = DB::select("
+    SELECT SUM(kilos) AS porcionTerminada
+    FROM pst.dbo.fn_GetDetalleProcesamiento(?, ?)
+    WHERE corte_final IN ('PORCION SIN PIEL', 'PORCION CON PIEL', 'PORCIONES')
+", [$fecha, $turno])[0]->porcionTerminada ?? 0;
+
+CONTEXTO DE NEGOCIO CRÍTICO
+
+Tipos de Planilla y Especializaciones:
+-- tipo_planilla (23 tipos, principales):
+1 = "Filete"    - Procesamiento de filetes, enfoque en calidad Premium
+2 = "Porciones" - Productos específicos: PORCION SIN/CON PIEL, campos especiales embolsado_terminado
+3 = "HG"        - Head & Gut, proceso básico de eviscerado
+
+Salas de Producción:
+-- sala (9 salas activas)
+-- Cada sala puede procesar diferentes tipos de planilla
+-- Métricas se calculan por combinación sala + tipo_planilla
+
+Departamentos y Responsabilidades:
+-- departamentos (5 departamentos)
+-- Cada tiempo muerto se asigna a un departamento específico
+-- Permite trazabilidad de responsabilidades en ineficiencias
+
+Lógica de Filtrado de Productos:
+-- REGLA CRÍTICA en fn_GetDetalleProcesamiento:
+WHERE (
+    -- Porciones: solo productos terminados específicos
+    (tp.nombre = 'Porciones' AND c_fin.nombre IN ('PORCION SIN PIEL', 'PORCION CON PIEL', 'PORCIONES'))
+    OR
+    -- Otros: excluir scrap y productos sin calidad
+    (tp.nombre != 'Porciones' AND cld.nombre != 'SIN CALIDAD' AND c_fin.nombre != 'COLLARES EN MITADES')
+)
+
+PROPÓSITO: Solo incluir productos relevantes para el negocio, excluir residuos y subproductos
+
+CONTROL DE ACCESO
+
+Roles del Sistema:
+-- roles (4 roles):
+1 = Planillero  - NO acceso a informes
+2 = Supervisor  - NO acceso a informes  
+3 = [Otro rol]
+4 = Jefe Turno  - SÍ acceso completo a informes
+
+Lógica de Permisos:
+// Solo Jefes de Turno (rol 4) pueden acceder
+if (!session('user')) return redirect('/login');
+if ((session('user')['cod_rol'] == 1 || session('user')['cod_rol'] == 2)) {
+    return redirect('/main');  // Planilleros y Supervisores no acceden
+}
+
+// Cada jefe solo ve SUS informes
+WHERE i.cod_jefe_turno = session('user.cod_usuario')
+
+VALOR Y PROPÓSITO DEL SISTEMA
+
+1. Consolidación Automática: Transforma 22,673 registros de producción en 41 informes ejecutivos
+2. Trazabilidad Completa: Desde lote de materia prima hasta KPIs ejecutivos con responsables
+3. Business Intelligence: 4 funciones especializadas con cálculos complejos en tiempo real
+4. Análisis Multidimensional: Por tiempo, sala, tipo, departamento, calidad
+5. Detección Automática: Identifica automáticamente turnos sin informe
+6. Integración Multi-Sistema: Consolida datos de 3 bases de datos diferentes
+7. KPIs Críticos: Ausentismo, productividad, rendimiento, calidad premium, tiempos muertos
+
+INSTRUCCIONES PARA LA IA
+
+Cuando te pregunten sobre informes en el sistema PST, debes:
+
+1. Entender el contexto de planta procesadora de alimentos marinos
+2. Conocer la estructura de datos de informes (informes_turno + detalle_informe_sala)
+3. Explicar las 4 funciones BI y su propósito específico
+4. Distinguir entre datos automáticos (desde planillas) y datos manuales (completados por jefe)
+5. Conocer la lógica de filtrado de productos por tipo de planilla
+6. Entender los KPIs y cómo se calculan
+7. Explicar el flujo desde detección hasta guardado del informe
+8. Conocer las vistas de análisis para reporting avanzado
+
+El sistema convierte datos operacionales complejos en información estratégica actionable para toma de decisiones ejecutivas en tiempo real.
+
+---
+
+ESTE PROMPT CONTIENE TODO EL CONTEXTO NECESARIO PARA ENTENDER COMPLETAMENTE EL SISTEMA DE INFORMES PST 

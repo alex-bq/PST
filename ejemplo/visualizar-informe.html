@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visualizar Informe de Turno</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+<body class="min-h-screen bg-gray-50">
+    <!-- Header -->
+    <div class="bg-white shadow-sm border-b print:hidden sticky top-0 z-50">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-4">
+                    <button onclick="window.location.href='mis-informes.html'" class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                        <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                        Volver
+                    </button>
+                    <div>
+                        <h1 class="text-xl font-bold">Informe de Turno</h1>
+                        <p class="text-sm text-gray-600">2024-01-13 - Turno Mañana - Jefe: Juan Pérez</p>
+                        <p class="text-xs text-blue-600">06:00 - 14:00 (8 horas)</p>
+                    </div>
+                </div>
+                <div class="flex gap-2">
+                    <button onclick="descargarPDF()" class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                        <i data-lucide="download" class="h-4 w-4"></i>
+                        PDF
+                    </button>
+                    <button onclick="window.print()" class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                        <i data-lucide="printer" class="h-4 w-4"></i>
+                        Imprimir
+                    </button>
+                    <button onclick="compartir()" class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                        <i data-lucide="share" class="h-4 w-4"></i>
+                        Compartir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mx-auto p-6 space-y-6 max-w-none">
+        <!-- Sala 1 -->
+        <div class="bg-white rounded-lg shadow-sm w-full">
+            <div class="p-6 border-b">
+                <h2 class="text-xl font-semibold">Sala 1</h2>
+                <p class="text-gray-600">Detalle completo de procesos y métricas de producción</p>
+            </div>
+            <div class="p-6 space-y-8">
+                <!-- Totales por Sala -->
+                <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Totales de Sala 1</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="text-center p-4 bg-white rounded-lg shadow-sm">
+                            <p class="text-2xl font-bold text-blue-600">26</p>
+                            <p class="text-sm text-gray-600 mt-1">Total Dotación</p>
+                        </div>
+                        <div class="text-center p-4 bg-white rounded-lg shadow-sm">
+                            <p class="text-2xl font-bold text-green-600">2,650</p>
+                            <p class="text-sm text-gray-600 mt-1">Kilos MP Total</p>
+                        </div>
+                        <div class="text-center p-4 bg-white rounded-lg shadow-sm">
+                            <p class="text-2xl font-bold text-orange-600">2,070</p>
+                            <p class="text-sm text-gray-600 mt-1">Kilos PST Total</p>
+                        </div>
+                        <div class="text-center p-4 bg-white rounded-lg shadow-sm">
+                            <p class="text-2xl font-bold text-purple-600">13.9</p>
+                            <p class="text-sm text-gray-600 mt-1">Productividad Promedio</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Proceso Fileteo -->
+                <div class="border rounded-lg p-6 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-semibold text-xl">Fileteo</h3>
+                            <div class="flex gap-2 mt-2">
+                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-md text-sm">Seagarden</span>
+                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-md text-sm">Aqualink</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empresa Seagarden -->
+                    <div class="bg-gray-50 rounded-lg p-6 space-y-6">
+                        <div class="flex items-center gap-3">
+                            <span class="px-3 py-1 bg-gray-200 text-gray-800 rounded-md text-base">Seagarden</span>
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="alert-triangle" class="h-4 w-4 text-orange-500"></i>
+                                <span class="text-sm font-medium">Tiempo Muerto: 0.5h</span>
+                            </div>
+                        </div>
+
+                        <!-- Grid de información operacional -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="bg-white p-4 rounded-lg text-center">
+                                <p class="text-sm text-gray-600">Dotación</p>
+                                <p class="text-xl font-semibold">12 personas</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg text-center">
+                                <p class="text-sm text-gray-600">Horas Reales</p>
+                                <p class="text-xl font-semibold">6.5h</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg text-center">
+                                <p class="text-sm text-gray-600">Entrega MP</p>
+                                <p class="text-xl font-semibold">1,200 kg</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg text-center">
+                                <p class="text-sm text-gray-600">Recepción Total</p>
+                                <p class="text-xl font-semibold">920 kg</p>
+                            </div>
+                        </div>
+
+                        <!-- Productividad -->
+                        <div class="space-y-4">
+                            <h5 class="text-lg font-medium text-gray-700">Productividad (kg/persona/hora)</h5>
+
+                            <!-- Títulos de los grupos -->
+                            <div class="grid grid-cols-4 gap-4">
+                                <div class="col-span-2 text-center">
+                                    <h6 class="text-sm font-medium text-gray-600 border-b pb-2">Productividad Total</h6>
+                                </div>
+                                <div class="col-span-2 text-center">
+                                    <h6 class="text-sm font-medium text-gray-600 border-b pb-2">Productividad Objetivo</h6>
+                                </div>
+                            </div>
+
+                            <!-- Valores -->
+                            <div class="grid grid-cols-4 gap-4">
+                                <div class="bg-blue-50 p-4 rounded-lg text-center">
+                                    <p class="text-sm text-gray-600">Real Total</p>
+                                    <p class="text-xl font-semibold text-blue-700">11.9</p>
+                                </div>
+                                <div class="bg-blue-50 p-4 rounded-lg text-center">
+                                    <p class="text-sm text-gray-600">Efectiva Total</p>
+                                    <p class="text-xl font-semibold text-blue-700">9.6</p>
+                                </div>
+                                <div class="bg-green-50 p-4 rounded-lg text-center">
+                                    <p class="text-sm text-gray-600">Real Objetivo</p>
+                                    <p class="text-xl font-semibold text-green-700">10.9</p>
+                                </div>
+                                <div class="bg-green-50 p-4 rounded-lg text-center">
+                                    <p class="text-sm text-gray-600">Efectiva Objetivo</p>
+                                    <p class="text-xl font-semibold text-green-700">8.9</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recepción de producto -->
+                        <div class="space-y-3">
+                            <h5 class="text-lg font-medium text-gray-700">Recepción de Producto (kg)</h5>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <p class="text-sm text-gray-600">PST Objetivo</p>
+                                    <p class="text-xl font-semibold">850</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <p class="text-sm text-gray-600">PST Total</p>
+                                    <p class="text-xl font-semibold">920</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Desglose de Planillas -->
+                        <div class="space-y-3">
+                            <h5 class="text-lg font-medium text-gray-700">Desglose por Planillas</h5>
+                            <div class="bg-white rounded-lg overflow-hidden">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="border-b">
+                                            <th class="text-left py-3 px-4 font-medium">ID</th>
+                                            <th class="text-left py-3 px-4 font-medium">Operador</th>
+                                            <th class="text-left py-3 px-4 font-medium">Kg Entregados</th>
+                                            <th class="text-left py-3 px-4 font-medium">Kg Recibidos</th>
+                                            <th class="text-left py-3 px-4 font-medium">Kg Objetivo</th>
+                                            <th class="text-left py-3 px-4 font-medium">Horas</th>
+                                            <th class="text-left py-3 px-4 font-medium">Inicio</th>
+                                            <th class="text-left py-3 px-4 font-medium">Fin</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="border-b">
+                                            <td class="py-3 px-4 font-medium">001</td>
+                                            <td class="py-3 px-4">Juan Pérez</td>
+                                            <td class="py-3 px-4">400 kg</td>
+                                            <td class="py-3 px-4">307 kg</td>
+                                            <td class="py-3 px-4">283 kg</td>
+                                            <td class="py-3 px-4">2.5h</td>
+                                            <td class="py-3 px-4">06:00</td>
+                                            <td class="py-3 px-4">12:30</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="py-3 px-4 font-medium">002</td>
+                                            <td class="py-3 px-4">María González</td>
+                                            <td class="py-3 px-4">400 kg</td>
+                                            <td class="py-3 px-4">307 kg</td>
+                                            <td class="py-3 px-4">284 kg</td>
+                                            <td class="py-3 px-4">2.0h</td>
+                                            <td class="py-3 px-4">06:00</td>
+                                            <td class="py-3 px-4">13:00</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-3 px-4 font-medium">003</td>
+                                            <td class="py-3 px-4">Carlos López</td>
+                                            <td class="py-3 px-4">400 kg</td>
+                                            <td class="py-3 px-4">306 kg</td>
+                                            <td class="py-3 px-4">283 kg</td>
+                                            <td class="py-3 px-4">2.0h</td>
+                                            <td class="py-3 px-4">07:00</td>
+                                            <td class="py-3 px-4">13:00</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Desglose de Productos -->
+                        <div class="space-y-3">
+                            <h5 class="text-lg font-medium text-gray-700">Desglose por Productos</h5>
+                            <div class="bg-white rounded-lg overflow-hidden">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="border-b">
+                                            <th class="text-left py-3 px-4 font-medium">Producto</th>
+                                            <th class="text-left py-3 px-4 font-medium">Calidad</th>
+                                            <th class="text-left py-3 px-4 font-medium">Destino</th>
+                                            <th class="text-left py-3 px-4 font-medium">Kg</th>
+                                            <th class="text-left py-3 px-4 font-medium">%</th>
+                                            <th class="text-left py-3 px-4 font-medium">Objetivo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="border-b">
+                                            <td class="py-3 px-4 font-medium">TRIM E → PORCION SIN PIEL → 4 oz</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">PREMIUM</span>
+                                            </td>
+                                            <td class="py-3 px-4">CONGELADO</td>
+                                            <td class="py-3 px-4">260 kg</td>
+                                            <td class="py-3 px-4">28.3%</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">SÍ</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="py-3 px-4 font-medium">TRIM E → PORCION SIN PIEL → 5 oz</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">PREMIUM</span>
+                                            </td>
+                                            <td class="py-3 px-4">CONGELADO</td>
+                                            <td class="py-3 px-4">380 kg</td>
+                                            <td class="py-3 px-4">41.3%</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">SÍ</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="py-3 px-4 font-medium">TRIM E → PORCION SIN PIEL → 6 oz</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-sm">PREMIUM</span>
+                                            </td>
+                                            <td class="py-3 px-4">CONGELADO</td>
+                                            <td class="py-3 px-4">180 kg</td>
+                                            <td class="py-3 px-4">19.6%</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-sm">NO</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-3 px-4 font-medium">TRIM E → FILETE</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-sm">STANDARD</span>
+                                            </td>
+                                            <td class="py-3 px-4">FRESCO</td>
+                                            <td class="py-3 px-4">100 kg</td>
+                                            <td class="py-3 px-4">10.9%</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-sm">NO</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Tiempos Muertos -->
+                        <div class="space-y-3">
+                            <h5 class="text-lg font-medium text-gray-700">Análisis de Tiempos Muertos</h5>
+                            <div class="space-y-3">
+                                <div class="bg-white border rounded-lg p-4">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Mantenimiento preventivo</p>
+                                            <p class="text-sm text-gray-600 mt-1">Limpieza de equipos</p>
+                                        </div>
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-sm">0.3h</span>
+                                    </div>
+                                </div>
+                                <div class="bg-white border rounded-lg p-4">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Cambio de producto</p>
+                                            <p class="text-sm text-gray-600 mt-1">Transición filete a porción</p>
+                                        </div>
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-sm">0.2h</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empresa Aqualink -->
+                    <div class="bg-gray-50 rounded-lg p-6 space-y-6">
+                        <div class="flex items-center gap-3">
+                            <span class="px-3 py-1 bg-gray-200 text-gray-800 rounded-md text-base">Aqualink</span>
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="alert-triangle" class="h-4 w-4 text-orange-500"></i>
+                                <span class="text-sm font-medium">Tiempo Muerto: 0.3h</span>
+                            </div>
+                        </div>
+
+                        <!-- Grid de información operacional -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="bg-white p-4 rounded-lg text-center">
+                                <p class="text-sm text-gray-600">Dotación</p>
+                                <p class="text-xl font-semibold">6 personas</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg text-center">
+                                <p class="text-sm text-gray-600">Horas Reales</p>
+                                <p class="text-xl font-semibold">5.0h</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg text-center">
+                                <p class="text-sm text-gray-600">Entrega MP</p>
+                                <p class="text-xl font-semibold">650 kg</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg text-center">
+                                <p class="text-sm text-gray-600">Recepción Total</p>
+                                <p class="text-xl font-semibold">500 kg</p>
+                            </div>
+                        </div>
+
+                        <!-- Productividad -->
+                        <div class="space-y-4">
+                            <h5 class="text-lg font-medium text-gray-700">Productividad (kg/persona/hora)</h5>
+
+                            <!-- Títulos de los grupos -->
+                            <div class="grid grid-cols-4 gap-4">
+                                <div class="col-span-2 text-center">
+                                    <h6 class="text-sm font-medium text-gray-600 border-b pb-2">Productividad Total</h6>
+                                </div>
+                                <div class="col-span-2 text-center">
+                                    <h6 class="text-sm font-medium text-gray-600 border-b pb-2">Productividad Objetivo</h6>
+                                </div>
+                            </div>
+
+                            <!-- Valores -->
+                            <div class="grid grid-cols-4 gap-4">
+                                <div class="bg-blue-50 p-4 rounded-lg text-center">
+                                    <p class="text-sm text-gray-600">Real Total</p>
+                                    <p class="text-xl font-semibold text-blue-700">16.7</p>
+                                </div>
+                                <div class="bg-blue-50 p-4 rounded-lg text-center">
+                                    <p class="text-sm text-gray-600">Efectiva Total</p>
+                                    <p class="text-xl font-semibold text-blue-700">10.4</p>
+                                </div>
+                                <div class="bg-green-50 p-4 rounded-lg text-center">
+                                    <p class="text-sm text-gray-600">Real Objetivo</p>
+                                    <p class="text-xl font-semibold text-green-700">15.0</p>
+                                </div>
+                                <div class="bg-green-50 p-4 rounded-lg text-center">
+                                    <p class="text-sm text-gray-600">Efectiva Objetivo</p>
+                                    <p class="text-xl font-semibold text-green-700">9.4</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recepción de producto -->
+                        <div class="space-y-3">
+                            <h5 class="text-lg font-medium text-gray-700">Recepción de Producto (kg)</h5>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <p class="text-sm text-gray-600">PST Objetivo</p>
+                                    <p class="text-xl font-semibold">450</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <p class="text-sm text-gray-600">PST Total</p>
+                                    <p class="text-xl font-semibold">500</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Desglose de Planillas -->
+                        <div class="space-y-3">
+                            <h5 class="text-lg font-medium text-gray-700">Desglose por Planillas</h5>
+                            <div class="bg-white rounded-lg overflow-hidden">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="border-b">
+                                            <th class="text-left py-3 px-4 font-medium">ID</th>
+                                            <th class="text-left py-3 px-4 font-medium">Operador</th>
+                                            <th class="text-left py-3 px-4 font-medium">Kg Entregados</th>
+                                            <th class="text-left py-3 px-4 font-medium">Kg Recibidos</th>
+                                            <th class="text-left py-3 px-4 font-medium">Kg Objetivo</th>
+                                            <th class="text-left py-3 px-4 font-medium">Horas</th>
+                                            <th class="text-left py-3 px-4 font-medium">Inicio</th>
+                                            <th class="text-left py-3 px-4 font-medium">Fin</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="border-b">
+                                            <td class="py-3 px-4 font-medium">010</td>
+                                            <td class="py-3 px-4">Pedro Morales</td>
+                                            <td class="py-3 px-4">217 kg</td>
+                                            <td class="py-3 px-4">167 kg</td>
+                                            <td class="py-3 px-4">150 kg</td>
+                                            <td class="py-3 px-4">2.0h</td>
+                                            <td class="py-3 px-4">06:00</td>
+                                            <td class="py-3 px-4">11:30</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="py-3 px-4 font-medium">011</td>
+                                            <td class="py-3 px-4">Sofia Herrera</td>
+                                            <td class="py-3 px-4">216 kg</td>
+                                            <td class="py-3 px-4">166 kg</td>
+                                            <td class="py-3 px-4">150 kg</td>
+                                            <td class="py-3 px-4">1.5h</td>
+                                            <td class="py-3 px-4">06:30</td>
+                                            <td class="py-3 px-4">11:30</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-3 px-4 font-medium">012</td>
+                                            <td class="py-3 px-4">Diego Castro</td>
+                                            <td class="py-3 px-4">217 kg</td>
+                                            <td class="py-3 px-4">167 kg</td>
+                                            <td class="py-3 px-4">150 kg</td>
+                                            <td class="py-3 px-4">1.5h</td>
+                                            <td class="py-3 px-4">07:00</td>
+                                            <td class="py-3 px-4">11:30</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Desglose de Productos -->
+                        <div class="space-y-3">
+                            <h5 class="text-lg font-medium text-gray-700">Desglose por Productos</h5>
+                            <div class="bg-white rounded-lg overflow-hidden">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="border-b">
+                                            <th class="text-left py-3 px-4 font-medium">Producto</th>
+                                            <th class="text-left py-3 px-4 font-medium">Calidad</th>
+                                            <th class="text-left py-3 px-4 font-medium">Destino</th>
+                                            <th class="text-left py-3 px-4 font-medium">Kg</th>
+                                            <th class="text-left py-3 px-4 font-medium">%</th>
+                                            <th class="text-left py-3 px-4 font-medium">Objetivo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="border-b">
+                                            <td class="py-3 px-4 font-medium">FILETE → PREMIUM</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">PREMIUM</span>
+                                            </td>
+                                            <td class="py-3 px-4">FRESCO</td>
+                                            <td class="py-3 px-4">300 kg</td>
+                                            <td class="py-3 px-4">60.0%</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">SÍ</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="py-3 px-4 font-medium">FILETE → STANDARD</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-sm">STANDARD</span>
+                                            </td>
+                                            <td class="py-3 px-4">FRESCO</td>
+                                            <td class="py-3 px-4">150 kg</td>
+                                            <td class="py-3 px-4">30.0%</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">SÍ</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-3 px-4 font-medium">TRIM B → NUGGETS</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-sm">STANDARD</span>
+                                            </td>
+                                            <td class="py-3 px-4">CONGELADO</td>
+                                            <td class="py-3 px-4">50 kg</td>
+                                            <td class="py-3 px-4">10.0%</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-sm">NO</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Tiempos Muertos -->
+                        <div class="space-y-3">
+                            <h5 class="text-lg font-medium text-gray-700">Análisis de Tiempos Muertos</h5>
+                            <div class="space-y-3">
+                                <div class="bg-white border rounded-lg p-4">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Cambio de turno</p>
+                                            <p class="text-sm text-gray-600 mt-1">Traspaso de información</p>
+                                        </div>
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-sm">0.2h</span>
+                                    </div>
+                                </div>
+                                <div class="bg-white border rounded-lg p-4">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Limpieza de línea</p>
+                                            <p class="text-sm text-gray-600 mt-1">Sanitización entre productos</p>
+                                        </div>
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-sm">0.1h</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comentarios de Sala -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <h5 class="font-medium text-gray-900 mb-2">Comentarios de Sala 1</h5>
+                    <p class="text-gray-700">Producción normal durante el turno. Se presentó una falla eléctrica menor que fue solucionada rápidamente.</p>
+                </div>
+
+                <!-- Fotos de Sala -->
+                <div class="bg-gray-50 border rounded-lg p-4">
+                    <h5 class="font-medium text-gray-900 mb-4 flex items-center gap-2">
+                        <i data-lucide="camera" class="h-5 w-5"></i>
+                        Fotos de Sala 1 (3)
+                    </h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="relative group cursor-pointer">
+                            <img src="https://via.placeholder.com/400x300/e5e7eb/6b7280?text=Línea+de+Fileteo" alt="Foto 1 de Sala 1" class="w-full h-48 object-cover rounded-lg shadow-sm hover:shadow-md transition-shadow" onclick="abrirFoto(this.src)">
+                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-lg flex items-center justify-center">
+                                <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div class="bg-white rounded-full p-2">
+                                        <i data-lucide="eye" class="h-5 w-5 text-gray-700"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="relative group cursor-pointer">
+                            <img src="https://via.placeholder.com/400x300/e5e7eb/6b7280?text=Equipo+Mantenimiento" alt="Foto 2 de Sala 1" class="w-full h-48 object-cover rounded-lg shadow-sm hover:shadow-md transition-shadow" onclick="abrirFoto(this.src)">
+                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-lg flex items-center justify-center">
+                                <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div class="bg-white rounded-full p-2">
+                                        <i data-lucide="eye" class="h-5 w-5 text-gray-700"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="relative group cursor-pointer">
+                            <img src="https://via.placeholder.com/400x300/e5e7eb/6b7280?text=Producto+Terminado" alt="Foto 3 de Sala 1" class="w-full h-48 object-cover rounded-lg shadow-sm hover:shadow-md transition-shadow" onclick="abrirFoto(this.src)">
+                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-lg flex items-center justify-center">
+                                <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div class="bg-white rounded-full p-2">
+                                        <i data-lucide="eye" class="h-5 w-5 text-gray-700"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sala 2 -->
+        <div class="bg-white rounded-lg shadow-sm w-full">
+            <div class="p-6 border-b">
+                <h2 class="text-xl font-semibold">Sala 2</h2>
+                <p class="text-gray-600">Detalle completo de procesos y métricas de producción</p>
+            </div>
+            <div class="p-6 space-y-8">
+                <!-- Totales por Sala -->
+                <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6">
+                    <h4 class="text-lg font-semibold text-gray-800 mb-4">Totales de Sala 2</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="text-center p-4 bg-white rounded-lg shadow-sm">
+                            <p class="text-2xl font-bold text-blue-600">10</p>
+                            <p class="text-sm text-gray-600 mt-1">Total Dotación</p>
+                        </div>
+                        <div class="text-center p-4 bg-white rounded-lg shadow-sm">
+                            <p class="text-2xl font-bold text-green-600">1,000</p>
+                            <p class="text-sm text-gray-600 mt-1">Kilos MP Total</p>
+                        </div>
+                        <div class="text-center p-4 bg-white rounded-lg shadow-sm">
+                            <p class="text-2xl font-bold text-orange-600">780</p>
+                            <p class="text-sm text-gray-600 mt-1">Kilos PST Total</p>
+                        </div>
+                        <div class="text-center p-4 bg-white rounded-lg shadow-sm">
+                            <p class="text-2xl font-bold text-purple-600">11.1</p>
+                            <p class="text-sm text-gray-600 mt-1">Productividad Promedio</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Proceso Fileteo -->
+                <div class="border rounded-lg p-6 space-y-6">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <h3 class="font-semibold text-xl">Fileteo</h3>
+                            <div class="flex gap-2 mt-2">
+                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-md text-sm">Seagarden</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Empresa Seagarden -->
+                    <div class="bg-gray-50 rounded-lg p-6 space-y-6">
+                        <div class="flex items-center gap-3">
+                            <span class="px-3 py-1 bg-gray-200 text-gray-800 rounded-md text-base">Seagarden</span>
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="alert-triangle" class="h-4 w-4 text-orange-500"></i>
+                                <span class="text-sm font-medium">Tiempo Muerto: 0.8h</span>
+                            </div>
+                        </div>
+
+                        <!-- Grid de información operacional -->
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="bg-white p-4 rounded-lg text-center">
+                                <p class="text-sm text-gray-600">Dotación</p>
+                                <p class="text-xl font-semibold">10 personas</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg text-center">
+                                <p class="text-sm text-gray-600">Horas Reales</p>
+                                <p class="text-xl font-semibold">7.0h</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg text-center">
+                                <p class="text-sm text-gray-600">Entrega MP</p>
+                                <p class="text-xl font-semibold">1,000 kg</p>
+                            </div>
+                            <div class="bg-white p-4 rounded-lg text-center">
+                                <p class="text-sm text-gray-600">Recepción Total</p>
+                                <p class="text-xl font-semibold">780 kg</p>
+                            </div>
+                        </div>
+
+                        <!-- Productividad -->
+                        <div class="space-y-4">
+                            <h5 class="text-lg font-medium text-gray-700">Productividad (kg/persona/hora)</h5>
+
+                            <!-- Títulos de los grupos -->
+                            <div class="grid grid-cols-4 gap-4">
+                                <div class="col-span-2 text-center">
+                                    <h6 class="text-sm font-medium text-gray-600 border-b pb-2">Productividad Total</h6>
+                                </div>
+                                <div class="col-span-2 text-center">
+                                    <h6 class="text-sm font-medium text-gray-600 border-b pb-2">Productividad Objetivo</h6>
+                                </div>
+                            </div>
+
+                            <!-- Valores -->
+                            <div class="grid grid-cols-4 gap-4">
+                                <div class="bg-blue-50 p-4 rounded-lg text-center">
+                                    <p class="text-sm text-gray-600">Real Total</p>
+                                    <p class="text-xl font-semibold text-blue-700">11.1</p>
+                                </div>
+                                <div class="bg-blue-50 p-4 rounded-lg text-center">
+                                    <p class="text-sm text-gray-600">Efectiva Total</p>
+                                    <p class="text-xl font-semibold text-blue-700">9.8</p>
+                                </div>
+                                <div class="bg-green-50 p-4 rounded-lg text-center">
+                                    <p class="text-sm text-gray-600">Real Objetivo</p>
+                                    <p class="text-xl font-semibold text-green-700">10.3</p>
+                                </div>
+                                <div class="bg-green-50 p-4 rounded-lg text-center">
+                                    <p class="text-sm text-gray-600">Efectiva Objetivo</p>
+                                    <p class="text-xl font-semibold text-green-700">9.0</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recepción de producto -->
+                        <div class="space-y-3">
+                            <h5 class="text-lg font-medium text-gray-700">Recepción de Producto (kg)</h5>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <p class="text-sm text-gray-600">PST Objetivo</p>
+                                    <p class="text-xl font-semibold">720</p>
+                                </div>
+                                <div class="bg-white p-4 rounded-lg text-center">
+                                    <p class="text-sm text-gray-600">PST Total</p>
+                                    <p class="text-xl font-semibold">780</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Desglose de Planillas -->
+                        <div class="space-y-3">
+                            <h5 class="text-lg font-medium text-gray-700">Desglose por Planillas</h5>
+                            <div class="bg-white rounded-lg overflow-hidden">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="border-b">
+                                            <th class="text-left py-3 px-4 font-medium">ID</th>
+                                            <th class="text-left py-3 px-4 font-medium">Operador</th>
+                                            <th class="text-left py-3 px-4 font-medium">Kg Entregados</th>
+                                            <th class="text-left py-3 px-4 font-medium">Kg Recibidos</th>
+                                            <th class="text-left py-3 px-4 font-medium">Kg Objetivo</th>
+                                            <th class="text-left py-3 px-4 font-medium">Horas</th>
+                                            <th class="text-left py-3 px-4 font-medium">Inicio</th>
+                                            <th class="text-left py-3 px-4 font-medium">Fin</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="border-b">
+                                            <td class="py-3 px-4 font-medium">007</td>
+                                            <td class="py-3 px-4">Roberto Díaz</td>
+                                            <td class="py-3 px-4">333 kg</td>
+                                            <td class="py-3 px-4">260 kg</td>
+                                            <td class="py-3 px-4">240 kg</td>
+                                            <td class="py-3 px-4">2.5h</td>
+                                            <td class="py-3 px-4">06:00</td>
+                                            <td class="py-3 px-4">12:30</td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="py-3 px-4 font-medium">008</td>
+                                            <td class="py-3 px-4">Elena Vargas</td>
+                                            <td class="py-3 px-4">333 kg</td>
+                                            <td class="py-3 px-4">260 kg</td>
+                                            <td class="py-3 px-4">240 kg</td>
+                                            <td class="py-3 px-4">2.0h</td>
+                                            <td class="py-3 px-4">06:00</td>
+                                            <td class="py-3 px-4">12:00</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-3 px-4 font-medium">009</td>
+                                            <td class="py-3 px-4">Miguel Torres</td>
+                                            <td class="py-3 px-4">334 kg</td>
+                                            <td class="py-3 px-4">260 kg</td>
+                                            <td class="py-3 px-4">240 kg</td>
+                                            <td class="py-3 px-4">2.5h</td>
+                                            <td class="py-3 px-4">06:30</td>
+                                            <td class="py-3 px-4">13:00</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Desglose de Productos -->
+                        <div class="space-y-3">
+                            <h5 class="text-lg font-medium text-gray-700">Desglose por Productos</h5>
+                            <div class="bg-white rounded-lg overflow-hidden">
+                                <table class="w-full">
+                                    <thead>
+                                        <tr class="border-b">
+                                            <th class="text-left py-3 px-4 font-medium">Producto</th>
+                                            <th class="text-left py-3 px-4 font-medium">Calidad</th>
+                                            <th class="text-left py-3 px-4 font-medium">Destino</th>
+                                            <th class="text-left py-3 px-4 font-medium">Kg</th>
+                                            <th class="text-left py-3 px-4 font-medium">%</th>
+                                            <th class="text-left py-3 px-4 font-medium">Objetivo</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr class="border-b">
+                                            <td class="py-3 px-4 font-medium">FILETE → PREMIUM</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">PREMIUM</span>
+                                            </td>
+                                            <td class="py-3 px-4">FRESCO</td>
+                                            <td class="py-3 px-4">450 kg</td>
+                                            <td class="py-3 px-4">57.7%</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">SÍ</span>
+                                            </td>
+                                        </tr>
+                                        <tr class="border-b">
+                                            <td class="py-3 px-4 font-medium">FILETE → STANDARD</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-sm">STANDARD</span>
+                                            </td>
+                                            <td class="py-3 px-4">FRESCO</td>
+                                            <td class="py-3 px-4">230 kg</td>
+                                            <td class="py-3 px-4">29.5%</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm">SÍ</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td class="py-3 px-4 font-medium">TRIM A → NUGGETS</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-sm">STANDARD</span>
+                                            </td>
+                                            <td class="py-3 px-4">CONGELADO</td>
+                                            <td class="py-3 px-4">100 kg</td>
+                                            <td class="py-3 px-4">12.8%</td>
+                                            <td class="py-3 px-4">
+                                                <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-sm">NO</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Tiempos Muertos -->
+                        <div class="space-y-3">
+                            <h5 class="text-lg font-medium text-gray-700">Análisis de Tiempos Muertos</h5>
+                            <div class="space-y-3">
+                                <div class="bg-white border rounded-lg p-4">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Mantenimiento correctivo</p>
+                                            <p class="text-sm text-gray-600 mt-1">Reparación cinta transportadora</p>
+                                        </div>
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-sm">0.5h</span>
+                                    </div>
+                                </div>
+                                <div class="bg-white border rounded-lg p-4">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Reunión de seguridad</p>
+                                            <p class="text-sm text-gray-600 mt-1">Charla de 5 minutos extendida</p>
+                                        </div>
+                                        <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-sm">0.3h</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Comentarios de Sala -->
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <h5 class="font-medium text-gray-900 mb-2">Comentarios de Sala 2</h5>
+                    <p class="text-gray-700">Turno sin mayores incidencias. Mantenimiento correctivo realizado exitosamente.</p>
+                </div>
+
+                <!-- Fotos de Sala -->
+                <div class="bg-gray-50 border rounded-lg p-4">
+                    <h5 class="font-medium text-gray-900 mb-4 flex items-center gap-2">
+                        <i data-lucide="camera" class="h-5 w-5"></i>
+                        Fotos de Sala 2 (2)
+                    </h5>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="relative group cursor-pointer">
+                            <img src="https://via.placeholder.com/400x300/e5e7eb/6b7280?text=Cinta+Transportadora" alt="Foto 1 de Sala 2" class="w-full h-48 object-cover rounded-lg shadow-sm hover:shadow-md transition-shadow" onclick="abrirFoto(this.src)">
+                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-lg flex items-center justify-center">
+                                <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div class="bg-white rounded-full p-2">
+                                        <i data-lucide="eye" class="h-5 w-5 text-gray-700"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="relative group cursor-pointer">
+                            <img src="https://via.placeholder.com/400x300/e5e7eb/6b7280?text=Control+Calidad" alt="Foto 2 de Sala 2" class="w-full h-48 object-cover rounded-lg shadow-sm hover:shadow-md transition-shadow" onclick="abrirFoto(this.src)">
+                            <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all rounded-lg flex items-center justify-center">
+                                <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div class="bg-white rounded-full p-2">
+                                        <i data-lucide="eye" class="h-5 w-5 text-gray-700"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comentarios Generales -->
+        <div class="bg-white rounded-lg shadow-sm">
+            <div class="p-6 border-b">
+                <h2 class="text-xl font-semibold">Comentarios Generales del Turno</h2>
+            </div>
+            <div class="p-6">
+                <p class="text-gray-700 leading-relaxed">Turno exitoso con cumplimiento de objetivos de producción. Se realizaron mantenimientos preventivos programados y se solucionaron incidencias menores de manera oportuna. El equipo mostró buen desempeño y coordinación durante todo el turno.</p>
+            </div>
+        </div>
+
+        <!-- Footer del Informe -->
+        <div class="bg-white rounded-lg shadow-sm print:block">
+            <div class="p-6">
+                <div class="text-center text-sm text-gray-500">
+                    <p>Informe generado el 15 de enero de 2024, 10:30 AM</p>
+                    <p>Sistema de Gestión de Producción - Jefe de Turno</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para fotos -->
+    <div id="modal-foto" class="fixed inset-0 bg-black bg-opacity-75 hidden items-center justify-center z-50 p-4">
+        <div class="relative max-w-4xl max-h-full">
+            <img id="foto-ampliada" src="/placeholder.svg" alt="Foto ampliada" class="max-w-full max-h-full object-contain rounded-lg">
+            <button onclick="cerrarFoto()" class="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+        
+        function descargarPDF() {
+            alert('Descargando informe en PDF...');
+        }
+
+        function compartir() {
+            alert('Compartiendo informe...');
+        }
+
+        function abrirFoto(src) {
+            const modal = document.getElementById('modal-foto');
+            const img = document.getElementById('foto-ampliada');
+            img.src = src;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            lucide.createIcons();
+        }
+
+        function cerrarFoto() {
+            const modal = document.getElementById('modal-foto');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+        }
+
+        // Cerrar modal al hacer clic fuera
+        document.getElementById('modal-foto').addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarFoto();
+            }
+        });
+    </script>
+</body>
+</html>
