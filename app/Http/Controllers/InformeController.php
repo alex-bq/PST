@@ -33,14 +33,13 @@ class InformeController extends Controller
             $query = DB::table('pst.dbo.informes_turno as i')
                 ->join('administracion.dbo.tipos_turno as t', 'i.cod_turno', '=', 't.id')
                 ->join('pst.dbo.usuarios_pst as u', 'i.cod_jefe_turno', '=', 'u.cod_usuario')
-                ->join('pst.dbo.detalle_informe_sala as d', 'i.cod_informe', '=', 'd.cod_informe')
                 ->select(
                     'i.fecha_turno',
                     'i.cod_turno as turno',
                     't.nombre',
                     DB::raw("CONCAT(u.nombre, ' ', u.apellido) as jefe_turno"),
-                    DB::raw('SUM(d.kilos_entrega) as total_kilos_entrega'),
-                    DB::raw('SUM(d.kilos_recepcion) as total_kilos_recepcion')
+                    DB::raw('0 as total_kilos_entrega'),
+                    DB::raw('0 as total_kilos_recepcion')
                 )
                 ->where('i.estado', '=', 1);
 
@@ -57,14 +56,7 @@ class InformeController extends Controller
                 $query->whereDate('i.fecha_turno', '=', $request->fecha);
             }
 
-            $results = $query->groupBy(
-                'i.fecha_turno',
-                'i.cod_turno',
-                't.nombre',
-                'u.nombre',
-                'u.apellido'
-            )
-                ->orderBy('i.fecha_turno', 'desc')
+            $results = $query->orderBy('i.fecha_turno', 'desc')
                 ->orderBy('i.cod_turno', 'asc')
                 ->get();
 
@@ -93,11 +85,29 @@ class InformeController extends Controller
                 return response()->json(['error' => 'Formato de fecha inválido'], 400);
             }
 
-            // Llamar a la función usando el nombre completo de la base de datos
+            // Consulta directa sin función problemática
             $informes = DB::select("
-                SELECT * FROM pst.dbo.fn_GetInformesDiarios(?)",
-                [$fecha]
-            );
+                SELECT 
+                    i.cod_informe,
+                    i.fecha_turno,
+                    i.cod_turno as orden_turno,
+                    tt.nombre as turno,
+                    CONCAT(u.nombre, ' ', u.apellido) as jefe_turno_nom,
+                    u.cod_usuario as jefe_turno,
+                    i.comentarios,
+                    i.estado,
+                    0 as dotacion_total,
+                    0 as dotacion_esperada,
+                    0 as total_kilos_entrega,
+                    0 as total_kilos_recepcion
+                FROM pst.dbo.informes_turno i
+                JOIN administracion.dbo.tipos_turno tt ON i.cod_turno = tt.id
+                JOIN pst.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
+                WHERE i.fecha_turno = ? 
+                AND i.estado IN (0, 1)  -- Incluir borradores y finalizados
+                AND tt.activo = 1
+                ORDER BY i.cod_turno
+            ", [$fecha]);
 
             // Si no hay resultados, devolver un array vacío en lugar de null
             if (empty($informes)) {
@@ -127,133 +137,58 @@ class InformeController extends Controller
     public function getDetalleTurno($fecha, $turno)
     {
         try {
-            // DEBUG: Agregar logging para diagnosticar el problema
-            \Log::info('Debugging getDetalleTurno:', [
-                'fecha' => $fecha,
-                'turno' => $turno,
-                'fecha_formatted' => \Carbon\Carbon::parse($fecha)->format('Y-m-d')
-            ]);
-
-            // Verificar primero si hay planillas para esta fecha/turno
-            $planillasExistentes = DB::select("
-                SELECT COUNT(*) as total,
-                       p.fec_turno,
-                       p.cod_turno,
-                       t.nombre as turno_nombre
-                FROM pst.dbo.planillas_pst p
-                JOIN administracion.dbo.tipos_turno t ON p.cod_turno = t.id
-                WHERE p.fec_turno = ? 
-                AND p.cod_turno = ? 
-                AND p.guardado = 1
-                GROUP BY p.fec_turno, p.cod_turno, t.nombre
-            ", [$fecha, $turno]);
-
-            \Log::info('Planillas existentes:', $planillasExistentes);
-
-            // Obtener datos del informe usando la función de BI
-            $informeResult = DB::select("
-                SELECT * FROM pst.dbo.fn_GetInformesDiarios(?)
-                WHERE orden_turno = ?
-            ", [$fecha, $turno]);
-
-            \Log::info('Resultado fn_GetInformesDiarios:', [
-                'count' => count($informeResult),
-                'data' => $informeResult
-            ]);
-
-            // Si no hay resultados de la función BI pero sí hay planillas, usar datos base
-            if (empty($informeResult)) {
-                if (!empty($planillasExistentes)) {
-                    // Crear objeto informe básico desde planillas existentes
-                    $planillaInfo = $planillasExistentes[0];
-                    $informe = (object) [
-                        'fecha_turno' => $fecha,
-                        'orden_turno' => $turno,
-                        'turno' => $planillaInfo->turno_nombre,
-                        'total_planillas' => $planillaInfo->total,
-                        'jefe_turno_nom' => 'Pendiente de verificar', // Temporal
-                        // Agregar más campos según necesidad
-                    ];
-
-                    \Log::info('Usando datos base de planillas:', (array) $informe);
-                } else {
-                    return redirect()->back()->with('error', 'No se encontraron planillas guardadas para esta fecha y turno.');
-                }
-            } else {
-                $informe = $informeResult[0];
+            // Validar que la fecha y el turno tengan el formato correcto
+            if (!Carbon::createFromFormat('Y-m-d', $fecha) || !is_numeric($turno)) {
+                return response()->json(['error' => 'Formato de fecha o turno inválido'], 400);
             }
 
-            // Obtener información por sala
-            $informacion_sala = DB::select("
-                SELECT * FROM pst.dbo.fn_GetInformacionPorSala(?, ?)
-            ", [$fecha, $turno]);
-
-            // Obtener detalle de procesamiento
-            $detalle_procesamiento = DB::select("
-                SELECT * FROM pst.dbo.fn_GetDetalleProcesamiento(?, ?)
-                ORDER BY 
-                descripcion,
-                calidad,
-                corte_final
-                ;
-            ", [$fecha, $turno]);
-
-            // Obtener suma de kilos para porciones terminadas
-            $porcionTerminadaResult = DB::select("
-                SELECT SUM(kilos) AS porcionTerminada
-                FROM pst.dbo.fn_GetDetalleProcesamiento(?, ?)
-                WHERE corte_final IN ('PORCION SIN PIEL', 'PORCION CON PIEL', 'PORCIONES')
-            ", [$fecha, $turno]);
-
-            $porcionTerminada = !empty($porcionTerminadaResult) ? ($porcionTerminadaResult[0]->porcionTerminada ?? 0) : 0;
-
-            // Obtener tiempos muertos
-            $tiempos_muertos = DB::select("
-                SELECT * FROM pst.dbo.fn_GetTiemposMuertos(?, ?)
-            ", [$fecha, $turno]);
-
-            // Obtener datos de empaque premium
-            $empaque_premium = DB::select("
+            // Consulta directa para obtener informe específico de un turno
+            $informe = DB::select("
                 SELECT 
-                    CAST(Registro_Sistema AS DATE) AS Fecha,
-                    N_Turno AS Turno,
-                    Producto,
-                    Empresa,
-                    COUNT(DISTINCT N_Lote) AS Cantidad_Lotes,
-                    SUM(CAST(N_PNom AS FLOAT)) AS Total_Kilos,
-                    SUM(piezas) AS Total_Piezas
-                FROM bdsystem.dbo.v_empaque
-                WHERE 
-                    CAST(Registro_Sistema AS DATE) = ?
-                    AND N_IDTurno = ?
-                    AND N_Calidad = 'PREMIUM'
-                GROUP BY 
-                    CAST(Registro_Sistema AS DATE),
-                    N_Turno,
-                    Producto,
-                    Empresa
-                ORDER BY 
-                    CAST(Registro_Sistema AS DATE) DESC,
-                    N_Turno,
-                    SUM(CAST(N_PNom AS FLOAT)) DESC
+                    i.cod_informe,
+                    i.fecha_turno,
+                    i.cod_turno as orden_turno,
+                    tt.nombre as turno,
+                    CONCAT(u.nombre, ' ', u.apellido) as jefe_turno_nom,
+                    u.cod_usuario as jefe_turno,
+                    i.comentarios,
+                    i.estado,
+                    0 as dotacion_total,
+                    0 as dotacion_esperada,
+                    0 as total_kilos_entrega,
+                    0 as total_kilos_recepcion
+                FROM pst.dbo.informes_turno i
+                JOIN administracion.dbo.tipos_turno tt ON i.cod_turno = tt.id
+                JOIN pst.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
+                WHERE i.fecha_turno = ? 
+                AND i.cod_turno = ?
+                AND i.estado IN (0, 1)
+                AND tt.activo = 1
             ", [$fecha, $turno]);
 
-            return view('informes.detalle-turno', compact(
-                'fecha',
-                'turno',
-                'informe',
-                'informacion_sala',
-                'detalle_procesamiento',
-                'porcionTerminada',
-                'tiempos_muertos',
-                'empaque_premium'
-            ));
+            // Si no hay resultados, devolver un array vacío en lugar de null
+            if (empty($informe)) {
+                return response()->json([], 200);
+            }
+
+            // Log para debugging
+            \Log::info('Informe específico obtenido:', ['fecha' => $fecha, 'turno' => $turno]);
+
+            return response()->json($informe[0]); // Devolver solo el primer resultado
+
         } catch (\Exception $e) {
+            // Log del error para debugging
             \Log::error('Error en getDetalleTurno:', [
+                'fecha' => $fecha,
+                'turno' => $turno,
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            return redirect()->back()->with('error', 'Error al cargar el detalle del turno: ' . $e->getMessage());
+
+            return response()->json([
+                'error' => 'Error al obtener el detalle del turno',
+                'message' => $e->getMessage()
+            ], 500);
         }
     }
 
@@ -262,74 +197,55 @@ class InformeController extends Controller
         try {
             \Log::info('Datos recibidos:', $request->all());
 
+            // Verificar si ya existe un informe para esta fecha y turno
+            $fechaTurnoFormateada = Carbon::parse($request->fecha_turno)->format('Y-m-d');
+            $existeInforme = DB::table('pst.dbo.informes_turno')
+                ->where('fecha_turno', $fechaTurnoFormateada)
+                ->where('cod_turno', (int) $request->cod_turno)
+                ->exists();
+
+            if ($existeInforme) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Ya existe un informe para esta fecha y turno. No se puede crear un duplicado.'
+                ], 422);
+            }
+
             $request->validate([
                 'fecha_turno' => 'required|date',
                 'cod_turno' => 'required|integer|min:1',
                 'cod_jefe_turno' => 'required|string',
-                'comentarios' => 'required|string',
-                'd_real_empaque' => 'required|integer|min:1',
-                'd_esperada_empaque' => 'nullable|integer|min:0',
-                'horas_trabajadas_empaque' => 'required|numeric|min:0.1',
-                'tiempo_muerto_empaque' => 'nullable|integer|min:0',
-                'productividad_empaque' => 'nullable|numeric|min:0',
-                'salas' => 'required|array|min:1',
-                'salas.*.cod_sala' => 'required|integer|min:1',
-                'salas.*.dotacion_real' => 'required|integer|min:0',
-                'salas.*.dotacion_esperada' => 'required|integer|min:0',
-                'salas.*.kilos_entrega' => 'required|numeric|min:0',
-                'salas.*.kilos_recepcion' => 'required|numeric|min:0',
-                'salas.*.kilos_premium' => 'required|numeric|min:0',
-                'salas.*.piezas_entrega' => 'required|integer|min:0',
-                'salas.*.piezas_recepcion' => 'required|integer|min:0',
-                'salas.*.horas_trabajadas' => 'required|numeric|min:0',
-                'salas.*.tiempo_muerto_minutos' => 'required|integer|min:0',
-                'salas.*.rendimiento' => 'required|numeric|min:0',
-                'salas.*.productividad' => 'required|numeric|min:0',
-                'salas.*.premium' => 'required|numeric|min:0',
-                'salas.*.tipo_planilla' => 'required|string',
+                'comentarios_salas' => 'nullable|array',
+                'comentarios_salas.*.cod_sala' => 'required|integer|min:1',
+                'comentarios_salas.*.comentarios' => 'required|string|max:2000'
             ]);
 
             DB::beginTransaction();
 
-            // Formatear las fechas correctamente para SQL Server
-            $fechaTurno = Carbon::parse($request->fecha_turno)->format('Ymd');
-            $fechaCreacion = Carbon::now()->format('Ymd H:i:s');
+            // Formatear la fecha correctamente para SQL Server
+            $fechaTurno = Carbon::parse($request->fecha_turno)->format('Y-m-d');
+            $fechaCreacion = Carbon::now()->format('Y-m-d H:i:s');
 
-            // Crear el informe
-            $informe = DB::table('pst.dbo.informes_turno')->insertGetId([
+            // Crear el informe principal (estructura simplificada)
+            $codInforme = DB::table('pst.dbo.informes_turno')->insertGetId([
                 'fecha_turno' => $fechaTurno,
                 'cod_turno' => (int) $request->cod_turno,
                 'cod_jefe_turno' => $request->cod_jefe_turno,
-                'cod_usuario_crea' => auth()->id(),
-                'comentarios' => $request->comentarios,
+                'cod_usuario_crea' => session('user.cod_usuario'),
                 'fecha_creacion' => $fechaCreacion,
-                'd_real_empaque' => (int) $request->d_real_empaque,
-                'd_esperada_empaque' => (int) $request->d_esperada_empaque,
-                'horas_trabajadas_empaque' => (float) $request->horas_trabajadas_empaque,
-                'tiempo_muerto_empaque' => (int) $request->tiempo_muerto_empaque,
-                'productividad_empaque' => (float) $request->productividad_empaque,
                 'estado' => 1
             ]);
 
-            // Insertar detalles por sala
-            foreach ($request->salas as $sala) {
-                DB::table('pst.dbo.detalle_informe_sala')->insert([
-                    'cod_informe' => $informe,
-                    'cod_sala' => (int) $sala['cod_sala'],
-                    'dotacion_real' => (int) $sala['dotacion_real'],
-                    'dotacion_esperada' => (int) $sala['dotacion_esperada'],
-                    'kilos_entrega' => (float) $sala['kilos_entrega'],
-                    'kilos_recepcion' => (float) $sala['kilos_recepcion'],
-                    'kilos_premium' => (float) $sala['kilos_premium'],
-                    'piezas_entrega' => (int) $sala['piezas_entrega'],
-                    'piezas_recepcion' => (int) $sala['piezas_recepcion'],
-                    'horas_trabajadas' => (float) $sala['horas_trabajadas'],
-                    'tiempo_muerto_minutos' => (int) $sala['tiempo_muerto_minutos'],
-                    'rendimiento' => (float) $sala['rendimiento'],
-                    'productividad' => (float) $sala['productividad'],
-                    'premium' => (float) $sala['premium'],
-                    'tipo_planilla' => $sala['tipo_planilla']
-                ]);
+            // Guardar comentarios por sala (si existen)
+            if (!empty($request->comentarios_salas)) {
+                foreach ($request->comentarios_salas as $comentario) {
+                    DB::table('pst.dbo.comentarios_informe_sala')->insert([
+                        'cod_informe' => $codInforme,
+                        'cod_sala' => (int) $comentario['cod_sala'],
+                        'comentarios' => $comentario['comentarios'],
+                        'fecha_creacion' => $fechaCreacion
+                    ]);
+                }
             }
 
             DB::commit();
@@ -337,7 +253,7 @@ class InformeController extends Controller
             return response()->json([
                 'status' => 'success',
                 'message' => 'Informe guardado correctamente',
-                'cod_informe' => $informe
+                'cod_informe' => $codInforme
             ]);
 
         } catch (\Exception $e) {
@@ -351,6 +267,632 @@ class InformeController extends Controller
                 'status' => 'error',
                 'message' => 'Error al guardar el informe: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    // ===== NUEVO SISTEMA DE BORRADOR AUTOMÁTICO =====
+
+    /**
+     * Crear informe borrador automáticamente al hacer click en "Crear Informe"
+     */
+    public function crearBorrador($fecha, $turno)
+    {
+        try {
+            \Log::info('Creando borrador automático:', ['fecha' => $fecha, 'turno' => $turno]);
+
+            // Verificar si ya existe un informe para esta fecha y turno
+            $existeInforme = DB::table('pst.dbo.informes_turno')
+                ->where('fecha_turno', $fecha)
+                ->where('cod_turno', (int) $turno)
+                ->first();
+
+            if ($existeInforme) {
+                // Si ya existe, redirigir a editarlo
+                return redirect()->route('informes.editar', [
+                    'cod_informe' => $existeInforme->cod_informe
+                ])->with('info', 'Este informe ya existe. Puedes editarlo o finalizarlo.');
+            }
+
+            // Obtener el jefe de turno más común para esta fecha/turno
+            $jefeInfo = DB::select("
+                SELECT TOP 1 
+                    p.cod_jefe_turno,
+                    CONCAT(u.nombre, ' ', u.apellido) as jefe_nombre
+                FROM pst.dbo.planillas_pst p 
+                JOIN pst.dbo.usuarios_pst u ON p.cod_jefe_turno = u.cod_usuario
+                WHERE p.fec_turno = ? 
+                AND p.cod_turno = ? 
+                AND p.guardado = 1
+                AND p.cod_jefe_turno IS NOT NULL
+                GROUP BY p.cod_jefe_turno, u.nombre, u.apellido
+                ORDER BY COUNT(*) DESC
+            ", [$fecha, $turno]);
+
+            if (empty($jefeInfo)) {
+                return redirect()->back()->with('error', 'No se encontraron planillas guardadas para esta fecha y turno.');
+            }
+
+            $jefe = $jefeInfo[0];
+
+            DB::beginTransaction();
+
+            // Crear el informe borrador
+            $codInforme = DB::table('pst.dbo.informes_turno')->insertGetId([
+                'fecha_turno' => $fecha,
+                'cod_turno' => (int) $turno,
+                'cod_jefe_turno' => $jefe->cod_jefe_turno,
+                'cod_usuario_crea' => session('user.cod_usuario'),
+                'fecha_creacion' => Carbon::now()->format('Y-m-d H:i:s'),
+                'estado' => 0, // BORRADOR
+                'comentarios' => null // Se completará después
+            ]);
+
+            DB::commit();
+
+            \Log::info('Borrador creado exitosamente:', [
+                'cod_informe' => $codInforme,
+                'fecha' => $fecha,
+                'turno' => $turno,
+                'jefe' => $jefe->jefe_nombre
+            ]);
+
+            // Redirigir a la vista de edición del borrador
+            return redirect()->route('informes.editar', ['cod_informe' => $codInforme])
+                ->with('success', 'Informe borrador creado. Puedes agregar comentarios y fotos.');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error al crear borrador:', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'fecha' => $fecha,
+                'turno' => $turno
+            ]);
+            return redirect()->back()->with('error', 'Error al crear el informe: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Formatea fecha para usar en consultas SQL Server
+     * Maneja diferentes formatos de entrada y retorna YYYY-MM-DD
+     */
+    private function formatearFecha($fecha)
+    {
+        try {
+            // Si la fecha ya está en formato YYYY-MM-DD, usarla directamente
+            if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $fecha)) {
+                return $fecha;
+            }
+
+            // Si la fecha está en formato dd/mm/yyyy, parsearla específicamente
+            if (preg_match('/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/', $fecha, $matches)) {
+                $dia = str_pad($matches[1], 2, '0', STR_PAD_LEFT);
+                $mes = str_pad($matches[2], 2, '0', STR_PAD_LEFT);
+                $año = $matches[3];
+                return "$año-$mes-$dia";
+            }
+
+            // Intentar con Carbon como fallback
+            return \Carbon\Carbon::parse($fecha)->format('Y-m-d');
+        } catch (\Exception $e) {
+            \Log::warning('Error al formatear fecha', [
+                'fecha_original' => $fecha,
+                'error' => $e->getMessage()
+            ]);
+            return $fecha; // Retornar fecha original en caso de error
+        }
+    }
+
+    /**
+     * Vista de edición del informe (borrador o completado)
+     */
+    public function editar($cod_informe)
+    {
+        try {
+            // Obtener datos del informe
+            $informe = DB::table('pst.dbo.informes_turno as i')
+                ->join('administracion.dbo.tipos_turno as t', 'i.cod_turno', '=', 't.id')
+                ->join('pst.dbo.usuarios_pst as u', 'i.cod_jefe_turno', '=', 'u.cod_usuario')
+                ->select(
+                    'i.*',
+                    't.nombre as turno_nombre',
+                    DB::raw("CONCAT(u.nombre, ' ', u.apellido) as jefe_turno_nom")
+                )
+                ->where('i.cod_informe', $cod_informe)
+                ->first();
+
+            if (!$informe) {
+                return redirect()->back()->with('error', 'Informe no encontrado.');
+            }
+
+            // Verificar permisos - solo el creador puede editar
+            // TODO: Revisar verificación de permisos después
+            /*
+            if ($informe->cod_usuario_crea != session('user.cod_usuario')) {
+                return redirect()->back()->with('error', 'No tienes permisos para editar este informe.');
+            }
+            */
+
+            $fecha = $informe->fecha_turno;
+            $turno = $informe->cod_turno;
+
+            // Convertir fecha al formato correcto YYYY-MM-DD para SQL Server
+            $fecha_formateada = $this->formatearFecha($fecha);
+
+            $horarios = DB::select("
+                SELECT * FROM pst.dbo.fn_GetHorariosTurno(?, ?)
+            ", [$fecha_formateada, $turno]);
+
+            $horarios_data = !empty($horarios) ? $horarios[0] : null;
+
+
+
+            // Obtener datos básicos del informe - SIN detalle_informe_sala
+            $informeData = (object) [
+                'cod_informe' => $informe->cod_informe,
+                'fecha_turno' => $fecha,
+                'orden_turno' => $turno,
+                'turno' => $informe->turno_nombre,
+                'jefe_turno_nom' => $informe->jefe_turno_nom,
+                'cod_jefe_turno' => $informe->cod_jefe_turno,
+                'estado' => $informe->estado,
+                'comentarios' => $informe->comentarios,
+                'fecha_creacion' => $informe->fecha_creacion,
+                'fecha_finalizacion' => $informe->fecha_finalizacion ?? null,
+                // Agregar horarios del turno
+                'hora_inicio' => $horarios_data->hora_inicio ?? null,
+                'hora_fin' => $horarios_data->hora_fin ?? null,
+                'horas_trabajadas' => $horarios_data->horas_trabajadas ?? null,
+                'tiene_colacion' => $horarios_data->tiene_colacion ?? 0,
+                'hora_inicio_colacion' => $horarios_data->hora_inicio_colacion ?? null,
+                'hora_fin_colacion' => $horarios_data->hora_fin_colacion ?? null,
+                // Valores por defecto hasta que se implementen los cálculos
+                'dotacion_total' => 0,
+                'dotacion_esperada' => 0,
+                'total_kilos_entrega' => 0,
+                'total_kilos_recepcion' => 0
+            ];
+
+
+
+            // Obtener información por sala usando función existente
+            $informacion_sala = DB::select("
+                SELECT * FROM pst.dbo.fn_GetInformacionPorSala(?, ?)
+            ", [$fecha_formateada, $turno]);
+
+            // Obtener detalle de procesamiento usando función existente  
+            $detalle_procesamiento = DB::select("
+                SELECT * FROM pst.dbo.fn_GetDetalleProcesamiento(?, ?)
+                ORDER BY 
+                descripcion,
+                calidad,
+                corte_final
+            ", [$fecha_formateada, $turno]);
+
+            // Obtener tiempos muertos usando función existente
+            $tiempos_muertos = DB::select("
+                SELECT * FROM pst.dbo.fn_GetTiemposMuertos(?, ?)
+            ", [$fecha_formateada, $turno]);
+
+            // Obtener detalle de planillas para el modal (CONSULTA CORREGIDA)
+            try {
+                $planillas_detalle = DB::select("
+                SELECT 
+                        p.cod_planilla as numero_planilla,
+                        CONCAT(u.nombre, ' ', u.apellido) as trabajador_nombre,
+                        p.tiempo_trabajado as horas_trabajadas,
+                        dp.dotacion,
+                    dp.kilos_entrega,
+                        dp.kilos_recepcion as pst_total,
+                        emp.descripcion,
+                        dp.cod_sala,
+                        p.cod_tipo_planilla,
+                        p.guardado,
+                        s.nombre as sala_nombre
+                FROM pst.dbo.planillas_pst p
+                LEFT JOIN pst.dbo.usuarios_pst u ON p.cod_planillero = u.cod_usuario
+                    LEFT JOIN pst.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
+                LEFT JOIN bdsystem.dbo.empresas emp ON p.cod_empresa = emp.cod_empresa
+                    LEFT JOIN pst.dbo.sala s ON dp.cod_sala = s.cod_sala
+                WHERE p.fec_turno = ? 
+                AND p.cod_turno = ? 
+                AND p.guardado = 1
+                    ORDER BY emp.descripcion, s.nombre, p.cod_planilla
+            ", [$fecha_formateada, $turno]);
+            } catch (\Exception $e) {
+                // Si hay error con las planillas, usar array vacío
+                $planillas_detalle = [];
+                \Log::error('Error obteniendo planillas: ' . $e->getMessage(), [
+                    'fecha' => $fecha,
+                    'turno' => $turno,
+                    'sql_error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+            }
+
+            // Datos básicos para la vista
+            $valores_tarjetas_por_empresa = collect();
+            $dotacion_maxima_grupos = collect();
+
+            // === CALCULAR VALORES REALES POR EMPRESA ===
+
+            // Obtener todas las empresas únicas de los datos
+            $empresas_unicas = collect($detalle_procesamiento)->pluck('descripcion')->map(function ($nombre) {
+                return trim($nombre);
+            })->unique()->filter();
+
+            // Procesar cada combinación sala/tipo/empresa
+            foreach ($informacion_sala as $sala_info) {
+                // Crear clave para agrupación
+                $grupo_key = $sala_info->cod_sala . '-' . $sala_info->cod_tipo_planilla;
+
+                // Obtener empresas para esta sala/tipo de planilla
+                $empresas_en_sala = collect($detalle_procesamiento)
+                    ->where('cod_sala', $sala_info->cod_sala)
+                    ->where('cod_tipo_planilla', $sala_info->cod_tipo_planilla)
+                    ->pluck('descripcion')
+                    ->map(function ($nombre) {
+                        return trim($nombre);
+                    })
+                    ->unique();
+
+                foreach ($empresas_en_sala as $empresa_nombre) {
+                    $empresa_key = $sala_info->cod_sala . '-' . $sala_info->cod_tipo_planilla . '-' . $empresa_nombre;
+
+                    // === CALCULAR VALORES REALES DE PLANILLAS ===
+
+
+
+                    $planillas_empresa = collect($planillas_detalle)->filter(function ($planilla) use ($empresa_nombre, $sala_info) {
+                        // Limpiar y comparar nombres de empresa
+                        $planilla_empresa_clean = isset($planilla->descripcion) ? trim($planilla->descripcion) : '';
+                        $empresa_nombre_clean = trim($empresa_nombre);
+
+                        $coincide_empresa = $planilla_empresa_clean === $empresa_nombre_clean;
+                        $coincide_sala = $planilla->cod_sala == $sala_info->cod_sala;
+                        $coincide_tipo = $planilla->cod_tipo_planilla == $sala_info->cod_tipo_planilla;
+
+                        return $coincide_empresa && $coincide_sala && $coincide_tipo;
+                    });
+
+
+
+                    // Calcular valores reales de planillas
+                    $total_horas = $planillas_empresa->sum(function ($p) {
+                        return floatval($p->horas_trabajadas ?? 0);
+                    });
+
+                    $total_entrega = $planillas_empresa->sum(function ($p) {
+                        return floatval($p->kilos_entrega ?? 0);
+                    });
+
+                    $total_pst = $planillas_empresa->sum(function ($p) {
+                        return floatval($p->pst_total ?? 0);
+                    });
+
+                    $max_dotacion = $planillas_empresa->max(function ($p) {
+                        return intval($p->dotacion ?? 0);
+                    }) ?? 0;
+
+
+
+                    // === CALCULAR PST OBJETIVO DE PRODUCTOS ===
+                    $productos_empresa = collect($detalle_procesamiento)
+                        ->where('cod_sala', $sala_info->cod_sala)
+                        ->where('cod_tipo_planilla', $sala_info->cod_tipo_planilla)
+                        ->filter(function ($producto) use ($empresa_nombre) {
+                            return isset($producto->descripcion) &&
+                                trim($producto->descripcion) === $empresa_nombre;
+                        });
+
+                    // Filtrar productos objetivo
+                    $productos_objetivo = $productos_empresa->filter(function ($producto) {
+                        return $producto->es_producto_objetivo == 1 ||
+                            $producto->es_producto_objetivo === '1' ||
+                            $producto->es_producto_objetivo === true;
+                    });
+
+                    $kilos_objetivo = $productos_objetivo->sum(function ($p) {
+                        return floatval($p->kilos ?? 0);
+                    });
+
+                    $total_piezas = $productos_empresa->sum(function ($p) {
+                        return floatval($p->piezas ?? 0);
+                    });
+
+                    // Guardar valores calculados reales
+                    $valores_calculados = [
+                        'dotacion' => $max_dotacion,
+                        'horas_reales' => $total_horas,
+                        'entrega_mp' => $total_entrega,
+                        'pst_objetivo' => $kilos_objetivo,
+                        'pst_total' => $total_pst,
+                        'piezas_total' => $total_piezas
+                    ];
+
+                    $valores_tarjetas_por_empresa->put($empresa_key, $valores_calculados);
+
+
+
+                    // Guardar dotación máxima para el grupo
+                    $dotacion_actual = $dotacion_maxima_grupos->get($grupo_key, 0);
+                    $dotacion_maxima_grupos->put($grupo_key, max($dotacion_actual, $max_dotacion));
+                }
+            }
+
+            // Obtener comentarios existentes por sala
+            $comentarios_existentes = DB::table('pst.dbo.comentarios_informe_sala')
+                ->where('cod_informe', $cod_informe)
+                ->get()
+                ->keyBy('cod_sala');
+
+            // Obtener fotos existentes  
+            $fotos_existentes = DB::table('pst.dbo.fotos_informe')
+                ->where('cod_informe', $cod_informe)
+                ->where('activo', 1)
+                ->orderBy('fecha_subida', 'desc')
+                ->get();
+
+            // Usar la vista detalle-turno con datos para edición
+            return view('informes.detalle-turno', compact(
+                'informe', // El informe existente
+                'informeData', // Los datos calculados (simplificados)
+                'informacion_sala',
+                'detalle_procesamiento',
+                'tiempos_muertos',
+                'planillas_detalle',
+                'valores_tarjetas_por_empresa',
+                'dotacion_maxima_grupos',
+                'comentarios_existentes',
+                'fotos_existentes',
+                'fecha',
+                'turno'
+            ));
+
+        } catch (\Exception $e) {
+            \Log::error('Error en editar informe:', [
+                'cod_informe' => $cod_informe,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+            return redirect()->back()->with('error', 'Error al cargar el informe: ' . $e->getMessage());
+        }
+    }
+
+    // ===== MÉTODOS AJAX PARA AUTO-GUARDADO =====
+
+    /**
+     * Actualizar comentario de sala (AJAX)
+     * TODO: Implementar cuando exista la tabla comentarios_informe_sala
+     */
+    public function actualizarComentario(Request $request)
+    {
+        try {
+            $request->validate([
+                'cod_informe' => 'required|integer',
+                'cod_sala' => 'required|integer',
+                'comentarios' => 'nullable|string|max:2000'
+            ]);
+
+            $cod_informe = $request->cod_informe;
+            $cod_sala = $request->cod_sala;
+            $comentarios = $request->comentarios;
+
+            // Verificar que el informe existe y pertenece al usuario
+            $informe = DB::table('pst.dbo.informes_turno')
+                ->where('cod_informe', $cod_informe)
+                ->where('cod_jefe_turno', session('user.cod_usuario'))
+                ->first();
+
+            if (!$informe) {
+                return response()->json(['error' => 'Informe no encontrado o sin permisos'], 403);
+            }
+
+            // Si el informe está finalizado (estado = 1), no permitir edición
+            if ($informe->estado == 1) {
+                return response()->json(['error' => 'No se puede editar un informe finalizado'], 403);
+            }
+
+            // Buscar si ya existe el comentario para esta sala
+            $comentarioExistente = DB::table('pst.dbo.comentarios_informe_sala')
+                ->where('cod_informe', $cod_informe)
+                ->where('cod_sala', $cod_sala)
+                ->first();
+
+            if ($comentarioExistente) {
+                // Actualizar comentario existente
+                if (empty($comentarios)) {
+                    // Si el comentario está vacío, eliminar el registro
+                    DB::table('pst.dbo.comentarios_informe_sala')
+                        ->where('cod_comentario', $comentarioExistente->cod_comentario)
+                        ->delete();
+                } else {
+                    DB::table('pst.dbo.comentarios_informe_sala')
+                        ->where('cod_comentario', $comentarioExistente->cod_comentario)
+                        ->update([
+                            'comentarios' => $comentarios,
+                            'fecha_creacion' => \Carbon\Carbon::now()
+                        ]);
+                }
+            } else if (!empty($comentarios)) {
+                // Crear nuevo comentario si no existe y no está vacío
+                DB::table('pst.dbo.comentarios_informe_sala')->insert([
+                    'cod_informe' => $cod_informe,
+                    'cod_sala' => $cod_sala,
+                    'comentarios' => $comentarios,
+                    'fecha_creacion' => \Carbon\Carbon::now()
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Comentario guardado automáticamente',
+                'timestamp' => \Carbon\Carbon::now()->format('H:i:s')
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error actualizando comentario:', [
+                'error' => $e->getMessage(),
+                'datos' => $request->all()
+            ]);
+            return response()->json(['error' => 'Error al guardar comentario: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Subir foto (AJAX)
+     */
+    public function subirFoto(Request $request)
+    {
+        try {
+            $request->validate([
+                'cod_informe' => 'required|integer',
+                'foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120' // 5MB max
+            ]);
+
+            $cod_informe = $request->cod_informe;
+
+            // Verificar permisos
+            $informe = DB::table('pst.dbo.informes_turno')
+                ->where('cod_informe', $cod_informe)
+                ->where('cod_jefe_turno', session('user.cod_usuario'))
+                ->first();
+
+            if (!$informe || $informe->estado == 1) {
+                return response()->json(['error' => 'Sin permisos o informe finalizado'], 403);
+            }
+
+            $foto = $request->file('foto');
+            $nombreOriginal = $foto->getClientOriginalName();
+            $extension = $foto->getClientOriginalExtension();
+            $nombreUnico = $cod_informe . '_' . time() . '_' . uniqid() . '.' . $extension;
+
+            // Crear directorio si no existe
+            $directorioFotos = storage_path('app/public/informes_fotos');
+            if (!file_exists($directorioFotos)) {
+                mkdir($directorioFotos, 0755, true);
+            }
+
+            // Guardar en storage/app/public/informes_fotos/
+            $rutaArchivo = $foto->storeAs('informes_fotos', $nombreUnico, 'public');
+
+            // Guardar en base de datos y obtener ID
+            $idFoto = DB::table('pst.dbo.fotos_informe')->insertGetId([
+                'cod_informe' => $cod_informe,
+                'nombre_original' => $nombreOriginal,
+                'nombre_archivo' => $nombreUnico,
+                'ruta_archivo' => $rutaArchivo,
+                'tamaño_archivo' => $foto->getSize(),
+                'tipo_mime' => $foto->getMimeType(),
+                'fecha_subida' => \Carbon\Carbon::now(),
+                'cod_usuario_subida' => session('user.cod_usuario'),
+                'activo' => 1
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Foto subida correctamente',
+                'foto' => [
+                    'id' => $idFoto, // ✅ AGREGADO: ID necesario para eliminar
+                    'nombre_original' => $nombreOriginal,
+                    'url' => asset('storage/' . $rutaArchivo),
+                    'fecha_subida' => \Carbon\Carbon::now()->format('d/m/Y H:i')
+                ]
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error subiendo foto:', [
+                'error' => $e->getMessage(),
+                'datos' => $request->all()
+            ]);
+            return response()->json(['error' => 'Error al subir foto: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Eliminar foto (AJAX)
+     */
+    public function eliminarFoto(Request $request)
+    {
+        try {
+            $request->validate([
+                'id_foto' => 'required|integer'
+            ]);
+
+            $foto = DB::table('pst.dbo.fotos_informe as f')
+                ->join('pst.dbo.informes_turno as i', 'f.cod_informe', '=', 'i.cod_informe')
+                ->where('f.id_foto', $request->id_foto)
+                ->where('i.cod_jefe_turno', session('user.cod_usuario')) // Corregir campo
+                ->where('i.estado', 0) // Solo borradores
+                ->select('f.*')
+                ->first();
+
+            if (!$foto) {
+                return response()->json(['error' => 'Foto no encontrada o sin permisos'], 403);
+            }
+
+            // Eliminar archivo físico
+            $rutaCompleta = storage_path('app/public/' . $foto->ruta_archivo);
+            if (file_exists($rutaCompleta)) {
+                unlink($rutaCompleta);
+            }
+
+            // Eliminar de base de datos
+            DB::table('pst.dbo.fotos_informe')
+                ->where('id_foto', $request->id_foto)
+                ->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Foto eliminada correctamente'
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error eliminando foto:', $e->getMessage());
+            return response()->json(['error' => 'Error al eliminar foto'], 500);
+        }
+    }
+
+    /**
+     * Finalizar informe (cambiar estado de borrador a completado)
+     */
+    public function finalizar(Request $request)
+    {
+        try {
+            $request->validate([
+                'cod_informe' => 'required|integer'
+            ]);
+
+            $cod_informe = $request->cod_informe;
+
+            // Verificar permisos y que sea borrador
+            $informe = DB::table('pst.dbo.informes_turno')
+                ->where('cod_informe', $cod_informe)
+                ->where('cod_jefe_turno', session('user.cod_usuario')) // Corregir: usar jefe de turno
+                ->where('estado', 0) // Solo borradores
+                ->first();
+
+            if (!$informe) {
+                return response()->json(['error' => 'Informe no encontrado o ya finalizado'], 403);
+            }
+
+            // Actualizar estado a finalizado
+            DB::table('pst.dbo.informes_turno')
+                ->where('cod_informe', $cod_informe)
+                ->update([
+                    'estado' => 1,
+                    'fecha_finalizacion' => \Carbon\Carbon::now()
+                ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Informe finalizado correctamente',
+                'redirect_url' => route('mis-informes')
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error finalizando informe:', $e->getMessage());
+            return response()->json(['error' => 'Error al finalizar informe'], 500);
         }
     }
 
@@ -379,6 +921,16 @@ class InformeController extends Controller
     {
         try {
             // Obtener datos base del informe y sus detalles
+            // Obtener horarios del turno usando fn_GetHorariosTurno
+            // Asegurar formato correcto de fecha para SQL Server (YYYY-MM-DD)
+            $fecha_formateada = \Carbon\Carbon::parse($fecha)->format('Y-m-d');
+
+            $horarios = DB::select("
+                SELECT * FROM pst.dbo.fn_GetHorariosTurno(?, ?)
+            ", [$fecha_formateada, $turno]);
+
+            $horarios_data = !empty($horarios) ? $horarios[0] : null;
+
             $informe = DB::select("
                 SELECT 
                     i.cod_informe,
@@ -392,52 +944,29 @@ class InformeController extends Controller
                     i.d_esperada_empaque,
                     i.horas_trabajadas_empaque,
                     i.tiempo_muerto_empaque,
-                    i.productividad_empaque
+                    i.productividad_empaque,
+                    i.fecha_creacion,
+                    i.fecha_finalizacion
                 FROM pst.dbo.informes_turno i
                 JOIN administracion.dbo.tipos_turno t ON i.cod_turno = t.id
                 JOIN pst.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
-                JOIN pst.dbo.detalle_informe_sala d ON i.cod_informe = d.cod_informe
                 WHERE i.fecha_turno = ? AND i.cod_turno = ?
-                GROUP BY 
-                    i.cod_informe,
-                    i.fecha_turno,
-                    t.nombre,
-                    i.cod_turno,
-                    u.nombre,
-                    u.apellido,
-                    u.cod_usuario,
-                    i.comentarios,
-                    i.d_real_empaque,
-                    i.d_esperada_empaque,
-                    i.horas_trabajadas_empaque,
-                    i.tiempo_muerto_empaque,
-                    i.productividad_empaque
             ", [$fecha, $turno])[0];
 
-            // Obtener información por sala desde la tabla
+            // Agregar horarios al objeto informe
+            if ($horarios_data) {
+                $informe->hora_inicio = $horarios_data->hora_inicio;
+                $informe->hora_fin = $horarios_data->hora_fin;
+                $informe->horas_trabajadas = $horarios_data->horas_trabajadas;
+                $informe->tiene_colacion = $horarios_data->tiene_colacion;
+                $informe->hora_inicio_colacion = $horarios_data->hora_inicio_colacion;
+                $informe->hora_fin_colacion = $horarios_data->hora_fin_colacion;
+            }
+
+            // Obtener información por sala desde las funciones existentes
             $informacion_sala = DB::select("
-                SELECT 
-    s.nombre as nombre_sala,
-    s.cod_sala as cod_sala,
-    d.tipo_planilla as tipo_planilla,
-    CASE d.tipo_planilla 
-        WHEN 'Filete' THEN 1
-        WHEN 'Porciones' THEN 2
-        WHEN 'HG' THEN 3
-        ELSE NULL
-    END as cod_tipo_planilla,
-    d.horas_trabajadas,
-    d.kilos_entrega as kilos_entrega_total,
-    d.kilos_recepcion as kilos_recepcion_total,
-    d.piezas_entrega as piezas_entrega_total,
-    d.piezas_recepcion as piezas_recepcion_total,
-    d.dotacion_real,
-    d.dotacion_esperada
-FROM pst.dbo.detalle_informe_sala d
-JOIN pst.dbo.sala s ON d.cod_sala = s.cod_sala
-JOIN pst.dbo.informes_turno i ON i.cod_informe = d.cod_informe
-WHERE d.cod_informe = ?
-            ", [$informe->cod_informe]);
+                SELECT * FROM pst.dbo.fn_GetInformacionPorSala(?, ?)
+            ", [$fecha, $turno]);
 
             // Obtener detalle de procesamiento
             $detalle_procesamiento = DB::select("
@@ -454,28 +983,55 @@ WHERE d.cod_informe = ?
                 SELECT * FROM pst.dbo.fn_GetTiemposMuertos(?, ?)
             ", [$fecha, $turno]);
 
-            // Obtener resumen
-            $resumen = DB::select("
-                SELECT 
-                    i.cod_informe,
-                    i.fecha_turno,
-                    i.cod_turno,
-                    SUM(d.dotacion_real) as dotacion_total_real,
-                    SUM(d.dotacion_esperada) as dotacion_total_esperada,
-                    CASE 
-                        WHEN SUM(d.dotacion_esperada) > 0 
-                        THEN ((SUM(d.dotacion_esperada) - SUM(d.dotacion_real)) * 100.0 / SUM(d.dotacion_esperada))
-                        ELSE 0 
-                    END as porcentaje_ausentismo,
-                    SUM(d.kilos_entrega) as total_kilos_entrega,
-                    SUM(d.kilos_recepcion) as total_kilos_recepcion,
-                    AVG(d.rendimiento) as rendimiento_promedio,
-                    AVG(d.productividad) as productividad_promedio
-                FROM pst.dbo.informes_turno i
-                JOIN pst.dbo.detalle_informe_sala d ON i.cod_informe = d.cod_informe
-                WHERE i.cod_informe = ?
-                GROUP BY i.cod_informe, i.fecha_turno, i.cod_turno
-            ", [$informe->cod_informe])[0];
+            // Obtener detalle de planillas para el modal (CONSULTA CORREGIDA)
+            try {
+                $planillas_detalle = DB::select("
+                    SELECT 
+                        p.cod_planilla as numero_planilla,
+                        CONCAT(u.nombre, ' ', u.apellido) as trabajador_nombre,
+                        p.tiempo_trabajado as horas_trabajadas,
+                        dp.dotacion,
+                        dp.kilos_entrega,
+                        dp.kilos_recepcion as pst_total,
+                        emp.descripcion,
+                        dp.cod_sala,
+                        p.cod_tipo_planilla,
+                        p.guardado,
+                        s.nombre as sala_nombre
+                    FROM pst.dbo.planillas_pst p
+                    LEFT JOIN pst.dbo.usuarios_pst u ON p.cod_planillero = u.cod_usuario
+                    LEFT JOIN pst.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
+                    LEFT JOIN bdsystem.dbo.empresas emp ON p.cod_empresa = emp.cod_empresa
+                    LEFT JOIN pst.dbo.sala s ON dp.cod_sala = s.cod_sala
+                    WHERE p.fec_turno = ?
+                    AND p.cod_turno = ?
+                    AND p.guardado = 1
+                    ORDER BY emp.descripcion, s.nombre, p.cod_planilla
+                ", [$fecha, $turno]);
+            } catch (\Exception $e) {
+                // Si hay error con las planillas, usar array vacío
+                $planillas_detalle = [];
+                \Log::error('Error obteniendo planillas: ' . $e->getMessage(), [
+                    'fecha' => $fecha,
+                    'turno' => $turno,
+                    'sql_error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ]);
+            }
+
+            // Obtener resumen calculado desde las funciones existentes
+            $resumen = (object) [
+                'cod_informe' => $informe->cod_informe,
+                'fecha_turno' => $informe->fecha,
+                'cod_turno' => $informe->orden_turno,
+                'dotacion_total_real' => collect($informacion_sala)->sum('dotacion_real'),
+                'dotacion_total_esperada' => collect($informacion_sala)->sum('dotacion_esperada'),
+                'porcentaje_ausentismo' => 0,
+                'total_kilos_entrega' => collect($informacion_sala)->sum('kilos_entrega_total'),
+                'total_kilos_recepcion' => collect($informacion_sala)->sum('kilos_recepcion_total'),
+                'rendimiento_promedio' => collect($informacion_sala)->avg('rendimiento'),
+                'productividad_promedio' => collect($informacion_sala)->avg('productividad')
+            ];
 
             // Obtener datos de empaque premium
             $empaque_premium = DB::select("
@@ -514,7 +1070,9 @@ WHERE d.cod_informe = ?
                 'informacion_sala',
                 'detalle_procesamiento',
                 'tiempos_muertos',
-                'empaque_premium'
+                'planillas_detalle',
+                'empaque_premium',
+                'resumen'
             ));
 
         } catch (\Exception $e) {

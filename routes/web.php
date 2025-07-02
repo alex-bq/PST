@@ -114,11 +114,46 @@ Route::get('/informes/search', [MisInformesController::class, 'search'])->name('
 Route::get('/informes/detalle/{fecha}/{turno}', [InformeController::class, 'show'])
     ->name('informes.show');
 
+// ===== NUEVAS RUTAS PARA SISTEMA DE BORRADOR AUTOMÁTICO =====
+
+// Crear borrador automáticamente (reemplaza el enlace anterior de "Crear Informe")
+Route::get('/informes/borrador/{fecha}/{turno}', [InformeController::class, 'crearBorrador'])
+    ->name('informes.crearBorrador');
+
+// Vista de edición del informe (borrador o completado)
+Route::get('/informes/editar/{cod_informe}', [InformeController::class, 'editar'])
+    ->name('informes.editar');
+
+// ===== RUTAS AJAX PARA AUTO-GUARDADO =====
+
+// Actualizar comentario de sala (auto-guardado)
+Route::post('/informes/comentario/actualizar', [InformeController::class, 'actualizarComentario'])
+    ->name('informes.actualizarComentario');
+
+// Subir foto
+Route::post('/informes/foto/subir', [InformeController::class, 'subirFoto'])
+    ->name('informes.subirFoto');
+
+// Eliminar foto
+Route::delete('/informes/foto/eliminar', [InformeController::class, 'eliminarFoto'])
+    ->name('informes.eliminarFoto');
+
+// Finalizar informe (cambiar de borrador a completado)
+Route::post('/informes/finalizar', [InformeController::class, 'finalizar'])
+    ->name('informes.finalizar');
+
+// Obtener jefes de turno para filtro de búsqueda
+Route::get('/api/jefes-turno', [MisInformesController::class, 'getJefesTurno'])
+    ->name('api.jefesTurno');
+
 Route::get('/dashboard', function () {
     return view('admin.dashboard-productividad');
 })->name('dashboard-productividad');
 
 Route::get('/api/dashboard-data', [DashboardController::class, 'getData']);
+
+
+
 
 
 

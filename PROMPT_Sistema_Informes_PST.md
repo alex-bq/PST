@@ -567,3 +567,23 @@ Vista de visualización completamente moderna y funcional, lista para mostrar da
 ---
 
 **🎯 PRÓXIMO OBJETIVO: Modernizar completamente `show.blade.php` siguiendo el patrón exitoso establecido en `detalle-turno.blade.php`**
+
+🔶 FUNCIONALIDADES BACKEND PENDIENTES DETECTADAS
+
+1. HORARIOS DEL TURNO 🕐
+   Estado: Marcado como "HORARIOS EN DESARROLLO"
+   Necesario: Integración con sistema de horarios (hora_inicio, hora_termino, horas_trabajadas)
+2. DATOS POR EMPRESA 🏢
+   Estado: Mostrando "Datos Consolidados" con badge "EMPRESA"
+   Necesario: Desglose real por empresa desde BD
+3. CÁLCULOS DE PRODUCTIVIDAD 🧮
+   Estado: 4 campos marcados como "CALC"
+   Necesario: Fórmulas reales (Real Total, Efectiva Total, Real Objetivo, Efectiva Objetivo)
+4. CAMPOS PENDIENTES ⏳
+   Estado: Horas Reales, PST Objetivo marcados como "PENDIENTE"
+5. MODALES FUNCIONALES 📋
+   Estado: Modales muestran mensaje "EN DESARROLLO"
+   Necesario: Contenido dinámico (planillas, productos, tiempos muertos)
+6. FUNCIÓN GUARDAR INFORME 💾
+   Estado: Alert temporal
+   Necesario: Implementación completa del guardado

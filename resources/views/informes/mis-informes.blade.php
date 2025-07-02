@@ -32,10 +32,10 @@
             </div>
         </div>
 
-        <!-- Sección de Informes Pendientes -->
+        <!-- SECCIÓN 1: Informes Pendientes por Crear -->
         <div class="bg-white rounded-lg shadow-sm">
             <div class="p-6 border-b">
-                <h2 class="text-xl font-semibold text-gray-800 mb-2">Informes Pendientes por Crear</h2>
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">📋 Informes Pendientes por Crear</h2>
                 <p class="text-gray-600">Planillas guardadas de los últimos 7 días que requieren informe de turno</p>
             </div>
             <div class="p-6">
@@ -82,7 +82,7 @@
                                             {{ number_format($informe->total_kilos_recepcion, 1) }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                            <a href="{{ route('informes.crear', ['fecha' => $informe->fec_turno, 'turno' => $informe->turno]) }}"
+                                            <a href="{{ route('informes.crearBorrador', ['fecha' => $informe->fec_turno, 'turno' => $informe->turno]) }}"
                                                 class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200">
                                                 Crear Informe
                                             </a>
@@ -100,14 +100,14 @@
             </div>
         </div>
 
-        <!-- Sección de Informes Creados -->
+        <!-- SECCIÓN 2: Mis Informes Creados -->
         <div class="bg-white rounded-lg shadow-sm">
             <div class="p-6 border-b">
-                <h2 class="text-xl font-semibold text-gray-800 mb-2">Informes Creados</h2>
-                <p class="text-gray-600">Informes de turno ya generados</p>
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">✅ Mis Informes Creados</h2>
+                <p class="text-gray-600">Informes de turno que he creado (últimos 7 días)</p>
             </div>
             <div class="p-6">
-                @if(count($informesCreados) > 0)
+                @if(count($misInformesCreados) > 0)
                     <div class="overflow-x-auto">
                         <table class="min-w-full divide-y divide-gray-200">
                             <thead>
@@ -117,21 +117,15 @@
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Turno</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Jefe de Turno</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Estado</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Fecha Creación</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Kilos Entrega</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Kilos Recepción</th>
                                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Acciones</th>
                                 </tr>
                             </thead>
                             <tbody class="bg-white divide-y divide-gray-200">
-                                @foreach($informesCreados as $informe)
+                                @foreach($misInformesCreados as $informe)
                                     <tr class="hover:bg-gray-50">
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {{ \Carbon\Carbon::parse($informe->fec_turno)->format('d/m/Y') }}
@@ -140,11 +134,7 @@
                                             {{ $informe->nombre_turno }}
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {{ $informe->jefe_turno }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             @php
-                                                // Mapear estado numérico a texto y clase CSS
                                                 switch ($informe->estado) {
                                                     case 1:
                                                         $estadoClase = 'bg-green-100 text-green-800';
@@ -167,17 +157,18 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                                             {{ $informe->fecha_creacion_formatted ?? 'No disponible' }}
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {{ number_format($informe->total_kilos_entrega, 1) }}
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            {{ number_format($informe->total_kilos_recepcion, 1) }}
-                                        </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                                            <a href="{{ route('informes.show', ['fecha' => $informe->fec_turno, 'turno' => $informe->turno]) }}"
-                                                class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200">
-                                                Ver Detalle
-                                            </a>
+                                            @if($informe->estado == 0)
+                                                <a href="{{ route('informes.editar', ['cod_informe' => $informe->cod_informe]) }}"
+                                                    class="bg-orange-600 text-white px-4 py-2 rounded-md hover:bg-orange-700 transition-colors duration-200">
+                                                    Continuar Editando
+                                                </a>
+                                            @else
+                                                <a href="{{ route('informes.show', ['fecha' => $informe->fec_turno, 'turno' => $informe->turno]) }}"
+                                                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200">
+                                                    Ver Detalle
+                                                </a>
+                                            @endif
                                             <form action="{{ route('informes.destroy', $informe->cod_informe) }}" method="POST"
                                                 class="inline-block">
                                                 @csrf
@@ -196,47 +187,67 @@
                     </div>
                 @else
                     <div class="bg-blue-50 border-l-4 border-blue-400 p-4 text-blue-700">
-                        <p>No hay informes creados.</p>
+                        <p>No tienes informes creados en los últimos 7 días.</p>
                     </div>
                 @endif
             </div>
         </div>
 
-        <!-- Búsqueda Histórica -->
+        <!-- SECCIÓN 3: Buscador General de Informes -->
         <div class="bg-white rounded-lg shadow-sm">
             <div class="p-6 border-b">
-                <h2 class="text-xl font-semibold text-gray-800 mb-2">Búsqueda Histórica</h2>
-                <p class="text-gray-600">Buscar informes por fecha y turno específicos</p>
+                <h2 class="text-xl font-semibold text-gray-800 mb-2">🔍 Buscar Todos los Informes</h2>
+                <p class="text-gray-600">Consultar informes de todo el sistema con filtros avanzados</p>
             </div>
-            <div class="p-6 space-y-4">
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div>
-                        <label for="fecha" class="block text-sm font-medium text-gray-700 mb-1">Fecha</label>
-                        <input type="date" name="fecha" id="fecha"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label for="turno" class="block text-sm font-medium text-gray-700 mb-1">Turno</label>
-                        <select name="turno" id="turno"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="">Todos los turnos</option>
-                            @foreach($turnos as $turno)
-                                <option value="{{ $turno->id }}">{{ $turno->nombre }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div class="flex items-end">
-                        <button type="button" id="searchButton"
-                            class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200">
-                            Buscar
-                        </button>
+            <div class="p-6">
+                <!-- Filtros de búsqueda -->
+                <div class="bg-gray-50 rounded-lg p-4 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Fecha</label>
+                            <input type="date" id="buscar_fecha"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Turno</label>
+                            <select id="buscar_turno"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                                <option value="">Todos los turnos</option>
+                                @foreach($turnos as $turno)
+                                    <option value="{{ $turno->id }}">{{ $turno->nombre }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Jefe de Turno</label>
+                            <select id="buscar_jefe_turno"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                                <option value="">Todos los jefes</option>
+                                <!-- Se llenará dinámicamente -->
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Estado</label>
+                            <select id="buscar_estado"
+                                class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                                <option value="">Todos los estados</option>
+                                <option value="1">Completado</option>
+                                <option value="0">Borrador</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button onclick="buscarInformes()"
+                                class="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200">
+                                Buscar
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Resultados de búsqueda -->
-                <div id="searchResults" class="mt-4">
+                <div id="resultados_busqueda" class="hidden">
                     <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200" id="resultsTable">
+                        <table class="min-w-full divide-y divide-gray-200">
                             <thead>
                                 <tr class="bg-gray-50">
                                     <th
@@ -256,136 +267,38 @@
                                         Fecha Creación</th>
                                     <th
                                         class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Kilos Entrega</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                        Kilos Recepción</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Acciones</th>
                                 </tr>
                             </thead>
-                            <tbody id="resultsBody">
-                                <tr>
-                                    <td colspan="8" class="px-6 py-4 text-center text-gray-500">
-                                        Use los filtros para buscar informes
-                                    </td>
-                                </tr>
+                            <tbody id="tabla_resultados" class="bg-white divide-y divide-gray-200">
+                                <!-- Los resultados se cargarán aquí dinámicamente -->
                             </tbody>
                         </table>
                     </div>
                 </div>
+
+                <!-- Mensaje cuando no hay búsqueda -->
+                <div id="mensaje_inicial" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 text-yellow-700">
+                    <p>💡 Utiliza los filtros de arriba para buscar informes en todo el sistema.</p>
+                    <p class="text-sm mt-1">Si no especificas fecha, se mostrarán los informes de los últimos 3 meses.</p>
+                </div>
             </div>
         </div>
     </div>
-@endsection
 
-@section('scripts')
+    <!-- Script básico para futura funcionalidad -->
     <script>
+        function buscarInformes() {
+            // TODO: Implementar funcionalidad de búsqueda
+            console.log('Función de búsqueda - Por implementar');
+
+            // Por ahora solo mostrar un mensaje
+            alert('Funcionalidad de búsqueda en desarrollo');
+        }
+
+        // TODO: Cargar jefes de turno para el select
         document.addEventListener('DOMContentLoaded', function () {
-            const searchButton = document.getElementById('searchButton');
-
-            searchButton.addEventListener('click', function () {
-                const fecha = document.getElementById('fecha').value;
-                const turno = document.getElementById('turno').value;
-                const resultsBody = document.getElementById('resultsBody');
-
-                // Mostrar los parámetros de búsqueda en la consola
-                console.log('Buscando con parámetros:', { fecha, turno });
-
-                // Construir la URL
-                const searchUrl = `${window.location.origin}/pst2/public/informes/search?fecha=${fecha}&turno=${turno}`;
-                console.log('URL de búsqueda:', searchUrl);
-
-                // Mostrar indicador de carga
-                resultsBody.innerHTML = '<tr><td colspan="8" class="px-6 py-4 text-center text-gray-500">Buscando...</td></tr>';
-
-                fetch(searchUrl)
-                    .then(response => response.json())
-                    .then(data => {
-                        resultsBody.innerHTML = '';
-
-                                                if (data && data.length > 0) {
-                            data.forEach(informe => {
-                                const fechaFormateada = new Date(informe.fecha_turno + 'T00:00:00').toLocaleDateString('es-CL', {
-                                    day: '2-digit',
-                                    month: '2-digit',
-                                    year: 'numeric'
-                                });
-
-                                // Mapear estado numérico a texto y clase CSS
-                                let estadoClase, estadoTexto;
-                                switch(parseInt(informe.estado)) {
-                                    case 1:
-                                        estadoClase = 'bg-green-100 text-green-800';
-                                        estadoTexto = 'Completado';
-                                        break;
-                                    case 0:
-                                        estadoClase = 'bg-yellow-100 text-yellow-800';
-                                        estadoTexto = 'Borrador';
-                                        break;
-                                    default:
-                                        estadoClase = 'bg-gray-100 text-gray-800';
-                                        estadoTexto = 'Desconocido';
-                                        break;
-                                }
-
-                                const row = `
-                                            <tr class="hover:bg-gray-50">
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    ${fechaFormateada}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    ${informe.nombre}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    ${informe.jefe_turno}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    <span class="px-2 py-1 ${estadoClase} rounded-md text-sm font-medium">
-                                                        ${estadoTexto}
-                                                    </span>
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                                    ${informe.fecha_creacion_formatted || 'No disponible'}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-                                                    ${Number(informe.total_kilos_entrega).toFixed(1)}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
-                                                    ${Number(informe.total_kilos_recepcion).toFixed(1)}
-                                                </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                                    <a href="/pst2/public/informes/detalle/${informe.fecha_turno}/${informe.turno}"
-                                                        class="inline-block bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors duration-200">
-                                                        Ver Detalle
-                                                    </a>
-                                                </td>
-                                            </tr>
-                                        `;
-                                resultsBody.insertAdjacentHTML('beforeend', row);
-                            });
-                        } else {
-                            resultsBody.innerHTML = `
-                                        <tr>
-                                            <td colspan="8" class="px-6 py-4 text-center text-gray-500">
-                                                No se encontraron resultados
-                                            </td>
-                                        </tr>
-                                    `;
-                        }
-                    })
-                                        .catch(error => {
-                        console.error('Error en la búsqueda:', error);
-                        resultsBody.innerHTML = `
-                                    <tr>
-                                        <td colspan="8" class="px-6 py-4 text-center text-red-500">
-                                            Error al realizar la búsqueda: ${error.message}
-                                        </td>
-                                    </tr>
-                                `;
-                    });
-            });
+            console.log('Página cargada - Buscador listo para implementación');
         });
     </script>
 @endsection

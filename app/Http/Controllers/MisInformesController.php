@@ -26,6 +26,7 @@ class MisInformesController extends Controller
             ->orderBy('id')
             ->get();
 
+        // SECCIÓN 1: INFORMES PENDIENTES POR CREAR
         // Modificar consulta según el rol
         if ($user_rol == 3) { // Administrador ve todos los informes pendientes
             $informesPendientes = DB::select("
@@ -86,94 +87,30 @@ class MisInformesController extends Controller
             );
         }
 
-        // Modificar consulta de informes creados según el rol
-        if ($user_rol == 3) { // Administrador ve todos los informes creados
-            $informesCreados = DB::select("
-                SELECT
-                    i.fecha_turno as fec_turno,
-                    t.id as turno,
-                    t.nombre as nombre_turno,
-                    i.cod_informe,
-                    CONCAT(u.nombre, ' ', u.apellido) as jefe_turno,
-                    SUM(d.kilos_entrega) as total_kilos_entrega,
-                    SUM(d.kilos_recepcion) as total_kilos_recepcion,
-                    i.estado,
-                    FORMAT(i.fecha_creacion, 'dd/MM/yyyy HH:mm') as fecha_creacion_formatted,
-                    i.fecha_creacion
-                FROM pst.dbo.informes_turno i
-                JOIN administracion.dbo.tipos_turno t ON i.cod_turno = t.id
-                JOIN pst.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
-                JOIN pst.dbo.detalle_informe_sala d ON i.cod_informe = d.cod_informe
-                WHERE i.fecha_turno >= ?
-                GROUP BY 
-                    i.fecha_turno,
-                    t.id,
-                    t.nombre,
-                    i.cod_informe,
-                    u.nombre,
-                    u.apellido,
-                    i.estado,
-                    i.fecha_creacion
-                ORDER BY i.fecha_turno DESC, t.id",
-                [$fecha_limite]
-            );
-        } else { // Jefe de turno ve solo sus informes
-            $informesCreados = DB::select("
-                SELECT
-                    i.fecha_turno as fec_turno,
-                    t.id as turno,
-                    t.nombre as nombre_turno,
-                    i.cod_informe,
-                    CONCAT(u.nombre, ' ', u.apellido) as jefe_turno,
-                    SUM(d.kilos_entrega) as total_kilos_entrega,
-                    SUM(d.kilos_recepcion) as total_kilos_recepcion,
-                    i.estado,
-                    FORMAT(i.fecha_creacion, 'dd/MM/yyyy HH:mm') as fecha_creacion_formatted,
-                    i.fecha_creacion
-                FROM pst.dbo.informes_turno i
-                JOIN administracion.dbo.tipos_turno t ON i.cod_turno = t.id
-                JOIN pst.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
-                JOIN pst.dbo.detalle_informe_sala d ON i.cod_informe = d.cod_informe
-                WHERE i.cod_jefe_turno = ? 
-                    AND i.fecha_turno >= ?
-                GROUP BY 
-                    i.fecha_turno,
-                    t.id,
-                    t.nombre,
-                    i.cod_informe,
-                    u.nombre,
-                    u.apellido,
-                    i.estado,
-                    i.fecha_creacion
-                ORDER BY i.fecha_turno DESC, t.id",
-                [$user_id, $fecha_limite]
-            );
-        }
+        // SECCIÓN 2: MIS INFORMES CREADOS (solo del usuario actual)
+        $misInformesCreados = DB::select("
+            SELECT
+                i.fecha_turno as fec_turno,
+                t.id as turno,
+                t.nombre as nombre_turno,
+                i.cod_informe,
+                CONCAT(u.nombre, ' ', u.apellido) as jefe_turno,
+                i.estado,
+                FORMAT(i.fecha_creacion, 'dd/MM/yyyy HH:mm') as fecha_creacion_formatted,
+                i.fecha_creacion
+            FROM pst.dbo.informes_turno i
+            JOIN administracion.dbo.tipos_turno t ON i.cod_turno = t.id
+            JOIN pst.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
+            WHERE i.cod_jefe_turno = ? 
+                AND i.fecha_turno >= ?
+            ORDER BY i.fecha_turno DESC, t.id",
+            [$user_id, $fecha_limite]
+        );
 
-        return view('informes.mis-informes', compact('informesPendientes', 'informesCreados', 'turnos'));
+        return view('informes.mis-informes', compact('informesPendientes', 'misInformesCreados', 'turnos'));
     }
 
-    public function destroy($cod_informe)
-    {
-        try {
-            // Primero eliminamos los detalles
-            DB::table('pst.dbo.detalle_informe_sala')
-                ->where('cod_informe', $cod_informe)
-                ->delete();
-
-            // Luego eliminamos el informe
-            DB::table('pst.dbo.informes_turno')
-                ->where('cod_informe', $cod_informe)
-                ->delete();
-
-            return redirect()->route('mis-informes')
-                ->with('success', 'Informe eliminado correctamente');
-        } catch (\Exception $e) {
-            return redirect()->route('mis-informes')
-                ->with('error', 'Error al eliminar el informe');
-        }
-    }
-
+    // SECCIÓN 3: BÚSQUEDA GENERAL DE TODOS LOS INFORMES
     public function search(Request $request)
     {
         try {
@@ -182,19 +119,18 @@ class MisInformesController extends Controller
             $query = DB::table('pst.dbo.informes_turno as i')
                 ->join('administracion.dbo.tipos_turno as t', 'i.cod_turno', '=', 't.id')
                 ->join('pst.dbo.usuarios_pst as u', 'i.cod_jefe_turno', '=', 'u.cod_usuario')
-                ->join('pst.dbo.detalle_informe_sala as d', 'i.cod_informe', '=', 'd.cod_informe')
                 ->select(
                     'i.fecha_turno',
                     'i.cod_turno as turno',
                     't.nombre',
                     DB::raw("CONCAT(u.nombre, ' ', u.apellido) as jefe_turno"),
-                    DB::raw('SUM(d.kilos_entrega) as total_kilos_entrega'),
-                    DB::raw('SUM(d.kilos_recepcion) as total_kilos_recepcion'),
                     'i.estado',
                     DB::raw("FORMAT(i.fecha_creacion, 'dd/MM/yyyy HH:mm') as fecha_creacion_formatted"),
-                    'i.fecha_creacion'
+                    'i.fecha_creacion',
+                    'i.cod_informe'
                 );
 
+            // Aplicar filtros si existen
             if ($request->filled('fecha')) {
                 $query->whereDate('i.fecha_turno', '=', $request->fecha);
             }
@@ -203,16 +139,21 @@ class MisInformesController extends Controller
                 $query->where('i.cod_turno', '=', $request->turno);
             }
 
-            $results = $query->groupBy(
-                'i.fecha_turno',
-                'i.cod_turno',
-                't.nombre',
-                'u.nombre',
-                'u.apellido',
-                'i.estado',
-                'i.fecha_creacion'
-            )
-                ->orderBy('i.fecha_turno', 'desc')
+            if ($request->filled('jefe_turno')) {
+                $query->where('i.cod_jefe_turno', '=', $request->jefe_turno);
+            }
+
+            if ($request->filled('estado')) {
+                $query->where('i.estado', '=', $request->estado);
+            }
+
+            // Si no hay filtro de fecha específico, limitar a 3 meses
+            if (!$request->filled('fecha')) {
+                $tresMesesAtras = now()->subMonths(3)->format('Y-m-d');
+                $query->whereDate('i.fecha_turno', '>=', $tresMesesAtras);
+            }
+
+            $results = $query->orderBy('i.fecha_turno', 'desc')
                 ->orderBy('i.cod_turno', 'asc')
                 ->get();
 
@@ -230,6 +171,111 @@ class MisInformesController extends Controller
             return response()->json([
                 'error' => 'Error al realizar la búsqueda: ' . $e->getMessage()
             ], 500);
+        }
+    }
+
+    public function destroy($cod_informe)
+    {
+        try {
+            \Log::info('Iniciando eliminación de informe', ['cod_informe' => $cod_informe]);
+
+            // Verificar permisos - solo el creador o admin puede eliminar
+            $informe = DB::table('pst.dbo.informes_turno')
+                ->where('cod_informe', $cod_informe)
+                ->first();
+
+            if (!$informe) {
+                return redirect()->route('mis-informes')
+                    ->with('error', 'Informe no encontrado');
+            }
+
+            $user_rol = session('user.cod_rol');
+            $user_id = session('user.cod_usuario');
+
+            // Solo el jefe de turno que creó el informe o un admin puede eliminarlo
+            if ($user_rol != 3 && $informe->cod_jefe_turno != $user_id) {
+                return redirect()->route('mis-informes')
+                    ->with('error', 'No tienes permisos para eliminar este informe');
+            }
+
+            // Usar transacción para seguridad
+            DB::beginTransaction();
+
+            // PASO 1: Eliminar comentarios relacionados
+            $comentarios_eliminados = DB::table('pst.dbo.comentarios_informe_sala')
+                ->where('cod_informe', $cod_informe)
+                ->delete();
+
+            \Log::info('Comentarios eliminados', ['cantidad' => $comentarios_eliminados]);
+
+            // PASO 2: Eliminar fotos relacionadas (y archivos físicos)
+            $fotos = DB::table('pst.dbo.fotos_informe')
+                ->where('cod_informe', $cod_informe)
+                ->get();
+
+            foreach ($fotos as $foto) {
+                // Eliminar archivo físico si existe
+                $rutaCompleta = storage_path('app/public/' . $foto->ruta_archivo);
+                if (file_exists($rutaCompleta)) {
+                    unlink($rutaCompleta);
+                    \Log::info('Archivo físico eliminado', ['ruta' => $rutaCompleta]);
+                }
+            }
+
+            $fotos_eliminadas = DB::table('pst.dbo.fotos_informe')
+                ->where('cod_informe', $cod_informe)
+                ->delete();
+
+            \Log::info('Fotos eliminadas', ['cantidad' => $fotos_eliminadas]);
+
+            // PASO 3: Sin detalles de sala que eliminar (tabla no existe)
+            $detalle_eliminado = 0;
+            \Log::info('Sin detalles de sala que eliminar');
+
+            // PASO 4: Finalmente eliminar el informe principal
+            $informe_eliminado = DB::table('pst.dbo.informes_turno')
+                ->where('cod_informe', $cod_informe)
+                ->delete();
+
+            DB::commit();
+
+            \Log::info('Informe eliminado exitosamente', [
+                'cod_informe' => $cod_informe,
+                'comentarios' => $comentarios_eliminados,
+                'fotos' => $fotos_eliminadas,
+                'detalles' => $detalle_eliminado
+            ]);
+
+            return redirect()->route('mis-informes')
+                ->with('success', 'Informe y todos sus datos relacionados eliminados correctamente');
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            \Log::error('Error al eliminar informe', [
+                'cod_informe' => $cod_informe,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->route('mis-informes')
+                ->with('error', 'Error al eliminar el informe: ' . $e->getMessage());
+        }
+    }
+
+    // Método para obtener jefes de turno para el filtro de búsqueda
+    public function getJefesTurno()
+    {
+        try {
+            $jefes = DB::table('pst.dbo.usuarios_pst')
+                ->select('cod_usuario', DB::raw("CONCAT(nombre, ' ', apellido) as nombre_completo"))
+                ->where('cod_rol', 4) // Solo jefes de turno
+                ->orderBy('nombre')
+                ->get();
+
+            return response()->json($jefes);
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al obtener jefes de turno'], 500);
         }
     }
 }
