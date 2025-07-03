@@ -776,6 +776,16 @@ class InformeController extends Controller
             // Guardar en storage/app/public/informes_fotos/
             $rutaArchivo = $foto->storeAs('informes_fotos', $nombreUnico, 'public');
 
+            // NUEVO: También copiar a public/storage para accesibilidad web (workaround para sistemas sin enlaces simbólicos)
+            $directorioPublico = public_path('storage/informes_fotos');
+            if (!file_exists($directorioPublico)) {
+                mkdir($directorioPublico, 0755, true);
+            }
+
+            // Copiar archivo a public/storage/informes_fotos/
+            $rutaPublica = public_path('storage/informes_fotos/' . $nombreUnico);
+            copy(storage_path('app/public/informes_fotos/' . $nombreUnico), $rutaPublica);
+
             // Guardar en base de datos y obtener ID
             $idFoto = DB::table('pst.dbo.fotos_informe')->insertGetId([
                 'cod_informe' => $cod_informe,
@@ -831,10 +841,16 @@ class InformeController extends Controller
                 return response()->json(['error' => 'Foto no encontrada o sin permisos'], 403);
             }
 
-            // Eliminar archivo físico
+            // Eliminar archivo físico de storage/app/public
             $rutaCompleta = storage_path('app/public/' . $foto->ruta_archivo);
             if (file_exists($rutaCompleta)) {
                 unlink($rutaCompleta);
+            }
+
+            // NUEVO: También eliminar de public/storage (workaround para sistemas sin enlaces simbólicos)
+            $rutaPublica = public_path('storage/' . $foto->ruta_archivo);
+            if (file_exists($rutaPublica)) {
+                unlink($rutaPublica);
             }
 
             // Eliminar de base de datos
