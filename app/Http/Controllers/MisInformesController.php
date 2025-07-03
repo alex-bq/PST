@@ -118,7 +118,7 @@ class MisInformesController extends Controller
 
             $query = DB::table('pst.dbo.informes_turno as i')
                 ->join('administracion.dbo.tipos_turno as t', 'i.cod_turno', '=', 't.id')
-                ->join('pst.dbo.usuarios_pst as u', 'i.cod_jefe_turno', '=', 'u.cod_usuario')
+                ->join('pst.dbo.usuarios_pst as u', DB::raw('CAST(i.cod_jefe_turno AS INT)'), '=', 'u.cod_usuario')
                 ->select(
                     'i.fecha_turno',
                     'i.cod_turno as turno',
@@ -128,7 +128,8 @@ class MisInformesController extends Controller
                     DB::raw("FORMAT(i.fecha_creacion, 'dd/MM/yyyy HH:mm') as fecha_creacion_formatted"),
                     'i.fecha_creacion',
                     'i.cod_informe'
-                );
+                )
+                ->where('i.estado', '=', 1); // Solo informes completados
 
             // Aplicar filtros si existen
             if ($request->filled('fecha')) {
@@ -140,11 +141,7 @@ class MisInformesController extends Controller
             }
 
             if ($request->filled('jefe_turno')) {
-                $query->where('i.cod_jefe_turno', '=', $request->jefe_turno);
-            }
-
-            if ($request->filled('estado')) {
-                $query->where('i.estado', '=', $request->estado);
+                $query->where(DB::raw('CAST(i.cod_jefe_turno AS INT)'), '=', $request->jefe_turno);
             }
 
             // Si no hay filtro de fecha específico, limitar a 3 meses
@@ -267,15 +264,45 @@ class MisInformesController extends Controller
     public function getJefesTurno()
     {
         try {
-            $jefes = DB::table('pst.dbo.usuarios_pst')
-                ->select('cod_usuario', DB::raw("CONCAT(nombre, ' ', apellido) as nombre_completo"))
-                ->where('cod_rol', 4) // Solo jefes de turno
-                ->orderBy('nombre')
-                ->get();
+            \Log::info('Iniciando getJefesTurno - versión simplificada');
+
+            // Consulta SQL directa para evitar problemas de tipos de datos
+            $jefes = DB::select("
+                SELECT DISTINCT 
+                    u.cod_usuario, 
+                    CONCAT(u.nombre, ' ', u.apellido) as nombre_completo
+                FROM pst.dbo.usuarios_pst u
+                INNER JOIN pst.dbo.informes_turno i ON CAST(u.cod_usuario AS NUMERIC) = i.cod_jefe_turno
+                WHERE u.activo = 1
+                ORDER BY u.nombre, u.apellido
+            ");
+
+            \Log::info('Jefes de turno encontrados:', ['count' => count($jefes)]);
 
             return response()->json($jefes);
         } catch (\Exception $e) {
-            return response()->json(['error' => 'Error al obtener jefes de turno'], 500);
+            \Log::error('Error al obtener jefes de turno:', [
+                'error' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ]);
+
+            // Si hay error, devolver al menos algunos usuarios activos
+            try {
+                $usuariosActivos = DB::select("
+                    SELECT cod_usuario, CONCAT(nombre, ' ', apellido) as nombre_completo
+                    FROM pst.dbo.usuarios_pst 
+                    WHERE activo = 1 AND cod_rol = 4
+                    ORDER BY nombre, apellido
+                ");
+
+                \Log::info('Fallback: usuarios activos rol 4:', ['count' => count($usuariosActivos)]);
+                return response()->json($usuariosActivos);
+
+            } catch (\Exception $e2) {
+                \Log::error('Error en fallback:', ['error' => $e2->getMessage()]);
+                return response()->json(['error' => 'Error al obtener jefes de turno'], 500);
+            }
         }
     }
 }

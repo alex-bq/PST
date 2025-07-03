@@ -258,8 +258,16 @@
                                                     ->where('cod_tipo_planilla', $sala->cod_tipo_planilla)
                                                     ->where('descripcion', $empresa_nombre);
 
+                                                // Obtener planillas filtradas para calcular dotación correcta
+                                                $planillas_para_dotacion = collect($planillas_detalle)->filter(function ($planilla) use ($empresa_nombre, $sala) {
+                                                    return isset($planilla->descripcion) &&
+                                                        trim($planilla->descripcion) === trim($empresa_nombre) &&
+                                                        $planilla->cod_sala == $sala->cod_sala &&
+                                                        $planilla->cod_tipo_planilla == $sala->cod_tipo_planilla;
+                                                });
+
                                                 // Calcular valores básicos
-                                                $dotacion_max = $sala->dotacion_real ?? 1;
+                                                $dotacion_max = $planillas_para_dotacion->max('dotacion') ?? 1;
                                                 $horas_efectivas = $sala->horas_trabajadas ?? 1;
                                                 $horas_turno = $informe->horas_trabajadas ?? 1;
                                                 $kilos_objetivo = $productos_empresa->where('es_producto_objetivo', 1)->sum('kilos') ?? 0;
@@ -433,7 +441,8 @@
                                                                             @endphp
                                                                             <tr class="hover:bg-gray-50">
                                                                                 <td class="border border-gray-300 px-4 py-2 font-medium">
-                                                                                    {{ $nombre_producto }}</td>
+                                                                                    {{ $nombre_producto }}
+                                                                                </td>
                                                                                 <td class="border border-gray-300 px-4 py-2">
                                                                                     <span
                                                                                         class="px-2 py-1 {{ $es_calidad_premium ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' }} rounded text-sm">
@@ -441,11 +450,14 @@
                                                                                     </span>
                                                                                 </td>
                                                                                 <td class="border border-gray-300 px-4 py-2">
-                                                                                    {{ $producto->destino ?? 'N/A' }}</td>
+                                                                                    {{ $producto->destino ?? 'N/A' }}
+                                                                                </td>
                                                                                 <td class="border border-gray-300 px-4 py-2 text-right font-medium">
-                                                                                    {{ number_format($producto->kilos, 2) }} kg</td>
+                                                                                    {{ number_format($producto->kilos, 2) }} kg
+                                                                                </td>
                                                                                 <td class="border border-gray-300 px-4 py-2 text-right">
-                                                                                    {{ number_format($porcentaje, 1) }}%</td>
+                                                                                    {{ number_format($porcentaje, 1) }}%
+                                                                                </td>
                                                                                 <td class="border border-gray-300 px-4 py-2 text-center">
                                                                                     <span
                                                                                         class="px-2 py-1 {{ $es_objetivo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }} rounded text-sm font-medium">
@@ -539,19 +551,24 @@
                                                                                 <td class="border border-gray-300 px-4 py-2 font-medium">
                                                                                     #{{ $planilla->numero_planilla ?? 'N/A' }}</td>
                                                                                 <td class="border border-gray-300 px-4 py-2">
-                                                                                    {{ $planilla->trabajador_nombre ?? 'Sin asignar' }}</td>
+                                                                                    {{ $planilla->trabajador_nombre ?? 'Sin asignar' }}
+                                                                                </td>
                                                                                 <td
                                                                                     class="border border-gray-300 px-4 py-2 text-center font-medium text-orange-700">
-                                                                                    {{ $planilla->dotacion ?? 0 }}</td>
+                                                                                    {{ $planilla->dotacion ?? 0 }}
+                                                                                </td>
                                                                                 <td
                                                                                     class="border border-gray-300 px-4 py-2 text-right font-medium text-purple-700">
-                                                                                    {{ number_format($planilla->horas_trabajadas ?? 0, 1) }}h</td>
+                                                                                    {{ number_format($planilla->horas_trabajadas ?? 0, 1) }}h
+                                                                                </td>
                                                                                 <td
                                                                                     class="border border-gray-300 px-4 py-2 text-right font-medium text-blue-700">
-                                                                                    {{ number_format($planilla->kilos_entrega ?? 0, 2) }} kg</td>
+                                                                                    {{ number_format($planilla->kilos_entrega ?? 0, 2) }} kg
+                                                                                </td>
                                                                                 <td
                                                                                     class="border border-gray-300 px-4 py-2 text-right font-medium text-green-700">
-                                                                                    {{ number_format($planilla->pst_total ?? 0, 2) }} kg</td>
+                                                                                    {{ number_format($planilla->pst_total ?? 0, 2) }} kg
+                                                                                </td>
                                                                             </tr>
                                                                         @endforeach
                                                                     </tbody>
@@ -606,7 +623,8 @@
                                                                         <div class="flex justify-between items-start">
                                                                             <div class="flex-1">
                                                                                 <p class="font-medium text-gray-900">
-                                                                                    {{ $tiempo->motivo ?? 'Sin motivo' }}</p>
+                                                                                    {{ $tiempo->motivo ?? 'Sin motivo' }}
+                                                                                </p>
                                                                                 <p class="text-sm text-gray-600 mt-1">
                                                                                     {{ $tiempo->descripcion ?? 'Sin descripción' }}
                                                                                 </p>
@@ -785,6 +803,6 @@
             salas: {{ count($informacion_sala) }},
             comentarios: {{ $comentarios_salas->count() }},
             fotos: {{ $fotos_informe->count() }}
-            });
+                    });
     </script>
 @endsection

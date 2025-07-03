@@ -84,11 +84,11 @@
 
                     @if(session('user')['cod_rol'] == 4 || session('user')['cod_rol'] == 3)
                         <li class="nav-item">
-                            <a href="#" data-url="{{ route('mis-informes') }}">Mis Informes</a>
+                            <a href="#" data-url="{{ route('mis-informes') }}">Informes de Turno</a>
                         </li>
 
                     @endif
-                    @if(session('user')['cod_rol'] == 3 || session('user')['cod_rol'] == 4)
+                    <!-- @if(session('user')['cod_rol'] == 3 || session('user')['cod_rol'] == 4)
                         <li class="nav-item">
                             <a href="#" data-url="{{ route('informes') }}">Buscar Informes</a>
                         </li>
@@ -96,7 +96,7 @@
                             <a href="#" data-url="{{ route('dashboard-productividad') }}">Dashboard</a>
                         </li>
 
-                    @endif
+                    @endif -->
                 </ul>
 
 

@@ -143,8 +143,7 @@ Route::post('/informes/finalizar', [InformeController::class, 'finalizar'])
     ->name('informes.finalizar');
 
 // Obtener jefes de turno para filtro de búsqueda
-Route::get('/api/jefes-turno', [MisInformesController::class, 'getJefesTurno'])
-    ->name('api.jefesTurno');
+Route::get('/api/jefes-turno', [MisInformesController::class, 'getJefesTurno'])->name('api.jefes-turno');
 
 Route::get('/dashboard', function () {
     return view('admin.dashboard-productividad');
