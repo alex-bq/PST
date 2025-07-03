@@ -920,17 +920,10 @@ class InformeController extends Controller
     public function show($fecha, $turno)
     {
         try {
-            // Obtener datos base del informe y sus detalles
-            // Obtener horarios del turno usando fn_GetHorariosTurno
             // Asegurar formato correcto de fecha para SQL Server (YYYY-MM-DD)
             $fecha_formateada = \Carbon\Carbon::parse($fecha)->format('Y-m-d');
 
-            $horarios = DB::select("
-                SELECT * FROM pst.dbo.fn_GetHorariosTurno(?, ?)
-            ", [$fecha_formateada, $turno]);
-
-            $horarios_data = !empty($horarios) ? $horarios[0] : null;
-
+            // Obtener datos básicos del informe - SOLO campos que existen
             $informe = DB::select("
                 SELECT 
                     i.cod_informe,
@@ -940,18 +933,27 @@ class InformeController extends Controller
                     CONCAT(u.nombre, ' ', u.apellido) as jefe_turno_nom,
                     u.cod_usuario as jefe_turno,
                     i.comentarios,
-                    i.d_real_empaque,
-                    i.d_esperada_empaque,
-                    i.horas_trabajadas_empaque,
-                    i.tiempo_muerto_empaque,
-                    i.productividad_empaque,
+                    i.estado,
                     i.fecha_creacion,
                     i.fecha_finalizacion
                 FROM pst.dbo.informes_turno i
                 JOIN administracion.dbo.tipos_turno t ON i.cod_turno = t.id
                 JOIN pst.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
                 WHERE i.fecha_turno = ? AND i.cod_turno = ?
-            ", [$fecha, $turno])[0];
+            ", [$fecha_formateada, $turno]);
+
+            if (empty($informe)) {
+                return redirect()->back()->with('error', 'Informe no encontrado.');
+            }
+
+            $informe = $informe[0];
+
+            // Obtener horarios del turno
+            $horarios = DB::select("
+                SELECT * FROM pst.dbo.fn_GetHorariosTurno(?, ?)
+            ", [$fecha_formateada, $turno]);
+
+            $horarios_data = !empty($horarios) ? $horarios[0] : null;
 
             // Agregar horarios al objeto informe
             if ($horarios_data) {
@@ -963,10 +965,10 @@ class InformeController extends Controller
                 $informe->hora_fin_colacion = $horarios_data->hora_fin_colacion;
             }
 
-            // Obtener información por sala desde las funciones existentes
+            // Obtener información por sala usando función existente
             $informacion_sala = DB::select("
                 SELECT * FROM pst.dbo.fn_GetInformacionPorSala(?, ?)
-            ", [$fecha, $turno]);
+            ", [$fecha_formateada, $turno]);
 
             // Obtener detalle de procesamiento
             $detalle_procesamiento = DB::select("
@@ -975,15 +977,14 @@ class InformeController extends Controller
                 descripcion,
                 calidad,
                 corte_final
-                ;
-            ", [$fecha, $turno]);
+            ", [$fecha_formateada, $turno]);
 
             // Obtener tiempos muertos
             $tiempos_muertos = DB::select("
                 SELECT * FROM pst.dbo.fn_GetTiemposMuertos(?, ?)
-            ", [$fecha, $turno]);
+            ", [$fecha_formateada, $turno]);
 
-            // Obtener detalle de planillas para el modal (CONSULTA CORREGIDA)
+            // Obtener detalle de planillas para referencia
             try {
                 $planillas_detalle = DB::select("
                     SELECT 
@@ -1007,19 +1008,12 @@ class InformeController extends Controller
                     AND p.cod_turno = ?
                     AND p.guardado = 1
                     ORDER BY emp.descripcion, s.nombre, p.cod_planilla
-                ", [$fecha, $turno]);
+                ", [$fecha_formateada, $turno]);
             } catch (\Exception $e) {
-                // Si hay error con las planillas, usar array vacío
                 $planillas_detalle = [];
-                \Log::error('Error obteniendo planillas: ' . $e->getMessage(), [
-                    'fecha' => $fecha,
-                    'turno' => $turno,
-                    'sql_error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ]);
             }
 
-            // Obtener resumen calculado desde las funciones existentes
+            // Calcular resumen básico usando los datos disponibles
             $resumen = (object) [
                 'cod_informe' => $informe->cod_informe,
                 'fecha_turno' => $informe->fecha,
@@ -1033,35 +1027,37 @@ class InformeController extends Controller
                 'productividad_promedio' => collect($informacion_sala)->avg('productividad')
             ];
 
-            // Obtener datos de empaque premium
-            $empaque_premium = DB::select("
-                SELECT 
-                    CAST(Registro_Sistema AS DATE) AS Fecha,
-                    N_Turno AS Turno,
-                    Producto,
-                    Empresa,
-                    COUNT(DISTINCT N_Lote) AS Cantidad_Lotes,
-                    SUM(CAST(N_PNom AS FLOAT)) AS Total_Kilos,
-                    SUM(piezas) AS Total_Piezas
-                FROM bdsystem.dbo.v_empaque
-                WHERE 
-                    CAST(Registro_Sistema AS DATE) = ?
-                    AND N_IDTurno = ?
-                    AND N_Calidad = 'PREMIUM'
-                GROUP BY 
-                    CAST(Registro_Sistema AS DATE),
-                    N_Turno,
-                    Producto,
-                    Empresa
-                ORDER BY 
-                    CAST(Registro_Sistema AS DATE) DESC,
-                    N_Turno,
-                    SUM(CAST(N_PNom AS FLOAT)) DESC
-            ", [$fecha, $turno]);
+            // === OBTENER COMENTARIOS POR SALA ===
+            $comentarios_salas = DB::table('pst.dbo.comentarios_informe_sala as c')
+                ->join('pst.dbo.informes_turno as i', 'c.cod_informe', '=', 'i.cod_informe')
+                ->join('pst.dbo.sala as s', 'c.cod_sala', '=', 's.cod_sala')
+                ->where('i.fecha_turno', $fecha_formateada)
+                ->where('i.cod_turno', $turno)
+                ->select(
+                    'c.cod_sala',
+                    's.nombre as sala_nombre',
+                    'c.comentarios',
+                    'c.fecha_creacion'
+                )
+                ->get()
+                ->keyBy('cod_sala');
 
-            // dd($empaque_premium);
-
-
+            // === OBTENER FOTOS DEL INFORME ===
+            $fotos_informe = DB::table('pst.dbo.fotos_informe as f')
+                ->join('pst.dbo.informes_turno as i', 'f.cod_informe', '=', 'i.cod_informe')
+                ->where('i.fecha_turno', $fecha_formateada)
+                ->where('i.cod_turno', $turno)
+                ->where('f.activo', 1)
+                ->select(
+                    'f.id_foto',
+                    'f.nombre_original',
+                    'f.nombre_archivo',
+                    'f.ruta_archivo',
+                    'f.tamaño_archivo',
+                    'f.fecha_subida'
+                )
+                ->orderBy('f.fecha_subida', 'desc')
+                ->get();
 
             return view('informes.show', compact(
                 'fecha',
@@ -1071,8 +1067,9 @@ class InformeController extends Controller
                 'detalle_procesamiento',
                 'tiempos_muertos',
                 'planillas_detalle',
-                'empaque_premium',
-                'resumen'
+                'resumen',
+                'comentarios_salas',
+                'fotos_informe'
             ));
 
         } catch (\Exception $e) {

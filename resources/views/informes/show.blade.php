@@ -1,715 +1,704 @@
 @extends('layouts.main-iframe')
 
-@section('title', 'Detalle del Turno')
+@section('title', 'Visualización del Informe de Turno')
 
 @section('styles')
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #000120;
-            background-color: #f8f9fa;
-        }
-
-        .container-fluid {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        .back-button {
-            background-color: #1a237e;
-            color: #f8f9fa;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .back-button:hover {
-            background-color: #000120;
-            color: #f8f9fa;
-        }
-
-        .page-title {
-            color: #14142a;
-            margin-bottom: 1rem;
-            text-align: center;
-            font-size: 2rem;
-        }
-
-        .page-subtitle {
-            color: #000120;
-            font-size: 1.1rem;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-
-        .turno-info {
-            background: white;
+        .foto-thumbnail {
+            position: relative;
+            display: inline-block;
+            margin: 8px;
             border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .turno-info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-        }
-
-        .turno-info-item {
-            text-align: center;
-        }
-
-        .turno-info-item strong {
-            display: block;
-            color: #14142a;
-            font-size: 0.9rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .turno-info-item span {
-            color: #000120;
-            font-size: 1.1rem;
-            font-weight: bold;
-        }
-
-        .tipo-planilla-title {
-            color: #14142a;
-            margin-bottom: 1rem;
-            font-size: 1.5rem;
-        }
-
-        .salas-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-
-        }
-
-        .sala-card {}
-
-        .sala-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            color: #14142a;
-            margin-bottom: 1rem;
-        }
-
-        .sala-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-
-        }
-
-        .sala-info-item {
-            margin-bottom: 0.5rem;
-        }
-
-        .sala-info-item strong {
-            display: block;
-            color: #14142a;
-            font-size: 0.9rem;
-            margin-bottom: 0.25rem;
-        }
-
-        .sala-info-item span,
-        .sala-info-item input {
-            color: #000120;
-            font-size: 1rem;
-        }
-
-        .dotacion-input {
-            width: 60%;
-            border: 1px solid #14142a38;
-            border-radius: 4px;
-            text-align: center;
-        }
-
-        .dotacion-esperada-input {
-            width: 60%;
-            border: 1px solid #14142a38;
-            border-radius: 4px;
-            text-align: center;
-        }
-
-        .btn-detail {
-            background-color: #1a237e;
-            color: #f8f9fa;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            background: white;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             cursor: pointer;
-            transition: background-color 0.3s;
         }
 
-        .btn-detail:hover {
-            background-color: #000120;
+        .foto-thumbnail:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
-        .modal-header {
-            background-color: #14142a;
-            color: #f8f9fa;
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 1rem;
         }
 
-        .modal-title {
-            color: #f8f9fa;
+        .modal.active {
+            display: flex;
         }
 
-        .detail-table {
-            width: 100%;
-            border-collapse: collapse;
+        .modal img {
+            max-width: 90vw;
+            max-height: 90vh;
+            object-fit: contain;
+            border-radius: 0.5rem;
         }
 
-        .detail-table th,
-        .detail-table td {
-            padding: 0.75rem;
-            border: 1px solid #dee2e6;
+        /* Estilos para tabs */
+        .tab-button {
+            padding: 12px 24px;
+            border-bottom: 3px solid transparent;
+            color: #6b7280;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
         }
 
-        .detail-table th {
-            background-color: #f8f9fa;
+        .tab-button:hover {
+            color: #374151;
+            background-color: #f9fafb;
+        }
+
+        .tab-button.active {
+            color: #2563eb;
+            border-bottom-color: #2563eb;
+            background-color: #eff6ff;
             font-weight: 600;
-            color: #14142a;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Animación para el estado finalizado */
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
         }
     </style>
 @endsection
 
 @section('content')
-    <div class="container-fluid">
-        <a href="javascript:history.back()" class="back-button">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                <path fill-rule="evenodd"
-                    d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z" />
-            </svg>
-            Volver
-        </a>
 
-        <h2 class="page-title">Detalle del Turno</h2>
-        <h3 class="page-subtitle">{{ \Carbon\Carbon::parse($fecha)->format('d/m/Y') }} - {{ $informe->turno }} -
-            {{ $informe->jefe_turno_nom }}
-        </h3>
+    <body class="min-h-screen bg-gray-50">
+        <!-- Header Moderno -->
+        <div class="bg-white shadow-sm border-b sticky top-0 z-50">
+            <div class="container mx-auto px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <button onclick="window.history.back()"
+                            class="flex items-center gap-2 px-3 py-2 border border-gray-300 rounded-md hover:bg-gray-50">
+                            <i data-lucide="arrow-left" class="h-4 w-4"></i>
+                            Volver
+                        </button>
+                        <div>
+                            <h1 class="text-xl font-bold">
+                                Visualizando Informe (Completado)
+                            </h1>
+                            <p class="text-sm text-gray-600">
+                                {{ \Carbon\Carbon::parse($fecha)->format('d/m/Y') }} - {{ $informe->turno }} - Jefe:
+                                {{ $informe->jefe_turno_nom }}
+                            </p>
+                            <p class="text-xs">
+                                @if(isset($informe->hora_inicio) && isset($informe->hora_fin))
+                                    <span class="text-blue-600">
+                                        {{ $informe->hora_inicio }} - {{ $informe->hora_fin }}
+                                        @if(isset($informe->horas_trabajadas))
+                                            ({{ number_format($informe->horas_trabajadas, 1) }}h)
+                                        @endif
+                                    </span>
+                                    @if(isset($informe->tiene_colacion) && $informe->tiene_colacion && isset($informe->hora_inicio_colacion))
+                                        | <span class="text-orange-600">
+                                            {{ $informe->hora_inicio_colacion }} - {{ $informe->hora_fin_colacion }}
+                                        </span>
+                                    @endif
+                                @else
+                                    <span class="text-gray-600">Horarios pendientes de configuración</span>
+                                @endif
+                                @if(isset($informe->fecha_finalizacion) && $informe->fecha_finalizacion)
+                                    | <span class="text-green-600">
+                                        Finalizado:
+                                        {{ \Carbon\Carbon::parse($informe->fecha_finalizacion)->format('d/m/Y H:i') }}
+                                    </span>
+                                @endif
+                            </p>
+                        </div>
+                    </div>
 
-        @if(isset($informe->hora_inicio) && isset($informe->hora_fin))
-            <div style="text-align: center; margin-bottom: 1rem; color: #1a237e; font-weight: 500;">
-                🕐 {{ $informe->hora_inicio }} - {{ $informe->hora_fin }}
-                @if(isset($informe->horas_trabajadas))
-                    ({{ number_format($informe->horas_trabajadas, 1) }}h)
-                @endif
-                @if(isset($informe->tiene_colacion) && $informe->tiene_colacion && isset($informe->hora_inicio_colacion))
-                    | ☕ {{ $informe->hora_inicio_colacion }} - {{ $informe->hora_fin_colacion }}
-                @endif
-            </div>
-        @endif
-
-        <div class="turno-info">
-            <div class="turno-info-grid">
-                @php
-                    $dotacion_esperada_total = collect($informacion_sala)->sum('dotacion_esperada') + ($informe->d_esperada_empaque ?? 0);
-                    $dotacion_real_total = collect($informacion_sala)->sum('dotacion_real') + ($informe->d_real_empaque ?? 0);
-                    $ausentismo = $dotacion_esperada_total > 0 ?
-                        round((($dotacion_esperada_total - $dotacion_real_total) / $dotacion_esperada_total) * 100, 1) : 0;
-                @endphp
-                <div class="turno-info-item">
-                    <strong>Dotación Esperada Total</strong>
-                    <span>{{ $dotacion_esperada_total }}</span>
-                </div>
-                <div class="turno-info-item">
-                    <strong>Dotación Total</strong>
-                    <span>{{ $dotacion_real_total }}</span>
-                </div>
-                <div class="turno-info-item">
-                    <strong>Ausentismo</strong>
-                    <span>{{ $ausentismo }}%</span>
+                    <!-- INFORME COMPLETADO -->
+                    <div class="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-600 rounded-md">
+                        <i data-lucide="lock" class="h-4 w-4"></i>
+                        Informe Finalizado
+                    </div>
                 </div>
             </div>
         </div>
 
-        @php
-            $tipos_planilla = collect($informacion_sala)->groupBy('tipo_planilla');
-        @endphp
+        <div class="container mx-auto p-6">
+            @php
+                // Organizar datos por sala
+                $salas_agrupadas = collect($informacion_sala)->groupBy('nombre_sala');
 
-        @foreach($tipos_planilla as $tipo_planilla => $salas)
-            <div class="tipo-planilla-section">
-                <h3 class="tipo-planilla-title">{{ $tipo_planilla }}</h3>
-                <div class="salas-grid">
-                    @foreach($salas as $sala)
-                        <div class="card w-full max-w-2xl mb-[10px] sala-card" data-sala-id="{{ $sala->cod_sala }}"
-                            data-sala-nombre="{{ $sala->nombre_sala }}" data-tipo-planilla="{{ $sala->tipo_planilla }}"
-                            data-piezas-recepcion="{{ $sala->piezas_recepcion_total }}">
-                            <div class="card-header bg-primary/5 pb-2">
-                                <div class="text-xl flex items-center justify-between">
-                                    <span class="flex items-center gap-2">
+                // Agrupar productos por empresa para acceso directo
+                $productos_por_empresa = collect($detalle_procesamiento)
+                    ->groupBy(function ($item) {
+                        return $item->cod_sala . '-' . $item->cod_tipo_planilla . '-' . $item->descripcion;
+                    });
+            @endphp
 
-                                        {{ $sala->nombre_sala }}
-                                    </span>
-                                </div>
+            <!-- TABS POR SALA Y FOTOS -->
+            <div class="bg-white rounded-lg shadow-sm mb-6">
+                <!-- Navegación de tabs -->
+                <div class="border-b border-gray-200">
+                    <nav class="flex space-x-0">
+                        @foreach($salas_agrupadas as $index => $datos_sala)
+                            @php
+                                $sala_nombre = $datos_sala->first()->nombre_sala;
+                                $sala_codigo = $datos_sala->first()->cod_sala;
+                            @endphp
+                            <button class="tab-button {{ $index === 0 ? 'active' : '' }}"
+                                onclick="cambiarTab('sala-{{ $sala_codigo }}', this)">
+                                {{ $sala_nombre }}
+                                <span class="ml-2 text-xs bg-gray-200 px-2 py-1 rounded-full">
+                                    {{ $datos_sala->count() }} proceso{{ $datos_sala->count() != 1 ? 's' : '' }}
+                                </span>
+                            </button>
+                        @endforeach
+                        <!-- Tab para fotos -->
+                        <button class="tab-button" onclick="cambiarTab('fotos-informe', this)">
+                            Fotos del Informe
+                            <span class="ml-2 text-xs bg-gray-200 px-2 py-1 rounded-full">
+                                {{ $fotos_informe->count() }}
+                            </span>
+                        </button>
+                    </nav>
+                </div>
+
+                <!-- Contenido de los tabs de salas -->
+                @foreach($salas_agrupadas as $index => $datos_sala)
+                    @php
+                        $sala_nombre = $datos_sala->first()->nombre_sala;
+                        $sala_codigo = $datos_sala->first()->cod_sala;
+                    @endphp
+
+                    <div id="sala-{{ $sala_codigo }}" class="tab-content {{ $index === 0 ? 'active' : '' }} p-6">
+                        <div class="space-y-6">
+                            <!-- Header de la sala -->
+                            <div class="mb-6">
+                                <h2 class="text-2xl font-bold text-gray-800 mb-2">{{ $sala_nombre }}</h2>
+                                <p class="text-gray-600">Sala {{ $sala_codigo }} - {{ $datos_sala->count() }}
+                                    proceso{{ $datos_sala->count() != 1 ? 's' : '' }}
+                                    operativo{{ $datos_sala->count() != 1 ? 's' : '' }}</p>
                             </div>
 
-                            <div class="card-body pt-4">
-                                <div class="row">
-                                    <!-- Dotación and Indicadores in first row -->
-                                    <!-- Dotación Section -->
-                                    <div class="mb-4">
-                                        <h5 class="d-flex align-items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                stroke-linejoin="round" class="text-primary me-2">
-                                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                                <circle cx="9" cy="7" r="4"></circle>
-                                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                            </svg>
-                                            Dotación
-                                        </h5>
-                                        <div class="row">
-                                            <div class="col-6">
-                                                <label class="form-label text-muted small mb-1">Real</label>
-                                                <input type="number" class="form-control form-control-sm dotacion-input" min="0"
-                                                    value="{{ $sala->dotacion_real }}" data-sala-id="{{ $sala->cod_sala }}"
-                                                    onchange="actualizarDotacionTotal()" disabled>
-                                            </div>
-                                            <div class="col-6">
-                                                <label class="form-label text-muted small mb-1">Esperada</label>
-                                                <input type="number" class="form-control form-control-sm dotacion-esperada-input"
-                                                    min="0" value="{{ $sala->dotacion_esperada }}"
-                                                    data-sala-id="{{ $sala->cod_sala }}" onchange="actualizarDotacionTotal()"
-                                                    disabled>
-                                            </div>
-                                        </div>
+                            <!-- COMENTARIOS DE LA SALA -->
+                            @if($sala_codigo)
+                                <div class="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
+                                    <div class="flex items-center justify-between mb-4">
+                                        <h4 class="font-bold text-lg text-gray-900 flex items-center gap-2">
+                                            Comentarios de {{ $sala_nombre }}
+                                            <span class="text-sm text-gray-500 font-normal">(Sala {{ $sala_codigo }})</span>
+                                        </h4>
                                     </div>
 
-                                    <!-- Indicadores Section -->
-                                    <div>
-                                        <h5 class="d-flex align-items-center">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                stroke-linejoin="round" class="text-primary me-2">
-                                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                                            </svg>
-                                            Indicadores
-                                        </h5>
-                                        <div class="d-flex flex-row flex-wrap gap-3">
-                                            @php
-                                                $procesamientoSala = collect($detalle_procesamiento)
-                                                    ->where('cod_sala', $sala->cod_sala)
-                                                    ->where('cod_tipo_planilla', $sala->cod_tipo_planilla);
-
-                                                $rendimientoPremium = 0;
-                                                if ($sala->kilos_recepcion_total > 0) {
-                                                    $rendimientoPremium = ($procesamientoSala->where('calidad', 'PREMIUM')->sum('kilos') / $sala->kilos_recepcion_total) * 100;
-                                                }
-
-                                                $rendimientoGeneral = 0;
-                                                if ($sala->kilos_entrega_total > 0) {
-                                                    $rendimientoGeneral = ($procesamientoSala->sum('kilos') / $sala->kilos_entrega_total) * 100;
-                                                }
-                                            @endphp
-
-                                            <!-- Indicador Premium/Rendimiento General -->
-                                            <div class="flex-grow-1">
-                                                <p class="text-muted small mb-1">
-                                                    {{ $sala->tipo_planilla == 'Porciones' ? 'Rendimiento General' : 'Premium' }}
-                                                </p>
-                                                <p class="fw-medium premium-valor">
-                                                    {{ number_format($rendimientoPremium, 1) }}%
-                                                </p>
-                                            </div>
-
-                                            <!-- Rendimiento General (solo para no-Porciones) -->
-                                            @if($sala->tipo_planilla != 'Porciones')
-                                                <div class="flex-grow-1">
-                                                    <p class="text-muted small mb-1">Rendimiento</p>
-                                                    <p class="fw-medium rendimiento-valor">
-                                                        {{ number_format($rendimientoGeneral, 1) }}%
-                                                    </p>
-                                                </div>
-                                            @endif
-
-                                            <!-- Productividad -->
-                                            <div class="flex-grow-1">
-                                                <p class="text-muted small mb-1">Productividad</p>
-                                                <p class="fw-medium productividad-valor">-</p>
-                                            </div>
-
-                                            <!-- Horas Trabajadas -->
-                                            <div class="flex-grow-1">
-                                                <p class="text-muted small mb-1">Horas Trabajadas</p>
-                                                @php
-                                                    $horasEnteras = floor($sala->horas_trabajadas);
-                                                    $minutos = round(($sala->horas_trabajadas - $horasEnteras) * 60);
-                                                @endphp
-                                                <p class="fw-medium" data-horas-trabajadas="{{ $sala->horas_trabajadas }}">
-                                                    {{ $horasEnteras }}h {{ $minutos }}m
-                                                </p>
-                                            </div>
-
-                                            <!-- Tiempo Muerto -->
-                                            <div class="flex-grow-1">
-                                                <p class="text-muted small mb-1">Tiempo Muerto</p>
-                                                @php
-                                                    $minutosTiempoMuerto = collect($tiempos_muertos)
-                                                        ->where('cod_sala', $sala->cod_sala)
-                                                        ->sum('duracion_minutos');
-                                                    $horasTM = floor($minutosTiempoMuerto / 60);
-                                                    $minutosTM = $minutosTiempoMuerto % 60;
-                                                @endphp
-                                                <p class="fw-medium" data-tiempo-muerto="{{ $minutosTiempoMuerto }}">
-                                                    {{ $horasTM }}h {{ $minutosTM }}m
-                                                </p>
-                                            </div>
-                                        </div>
+                                    <div class="bg-white p-4 rounded-md border border-blue-200">
+                                        @if(isset($comentarios_salas[$sala_codigo]) && $comentarios_salas[$sala_codigo]->comentarios)
+                                            <p class="text-gray-700 whitespace-pre-wrap">
+                                                {{ $comentarios_salas[$sala_codigo]->comentarios }}
+                                            </p>
+                                        @else
+                                            <p class="text-gray-500 italic">Sin comentarios registrados para esta sala</p>
+                                        @endif
                                     </div>
                                 </div>
+                            @endif
 
-                                <hr class="my-2">
+                            @foreach($datos_sala as $sala)
+                                <!-- Proceso/Tipo de Planilla -->
+                                <div class="border rounded-lg p-6 space-y-6 bg-gray-50">
+                                    <div class="flex items-center justify-between">
+                                        <h3 class="font-semibold text-xl text-gray-800">{{ $sala->tipo_planilla }}</h3>
+                                        @php
+                                            // Obtener empresas para esta sala y tipo
+                                            $empresas_en_sala = collect($detalle_procesamiento)
+                                                ->where('cod_sala', $sala->cod_sala)
+                                                ->where('cod_tipo_planilla', $sala->cod_tipo_planilla)
+                                                ->pluck('descripcion')
+                                                ->unique();
 
-                                <!-- Material Processing Section -->
-                                <div class="row">
-                                    <!-- Entrega MP -->
-                                    <div class="col-md-6 mb-4 mb-md-0">
-                                        <div>
-                                            <h5 class="d-flex align-items-center">
-                                                Entrega MP
-                                            </h5>
+                                            $total_empresas = $empresas_en_sala->count();
+                                        @endphp
+                                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-md text-sm font-medium">
+                                            {{ $total_empresas }} {{ $total_empresas == 1 ? 'Empresa' : 'Empresas' }}
+                                        </span>
+                                    </div>
+
+                                    @if($total_empresas > 0)
+                                        <!-- Mostrar datos por empresa -->
+                                        @foreach($empresas_en_sala as $empresa_nombre)
                                             @php
-                                                $procesamientoSala = collect($detalle_procesamiento)
+                                                // Obtener datos específicos de esta empresa
+                                                $productos_empresa = collect($detalle_procesamiento)
                                                     ->where('cod_sala', $sala->cod_sala)
-                                                    ->where('tipo_planilla', $sala->tipo_planilla);
+                                                    ->where('cod_tipo_planilla', $sala->cod_tipo_planilla)
+                                                    ->where('descripcion', $empresa_nombre);
 
-                                                // Convertir a JSON para debugging
-                                                $procesamientoSalaJson = json_encode($procesamientoSala);
+                                                // Calcular valores básicos
+                                                $dotacion_max = $sala->dotacion_real ?? 1;
+                                                $horas_efectivas = $sala->horas_trabajadas ?? 1;
+                                                $horas_turno = $informe->horas_trabajadas ?? 1;
+                                                $kilos_objetivo = $productos_empresa->where('es_producto_objetivo', 1)->sum('kilos') ?? 0;
+                                                $kilos_pst_total = $productos_empresa->sum('kilos') ?? 0;
+
+                                                // Evitar división por 0 en horas
+                                                $horas_efectivas = $horas_efectivas > 0 ? $horas_efectivas : 1;
+                                                $horas_turno = $horas_turno > 0 ? $horas_turno : 1;
+
+                                                // Calcular las 4 productividades
+                                                $productividad_objetivo_efectivas = round($kilos_objetivo / ($dotacion_max * $horas_efectivas), 2);
+                                                $productividad_objetivo_turno = round($kilos_objetivo / ($dotacion_max * $horas_turno), 2);
+                                                $productividad_total_efectivas = round($kilos_pst_total / ($dotacion_max * $horas_efectivas), 2);
+                                                $productividad_total_turno = round($kilos_pst_total / ($dotacion_max * $horas_turno), 2);
+
+                                                // Obtener planillas únicas
+                                                $planillas_unicas = $productos_empresa->pluck('n_planilla')->unique();
+
+                                                // Obtener tiempos muertos para esta sala
+                                                $tiempos_muertos_sala = collect($tiempos_muertos)->where('cod_sala', $sala->cod_sala);
                                             @endphp
-                                            <script>
-                                                console.log('Sala: {{ $sala->nombre_sala }} ({{ $sala->cod_sala }}), Tipo: {{ $sala->tipo_planilla }} ({{ $sala->cod_tipo_planilla }})');
-                                                console.log('Datos de procesamiento:', {!! $procesamientoSalaJson !!});
-                                            </script>
-                                            <div class="d-flex flex-row flex-wrap gap-3">
-                                                <div class="flex-grow-1">
-                                                    <p class="text-muted small mb-1">Kilos</p>
-                                                    <p class="fw-medium" data-kilos-entrega="{{ $sala->kilos_entrega_total }}">
-                                                        {{ number_format($sala->kilos_entrega_total, 1) }} kg
-                                                    </p>
+
+                                            <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+                                                <!-- Header de empresa -->
+                                                <div class="flex items-center justify-between mb-6">
+                                                    <h4 class="font-bold text-lg text-gray-900 flex items-center gap-3">
+                                                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-md text-base font-medium">
+                                                            {{ $empresa_nombre }}
+                                                        </span>
+                                                        <span class="text-sm text-gray-500 font-normal">
+                                                            {{ $productos_empresa->count() }} productos | {{ $planillas_unicas->count() }}
+                                                            planillas
+                                                        </span>
+                                                    </h4>
                                                 </div>
-                                                @if($sala->tipo_planilla !== 'Porciones')
-                                                    <div class="flex-grow-1">
-                                                        <p class="text-muted small mb-1">Piezas</p>
-                                                        <p class="fw-medium" data-piezas-entrega="{{ $sala->piezas_entrega_total }}">
-                                                            {{ number_format($sala->piezas_entrega_total, 0) }}
+
+                                                <!-- Datos operacionales básicos -->
+                                                <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+                                                    <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                                        <p class="text-xs text-gray-600 mb-1">Dotación</p>
+                                                        <p class="font-semibold text-xl text-gray-800">{{ $dotacion_max }}</p>
+                                                        <p class="text-xs text-gray-500">personas</p>
+                                                    </div>
+                                                    <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                                        <p class="text-xs text-gray-600 mb-1">Horas Efectivas</p>
+                                                        <p class="font-semibold text-xl text-gray-800">
+                                                            {{ number_format($horas_efectivas, 1) }}h
                                                         </p>
                                                     </div>
-                                                @endif
+                                                    <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                                        <p class="text-xs text-gray-600 mb-1">Horas Turno</p>
+                                                        <p class="font-semibold text-xl text-blue-600">
+                                                            {{ number_format($horas_turno, 1) }}h
+                                                        </p>
+                                                    </div>
+                                                    <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                                        <p class="text-xs text-gray-600 mb-1">PST Objetivo</p>
+                                                        <p class="font-semibold text-xl text-green-700">
+                                                            {{ number_format($kilos_objetivo, 0) }}
+                                                        </p>
+                                                        <p class="text-xs text-gray-500">kg</p>
+                                                    </div>
+                                                    <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                                        <p class="text-xs text-gray-600 mb-1">PST Total</p>
+                                                        <p class="font-semibold text-xl text-blue-700">
+                                                            {{ number_format($kilos_pst_total, 0) }}
+                                                        </p>
+                                                        <p class="text-xs text-gray-500">kg</p>
+                                                    </div>
+                                                </div>
+
+                                                <!-- PRODUCTIVIDADES (4 tipos) -->
+                                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
+                                                    <h5 class="text-base font-semibold text-yellow-800 mb-4 flex items-center gap-2">
+                                                        Productividades (kg/persona/hora)
+                                                    </h5>
+                                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                        <div
+                                                            class="bg-white p-4 rounded-lg text-center border-l-4 border-green-500 shadow-sm">
+                                                            <p class="text-xs text-gray-600 mb-2">Objetivo + Efectivas</p>
+                                                            <p class="font-bold text-2xl text-green-700">
+                                                                {{ $productividad_objetivo_efectivas }}
+                                                            </p>
+                                                            <p class="text-xs text-gray-500 mt-1">
+                                                                {{ number_format($kilos_objetivo, 0) }}kg ÷ ({{ $dotacion_max }} ×
+                                                                {{ number_format($horas_efectivas, 1) }}h)
+                                                            </p>
+                                                        </div>
+                                                        <div
+                                                            class="bg-white p-4 rounded-lg text-center border-l-4 border-green-400 shadow-sm">
+                                                            <p class="text-xs text-gray-600 mb-2">Objetivo + Turno</p>
+                                                            <p class="font-bold text-2xl text-green-600">
+                                                                {{ $productividad_objetivo_turno }}
+                                                            </p>
+                                                            <p class="text-xs text-gray-500 mt-1">
+                                                                {{ number_format($kilos_objetivo, 0) }}kg ÷ ({{ $dotacion_max }} ×
+                                                                {{ number_format($horas_turno, 1) }}h)
+                                                            </p>
+                                                        </div>
+                                                        <div
+                                                            class="bg-white p-4 rounded-lg text-center border-l-4 border-blue-500 shadow-sm">
+                                                            <p class="text-xs text-gray-600 mb-2">Total + Efectivas</p>
+                                                            <p class="font-bold text-2xl text-blue-700">
+                                                                {{ $productividad_total_efectivas }}
+                                                            </p>
+                                                            <p class="text-xs text-gray-500 mt-1">
+                                                                {{ number_format($kilos_pst_total, 0) }}kg ÷ ({{ $dotacion_max }} ×
+                                                                {{ number_format($horas_efectivas, 1) }}h)
+                                                            </p>
+                                                        </div>
+                                                        <div
+                                                            class="bg-white p-4 rounded-lg text-center border-l-4 border-blue-400 shadow-sm">
+                                                            <p class="text-xs text-gray-600 mb-2">Total + Turno</p>
+                                                            <p class="font-bold text-2xl text-blue-600">
+                                                                {{ $productividad_total_turno }}
+                                                            </p>
+                                                            <p class="text-xs text-gray-500 mt-1">
+                                                                {{ number_format($kilos_pst_total, 0) }}kg ÷ ({{ $dotacion_max }} ×
+                                                                {{ number_format($horas_turno, 1) }}h)
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- SECCIÓN DE DETALLES -->
+                                                <div class="space-y-6">
+
+                                                    <!-- PRODUCTOS DETALLADOS -->
+                                                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                                                        <h6 class="font-semibold text-blue-800 mb-4 flex items-center gap-2">
+                                                            Productos ({{ $productos_empresa->count() }})
+                                                        </h6>
+                                                        @if($productos_empresa->count() > 0)
+                                                            <div class="overflow-x-auto">
+                                                                <table class="w-full border-collapse border border-gray-300">
+                                                                    <thead class="bg-gray-50">
+                                                                        <tr>
+                                                                            <th
+                                                                                class="border border-gray-300 px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                                                Producto</th>
+                                                                            <th
+                                                                                class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">
+                                                                                Calidad</th>
+                                                                            <th
+                                                                                class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">
+                                                                                Destino</th>
+                                                                            <th
+                                                                                class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">
+                                                                                Kg</th>
+                                                                            <th
+                                                                                class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">
+                                                                                %</th>
+                                                                            <th
+                                                                                class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">
+                                                                                Objetivo</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @php
+                                                                            $total_kilos_empresa = $productos_empresa->sum('kilos');
+                                                                        @endphp
+                                                                        @foreach($productos_empresa as $producto)
+                                                                            @php
+                                                                                $porcentaje = $total_kilos_empresa > 0 ? (($producto->kilos / $total_kilos_empresa) * 100) : 0;
+                                                                                $es_calidad_premium = ($producto->calidad ?? '') === 'PREMIUM';
+                                                                                $nombre_producto = ($producto->corte_inicial ?? '') . ' → ' . ($producto->corte_final ?? '');
+                                                                                if (isset($producto->calibre) && $producto->calibre !== 'SIN CALIBRE') {
+                                                                                    $nombre_producto .= ' → ' . $producto->calibre;
+                                                                                }
+                                                                                $es_objetivo = $producto->es_producto_objetivo == 1;
+                                                                            @endphp
+                                                                            <tr class="hover:bg-gray-50">
+                                                                                <td class="border border-gray-300 px-4 py-2 font-medium">
+                                                                                    {{ $nombre_producto }}</td>
+                                                                                <td class="border border-gray-300 px-4 py-2">
+                                                                                    <span
+                                                                                        class="px-2 py-1 {{ $es_calidad_premium ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800' }} rounded text-sm">
+                                                                                        {{ $producto->calidad ?? 'N/A' }}
+                                                                                    </span>
+                                                                                </td>
+                                                                                <td class="border border-gray-300 px-4 py-2">
+                                                                                    {{ $producto->destino ?? 'N/A' }}</td>
+                                                                                <td class="border border-gray-300 px-4 py-2 text-right font-medium">
+                                                                                    {{ number_format($producto->kilos, 2) }} kg</td>
+                                                                                <td class="border border-gray-300 px-4 py-2 text-right">
+                                                                                    {{ number_format($porcentaje, 1) }}%</td>
+                                                                                <td class="border border-gray-300 px-4 py-2 text-center">
+                                                                                    <span
+                                                                                        class="px-2 py-1 {{ $es_objetivo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }} rounded text-sm font-medium">
+                                                                                        {{ $es_objetivo ? 'SÍ' : 'NO' }}
+                                                                                    </span>
+                                                                                </td>
+                                                                            </tr>
+                                                                        @endforeach
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+
+                                                            @php
+                                                                $productos_objetivo = $productos_empresa->where('es_producto_objetivo', 1);
+                                                                $kilos_objetivo = $productos_objetivo->sum('kilos');
+                                                            @endphp
+
+                                                            <!-- Resumen productos -->
+                                                            <div class="mt-4 text-sm text-gray-600 bg-gray-50 p-4 rounded">
+                                                                <div class="grid grid-cols-2 gap-4">
+                                                                    <div>
+                                                                        <p><strong>Total productos:</strong> {{ $productos_empresa->count() }}
+                                                                        </p>
+                                                                        <p><strong>Productos objetivo:</strong>
+                                                                            {{ $productos_objetivo->count() }}
+                                                                            ({{ $productos_empresa->count() > 0 ? number_format(($productos_objetivo->count() / $productos_empresa->count()) * 100, 1) : 0 }}%)
+                                                                        </p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <p><strong>Total kilos:</strong>
+                                                                            {{ number_format($total_kilos_empresa, 2) }} kg</p>
+                                                                        <p><strong>Kilos objetivo:</strong>
+                                                                            {{ number_format($kilos_objetivo, 2) }} kg
+                                                                            ({{ $total_kilos_empresa > 0 ? number_format(($kilos_objetivo / $total_kilos_empresa) * 100, 1) : 0 }}%)
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @else
+                                                            <div class="text-center text-gray-500 py-8">
+                                                                <i data-lucide="package-x" class="h-16 w-16 mx-auto mb-4 text-gray-400"></i>
+                                                                <h3 class="text-lg font-semibold mb-2">Sin Productos</h3>
+                                                                <p>No se encontraron productos para esta empresa, sala y proceso.</p>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+
+                                                    <!-- PLANILLAS DETALLADAS -->
+                                                    <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+                                                        <h6 class="font-semibold text-green-800 mb-4 flex items-center gap-2">
+                                                            Planillas ({{ $planillas_unicas->count() }})
+                                                        </h6>
+                                                        @php
+                                                            // Filtrar planillas detalladas por empresa, sala y tipo
+                                                            $planillas_filtradas = collect($planillas_detalle)->filter(function ($planilla) use ($empresa_nombre, $sala) {
+                                                                return isset($planilla->descripcion) &&
+                                                                    trim($planilla->descripcion) === trim($empresa_nombre) &&
+                                                                    $planilla->cod_sala == $sala->cod_sala &&
+                                                                    $planilla->cod_tipo_planilla == $sala->cod_tipo_planilla;
+                                                            });
+                                                        @endphp
+
+                                                        @if($planillas_filtradas->count() > 0)
+                                                            <div class="overflow-x-auto">
+                                                                <table class="w-full border-collapse border border-gray-300">
+                                                                    <thead class="bg-gray-50">
+                                                                        <tr>
+                                                                            <th
+                                                                                class="border border-gray-300 px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                                                Planilla</th>
+                                                                            <th
+                                                                                class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">
+                                                                                Trabajador</th>
+                                                                            <th
+                                                                                class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">
+                                                                                Dotación</th>
+                                                                            <th
+                                                                                class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">
+                                                                                Horas Trabajadas</th>
+                                                                            <th
+                                                                                class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">
+                                                                                Kg Entrega</th>
+                                                                            <th
+                                                                                class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">
+                                                                                PST Total</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach($planillas_filtradas as $planilla)
+                                                                            <tr class="hover:bg-gray-50">
+                                                                                <td class="border border-gray-300 px-4 py-2 font-medium">
+                                                                                    #{{ $planilla->numero_planilla ?? 'N/A' }}</td>
+                                                                                <td class="border border-gray-300 px-4 py-2">
+                                                                                    {{ $planilla->trabajador_nombre ?? 'Sin asignar' }}</td>
+                                                                                <td
+                                                                                    class="border border-gray-300 px-4 py-2 text-center font-medium text-orange-700">
+                                                                                    {{ $planilla->dotacion ?? 0 }}</td>
+                                                                                <td
+                                                                                    class="border border-gray-300 px-4 py-2 text-right font-medium text-purple-700">
+                                                                                    {{ number_format($planilla->horas_trabajadas ?? 0, 1) }}h</td>
+                                                                                <td
+                                                                                    class="border border-gray-300 px-4 py-2 text-right font-medium text-blue-700">
+                                                                                    {{ number_format($planilla->kilos_entrega ?? 0, 2) }} kg</td>
+                                                                                <td
+                                                                                    class="border border-gray-300 px-4 py-2 text-right font-medium text-green-700">
+                                                                                    {{ number_format($planilla->pst_total ?? 0, 2) }} kg</td>
+                                                                            </tr>
+                                                                        @endforeach
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+
+                                                            <!-- Resumen planillas -->
+                                                            <div class="mt-4 text-sm text-gray-600 bg-gray-50 p-4 rounded">
+                                                                <div class="grid grid-cols-4 gap-4">
+                                                                    <div>
+                                                                        <p><strong>Total planillas:</strong> {{ $planillas_filtradas->count() }}
+                                                                        </p>
+                                                                        <p><strong>Dotación total:</strong> <span
+                                                                                class="text-orange-700 font-bold">{{ $planillas_filtradas->max('dotacion') ?? 0 }}</span>
+                                                                        </p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <p><strong>Total horas:</strong>
+                                                                            {{ number_format($planillas_filtradas->sum('horas_trabajadas'), 1) }}h
+                                                                        </p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <p><strong>Total entrega:</strong>
+                                                                            {{ number_format($planillas_filtradas->sum('kilos_entrega'), 2) }}
+                                                                            kg</p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <p><strong>Total PST:</strong>
+                                                                            {{ number_format($planillas_filtradas->sum('pst_total'), 2) }} kg
+                                                                        </p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @else
+                                                            <div class="text-center text-gray-500 py-8">
+                                                                <i data-lucide="file-x" class="h-16 w-16 mx-auto mb-4 text-gray-400"></i>
+                                                                <h3 class="text-lg font-semibold mb-2">Sin Planillas</h3>
+                                                                <p>No se encontraron planillas para esta empresa, sala y proceso.</p>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+
+                                                    <!-- TIEMPOS MUERTOS DETALLADOS -->
+                                                    <div class="bg-red-50 border border-red-200 rounded-lg p-6">
+                                                        <h6 class="font-semibold text-red-800 mb-4 flex items-center gap-2">
+                                                            Tiempos Muertos ({{ $tiempos_muertos_sala->count() }})
+                                                        </h6>
+                                                        @if($tiempos_muertos_sala->count() > 0)
+                                                            <div class="space-y-3">
+                                                                @foreach($tiempos_muertos_sala as $tiempo)
+                                                                    <div class="border rounded-lg p-4 hover:bg-gray-50 bg-white">
+                                                                        <div class="flex justify-between items-start">
+                                                                            <div class="flex-1">
+                                                                                <p class="font-medium text-gray-900">
+                                                                                    {{ $tiempo->motivo ?? 'Sin motivo' }}</p>
+                                                                                <p class="text-sm text-gray-600 mt-1">
+                                                                                    {{ $tiempo->descripcion ?? 'Sin descripción' }}
+                                                                                </p>
+                                                                                @if(isset($tiempo->nombre))
+                                                                                    <p class="text-sm text-gray-600 mt-1 flex items-center gap-1">
+                                                                                        <i data-lucide="building" class="h-4 w-4"></i>
+                                                                                        Departamento: {{ $tiempo->nombre }}
+                                                                                    </p>
+                                                                                @endif
+                                                                            </div>
+                                                                            <div class="text-right">
+                                                                                <span
+                                                                                    class="px-3 py-1 bg-red-100 text-red-800 rounded-md text-sm font-medium">
+                                                                                    {{ number_format(($tiempo->duracion_minutos ?? 0) / 60, 1) }}h
+                                                                                    ({{ $tiempo->duracion_minutos ?? 0 }} min)
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
+
+                                                            <!-- Resumen tiempos muertos -->
+                                                            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                                                                <h6 class="font-medium text-gray-900 mb-2">Resumen de Tiempos Muertos</h6>
+                                                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                                                    <div>
+                                                                        <p><strong>Total eventos:</strong> {{ $tiempos_muertos_sala->count() }}
+                                                                        </p>
+                                                                        <p><strong>Tiempo perdido:</strong>
+                                                                            {{ number_format($tiempos_muertos_sala->sum('duracion_minutos') / 60, 1) }}h
+                                                                            ({{ $tiempos_muertos_sala->sum('duracion_minutos') }} min)</p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <p><strong>Promedio por evento:</strong>
+                                                                            {{ $tiempos_muertos_sala->count() > 0 ? number_format($tiempos_muertos_sala->sum('duracion_minutos') / $tiempos_muertos_sala->count(), 1) : 0 }}
+                                                                            min</p>
+                                                                        <p><strong>Impacto:</strong> <span
+                                                                                class="text-red-600 font-medium">{{ number_format($tiempos_muertos_sala->sum('duracion_minutos') / 60, 1) }}h
+                                                                                de producción perdida</span></p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @else
+                                                            <div class="text-center text-gray-500 py-8">
+                                                                <i data-lucide="clock" class="h-16 w-16 mx-auto mb-4 text-gray-400"></i>
+                                                                <h3 class="text-lg font-semibold mb-2">Sin Tiempos Muertos</h3>
+                                                                <p>No se registraron tiempos muertos para esta sala y proceso.</p>
+                                                            </div>
+                                                        @endif
+                                                    </div>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Recepción PST -->
-                                    <div class="col-md-6">
-                                        <div>
-                                            <h5 class="d-flex align-items-center">
-                                                Recepción PST
-                                            </h5>
-                                            <div class="d-flex flex-row flex-wrap gap-3">
-                                                <div class="flex-grow-1">
-                                                    <p class="text-muted small mb-1">Kilos</p>
-                                                    <p class="font-medium"
-                                                        data-kilos-recepcion="{{ number_format($procesamientoSala->sum('kilos'), 1) }}">
-                                                        {{ number_format($procesamientoSala->sum('kilos'), 1) }} kg
-                                                    </p>
-                                                </div>
-                                                <div class="flex-grow-1">
-                                                    <p class="text-muted small mb-1">Kilos Premium</p>
-                                                    @php
-                                                        $kilosPremium = $procesamientoSala->where('calidad', 'PREMIUM')->sum('kilos');
-                                                    @endphp
-                                                    <p class="font-medium"
-                                                        data-kilos-premium="{{ number_format($kilosPremium, 1) }}">
-                                                        {{ number_format($kilosPremium, 1) }} kg
-                                                    </p>
-                                                </div>
-                                                <div class="flex-grow-1">
-                                                    <p class="text-muted small mb-1">Piezas</p>
-                                                    <p class="fw-medium"
-                                                        data-piezas-recepcion="{{ number_format($procesamientoSala->sum('piezas'), decimals: 0) }}">
-                                                        {{ number_format($procesamientoSala->sum('piezas'), decimals: 0) }}
-                                                    </p>
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                    </div>
+                                        @endforeach
+                                    @endif
                                 </div>
-
-                                <!-- Action Buttons -->
-                                <div class="d-flex mt-4">
-                                    <button class="btn btn-primary btn-detail" data-bs-toggle="modal"
-                                        data-bs-target="#procesamiento{{ $sala->cod_tipo_planilla }}_{{ $sala->cod_sala }}"
-                                        data-bs-tooltip="tooltip" title="Ver Detalle Procesamiento">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                            stroke-linejoin="round">
-                                            <path
-                                                d="M8 6.00067L21 6.00139M8 12.0007L21 12.0015M8 18.0007L21 18.0015M3.5 6H3.51M3.5 12H3.51M3.5 18H3.51M4 6C4 6.27614 3.77614 6.5 3.5 6.5C3.22386 6.5 3 6.27614 3 6C3 5.72386 3.22386 5.5 3.5 5.5C3.77614 5.5 4 5.72386 4 6ZM4 12C4 12.2761 3.77614 12.5 3.5 12.5C3.22386 12.5 3 12.2761 3 12C3 11.7239 3.22386 11.5 3.5 11.5C3.77614 11.5 4 11.7239 4 12ZM4 18C4 18.2761 3.77614 18.5 3.5 18.5C3.22386 18.5 3 18.2761 3 18C3 17.7239 3.22386 17.5 3.5 17.5C3.77614 17.5 4 17.7239 4 18Z" />
-                                        </svg>
-                                    </button>
-                                    <button class="btn btn-primary btn-detail ms-2" data-bs-toggle="modal"
-                                        data-bs-target="#tiempos{{ $sala->cod_tipo_planilla }}_{{ $sala->cod_sala }}"
-                                        data-bs-tooltip="tooltip" title="Ver Tiempos Muertos">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                                            fill="currentColor">
-                                            <path
-                                                d="M12,22A10,10,0,1,1,22,12a1,1,0,0,0,2,0A12,12,0,1,0,12,24a1,1,0,0,0,0-2Z M12,6a1,1,0,0,0-1,1v4.586L8.293,14.293a1,1,0,1,0,1.414,1.414l3-3A1,1,0,0,0,13,12V7A1,1,0,0,0,12,6Z" />
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Modal Detalle Procesamiento -->
-                        <div class="modal fade" id="procesamiento{{ $sala->cod_tipo_planilla }}_{{ $sala->cod_sala }}"
-                            tabindex="-1">
-                            <div class="modal-dialog modal-lg">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Detalle Procesamiento - {{ $sala->nombre_sala }}
-                                            ({{ $tipo_planilla }})</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-
-                                        <div class="table-responsive">
-                                            <table class="detail-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Nro Planilla</th>
-                                                        <th>Empresa</th>
-                                                        <th>Corte Inicial</th>
-                                                        <th>Corte Final</th>
-                                                        <th>Calibre</th>
-                                                        <th>Calidad</th>
-                                                        <th>Piezas</th>
-                                                        <th>Kilos</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @php
-                                                        $procesamientoSala = collect($detalle_procesamiento)
-                                                            ->where('cod_sala', $sala->cod_sala)
-                                                            ->where('tipo_planilla', $sala->tipo_planilla);
-                                                    @endphp
-                                                    <script>
-                                                        console.log('MODAL - Sala: {{ $sala->nombre_sala }} ({{ $sala->cod_sala }}), Tipo: {{ $sala->tipo_planilla }} ({{ $sala->cod_tipo_planilla }})');
-                                                        console.log('MODAL - Datos de procesamiento:', {!! json_encode($procesamientoSala) !!});
-                                                        console.log('MODAL - Todos los datos:', {!! json_encode($detalle_procesamiento) !!});
-                                                    </script>
-                                                    @foreach($procesamientoSala as $proceso)
-                                                        <tr>
-                                                            <td>{{ $proceso->cod_planilla }}</td>
-                                                            <td>{{ $proceso->descripcion }}</td>
-                                                            <td>{{ $proceso->corte_inicial }}</td>
-                                                            <td>{{ $proceso->corte_final }}</td>
-                                                            <td>{{ $proceso->calibre }}</td>
-                                                            <td>{{ $proceso->calidad }}</td>
-                                                            <td>{{ number_format($proceso->piezas, 0) }}</td>
-                                                            <td>{{ number_format($proceso->kilos, 1) }} kg</td>
-                                                        </tr>
-                                                    @endforeach
-                                                </tbody>
-                                                <tfoot>
-                                                    <tr>
-                                                        <td colspan="6" class="text-end"><strong>Totales:</strong></td>
-                                                        <td><strong>{{ number_format($procesamientoSala->sum('piezas'), 0) }}</strong>
-                                                        </td>
-                                                        <td><strong>{{ number_format($procesamientoSala->sum('kilos'), 1) }}
-                                                                kg</strong></td>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Modal Tiempos Muertos -->
-                        <div class="modal fade" id="tiempos{{ $sala->cod_tipo_planilla }}_{{ $sala->cod_sala }}" tabindex="-1">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Tiempos Muertos - {{ $sala->nombre_sala }}</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="table-responsive">
-                                            @php
-                                                $tiemposMuertosSala = collect($tiempos_muertos)->where('cod_sala', $sala->cod_sala);
-                                            @endphp
-                                            <table class="detail-table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Motivo</th>
-                                                        <th>Duración (min)</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    @foreach($tiemposMuertosSala as $tiempo)
-                                                        <tr>
-                                                            <td>{{ $tiempo->motivo }}</td>
-                                                            <td>{{ number_format($tiempo->duracion_minutos, 0) }}</td>
-                                                        </tr>
-                                                    @endforeach
-                                                </tbody>
-                                                <tfoot>
-                                                    <tr>
-                                                        <td class="text-end"><strong>Total:</strong></td>
-                                                        <td><strong>{{ number_format($tiemposMuertosSala->sum('duracion_minutos'), 0) }}
-                                                                min</strong></td>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        @endforeach
-
-
-        <!-- Sección de Empaque Premium -->
-        <div class="tipo-planilla-section">
-            <h3 class="tipo-planilla-title">Empaque</h3>
-            <div class="salas-grid">
-                <div class="card w-full max-w-2xl mb-[10px]">
-                    <div class="card-header bg-primary/5 pb-2">
-                        <div class="text-xl flex items-center justify-between">
-                            <span class="flex items-center gap-2">
-                                Detalle
-                            </span>
+                            @endforeach
                         </div>
                     </div>
-                    <div class="card-body pt-4">
-                        <!-- Dotación Section -->
-                        <div class="mb-4">
-                            <h5 class="d-flex align-items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="text-primary me-2">
-                                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                    <circle cx="9" cy="7" r="4"></circle>
-                                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-                                </svg>
-                                Dotación
-                            </h5>
-                            <div class="row">
-                                <div class="col-6">
-                                    <label class="form-label text-muted small mb-1">Real</label>
-                                    <input type="number" class="form-control form-control-sm"
-                                        value="{{ $informe->d_real_empaque }}" disabled>
-                                </div>
-                                <div class="col-6">
-                                    <label class="form-label text-muted small mb-1">Esperada</label>
-                                    <input type="number" class="form-control form-control-sm"
-                                        value="{{ $informe->d_esperada_empaque }}" disabled>
-                                </div>
-                            </div>
+                @endforeach
+
+                <!-- TAB DE FOTOS -->
+                <div id="fotos-informe" class="tab-content p-6">
+                    <div class="space-y-6">
+                        <div class="mb-6">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-2">Fotos del Informe</h2>
+                            <p class="text-gray-600">{{ $fotos_informe->count() }} fotos adjuntas</p>
                         </div>
 
-                        <!-- Indicadores Section -->
-                        <div class="mb-4">
-                            <h5 class="d-flex align-items-center">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                    stroke-linejoin="round" class="text-primary me-2">
-                                    <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                                </svg>
-                                Indicadores
-                            </h5>
-                            <div class="row">
-                                <div class="col-4 mb-3">
-                                    <label class="form-label text-muted small mb-1">Horas Trabajadas</label>
-                                    <div class="d-flex">
-                                        <input type="number" class="form-control form-control-sm me-1" min="0"
-                                            value="{{ floor($informe->horas_trabajadas_empaque) }}" disabled>
-                                        <span class="mt-1 me-1">h</span>
-                                        <input type="number" class="form-control form-control-sm me-1" min="0" max="59"
-                                            value="{{ round(($informe->horas_trabajadas_empaque - floor($informe->horas_trabajadas_empaque)) * 60) }}"
-                                            disabled>
-                                        <span class="mt-1">m</span>
+                        @if($fotos_informe->count() > 0)
+                            <!-- Grid de fotos -->
+                            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                @foreach($fotos_informe as $foto)
+                                    <div class="foto-thumbnail"
+                                        onclick="abrirFoto('{{ asset('storage/' . $foto->ruta_archivo) }}', '{{ $foto->nombre_original }}')">
+                                        <img src="{{ asset('storage/' . $foto->ruta_archivo) }}" alt="{{ $foto->nombre_original }}"
+                                            class="w-full h-32 object-cover rounded-lg border border-gray-200">
+                                        <div class="p-2">
+                                            <p class="text-xs text-gray-600 truncate" title="{{ $foto->nombre_original }}">
+                                                {{ $foto->nombre_original }}
+                                            </p>
+                                            <p class="text-xs text-gray-400">
+                                                {{ \Carbon\Carbon::parse($foto->fecha_subida)->format('d/m H:i') }}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="col-4 mb-3">
-                                    <label class="form-label text-muted small mb-1">Tiempo Muerto</label>
-                                    <div class="d-flex">
-                                        <input type="number" class="form-control form-control-sm me-1" min="0"
-                                            value="{{ floor($informe->tiempo_muerto_empaque / 60) }}" disabled>
-                                        <span class="mt-1 me-1">h</span>
-                                        <input type="number" class="form-control form-control-sm me-1" min="0" max="59"
-                                            value="{{ $informe->tiempo_muerto_empaque % 60 }}" disabled>
-                                        <span class="mt-1">m</span>
-                                    </div>
-                                </div>
-                                <div class="col-4 mb-3">
-                                    <label class="form-label text-muted small mb-1">Productividad</label>
-                                    <div class="d-flex align-items-center">
-                                        <div class="fw-bold">{{ number_format($informe->productividad_empaque, 1) }}</div>
-                                        <span class="ms-2">pzs/pers/hr</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        @if(count($empaque_premium) > 0)
-                            <div class="table-responsive">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr class="text-muted small">
-                                            <th class="border-0">Producto</th>
-                                            <th class="border-0">Empresa</th>
-                                            <th class="border-0 text-end">Lotes</th>
-                                            <th class="border-0 text-end">Kilos</th>
-                                            <th class="border-0 text-end">Piezas</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="small">
-                                        @foreach($empaque_premium as $premium)
-                                            <tr>
-                                                <td class="border-0">{{ $premium->Producto }}</td>
-                                                <td class="border-0">{{ $premium->Empresa }}</td>
-                                                <td class="border-0 text-end">{{ $premium->Cantidad_Lotes }}</td>
-                                                <td class="border-0 text-end">
-                                                    {{ number_format($premium->Total_Kilos, 1, ',', '.') }}
-                                                </td>
-                                                <td class="border-0 text-end">
-                                                    {{ number_format($premium->Total_Piezas, 0, ',', '.') }}
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                    <tfoot class="small fw-bold">
-                                        <tr>
-                                            <td class="border-0" colspan="3"></td>
-                                            <td class="border-0 text-end">
-                                                {{ number_format(collect($empaque_premium)->sum('Total_Kilos'), 1, ',', '.') }}
-                                            </td>
-                                            <td class="border-0 text-end">
-                                                {{ number_format(collect($empaque_premium)->sum('Total_Piezas'), 0, ',', '.') }}
-                                            </td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
+                                @endforeach
                             </div>
                         @else
-                            <div class="alert alert-info py-2 small">
-                                No hay datos de empaque premium para este turno.
+                            <div class="text-center py-8 text-gray-500">
+                                <i data-lucide="image" class="h-16 w-16 mx-auto mb-4 text-gray-300"></i>
+                                <p>Sin fotos adjuntas en este informe</p>
                             </div>
                         @endif
                     </div>
@@ -717,89 +706,85 @@
             </div>
         </div>
 
-
-        <div class="card mb-4 comentarios-card">
-
-            <div class="p-3">
-                <h4>Comentarios del Turno</h4>
-                <textarea class="form-control" id="comentarios_turno" name="comentarios_turno" rows="3"
-                    placeholder="Ingrese sus comentarios aquí..." disabled> {{ $informe->comentarios }} </textarea>
+        <!-- Modal para fotos -->
+        <div id="modal-foto" class="modal">
+            <div class="relative max-w-6xl max-h-full">
+                <img id="foto-ampliada" src="" alt="Foto ampliada" class="max-w-full max-h-full object-contain">
+                <button onclick="cerrarFoto()"
+                    class="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition-all">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+                <div id="foto-info" class="absolute bottom-4 left-4 bg-black bg-opacity-75 text-white px-4 py-2 rounded">
+                    <!-- Información de la foto se carga dinámicamente -->
+                </div>
             </div>
         </div>
 
-
-
-    </div>
-
-
+    </body>
 @endsection
 
 @section('scripts')
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        function actualizarDotacionTotal() {
-            try {
-                let totalReal = 0;
-                let totalEsperada = 0;
-                const inputsReal = document.querySelectorAll('.dotacion-input');
-                const inputsEsperada = document.querySelectorAll('.dotacion-esperada-input');
+        // Inicializar iconos Lucide
+        lucide.createIcons();
 
-                inputsReal.forEach(input => {
-                    totalReal += parseInt(input.value) || 0;
-                    // Actualizar productividad para cada sala
-                    const salaCard = input.closest('.sala-card');
-                    if (salaCard) {
-                        const dotacion = parseInt(input.value) || 0;
-                        const horasTrabajadas = parseFloat(salaCard.querySelector('[data-horas-trabajadas]')?.dataset?.horasTrabajadas) || 0;
-                        const tipoPlanilla = salaCard.dataset.tipoPlanilla;
+        // Función para cambiar tabs
+        function cambiarTab(tabId, button) {
+            // Remover active de todos los tabs y botones
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
 
-                        let productividad = 0;
-                        if (horasTrabajadas > 0 && dotacion > 0) {
-                            if (tipoPlanilla === 'Porciones') {
-                                const kilosRecepcion = parseFloat(salaCard.querySelector('[data-kilos-recepcion]')?.textContent?.replace(/[^\d.-]/g, '')) || 0;
-                                productividad = kilosRecepcion / (horasTrabajadas * dotacion);
-                            } else {
-                                const piezasRecepcion = parseInt(salaCard.querySelector('[data-piezas-recepcion]')?.textContent?.replace(/[^\d.-]/g, '')) || 0;
-                                productividad = piezasRecepcion / (horasTrabajadas * dotacion);
-                            }
-                        }
+            // Activar el tab seleccionado
+            document.getElementById(tabId).classList.add('active');
+            button.classList.add('active');
 
-                        const productividadElement = salaCard.querySelector('.productividad-valor');
-                        if (productividadElement) {
-                            const unidad = tipoPlanilla === 'Porciones' ? '<label class="form-label text-muted small mb-1">kg/pers/hr</label>' : '<label class="form-label text-muted small mb-1"> pzs/pers/hr</label>';
-                            productividadElement.innerHTML = productividad > 0 ? productividad.toFixed(1) + unidad : '-' + unidad;
-                        }
-                    }
-                });
-
-                inputsEsperada.forEach(input => {
-                    totalEsperada += parseInt(input.value) || 0;
-                });
-
-                const dotacionTotalElement = document.getElementById('dotacion-total');
-                const dotacionEsperadaTotalElement = document.getElementById('dotacion-esperada-total');
-                const porcentajeAusentismoElement = document.getElementById('porcentaje-ausentismo');
-
-                if (dotacionTotalElement) {
-                    dotacionTotalElement.textContent = totalReal > 0 ? totalReal : '-';
-                }
-                if (dotacionEsperadaTotalElement) {
-                    dotacionEsperadaTotalElement.textContent = totalEsperada > 0 ? totalEsperada : '-';
-                }
-                if (porcentajeAusentismoElement && totalEsperada > 0) {
-                    const ausentismo = ((totalEsperada - totalReal) / totalEsperada * 100).toFixed(1);
-                    porcentajeAusentismoElement.textContent = ausentismo + '%';
-                }
-            } catch (error) {
-                console.error('Error al actualizar dotación:', error);
-            }
+            // Reinicializar iconos
+            setTimeout(() => lucide.createIcons(), 100);
         }
 
+        // Función para abrir foto en modal
+        function abrirFoto(src, nombre) {
+            const modal = document.getElementById('modal-foto');
+            const img = document.getElementById('foto-ampliada');
+            const info = document.getElementById('foto-info');
 
+            img.src = src;
+            info.textContent = nombre;
+            modal.classList.add('active');
 
+            setTimeout(() => lucide.createIcons(), 100);
+        }
 
+        // Función para cerrar foto
+        function cerrarFoto() {
+            const modal = document.getElementById('modal-foto');
+            modal.classList.remove('active');
+        }
 
-        // Inicializar cuando el DOM esté cargado
-        document.addEventListener('DOMContentLoaded', actualizarDotacionTotal);
+        // Cerrar modal al hacer clic fuera de la imagen
+        document.getElementById('modal-foto').addEventListener('click', function (e) {
+            if (e.target === this) {
+                cerrarFoto();
+            }
+        });
+
+        // Cerrar modal con tecla Escape
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                cerrarFoto();
+            }
+        });
+
+        console.log('Vista de informe con tabs por sala cargada correctamente');
+        console.log('Datos disponibles:', {
+            informe: @json($informe->cod_informe ?? 'N/A'),
+            salas: {{ count($informacion_sala) }},
+            comentarios: {{ $comentarios_salas->count() }},
+            fotos: {{ $fotos_informe->count() }}
+            });
     </script>
 @endsection
