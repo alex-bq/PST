@@ -106,6 +106,7 @@
                             <i data-lucide="arrow-left" class="h-4 w-4"></i>
                             Volver
                         </button>
+
                         <div>
                             <h1 class="text-xl font-bold">
                                 Visualizando Informe (Completado)
@@ -140,11 +141,12 @@
                         </div>
                     </div>
 
-                    <!-- INFORME COMPLETADO -->
-                    <div class="flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-600 rounded-md">
-                        <i data-lucide="lock" class="h-4 w-4"></i>
-                        Informe Finalizado
-                    </div>
+                    <!-- BOTÓN DESCARGAR PDF -->
+                    <a href="{{ route('informes.downloadPDF', ['fecha' => $fecha, 'turno' => $turno]) }}" target="_blank"
+                        class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                        <i data-lucide="download" class="h-4 w-4"></i>
+                        Descargar PDF
+                    </a>
                 </div>
             </div>
         </div>
@@ -742,67 +744,68 @@
 @endsection
 
 @section('scripts')
-    <script>
-        // Inicializar iconos Lucide
-        lucide.createIcons();
+         <script>
+         // Inicializar iconos Lucide
+         lucide.createIcons();
 
-        // Función para cambiar tabs
-        function cambiarTab(tabId, button) {
-            // Remover active de todos los tabs y botones
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
+         // Función para cambiar tabs
+         function cambiarTab(tabId, button) {
+             // Remover active de todos los tabs y botones
+             document.querySelectorAll('.tab-content').forEach(tab => {
+                 tab.classList.remove('active');
+             });
+             document.querySelectorAll('.tab-button').forEach(btn => {
+                 btn.classList.remove('active');
+             });
 
-            // Activar el tab seleccionado
-            document.getElementById(tabId).classList.add('active');
-            button.classList.add('active');
+             // Activar el tab seleccionado
+             document.getElementById(tabId).classList.add('active');
+             button.classList.add('active');
 
-            // Reinicializar iconos
-            setTimeout(() => lucide.createIcons(), 100);
-        }
+             // Reinicializar iconos
+             setTimeout(() => lucide.createIcons(), 100);
+         }
 
-        // Función para abrir foto en modal
-        function abrirFoto(src, nombre) {
-            const modal = document.getElementById('modal-foto');
-            const img = document.getElementById('foto-ampliada');
-            const info = document.getElementById('foto-info');
+         // Función para abrir foto en modal
+         function abrirFoto(src, nombre) {
+             const modal = document.getElementById('modal-foto');
+             const img = document.getElementById('foto-ampliada');
+             const info = document.getElementById('foto-info');
 
-            img.src = src;
-            info.textContent = nombre;
-            modal.classList.add('active');
+             img.src = src;
+             info.textContent = nombre;
+             modal.classList.add('active');
 
-            setTimeout(() => lucide.createIcons(), 100);
-        }
+             setTimeout(() => lucide.createIcons(), 100);
+         }
 
-        // Función para cerrar foto
-        function cerrarFoto() {
-            const modal = document.getElementById('modal-foto');
-            modal.classList.remove('active');
-        }
+         // Función para cerrar foto
+         function cerrarFoto() {
+             const modal = document.getElementById('modal-foto');
+             modal.classList.remove('active');
+         }
 
-        // Cerrar modal al hacer clic fuera de la imagen
-        document.getElementById('modal-foto').addEventListener('click', function (e) {
-            if (e.target === this) {
-                cerrarFoto();
-            }
-        });
+         // Cerrar modal al hacer clic fuera de la imagen
+         document.getElementById('modal-foto').addEventListener('click', function (e) {
+             if (e.target === this) {
+                 cerrarFoto();
+             }
+         });
 
-        // Cerrar modal con tecla Escape
-        document.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                cerrarFoto();
-            }
-        });
+         // Cerrar modal con tecla Escape
+         document.addEventListener('keydown', function (e) {
+             if (e.key === 'Escape') {
+                 cerrarFoto();
+             }
+         });
 
-        console.log('Vista de informe con tabs por sala cargada correctamente');
-        console.log('Datos disponibles:', {
-            informe: @json($informe->cod_informe ?? 'N/A'),
-            salas: {{ count($informacion_sala) }},
-            comentarios: {{ $comentarios_salas->count() }},
-            fotos: {{ $fotos_informe->count() }}
-                    });
-    </script>
+         console.log('Vista de informe con tabs por sala cargada correctamente');
+         console.log('Datos disponibles:', {
+             informe: @json($informe->cod_informe ?? 'N/A'),
+             salas: {{ count($informacion_sala) }},
+             comentarios: {{ $comentarios_salas->count() }},
+             fotos: {{ $fotos_informe->count() }}
+
+    });
+        </script>
 @endsection

@@ -114,6 +114,10 @@ Route::get('/informes/search', [MisInformesController::class, 'search'])->name('
 Route::get('/informes/detalle/{fecha}/{turno}', [InformeController::class, 'show'])
     ->name('informes.show');
 
+// Ruta para descargar PDF del informe
+Route::get('/informes/pdf/{fecha}/{turno}', [InformeController::class, 'downloadPDF'])
+    ->name('informes.downloadPDF');
+
 // ===== NUEVAS RUTAS PARA SISTEMA DE BORRADOR AUTOMÁTICO =====
 
 // Crear borrador automáticamente (reemplaza el enlace anterior de "Crear Informe")

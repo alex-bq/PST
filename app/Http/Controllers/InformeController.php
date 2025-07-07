@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Validation\ValidationException;
 
 class InformeController extends Controller
@@ -1096,6 +1097,196 @@ class InformeController extends Controller
                 'trace' => $e->getTraceAsString()
             ]);
             return redirect()->back()->with('error', 'Error al cargar el informe: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Descargar informe como PDF
+     */
+    public function downloadPDF($fecha, $turno)
+    {
+        try {
+            // Asegurar formato correcto de fecha para SQL Server (YYYY-MM-DD)
+            $fecha_formateada = \Carbon\Carbon::parse($fecha)->format('Y-m-d');
+
+            // Reutilizar la misma lógica del método show() para obtener datos
+            $informe = DB::select("
+                SELECT 
+                    i.cod_informe,
+                    i.fecha_turno as fecha,
+                    t.nombre as turno,
+                    i.cod_turno as orden_turno,
+                    CONCAT(u.nombre, ' ', u.apellido) as jefe_turno_nom,
+                    u.cod_usuario as jefe_turno,
+                    i.comentarios,
+                    i.estado,
+                    i.fecha_creacion,
+                    i.fecha_finalizacion
+                FROM pst.dbo.informes_turno i
+                JOIN administracion.dbo.tipos_turno t ON i.cod_turno = t.id
+                JOIN pst.dbo.usuarios_pst u ON i.cod_jefe_turno = u.cod_usuario
+                WHERE i.fecha_turno = ? AND i.cod_turno = ?
+            ", [$fecha_formateada, $turno]);
+
+            if (empty($informe)) {
+                return redirect()->back()->with('error', 'Informe no encontrado.');
+            }
+
+            $informe = $informe[0];
+
+            // Obtener horarios del turno
+            $horarios = DB::select("
+                SELECT * FROM pst.dbo.fn_GetHorariosTurno(?, ?)
+            ", [$fecha_formateada, $turno]);
+
+            $horarios_data = !empty($horarios) ? $horarios[0] : null;
+
+            // Agregar horarios al objeto informe
+            if ($horarios_data) {
+                $informe->hora_inicio = $horarios_data->hora_inicio;
+                $informe->hora_fin = $horarios_data->hora_fin;
+                $informe->horas_trabajadas = $horarios_data->horas_trabajadas;
+                $informe->tiene_colacion = $horarios_data->tiene_colacion;
+                $informe->hora_inicio_colacion = $horarios_data->hora_inicio_colacion;
+                $informe->hora_fin_colacion = $horarios_data->hora_fin_colacion;
+            }
+
+            // Obtener información por sala
+            $informacion_sala = DB::select("
+                SELECT * FROM pst.dbo.fn_GetInformacionPorSala(?, ?)
+            ", [$fecha_formateada, $turno]);
+
+            // Obtener detalle de procesamiento
+            $detalle_procesamiento = DB::select("
+                SELECT * FROM pst.dbo.fn_GetDetalleProcesamiento(?, ?)
+                ORDER BY 
+                descripcion,
+                calidad,
+                corte_final
+            ", [$fecha_formateada, $turno]);
+
+            // Obtener tiempos muertos
+            $tiempos_muertos = DB::select("
+                SELECT * FROM pst.dbo.fn_GetTiemposMuertos(?, ?)
+            ", [$fecha_formateada, $turno]);
+
+            // Obtener detalle de planillas
+            try {
+                $planillas_detalle = DB::select("
+                    SELECT 
+                        p.cod_planilla as numero_planilla,
+                        CONCAT(u.nombre, ' ', u.apellido) as trabajador_nombre,
+                        p.tiempo_trabajado as horas_trabajadas,
+                        dp.dotacion,
+                        dp.kilos_entrega,
+                        dp.kilos_recepcion as pst_total,
+                        emp.descripcion,
+                        dp.cod_sala,
+                        p.cod_tipo_planilla,
+                        p.guardado,
+                        s.nombre as sala_nombre
+                    FROM pst.dbo.planillas_pst p
+                    LEFT JOIN pst.dbo.usuarios_pst u ON p.cod_planillero = u.cod_usuario
+                    LEFT JOIN pst.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
+                    LEFT JOIN bdsystem.dbo.empresas emp ON p.cod_empresa = emp.cod_empresa
+                    LEFT JOIN pst.dbo.sala s ON dp.cod_sala = s.cod_sala
+                    WHERE p.fec_turno = ?
+                    AND p.cod_turno = ?
+                    AND p.guardado = 1
+                    ORDER BY emp.descripcion, s.nombre, p.cod_planilla
+                ", [$fecha_formateada, $turno]);
+            } catch (\Exception $e) {
+                $planillas_detalle = [];
+            }
+
+            // Obtener comentarios por sala
+            $comentarios_salas = DB::table('pst.dbo.comentarios_informe_sala as c')
+                ->join('pst.dbo.informes_turno as i', 'c.cod_informe', '=', 'i.cod_informe')
+                ->join('pst.dbo.sala as s', 'c.cod_sala', '=', 's.cod_sala')
+                ->where('i.fecha_turno', $fecha_formateada)
+                ->where('i.cod_turno', $turno)
+                ->select(
+                    'c.cod_sala',
+                    's.nombre as sala_nombre',
+                    'c.comentarios',
+                    'c.fecha_creacion'
+                )
+                ->get()
+                ->keyBy('cod_sala');
+
+            // Obtener fotos del informe
+            $fotos_informe = DB::table('pst.dbo.fotos_informe as f')
+                ->join('pst.dbo.informes_turno as i', 'f.cod_informe', '=', 'i.cod_informe')
+                ->where('i.fecha_turno', $fecha_formateada)
+                ->where('i.cod_turno', $turno)
+                ->where('f.activo', 1)
+                ->select(
+                    'f.id_foto',
+                    'f.nombre_original',
+                    'f.nombre_archivo',
+                    'f.ruta_archivo',
+                    'f.tamaño_archivo',
+                    'f.fecha_subida'
+                )
+                ->orderBy('f.fecha_subida', 'desc')
+                ->get();
+
+            // Generar PDF usando DomPDF
+            $pdf = Pdf::loadView('informes.show-pdf', compact(
+                'fecha',
+                'turno',
+                'informe',
+                'informacion_sala',
+                'detalle_procesamiento',
+                'tiempos_muertos',
+                'planillas_detalle',
+                'comentarios_salas',
+                'fotos_informe'
+            ));
+
+            // Configuraciones del PDF
+            $pdf->setPaper('A4', 'portrait');
+            $pdf->setOptions([
+                'dpi' => 150,
+                'defaultFont' => 'DejaVu Sans',
+                'isHtml5ParserEnabled' => true,
+                'isPhpEnabled' => true,
+                'debugPng' => false,
+                'debugKeepTemp' => false,
+                'debugCss' => false,
+                'enable_remote' => true,
+                'logOutputFile' => storage_path('logs/dompdf.log'),
+            ]);
+
+            // Nombre del archivo
+            $fechaFormatted = \Carbon\Carbon::parse($fecha)->format('Y-m-d');
+            $nombreArchivo = "Informe_Turno_{$fechaFormatted}_T{$turno}.pdf";
+
+            // Registrar descarga en logs
+            \Log::info('PDF descargado', [
+                'fecha' => $fecha,
+                'turno' => $turno,
+                'usuario' => session('user.cod_usuario'),
+                'archivo' => $nombreArchivo
+            ]);
+
+            // Configurar respuesta para forzar descarga
+            return response($pdf->output(), 200)
+                ->header('Content-Type', 'application/pdf')
+                ->header('Content-Disposition', 'attachment; filename="' . $nombreArchivo . '"')
+                ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+                ->header('Pragma', 'no-cache')
+                ->header('Expires', '0');
+
+        } catch (\Exception $e) {
+            \Log::error('Error generando PDF:', [
+                'fecha' => $fecha,
+                'turno' => $turno,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return redirect()->back()->with('error', 'Error al generar el PDF: ' . $e->getMessage());
         }
     }
 }
