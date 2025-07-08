@@ -90,6 +90,18 @@
                 opacity: 0.5;
             }
         }
+
+        /* Estilos para el modal de detalle de planilla (sin animaciones) */
+        #modalDetallePlanilla {
+            backdrop-filter: blur(1px);
+        }
+
+        /* Hacer que las filas de planilla se vean clicables */
+        .cursor-pointer:hover {
+            background-color: #f3f4f6 !important;
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+        }
     </style>
 @endsection
 
@@ -549,7 +561,9 @@
                                                                     </thead>
                                                                     <tbody>
                                                                         @foreach($planillas_filtradas as $planilla)
-                                                                            <tr class="hover:bg-gray-50">
+                                                                            <tr class="hover:bg-gray-50 cursor-pointer"
+                                                                                onclick="abrirModalDetallePlanilla({{ $planilla->numero_planilla }})"
+                                                                                title="Clic para ver detalle de la planilla">
                                                                                 <td class="border border-gray-300 px-4 py-2 font-medium">
                                                                                     #{{ $planilla->numero_planilla ?? 'N/A' }}</td>
                                                                                 <td class="border border-gray-300 px-4 py-2">
@@ -740,72 +754,130 @@
             </div>
         </div>
 
+        <!-- Modal para mostrar detalle de planilla individual -->
+        <div id="modalDetallePlanilla" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" style="align-items: center; justify-content: center;">
+            <div class="bg-white rounded-lg" style="max-width: 85vw; width: 85vw; max-height: 85vh; position: relative;">
+                <!-- Botón cerrar flotante -->
+                <button type="button" onclick="cerrarModalDetallePlanilla()" 
+                        style="position: absolute; top: 10px; right: 10px; z-index: 1000; background-color: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: #666;" 
+                        aria-label="Close">✕</button>
+                <!-- Aquí se mostrará la información de la planilla -->
+                <iframe id="iframePlanillaDetalle" style="width:100%;height:85vh;border:none;border-radius:8px;" frameborder="0"></iframe>
+            </div>
+        </div>
+
     </body>
 @endsection
 
 @section('scripts')
-         <script>
-         // Inicializar iconos Lucide
-         lucide.createIcons();
+    <script>
+        // Inicializar iconos Lucide
+        lucide.createIcons();
 
-         // Función para cambiar tabs
-         function cambiarTab(tabId, button) {
-             // Remover active de todos los tabs y botones
-             document.querySelectorAll('.tab-content').forEach(tab => {
-                 tab.classList.remove('active');
-             });
-             document.querySelectorAll('.tab-button').forEach(btn => {
-                 btn.classList.remove('active');
-             });
+        // Función para cambiar tabs
+        function cambiarTab(tabId, button) {
+            // Remover active de todos los tabs y botones
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-button').forEach(btn => {
+                btn.classList.remove('active');
+            });
 
-             // Activar el tab seleccionado
-             document.getElementById(tabId).classList.add('active');
-             button.classList.add('active');
+            // Activar el tab seleccionado
+            document.getElementById(tabId).classList.add('active');
+            button.classList.add('active');
 
-             // Reinicializar iconos
-             setTimeout(() => lucide.createIcons(), 100);
-         }
+            // Reinicializar iconos
+            setTimeout(() => lucide.createIcons(), 100);
+        }
 
-         // Función para abrir foto en modal
-         function abrirFoto(src, nombre) {
-             const modal = document.getElementById('modal-foto');
-             const img = document.getElementById('foto-ampliada');
-             const info = document.getElementById('foto-info');
+        // Función para abrir foto en modal
+        function abrirFoto(src, nombre) {
+            const modal = document.getElementById('modal-foto');
+            const img = document.getElementById('foto-ampliada');
+            const info = document.getElementById('foto-info');
 
-             img.src = src;
-             info.textContent = nombre;
-             modal.classList.add('active');
+            img.src = src;
+            info.textContent = nombre;
+            modal.classList.add('active');
 
-             setTimeout(() => lucide.createIcons(), 100);
-         }
+            setTimeout(() => lucide.createIcons(), 100);
+        }
 
-         // Función para cerrar foto
-         function cerrarFoto() {
-             const modal = document.getElementById('modal-foto');
-             modal.classList.remove('active');
-         }
+        // Función para cerrar foto
+        function cerrarFoto() {
+            const modal = document.getElementById('modal-foto');
+            modal.classList.remove('active');
+        }
 
-         // Cerrar modal al hacer clic fuera de la imagen
-         document.getElementById('modal-foto').addEventListener('click', function (e) {
-             if (e.target === this) {
-                 cerrarFoto();
-             }
-         });
+        // Cerrar modal al hacer clic fuera de la imagen
+        document.getElementById('modal-foto').addEventListener('click', function (e) {
+            if (e.target === this) {
+                cerrarFoto();
+            }
+        });
 
-         // Cerrar modal con tecla Escape
-         document.addEventListener('keydown', function (e) {
-             if (e.key === 'Escape') {
-                 cerrarFoto();
-             }
-         });
+        // Cerrar modal con tecla Escape
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                cerrarFoto();
+            }
+        });
 
-         console.log('Vista de informe con tabs por sala cargada correctamente');
-         console.log('Datos disponibles:', {
-             informe: @json($informe->cod_informe ?? 'N/A'),
-             salas: {{ count($informacion_sala) }},
-             comentarios: {{ $comentarios_salas->count() }},
-             fotos: {{ $fotos_informe->count() }}
+        // Función para cerrar modal de detalle de planilla (sin animaciones)
+        function cerrarModalDetallePlanilla() {
+            const modal = document.getElementById('modalDetallePlanilla');
+            
+            // Cerrar instantáneamente
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            
+            // Limpiar iframe
+            document.getElementById("iframePlanillaDetalle").src = '';
+        }
 
-    });
-        </script>
+        // Función para abrir modal de detalle de planilla (sin animaciones)
+        function abrirModalDetallePlanilla(codPlanilla) {
+            const url = "{{ url('/ver-planilla/') }}/" + codPlanilla;
+            const modal = document.getElementById('modalDetallePlanilla');
+            const iframe = document.getElementById("iframePlanillaDetalle");
+            
+            // Configurar iframe y mostrar instantáneamente
+            iframe.src = url;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Cerrar modal de detalle de planilla al hacer clic fuera
+        document.getElementById('modalDetallePlanilla').addEventListener('click', function (e) {
+            if (e.target === this) {
+                cerrarModalDetallePlanilla();
+            }
+        });
+
+        // Cerrar modal con tecla Escape (solo si no hay otro modal abierto)
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                const modalFoto = document.getElementById('modal-foto');
+                const modalPlanilla = document.getElementById('modalDetallePlanilla');
+                
+                // Priorizar cerrar modal de foto si está abierto
+                if (modalFoto.classList.contains('active')) {
+                    cerrarFoto();
+                } else if (!modalPlanilla.classList.contains('hidden')) {
+                    cerrarModalDetallePlanilla();
+                }
+            }
+        });
+
+        console.log('Vista de informe con tabs por sala cargada correctamente');
+        console.log('Datos disponibles:', {
+            informe: @json($informe->cod_informe ?? 'N/A'),
+            salas: {{ count($informacion_sala) }},
+            comentarios: {{ $comentarios_salas->count() }},
+            fotos: {{ $fotos_informe->count() }}
+
+        });
+    </script>
 @endsection

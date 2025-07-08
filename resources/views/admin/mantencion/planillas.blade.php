@@ -217,12 +217,15 @@
 @section('modal')
 
     <div class="modal fade" id="verPlanillaModal" tabindex="-1" aria-labelledby="verPlanillaModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl">
+        <div class="modal-dialog" style="max-width: 85vw; width: 85vw;">
             <div class="modal-content">
-
-                <div class="modal-body">
+                <div class="modal-body p-1 position-relative">
+                    <!-- Botón cerrar flotante -->
+                    <button type="button" class="btn-close position-absolute top-0 end-0 m-2"
+                        style="z-index: 1000; background-color: rgba(255,255,255,0.9); border-radius: 50%; padding: 0.4rem;"
+                        data-bs-dismiss="modal" aria-label="Close"></button>
                     <!-- Aquí se mostrará la información de la planilla -->
-                    <iframe id="iframePlanilla" style="width:100%;height:700px;" frameborder="0"></iframe>
+                    <iframe id="iframePlanilla" style="width:100%;height:85vh;border:none;" frameborder="0"></iframe>
                 </div>
             </div>
         </div>

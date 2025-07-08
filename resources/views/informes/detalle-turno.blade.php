@@ -49,6 +49,8 @@
             }
         }
 
+
+
         /* Estilos para feedback de error */
         .error-feedback {
             color: #ef4444;
@@ -202,6 +204,11 @@
             padding: 4px 8px;
             border-radius: 4px;
             font-size: 12px;
+        }
+
+        /* Estilos para el modal de detalle de planilla (sin animaciones) */
+        #modalDetallePlanilla {
+            backdrop-filter: blur(1px);
         }
     </style>
 @endsection
@@ -655,6 +662,20 @@
                 </div>
             </div>
         </div>
+
+        <!-- Modal para mostrar detalle de planilla individual (Tailwind con centrado Bootstrap) -->
+        <div id="modalDetallePlanilla" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+            style="align-items: center; justify-content: center;">
+            <div class="bg-white rounded-lg" style="max-width: 85vw; width: 85vw; max-height: 85vh; position: relative;">
+                <!-- Botón cerrar flotante -->
+                <button type="button" onclick="cerrarModalDetallePlanilla()"
+                    style="position: absolute; top: 10px; right: 10px; z-index: 1000; background-color: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: #666;"
+                    aria-label="Close">✕</button>
+                <!-- Aquí se mostrará la información de la planilla -->
+                <iframe id="iframePlanillaDetalle" style="width:100%;height:85vh;border:none;border-radius:8px;"
+                    frameborder="0"></iframe>
+            </div>
+        </div>
     </body>
 @endsection
 
@@ -681,13 +702,13 @@
             const estadoInforme = {{ $informe->estado }};
             const modoEdicion = true;
         @else
-                                                                                                                                                                                                                                                                                                                                                                                                            const codInforme = null;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                            const codInforme = null;
             const es    tadoInforme = null;
             const modoEdicion = false;
         @endif
 
-                                                                                                                                                                                                            // Valores ya calculados desde el backend
-                                                                                                                                                                                                            const valoresCalculados = @json($valores_tarjetas_por_empresa);
+                                                                                                                                                                                                                                            // Valores ya calculados desde el backend
+                                                                                                                                                                                                                                            const valoresCalculados = @json($valores_tarjetas_por_empresa);
         console.log('📊 Valores calculados desde backend:', valoresCalculados);
 
         // Función para obtener valores reales de una empresa
@@ -1038,13 +1059,13 @@
             console.log(`✅ Creando elemento para foto ID: ${foto.id}`);
 
             fotoDiv.innerHTML = `
-                                                                                                                                                            <img src="${foto.url}" alt="${foto.nombre_original}"
-                                                                                                                                                                class="w-full h-32 object-cover rounded-lg border border-gray-200"
-                                                                                                                                                                onerror="console.error('❌ Error cargando imagen:', this.src)">
-                                                                                                                                                            <button onclick="eliminarFoto(${foto.id})" class="foto-eliminar" title="Eliminar foto">×</button>
-                                                                                                                                                            <p class="text-xs text-gray-500 mt-1 truncate" title="${foto.nombre_original}">${foto.nombre_original}</p>
-                                                                                                                                                            <p class="text-xs text-gray-400">${foto.fecha_subida}</p>
-                                                                                                                                                        `;
+                                                                                                                                                                                            <img src="${foto.url}" alt="${foto.nombre_original}"
+                                                                                                                                                                                                class="w-full h-32 object-cover rounded-lg border border-gray-200"
+                                                                                                                                                                                                onerror="console.error('❌ Error cargando imagen:', this.src)">
+                                                                                                                                                                                            <button onclick="eliminarFoto(${foto.id})" class="foto-eliminar" title="Eliminar foto">×</button>
+                                                                                                                                                                                            <p class="text-xs text-gray-500 mt-1 truncate" title="${foto.nombre_original}">${foto.nombre_original}</p>
+                                                                                                                                                                                            <p class="text-xs text-gray-400">${foto.fecha_subida}</p>
+                                                                                                                                                                                        `;
 
             grid.appendChild(fotoDiv);
             console.log(`✅ Foto ID ${foto.id} agregada al grid exitosamente`);
@@ -1647,29 +1668,29 @@
 
             if (planillasFiltradas.length === 0) {
                 return `
-                                                                                                                                                                                                                                <div class="text-center text-gray-500 py-8">
-                                                                                                                                                                                                                                    <i data-lucide="file-x" class="h-16 w-16 mx-auto mb-4 text-gray-400"></i>
-                                                                                                                                                                                                                                    <h3 class="text-lg font-semibold mb-2">Sin Planillas</h3>
-                                                                                                                                                                                                                                    <p>No se encontraron planillas para esta empresa, sala y proceso.</p>
-                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                            `;
+                                                                                                                                                                                                                                                                <div class="text-center text-gray-500 py-8">
+                                                                                                                                                                                                                                                                    <i data-lucide="file-x" class="h-16 w-16 mx-auto mb-4 text-gray-400"></i>
+                                                                                                                                                                                                                                                                    <h3 class="text-lg font-semibold mb-2">Sin Planillas</h3>
+                                                                                                                                                                                                                                                                    <p>No se encontraron planillas para esta empresa, sala y proceso.</p>
+                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                            `;
             }
 
             let tabla = `
-                                                                                                                                                                                                                            <div class="overflow-x-auto">
-                                                                                                                                                                                                                                <table class="w-full border-collapse border border-gray-300">
-                                                                                                                                                                                                                                    <thead class="bg-gray-50">
-                                                                                                                                                                                                                                        <tr>
-                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Planilla</th>
-                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Trabajador</th>
-                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Dotación</th>
-                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Horas Trabajadas</th>
-                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Kg Entrega</th>
-                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">PST Total</th>
-                                                                                                                                                                                                                                        </tr>
-                                                                                                                                                                                                                                    </thead>
-                                                                                                                                                                                                                                    <tbody>
-                                                                                                                                                                                                                                `;
+                                                                                                                                                                                                                                                            <div class="overflow-x-auto">
+                                                                                                                                                                                                                                                                <table class="w-full border-collapse border border-gray-300">
+                                                                                                                                                                                                                                                                    <thead class="bg-gray-50">
+                                                                                                                                                                                                                                                                        <tr>
+                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Planilla</th>
+                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Trabajador</th>
+                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Dotación</th>
+                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Horas Trabajadas</th>
+                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Kg Entrega</th>
+                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">PST Total</th>
+                                                                                                                                                                                                                                                                        </tr>
+                                                                                                                                                                                                                                                                    </thead>
+                                                                                                                                                                                                                                                                    <tbody>
+                                                                                                                                                                                                                                                                `;
 
             planillasFiltradas.forEach(planilla => {
                 const horasTrabajadas = planilla.horas_trabajadas ? Number(planilla.horas_trabajadas).toFixed(1) : '0.0';
@@ -1680,15 +1701,15 @@
                 const empresa = planilla.descripcion || 'N/A';
 
                 tabla += `
-                                                                                                                                                                                                                                <tr class="hover:bg-gray-50">
-                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 font-medium">#${planilla.numero_planilla}</td>
-                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2">${trabajador}</td>
-                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 text-center font-medium text-orange-700">${dotacion}</td>
-                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 text-right font-medium text-purple-700">${horasTrabajadas}h</td>
-                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 text-right font-medium text-blue-700">${kilosEntrega} kg</td>
-                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 text-right font-medium text-green-700">${pstTotal} kg</td>
-                                                                                                                                                                                                                                </tr>
-                                                                                                                                                                                                                            `;
+                                                                                                                                                                                                                                                            <tr class="hover:bg-gray-50 cursor-pointer" onclick="abrirModalDetallePlanilla(${planilla.numero_planilla})" title="Clic para ver detalle de la planilla">
+                                                                                                                                                                                                                                                                <td class="border border-gray-300 px-4 py-2 font-medium">#${planilla.numero_planilla}</td>
+                                                                                                                                                                                                                                                                <td class="border border-gray-300 px-4 py-2">${trabajador}</td>
+                                                                                                                                                                                                                                                                <td class="border border-gray-300 px-4 py-2 text-center font-medium text-orange-700">${dotacion}</td>
+                                                                                                                                                                                                                                                                <td class="border border-gray-300 px-4 py-2 text-right font-medium text-purple-700">${horasTrabajadas}h</td>
+                                                                                                                                                                                                                                                                <td class="border border-gray-300 px-4 py-2 text-right font-medium text-blue-700">${kilosEntrega} kg</td>
+                                                                                                                                                                                                                                                                <td class="border border-gray-300 px-4 py-2 text-right font-medium text-green-700">${pstTotal} kg</td>
+                                                                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                                                                        `;
             });
 
             const totalHoras = planillasFiltradas.reduce((sum, p) => sum + (Number(p.horas_trabajadas) || 0), 0);
@@ -1697,27 +1718,27 @@
             const maxDotacion = planillasFiltradas.reduce((max, p) => Math.max(max, Number(p.dotacion) || 0), 0);
 
             tabla += `
-                                                                                                                                                                                                                            </tbody>
-                                                                                                                                                                                                                        </table>
-                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                    <div class="mt-4 text-sm text-gray-600 bg-gray-50 p-4 rounded">
-                                                                                                                                                                                                                        <div class="grid grid-cols-4 gap-4">
-                                                                                                                                                                                                                            <div>
-                                                                                                                                                                                                                                <p><strong>Total planillas:</strong> ${planillasFiltradas.length}</p>
-                                                                                                                                                                                                                                <p><strong>Dotación total:</strong> <span class="text-orange-700 font-bold">${maxDotacion}</span></p>
-                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                            <div>
-                                                                                                                                                                                                                            <p><strong>Total horas:</strong> ${totalHoras.toFixed(1)}h</p>
-                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                        <div>
-                                                                                                                                                                                                                            <p><strong>Total entrega:</strong> ${totalEntrega.toFixed(2)} kg</p>
-                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                        <div>
-                                                                                                                                                                                                                            <p><strong>Total PST:</strong> ${totalPst.toFixed(2)} kg</p>
-                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                `;
+                                                                                                                                                                                                                                                            </tbody>
+                                                                                                                                                                                                                                                        </table>
+                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                    <div class="mt-4 text-sm text-gray-600 bg-gray-50 p-4 rounded">
+                                                                                                                                                                                                                                                        <div class="grid grid-cols-4 gap-4">
+                                                                                                                                                                                                                                                            <div>
+                                                                                                                                                                                                                                                                <p><strong>Total planillas:</strong> ${planillasFiltradas.length}</p>
+                                                                                                                                                                                                                                                                <p><strong>Dotación total:</strong> <span class="text-orange-700 font-bold">${maxDotacion}</span></p>
+                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                            <div>
+                                                                                                                                                                                                                                                            <p><strong>Total horas:</strong> ${totalHoras.toFixed(1)}h</p>
+                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                        <div>
+                                                                                                                                                                                                                                                            <p><strong>Total entrega:</strong> ${totalEntrega.toFixed(2)} kg</p>
+                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                        <div>
+                                                                                                                                                                                                                                                            <p><strong>Total PST:</strong> ${totalPst.toFixed(2)} kg</p>
+                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                `;
 
             return tabla;
         }
@@ -1732,29 +1753,29 @@
 
             if (productosFiltrados.length === 0) {
                 return `
-                                                                                                                                                                                                                                <div class="text-center text-gray-500 py-8">
-                                                                                                                                                                                                                                    <i data-lucide="package-x" class="h-16 w-16 mx-auto mb-4 text-gray-400"></i>
-                                                                                                                                                                                                                                    <h3 class="text-lg font-semibold mb-2">Sin Productos</h3>
-                                                                                                                                                                                                                                    <p>No se encontraron productos para esta empresa, sala y proceso.</p>
-                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                            `;
+                                                                                                                                                                                                                                                                <div class="text-center text-gray-500 py-8">
+                                                                                                                                                                                                                                                                    <i data-lucide="package-x" class="h-16 w-16 mx-auto mb-4 text-gray-400"></i>
+                                                                                                                                                                                                                                                                    <h3 class="text-lg font-semibold mb-2">Sin Productos</h3>
+                                                                                                                                                                                                                                                                    <p>No se encontraron productos para esta empresa, sala y proceso.</p>
+                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                            `;
             }
 
             let tabla = `
-                                                                                                                                                                                                                            <div class="overflow-x-auto">
-                                                                                                                                                                                                                                <table class="w-full border-collapse border border-gray-300">
-                                                                                                                                                                                                                                    <thead class="bg-gray-50">
-                                                                                                                                                                                                                                        <tr>
-                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Producto</th>
-                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Calidad</th>
-                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Destino</th>
-                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Kg</th>
-                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">%</th>
-                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Objetivo</th>
-                                                                                                                                                                                                                                        </tr>
-                                                                                                                                                                                                                                    </thead>
-                                                                                                                                                                                                                                    <tbody>
-                                                                                                                                                                                                                                `;
+                                                                                                                                                                                                                                                            <div class="overflow-x-auto">
+                                                                                                                                                                                                                                                                <table class="w-full border-collapse border border-gray-300">
+                                                                                                                                                                                                                                                                    <thead class="bg-gray-50">
+                                                                                                                                                                                                                                                                        <tr>
+                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Producto</th>
+                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Calidad</th>
+                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Destino</th>
+                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Kg</th>
+                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">%</th>
+                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Objetivo</th>
+                                                                                                                                                                                                                                                                        </tr>
+                                                                                                                                                                                                                                                                    </thead>
+                                                                                                                                                                                                                                                                    <tbody>
+                                                                                                                                                                                                                                                                `;
 
             const totalKilos = productosFiltrados.reduce((sum, p) => sum + Number(p.kilos), 0);
 
@@ -1766,45 +1787,45 @@
                 const esObjetivo = producto.es_producto_objetivo == 1;
 
                 tabla += `
-                                                                                                                                                                                                                                <tr class="hover:bg-gray-50">
-                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 font-medium">${nombreProducto}</td>
-                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2">
-                                                                                                                                                                                                                                        <span class="px-2 py-1 ${esCalidadPremium ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'} rounded text-sm">
-                                                                                                                                                                                                                                            ${producto.calidad}
-                                                                                                                                                                                                                                        </span>
-                                                                                                                                                                                                                                    </td>
-                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2">${producto.destino}</td>
-                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 text-right font-medium">${Number(producto.kilos).toFixed(2)} kg</td>
-                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 text-right">${porcentaje}%</td>
-                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 text-center">
-                                                                                                                                                                                                                                        <span class="px-2 py-1 ${esObjetivo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} rounded text-sm font-medium">
-                                                                                                                                                                                                                                            ${esObjetivo ? 'SÍ' : 'NO'}
-                                                                                                                                                                                                                                        </span>
-                                                                                                                                                                                                                                    </td>
-                                                                                                                                                                                                                                </tr>
-                                                                                                                                                                                                                            `;
+                                                                                                                                                                                                                                                                <tr class="hover:bg-gray-50">
+                                                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 font-medium">${nombreProducto}</td>
+                                                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2">
+                                                                                                                                                                                                                                                                        <span class="px-2 py-1 ${esCalidadPremium ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'} rounded text-sm">
+                                                                                                                                                                                                                                                                            ${producto.calidad}
+                                                                                                                                                                                                                                                                        </span>
+                                                                                                                                                                                                                                                                    </td>
+                                                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2">${producto.destino}</td>
+                                                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 text-right font-medium">${Number(producto.kilos).toFixed(2)} kg</td>
+                                                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 text-right">${porcentaje}%</td>
+                                                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 text-center">
+                                                                                                                                                                                                                                                                        <span class="px-2 py-1 ${esObjetivo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} rounded text-sm font-medium">
+                                                                                                                                                                                                                                                                            ${esObjetivo ? 'SÍ' : 'NO'}
+                                                                                                                                                                                                                                                                        </span>
+                                                                                                                                                                                                                                                                    </td>
+                                                                                                                                                                                                                                                                </tr>
+                                                                                                                                                                                                                                                            `;
             });
 
             const productosObjetivo = productosFiltrados.filter(p => p.es_producto_objetivo == 1);
             const kilosObjetivo = productosObjetivo.reduce((sum, p) => sum + Number(p.kilos), 0);
 
             tabla += `
-                                                                                                                                                                                                                            </tbody>
-                                                                                                                                                                                                                        </table>
-                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                    <div class="mt-4 text-sm text-gray-600 bg-gray-50 p-4 rounded">
-                                                                                                                                                                                                                        <div class="grid grid-cols-2 gap-4">
-                                                                                                                                                                                                                            <div>
-                                                                                                                                                                                                                                <p><strong>Total productos:</strong> ${productosFiltrados.length}</p>
-                                                                                                                                                                                                                                <p><strong>Productos objetivo:</strong> ${productosObjetivo.length} (${((productosObjetivo.length / productosFiltrados.length) * 100).toFixed(1)}%)</p>
-                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                            <div>
-                                                                                                                                                                                                                                <p><strong>Total kilos:</strong> ${totalKilos.toFixed(2)} kg</p>
-                                                                                                                                                                                                                                <p><strong>Kilos objetivo:</strong> ${kilosObjetivo.toFixed(2)} kg (${((kilosObjetivo / totalKilos) * 100).toFixed(1)}%)</p>
-                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                `;
+                                                                                                                                                                                                                                                            </tbody>
+                                                                                                                                                                                                                                                        </table>
+                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                    <div class="mt-4 text-sm text-gray-600 bg-gray-50 p-4 rounded">
+                                                                                                                                                                                                                                                        <div class="grid grid-cols-2 gap-4">
+                                                                                                                                                                                                                                                            <div>
+                                                                                                                                                                                                                                                                <p><strong>Total productos:</strong> ${productosFiltrados.length}</p>
+                                                                                                                                                                                                                                                                <p><strong>Productos objetivo:</strong> ${productosObjetivo.length} (${((productosObjetivo.length / productosFiltrados.length) * 100).toFixed(1)}%)</p>
+                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                            <div>
+                                                                                                                                                                                                                                                                <p><strong>Total kilos:</strong> ${totalKilos.toFixed(2)} kg</p>
+                                                                                                                                                                                                                                                                <p><strong>Kilos objetivo:</strong> ${kilosObjetivo.toFixed(2)} kg (${((kilosObjetivo / totalKilos) * 100).toFixed(1)}%)</p>
+                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                `;
 
             return tabla;
         }
@@ -1817,12 +1838,12 @@
 
             if (tiemposFiltrados.length === 0) {
                 return `
-                                                                                                                                                                                                                                <div class="text-center text-gray-500 py-8">
-                                                                                                                                                                                                                                    <i data-lucide="clock" class="h-16 w-16 mx-auto mb-4 text-gray-400"></i>
-                                                                                                                                                                                                                                    <h3 class="text-lg font-semibold mb-2">Sin Tiempos Muertos</h3>
-                                                                                                                                                                                                                                    <p>No se registraron tiempos muertos para esta sala y proceso.</p>
-                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                            `;
+                                                                                                                                                                                                                                                                <div class="text-center text-gray-500 py-8">
+                                                                                                                                                                                                                                                                    <i data-lucide="clock" class="h-16 w-16 mx-auto mb-4 text-gray-400"></i>
+                                                                                                                                                                                                                                                                    <h3 class="text-lg font-semibold mb-2">Sin Tiempos Muertos</h3>
+                                                                                                                                                                                                                                                                    <p>No se registraron tiempos muertos para esta sala y proceso.</p>
+                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                            `;
             }
 
             let contenido = `<div class="space-y-3">`;
@@ -1832,25 +1853,25 @@
                 const horas = (minutos / 60).toFixed(1);
 
                 contenido += `
-                                                                                                                                                                                                                                <div class="border rounded-lg p-4 hover:bg-gray-50">
-                                                                                                                                                                                                                                    <div class="flex justify-between items-start">
-                                                                                                                                                                                                                                        <div class="flex-1">
-                                                                                                                                                                                                                                            <p class="font-medium text-gray-900">${tiempo.motivo}</p>
-                                                                                                                                                                                                                                            <p class="text-sm text-gray-600 mt-1">
-                                                                                                                                                                                                                                                <span class="inline-flex items-center gap-1">
-                                                                                                                                                                                                                                                    <i data-lucide="building" class="h-4 w-4"></i>
-                                                                                                                                                                                                                                                    Departamento: ${tiempo.nombre}
-                                                                                                                                                                                                                                                </span>
-                                                                                                                                                                                                                                            </p>
-                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                        <div class="text-right">
-                                                                                                                                                                                                                                            <span class="px-3 py-1 bg-red-100 text-red-800 rounded-md text-sm font-medium">
-                                                                                                                                                                                                                                                ${horas}h (${minutos} min)
-                                                                                                                                                                                                                                            </span>
-                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                            `;
+                                                                                                                                                                                                                                                                <div class="border rounded-lg p-4 hover:bg-gray-50">
+                                                                                                                                                                                                                                                                    <div class="flex justify-between items-start">
+                                                                                                                                                                                                                                                                        <div class="flex-1">
+                                                                                                                                                                                                                                                                            <p class="font-medium text-gray-900">${tiempo.motivo}</p>
+                                                                                                                                                                                                                                                                            <p class="text-sm text-gray-600 mt-1">
+                                                                                                                                                                                                                                                                                <span class="inline-flex items-center gap-1">
+                                                                                                                                                                                                                                                                                    <i data-lucide="building" class="h-4 w-4"></i>
+                                                                                                                                                                                                                                                                                    Departamento: ${tiempo.nombre}
+                                                                                                                                                                                                                                                                                </span>
+                                                                                                                                                                                                                                                                            </p>
+                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                        <div class="text-right">
+                                                                                                                                                                                                                                                                            <span class="px-3 py-1 bg-red-100 text-red-800 rounded-md text-sm font-medium">
+                                                                                                                                                                                                                                                                                ${horas}h (${minutos} min)
+                                                                                                                                                                                                                                                                            </span>
+                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                            `;
             });
 
             contenido += `</div>`;
@@ -1859,20 +1880,20 @@
             const totalHoras = (totalMinutos / 60).toFixed(1);
 
             contenido += `
-                                                                                                                                                                                                                            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                                                                                                                                                                                                                                <h4 class="font-medium text-gray-900 mb-2">Resumen de Tiempos Muertos</h4>
-                                                                                                                                                                                                                                <div class="grid grid-cols-2 gap-4 text-sm">
-                                                                                                                                                                                                                                    <div>
-                                                                                                                                                                                                                                        <p><strong>Total eventos:</strong> ${tiemposFiltrados.length}</p>
-                                                                                                                                                                                                                                        <p><strong>Tiempo perdido:</strong> ${totalHoras}h (${totalMinutos} min)</p>
-                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                    <div>
-                                                                                                                                                                                                                                        <p><strong>Promedio por evento:</strong> ${(totalMinutos / tiemposFiltrados.length).toFixed(1)} min</p>
-                                                                                                                                                                                                                                        <p><strong>Impacto:</strong> <span class="text-red-600 font-medium">${totalHoras}h de producción perdida</span></p>
-                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                        `;
+                                                                                                                                                                                                                                                            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                                                                                                                                                                                                                                                                <h4 class="font-medium text-gray-900 mb-2">Resumen de Tiempos Muertos</h4>
+                                                                                                                                                                                                                                                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                                                        <p><strong>Total eventos:</strong> ${tiemposFiltrados.length}</p>
+                                                                                                                                                                                                                                                                        <p><strong>Tiempo perdido:</strong> ${totalHoras}h (${totalMinutos} min)</p>
+                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                    <div>
+                                                                                                                                                                                                                                                                        <p><strong>Promedio por evento:</strong> ${(totalMinutos / tiemposFiltrados.length).toFixed(1)} min</p>
+                                                                                                                                                                                                                                                                        <p><strong>Impacto:</strong> <span class="text-red-600 font-medium">${totalHoras}h de producción perdida</span></p>
+                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                        `;
 
             return contenido;
         }
@@ -1925,5 +1946,46 @@
                 });
             });
         }
+
+                // Función para cerrar modal de detalle de planilla (sin animaciones)
+        function cerrarModalDetallePlanilla() {
+            const modal = document.getElementById('modalDetallePlanilla');
+            
+            // Cerrar instantáneamente
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            
+            // Limpiar iframe
+            document.getElementById("iframePlanillaDetalle").src = '';
+        }
+
+        // Función para abrir modal de detalle de planilla (sin animaciones)
+        function abrirModalDetallePlanilla(codPlanilla) {
+            const url = "{{ url('/ver-planilla/') }}/" + codPlanilla;
+            const modal = document.getElementById('modalDetallePlanilla');
+            const iframe = document.getElementById("iframePlanillaDetalle");
+            
+            // Configurar iframe y mostrar instantáneamente
+            iframe.src = url;
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        // Cerrar modal de detalle de planilla al hacer clic fuera (comportamiento Bootstrap)
+        document.getElementById('modalDetallePlanilla').addEventListener('click', function (e) {
+            if (e.target === this) {
+                cerrarModalDetallePlanilla();
+            }
+        });
+
+        // Cerrar modal con tecla Escape (comportamiento Bootstrap)
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') {
+                const modal = document.getElementById('modalDetallePlanilla');
+                if (!modal.classList.contains('hidden')) {
+                    cerrarModalDetallePlanilla();
+                }
+            }
+        });
     </script>
 @endsection
