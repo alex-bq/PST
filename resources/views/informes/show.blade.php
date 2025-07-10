@@ -41,9 +41,26 @@
 
         .modal img {
             max-width: 90vw;
-            max-height: 90vh;
+            max-height: 80vh;
             object-fit: contain;
+            border-top-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+            background: white;
+        }
+
+        /* Estilos específicos para el modal de fotos */
+        #modal-foto .relative {
+            background: white;
             border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            max-width: 90vw;
+            max-height: 90vh;
+        }
+
+        #foto-info {
+            max-width: 600px;
+            word-wrap: break-word;
         }
 
         /* Estilos para tabs */
@@ -154,11 +171,15 @@
                     </div>
 
                     <!-- BOTÓN DESCARGAR PDF -->
-                    <a href="{{ route('informes.downloadPDF', ['fecha' => $fecha, 'turno' => $turno]) }}" target="_blank"
-                        class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
-                        <i data-lucide="download" class="h-4 w-4"></i>
-                        Descargar PDF
-                    </a>
+                    <div class="flex gap-2">
+                        <a href="{{ route('informes.downloadPDF', ['fecha' => $fecha, 'turno' => $turno]) }}"
+                            target="_blank"
+                            class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+                            <i data-lucide="download" class="h-4 w-4"></i>
+                            Descargar PDF
+                        </a>
+
+                    </div>
                 </div>
             </div>
         </div>
@@ -287,6 +308,9 @@
                                                 $kilos_objetivo = $productos_empresa->where('es_producto_objetivo', 1)->sum('kilos') ?? 0;
                                                 $kilos_pst_total = $productos_empresa->sum('kilos') ?? 0;
 
+                                                // NUEVA VARIABLE: Calcular entrega de materia prima para esta empresa
+                                                $entrega_mp = $planillas_para_dotacion->sum('kilos_entrega') ?? 0;
+
                                                 // Evitar división por 0 en horas
                                                 $horas_efectivas = $horas_efectivas > 0 ? $horas_efectivas : 1;
                                                 $horas_turno = $horas_turno > 0 ? $horas_turno : 1;
@@ -296,6 +320,9 @@
                                                 $productividad_objetivo_turno = round($kilos_objetivo / ($dotacion_max * $horas_turno), 2);
                                                 $productividad_total_efectivas = round($kilos_pst_total / ($dotacion_max * $horas_efectivas), 2);
                                                 $productividad_total_turno = round($kilos_pst_total / ($dotacion_max * $horas_turno), 2);
+
+                                                // NUEVO CÁLCULO: Rendimiento (PST Objetivo / Entrega MP) × 100
+                                                $rendimiento = $entrega_mp > 0 ? round(($kilos_objetivo / $entrega_mp) * 100, 2) : 0;
 
                                                 // Obtener planillas únicas
                                                 $planillas_unicas = $productos_empresa->pluck('n_planilla')->unique();
@@ -319,7 +346,7 @@
                                                 </div>
 
                                                 <!-- Datos operacionales básicos -->
-                                                <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+                                                <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
                                                     <div class="bg-gray-50 p-4 rounded-lg text-center">
                                                         <p class="text-xs text-gray-600 mb-1">Dotación</p>
                                                         <p class="font-semibold text-xl text-gray-800">{{ $dotacion_max }}</p>
@@ -336,6 +363,13 @@
                                                         <p class="font-semibold text-xl text-blue-600">
                                                             {{ number_format($horas_turno, 1) }}h
                                                         </p>
+                                                    </div>
+                                                    <div class="bg-gray-50 p-4 rounded-lg text-center">
+                                                        <p class="text-xs text-gray-600 mb-1">Entrega MP</p>
+                                                        <p class="font-semibold text-xl text-purple-700">
+                                                            {{ number_format($entrega_mp, 0) }}
+                                                        </p>
+                                                        <p class="text-xs text-gray-500">kg</p>
                                                     </div>
                                                     <div class="bg-gray-50 p-4 rounded-lg text-center">
                                                         <p class="text-xs text-gray-600 mb-1">PST Objetivo</p>
@@ -356,9 +390,9 @@
                                                 <!-- PRODUCTIVIDADES (4 tipos) -->
                                                 <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mb-6">
                                                     <h5 class="text-base font-semibold text-yellow-800 mb-4 flex items-center gap-2">
-                                                        Productividades (kg/persona/hora)
+                                                        Productividades (kg/persona/hora) y Rendimiento
                                                     </h5>
-                                                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
                                                         <div
                                                             class="bg-white p-4 rounded-lg text-center border-l-4 border-green-500 shadow-sm">
                                                             <p class="text-xs text-gray-600 mb-2">Objetivo + Efectivas</p>
@@ -403,6 +437,17 @@
                                                                 {{ number_format($horas_turno, 1) }}h)
                                                             </p>
                                                         </div>
+                                                        <div
+                                                            class="bg-white p-4 rounded-lg text-center border-l-4 border-orange-500 shadow-sm">
+                                                            <p class="text-xs text-gray-600 mb-2">Rendimiento</p>
+                                                            <p class="font-bold text-2xl text-orange-700">
+                                                                {{ $rendimiento }}%
+                                                            </p>
+                                                            <p class="text-xs text-gray-500 mt-1">
+                                                                {{ number_format($kilos_objetivo, 0) }}kg ÷
+                                                                {{ number_format($entrega_mp, 0) }}kg × 100
+                                                            </p>
+                                                        </div>
                                                     </div>
                                                 </div>
 
@@ -419,6 +464,9 @@
                                                                 <table class="w-full border-collapse border border-gray-300">
                                                                     <thead class="bg-gray-50">
                                                                         <tr>
+                                                                            <th
+                                                                                class="border border-gray-300 px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                                                                                Especie</th>
                                                                             <th
                                                                                 class="border border-gray-300 px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                                                                                 Producto</th>
@@ -447,6 +495,7 @@
                                                                             @php
                                                                                 $porcentaje = $total_kilos_empresa > 0 ? (($producto->kilos / $total_kilos_empresa) * 100) : 0;
                                                                                 $es_calidad_premium = ($producto->calidad ?? '') === 'PREMIUM';
+                                                                                // REVERTIDO: Nombre del producto sin especie
                                                                                 $nombre_producto = ($producto->corte_inicial ?? '') . ' → ' . ($producto->corte_final ?? '');
                                                                                 if (isset($producto->calibre) && $producto->calibre !== 'SIN CALIBRE') {
                                                                                     $nombre_producto .= ' → ' . $producto->calibre;
@@ -454,6 +503,12 @@
                                                                                 $es_objetivo = $producto->es_producto_objetivo == 1;
                                                                             @endphp
                                                                             <tr class="hover:bg-gray-50">
+                                                                                <td class="border border-gray-300 px-4 py-2">
+                                                                                    <span
+                                                                                        class="px-2 py-1 bg-purple-100 text-purple-800 rounded text-sm font-medium">
+                                                                                        {{ $producto->especie ?? 'Sin especie' }}
+                                                                                    </span>
+                                                                                </td>
                                                                                 <td class="border border-gray-300 px-4 py-2 font-medium">
                                                                                     {{ $nombre_producto }}
                                                                                 </td>
@@ -715,13 +770,22 @@
                             <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                                 @foreach($fotos_informe as $foto)
                                     <div class="foto-thumbnail"
-                                        onclick="abrirFoto('{{ asset('storage/' . $foto->ruta_archivo) }}', '{{ $foto->nombre_original }}')">
+                                        onclick="abrirFoto('{{ asset('storage/' . $foto->ruta_archivo) }}', '{{ $foto->nombre_original }}', '{{ $foto->comentario ?? '' }}')">
                                         <img src="{{ asset('storage/' . $foto->ruta_archivo) }}" alt="{{ $foto->nombre_original }}"
                                             class="w-full h-32 object-cover rounded-lg border border-gray-200">
-                                        <div class="p-2">
+                                        <div class="p-2 space-y-1">
                                             <p class="text-xs text-gray-600 truncate" title="{{ $foto->nombre_original }}">
                                                 {{ $foto->nombre_original }}
                                             </p>
+                                            @if($foto->comentario)
+                                                <div class="text-xs text-blue-600 bg-blue-50 p-1 rounded border border-blue-200"
+                                                    title="{{ $foto->comentario }}">
+                                                    <i data-lucide="message-circle"
+                                                        class="h-3 w-3 inline mr-1"></i>{{ Str::limit($foto->comentario, 40, '...') }}
+                                                </div>
+                                            @else
+                                                <p class="text-xs text-gray-400 italic">Sin comentario</p>
+                                            @endif
                                             <p class="text-xs text-gray-400">
                                                 {{ \Carbon\Carbon::parse($foto->fecha_subida)->format('d/m H:i') }}
                                             </p>
@@ -742,27 +806,31 @@
 
         <!-- Modal para fotos -->
         <div id="modal-foto" class="modal">
-            <div class="relative max-w-6xl max-h-full">
-                <img id="foto-ampliada" src="" alt="Foto ampliada" class="max-w-full max-h-full object-contain">
-                <button onclick="cerrarFoto()"
-                    class="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition-all">
-                    <i data-lucide="x" class="w-6 h-6"></i>
-                </button>
-                <div id="foto-info" class="absolute bottom-4 left-4 bg-black bg-opacity-75 text-white px-4 py-2 rounded">
+            <div class="relative max-w-6xl max-h-full flex flex-col">
+                <div class="relative flex-shrink-0">
+                    <img id="foto-ampliada" src="" alt="Foto ampliada" class="max-w-full max-h-[80vh] object-contain">
+                    <button onclick="cerrarFoto()"
+                        class="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition-all">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <div id="foto-info" class="bg-white text-gray-800 px-6 py-4 border-t border-gray-200 rounded-b-lg">
                     <!-- Información de la foto se carga dinámicamente -->
                 </div>
             </div>
         </div>
 
         <!-- Modal para mostrar detalle de planilla individual -->
-        <div id="modalDetallePlanilla" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" style="align-items: center; justify-content: center;">
+        <div id="modalDetallePlanilla" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+            style="align-items: center; justify-content: center;">
             <div class="bg-white rounded-lg" style="max-width: 85vw; width: 85vw; max-height: 85vh; position: relative;">
                 <!-- Botón cerrar flotante -->
-                <button type="button" onclick="cerrarModalDetallePlanilla()" 
-                        style="position: absolute; top: 10px; right: 10px; z-index: 1000; background-color: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: #666;" 
-                        aria-label="Close">✕</button>
+                <button type="button" onclick="cerrarModalDetallePlanilla()"
+                    style="position: absolute; top: 10px; right: 10px; z-index: 1000; background-color: rgba(255,255,255,0.9); border: none; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 18px; color: #666;"
+                    aria-label="Close">✕</button>
                 <!-- Aquí se mostrará la información de la planilla -->
-                <iframe id="iframePlanillaDetalle" style="width:100%;height:85vh;border:none;border-radius:8px;" frameborder="0"></iframe>
+                <iframe id="iframePlanillaDetalle" style="width:100%;height:85vh;border:none;border-radius:8px;"
+                    frameborder="0"></iframe>
             </div>
         </div>
 
@@ -793,13 +861,22 @@
         }
 
         // Función para abrir foto en modal
-        function abrirFoto(src, nombre) {
+        function abrirFoto(src, nombre, comentario = '') {
             const modal = document.getElementById('modal-foto');
             const img = document.getElementById('foto-ampliada');
             const info = document.getElementById('foto-info');
 
             img.src = src;
-            info.textContent = nombre;
+
+            // Crear contenido con nombre y comentario
+            let contenidoInfo = `<p class="font-medium text-gray-900">${nombre}</p>`;
+            if (comentario) {
+                contenidoInfo += `<p class="text-sm text-blue-600 mt-2 bg-blue-50 p-2 rounded border-l-4 border-blue-400"><i data-lucide="message-circle" class="h-4 w-4 inline mr-1"></i>${comentario}</p>`;
+            } else {
+                contenidoInfo += `<p class="text-sm text-gray-500 mt-1 italic">Sin comentario</p>`;
+            }
+
+            info.innerHTML = contenidoInfo;
             modal.classList.add('active');
 
             setTimeout(() => lucide.createIcons(), 100);
@@ -828,11 +905,11 @@
         // Función para cerrar modal de detalle de planilla (sin animaciones)
         function cerrarModalDetallePlanilla() {
             const modal = document.getElementById('modalDetallePlanilla');
-            
+
             // Cerrar instantáneamente
             modal.classList.add('hidden');
             modal.classList.remove('flex');
-            
+
             // Limpiar iframe
             document.getElementById("iframePlanillaDetalle").src = '';
         }
@@ -842,7 +919,7 @@
             const url = "{{ url('/ver-planilla/') }}/" + codPlanilla;
             const modal = document.getElementById('modalDetallePlanilla');
             const iframe = document.getElementById("iframePlanillaDetalle");
-            
+
             // Configurar iframe y mostrar instantáneamente
             iframe.src = url;
             modal.classList.remove('hidden');
@@ -857,11 +934,11 @@
         });
 
         // Cerrar modal con tecla Escape (solo si no hay otro modal abierto)
-        document.addEventListener('keydown', function(e) {
+        document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
                 const modalFoto = document.getElementById('modal-foto');
                 const modalPlanilla = document.getElementById('modalDetallePlanilla');
-                
+
                 // Priorizar cerrar modal de foto si está abierto
                 if (modalFoto.classList.contains('active')) {
                     cerrarFoto();
@@ -878,6 +955,6 @@
             comentarios: {{ $comentarios_salas->count() }},
             fotos: {{ $fotos_informe->count() }}
 
-        });
+                                                                                        });
     </script>
 @endsection

@@ -631,6 +631,7 @@ class InformeController extends Controller
             $fotos_existentes = DB::table('pst.dbo.fotos_informe')
                 ->where('cod_informe', $cod_informe)
                 ->where('activo', 1)
+                ->select('*', 'comentario') // INCLUIR comentario
                 ->orderBy('fecha_subida', 'desc')
                 ->get();
 
@@ -748,7 +749,8 @@ class InformeController extends Controller
         try {
             $request->validate([
                 'cod_informe' => 'required|integer',
-                'foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120' // 5MB max
+                'foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
+                'comentario' => 'nullable|string|max:500' // NUEVO: validación para comentario
             ]);
 
             $cod_informe = $request->cod_informe;
@@ -797,7 +799,8 @@ class InformeController extends Controller
                 'tipo_mime' => $foto->getMimeType(),
                 'fecha_subida' => \Carbon\Carbon::now(),
                 'cod_usuario_subida' => session('user.cod_usuario'),
-                'activo' => 1
+                'activo' => 1,
+                'comentario' => $request->comentario ?? '' // NUEVO: incluir comentario
             ]);
 
             return response()->json([
@@ -807,7 +810,8 @@ class InformeController extends Controller
                     'id' => $idFoto, // ✅ AGREGADO: ID necesario para eliminar
                     'nombre_original' => $nombreOriginal,
                     'url' => asset('storage/' . $rutaArchivo),
-                    'fecha_subida' => \Carbon\Carbon::now()->format('d/m/Y H:i')
+                    'fecha_subida' => \Carbon\Carbon::now()->format('d/m/Y H:i'),
+                    'comentario' => $request->comentario ?? '' // NUEVO: incluir comentario en respuesta
                 ]
             ]);
 
@@ -817,6 +821,67 @@ class InformeController extends Controller
                 'datos' => $request->all()
             ]);
             return response()->json(['error' => 'Error al subir foto: ' . $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Actualizar comentario de foto (AJAX)
+     * NUEVO: Método para actualizar comentarios de fotos existentes
+     */
+    public function actualizarComentarioFoto(Request $request)
+    {
+        try {
+            $request->validate([
+                'id_foto' => 'required|integer',
+                'comentario' => 'required|string|max:500'
+            ]);
+
+            $id_foto = $request->id_foto;
+            $comentario = $request->comentario;
+
+            // Verificar que la foto existe y el usuario tiene permisos
+            $foto = DB::table('pst.dbo.fotos_informe as f')
+                ->join('pst.dbo.informes_turno as i', 'f.cod_informe', '=', 'i.cod_informe')
+                ->where('f.id_foto', $id_foto)
+                ->where('i.cod_jefe_turno', session('user.cod_usuario')) // Solo el jefe de turno que creó el informe
+                ->where('i.estado', 0) // Solo informes en borrador
+                ->where('f.activo', 1) // Solo fotos activas
+                ->select('f.*')
+                ->first();
+
+            if (!$foto) {
+                return response()->json([
+                    'error' => 'Foto no encontrada o sin permisos para editar'
+                ], 403);
+            }
+
+            // Actualizar comentario
+            DB::table('pst.dbo.fotos_informe')
+                ->where('id_foto', $id_foto)
+                ->update([
+                    'comentario' => $comentario
+                ]);
+
+            \Log::info('Comentario de foto actualizado:', [
+                'id_foto' => $id_foto,
+                'comentario' => $comentario,
+                'usuario' => session('user.cod_usuario')
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Comentario actualizado correctamente',
+                'comentario' => $comentario
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error actualizando comentario de foto:', [
+                'error' => $e->getMessage(),
+                'datos' => $request->all()
+            ]);
+            return response()->json([
+                'error' => 'Error al actualizar comentario: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -1071,7 +1136,8 @@ class InformeController extends Controller
                     'f.nombre_archivo',
                     'f.ruta_archivo',
                     'f.tamaño_archivo',
-                    'f.fecha_subida'
+                    'f.fecha_subida',
+                    'f.comentario' // INCLUIR comentario
                 )
                 ->orderBy('f.fecha_subida', 'desc')
                 ->get();
@@ -1226,7 +1292,8 @@ class InformeController extends Controller
                     'f.nombre_archivo',
                     'f.ruta_archivo',
                     'f.tamaño_archivo',
-                    'f.fecha_subida'
+                    'f.fecha_subida',
+                    'f.comentario' // INCLUIR comentario
                 )
                 ->orderBy('f.fecha_subida', 'desc')
                 ->get();
@@ -1244,7 +1311,7 @@ class InformeController extends Controller
                 'fotos_informe'
             ));
 
-            // Configuraciones del PDF
+            // Configuraciones del PDF con márgenes optimizados
             $pdf->setPaper('A4', 'portrait');
             $pdf->setOptions([
                 'dpi' => 150,
@@ -1257,6 +1324,13 @@ class InformeController extends Controller
                 'enable_remote' => true,
                 'logOutputFile' => storage_path('logs/dompdf.log'),
             ]);
+
+            // CONFIGURAR MÁRGENES PEQUEÑOS para evitar saltos innecesarios
+            $canvas = $pdf->getCanvas();
+            $canvas->get_dompdf()->getOptions()->set('marginTop', 15);    // 15pt ≈ 5mm
+            $canvas->get_dompdf()->getOptions()->set('marginBottom', 15); // 15pt ≈ 5mm
+            $canvas->get_dompdf()->getOptions()->set('marginLeft', 20);   // 20pt ≈ 7mm
+            $canvas->get_dompdf()->getOptions()->set('marginRight', 20);  // 20pt ≈ 7mm
 
             // Nombre del archivo
             $fechaFormatted = \Carbon\Carbon::parse($fecha)->format('Y-m-d');
@@ -1289,4 +1363,6 @@ class InformeController extends Controller
             return redirect()->back()->with('error', 'Error al generar el PDF: ' . $e->getMessage());
         }
     }
+
+
 }

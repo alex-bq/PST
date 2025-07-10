@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Informe de Turno - {{ \Carbon\Carbon::parse($fecha)->format('d/m/Y') }}</title>
     <style>
-        /* CSS optimizado para PDF */
+        /* CSS optimizado para PDF con control de saltos */
         * {
             margin: 0;
             padding: 0;
@@ -21,142 +21,182 @@
             background: #f9fafb;
         }
 
+        /* CONTROL DE SALTOS DE PÁGINA OPTIMIZADO */
+        .no-break {
+            page-break-inside: avoid;
+        }
+
+        .break-before {
+            page-break-before: always;
+        }
+
+        .break-after {
+            page-break-after: always;
+        }
+
+        .keep-together {
+            page-break-inside: avoid;
+            orphans: 3;
+            widows: 3;
+        }
+
+        /* CONTROL GLOBAL DE HUÉRFANAS Y VIUDAS */
+        p,
+        div,
+        table {
+            orphans: 2;
+            widows: 2;
+        }
+
+        /* TABLAS: Permitir división pero mantener headers */
+        .table {
+            page-break-inside: auto;
+        }
+
+        .table thead {
+            page-break-inside: avoid;
+            page-break-after: avoid;
+        }
+
+        .table tbody tr {
+            page-break-inside: avoid;
+        }
+
         .container {
             max-width: 100%;
             margin: 0 auto;
-            padding: 20px;
+            padding: 8px;
         }
 
-        /* HEADER COMPACTO */
+        /* HEADER ULTRA COMPACTO */
         .header {
             background: white;
-            padding: 15px;
-            margin-bottom: 15px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
             border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border-radius: 4px;
+            page-break-inside: avoid;
         }
 
         .header h1 {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             color: #1f2937;
-            margin-bottom: 8px;
+            margin-bottom: 4px;
         }
 
         .header-info {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
         }
 
         .header-left p,
         .header-right p {
-            margin: 2px 0;
-            font-size: 10px;
+            margin: 1px 0;
+            font-size: 9px;
+            line-height: 1.2;
         }
 
         .header-right {
             text-align: right;
             background: #f3f4f6;
-            padding: 8px;
-            border-radius: 4px;
+            padding: 4px 6px;
+            border-radius: 3px;
+            min-width: 120px;
         }
 
-        /* SALAS - DISEÑO IDÉNTICO A SHOW.BLADE.PHP */
+        /* SALAS COMPACTAS - PUEDEN DIVIDIRSE ENTRE PÁGINAS */
         .sala-card {
             background: white;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+            border-radius: 6px;
+            margin-bottom: 12px;
             border: 1px solid #e5e7eb;
-            page-break-inside: avoid;
+            /* Removido page-break-inside: avoid para permitir división */
         }
 
         .sala-header {
             background: #f8fafc;
             border-bottom: 1px solid #e5e7eb;
-            padding: 15px;
-            border-radius: 8px 8px 0 0;
+            padding: 8px 12px;
+            border-radius: 6px 6px 0 0;
         }
 
         .sala-title {
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
             color: #1f2937;
         }
 
         .sala-subtitle {
-            font-size: 10px;
+            font-size: 9px;
             color: #6b7280;
-            margin-top: 2px;
+            margin-top: 1px;
         }
 
         .sala-content {
-            padding: 15px;
+            padding: 10px;
         }
 
-        /* COMENTARIOS - IDÉNTICO AL ORIGINAL */
+        /* COMENTARIOS COMPACTOS */
         .comentarios-section {
             background: #dbeafe;
             border: 1px solid #3b82f6;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 15px;
+            border-radius: 6px;
+            padding: 8px;
+            margin-bottom: 8px;
         }
 
         .comentarios-title {
             font-weight: bold;
             color: #1d4ed8;
-            margin-bottom: 8px;
-            font-size: 11px;
+            margin-bottom: 4px;
+            font-size: 10px;
         }
 
         .comentarios-content {
             background: white;
-            padding: 8px;
-            border-radius: 4px;
+            padding: 6px;
+            border-radius: 3px;
             border: 1px solid #3b82f6;
             white-space: pre-wrap;
-            font-size: 9px;
+            font-size: 8px;
         }
 
-        /* PROCESO HEADERS */
+        /* PROCESO HEADERS COMPACTOS */
         .proceso-header {
             background: #f3f4f6;
-            padding: 10px;
-            margin-bottom: 12px;
-            border-radius: 6px;
-            font-size: 11px;
+            padding: 6px 8px;
+            margin-bottom: 8px;
+            border-radius: 4px;
+            font-size: 10px;
             font-weight: bold;
             color: #374151;
         }
 
-        /* EMPRESA CARDS - IDÉNTICO AL ORIGINAL */
+        /* EMPRESA CARDS COMPACTAS - EVITAR SALTOS SOLO EN ELEMENTOS PEQUEÑOS */
         .empresa-card {
             background: white;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
             border: 1px solid #e5e7eb;
-            margin-bottom: 15px;
-            page-break-inside: avoid;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 12px;
+            /* Removido page-break-inside: avoid para elementos grandes */
         }
 
         .empresa-header {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            margin-bottom: 15px;
+            align-items: center;
+            margin-bottom: 8px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #e5e7eb;
         }
 
         .empresa-name {
-            background: #dbeafe;
-            color: #1e40af;
-            padding: 6px 12px;
-            border-radius: 6px;
+            font-size: 12px;
             font-weight: bold;
-            font-size: 11px;
+            color: #1f2937;
         }
 
         .empresa-stats {
@@ -164,12 +204,13 @@
             color: #6b7280;
         }
 
-        /* MÉTRICAS GRID - IDÉNTICO AL ORIGINAL */
+        /* MÉTRICAS USANDO FLEXBOX - COMPATIBLE CON DOMPDF */
         .metricas-grid {
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 8px;
+            display: flex;
+            flex-wrap: wrap;
             margin-bottom: 15px;
+            margin-left: -4px;
+            margin-right: -4px;
         }
 
         .metrica-card {
@@ -178,6 +219,10 @@
             border-radius: 8px;
             text-align: center;
             border: 1px solid #e5e7eb;
+            flex: 1;
+            min-width: 80px;
+            max-width: 120px;
+            margin: 0 4px 8px 4px;
         }
 
         .metrica-label {
@@ -222,18 +267,24 @@
             font-size: 10px;
         }
 
+        /* PRODUCTIVIDADES USANDO FLEXBOX - COMPATIBLE CON DOMPDF */
         .productividades-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
+            display: flex;
+            flex-wrap: wrap;
+            margin-left: -4px;
+            margin-right: -4px;
         }
 
         .productividad-card {
-            background: white;
-            border: 1px solid #f59e0b;
+            background: #f9fafb;
+            padding: 8px;
             border-radius: 6px;
-            padding: 6px;
             text-align: center;
+            border: 1px solid #e5e7eb;
+            flex: 1;
+            min-width: 100px;
+            max-width: 140px;
+            margin: 0 4px 6px 4px;
         }
 
         .productividad-card.border-green {
@@ -382,36 +433,112 @@
         .fotos-header {
             background: #7c3aed;
             color: white;
-            padding: 12px;
+            padding: 15px;
             border-radius: 8px;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: bold;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
+            text-align: center;
         }
 
         .fotos-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Layout especial para pocas fotos (1-2 fotos) */
+        .fotos-grid.single-photo {
+            grid-template-columns: 1fr;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .fotos-grid.single-photo .foto-img {
+            max-height: 500px;
+            max-width: 500px;
         }
 
         .foto-item {
             text-align: center;
             page-break-inside: avoid;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            background: #f9fafb;
         }
 
         .foto-img {
+            max-width: 100%;
+            max-height: 300px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            margin: 0 auto 10px auto;
+            background: white;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: block;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+
+        /* Fotos verticales (retratos) */
+        .foto-img.vertical {
+            max-height: 400px;
+            max-width: 280px;
+        }
+
+        /* Fotos horizontales (paisajes) */
+        .foto-img.horizontal {
+            max-height: 250px;
+            max-width: 100%;
+        }
+
+        .foto-error {
             width: 100%;
-            max-height: 120px;
-            object-fit: cover;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            margin-bottom: 4px;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+            border: 2px dashed #fca5a5;
+            border-radius: 8px;
+            background: #fef2f2;
         }
 
         .foto-info {
-            font-size: 7px;
+            font-size: 9px;
+            color: #374151;
+            line-height: 1.4;
+            padding: 8px;
+            background: white;
+            border-radius: 6px;
+            border: 1px solid #e5e7eb;
+        }
+
+        .foto-info .foto-nombre {
+            font-weight: bold;
+            font-size: 10px;
+            color: #1f2937;
+            margin-bottom: 4px;
+            word-wrap: break-word;
+        }
+
+        .foto-info .foto-fecha {
             color: #6b7280;
+            font-size: 8px;
+            margin-bottom: 4px;
+        }
+
+        .foto-info .foto-comentario {
+            color: #4b5563;
+            font-size: 8px;
+            font-style: italic;
+            background: #f3f4f6;
+            padding: 4px 6px;
+            border-radius: 4px;
+            margin-top: 4px;
+            border-left: 3px solid #7c3aed;
         }
 
         /* UTILIDADES */
@@ -549,6 +676,9 @@
                                 $kilos_objetivo = $productos_empresa->where('es_producto_objetivo', 1)->sum('kilos') ?? 0;
                                 $kilos_pst_total = $productos_empresa->sum('kilos') ?? 0;
 
+                                // NUEVA VARIABLE: Calcular entrega de materia prima para esta empresa
+                                $entrega_mp = $planillas_para_dotacion->sum('kilos_entrega') ?? 0;
+
                                 $horas_efectivas = $horas_efectivas > 0 ? $horas_efectivas : 1;
                                 $horas_turno = $horas_turno > 0 ? $horas_turno : 1;
 
@@ -557,11 +687,14 @@
                                 $productividad_total_efectivas = round($kilos_pst_total / ($dotacion_max * $horas_efectivas), 2);
                                 $productividad_total_turno = round($kilos_pst_total / ($dotacion_max * $horas_turno), 2);
 
+                                // NUEVO CÁLCULO: Rendimiento (PST Objetivo / Entrega MP) × 100
+                                $rendimiento = $entrega_mp > 0 ? round(($kilos_objetivo / $entrega_mp) * 100, 2) : 0;
+
                                 $planillas_unicas = $productos_empresa->pluck('n_planilla')->unique();
                                 $tiempos_muertos_sala = collect($tiempos_muertos)->where('cod_sala', $sala->cod_sala);
                             @endphp
 
-                            <div class="empresa-card no-break">
+                            <div class="empresa-card">
                                 <!-- Header de empresa -->
                                 <div class="empresa-header">
                                     <div>
@@ -572,64 +705,109 @@
                                     </div>
                                 </div>
 
-                                <!-- Métricas Grid -->
-                                <div class="metricas-grid">
-                                    <div class="metrica-card">
-                                        <div class="metrica-label">Dotación</div>
-                                        <div class="metrica-value">{{ $dotacion_max }}</div>
-                                        <div class="metrica-unit">personas</div>
-                                    </div>
-                                    <div class="metrica-card">
-                                        <div class="metrica-label">Horas Efectivas</div>
-                                        <div class="metrica-value">{{ number_format($horas_efectivas, 1) }}</div>
-                                        <div class="metrica-unit">horas</div>
-                                    </div>
-                                    <div class="metrica-card">
-                                        <div class="metrica-label">Horas Turno</div>
-                                        <div class="metrica-value text-blue">{{ number_format($horas_turno, 1) }}</div>
-                                        <div class="metrica-unit">horas</div>
-                                    </div>
-                                    <div class="metrica-card">
-                                        <div class="metrica-label">PST Objetivo</div>
-                                        <div class="metrica-value text-green">{{ number_format($kilos_objetivo, 0) }}</div>
-                                        <div class="metrica-unit">kg</div>
-                                    </div>
-                                    <div class="metrica-card">
-                                        <div class="metrica-label">PST Total</div>
-                                        <div class="metrica-value text-blue">{{ number_format($kilos_pst_total, 0) }}</div>
-                                        <div class="metrica-unit">kg</div>
-                                    </div>
+                                <!-- Métricas en Tabla -->
+                                <div class="detalle-section metricas">
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Dotación</th>
+                                                <th>Horas Efectivas</th>
+                                                <th>Horas Turno</th>
+                                                <th>Entrega MP</th>
+                                                <th>PST Objetivo</th>
+                                                <th>PST Total</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td class="text-center">
+                                                    <strong>{{ $dotacion_max }}</strong><br>
+                                                    <small style="color: #6b7280;">personas</small>
+                                                </td>
+                                                <td class="text-center">
+                                                    <strong>{{ number_format($horas_efectivas, 1) }}</strong><br>
+                                                    <small style="color: #6b7280;">horas</small>
+                                                </td>
+                                                <td class="text-center">
+                                                    <strong style="color: #2563eb;">{{ number_format($horas_turno, 1) }}</strong><br>
+                                                    <small style="color: #6b7280;">horas</small>
+                                                </td>
+                                                <td class="text-center">
+                                                    <strong style="color: #7c3aed;">{{ number_format($entrega_mp, 0) }}</strong><br>
+                                                    <small style="color: #6b7280;">kg</small>
+                                                </td>
+                                                <td class="text-center">
+                                                    <strong style="color: #059669;">{{ number_format($kilos_objetivo, 0) }}</strong><br>
+                                                    <small style="color: #6b7280;">kg</small>
+                                                </td>
+                                                <td class="text-center">
+                                                    <strong
+                                                        style="color: #2563eb;">{{ number_format($kilos_pst_total, 0) }}</strong><br>
+                                                    <small style="color: #6b7280;">kg</small>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
 
-                                <!-- Productividades -->
-                                <div class="productividades-section">
-                                    <div class="productividades-title">📊 Productividades (kg/persona/hora)</div>
-                                    <div class="productividades-grid">
-                                        <div class="productividad-card border-green">
-                                            <div class="productividad-label">Objetivo + Efectivas</div>
-                                            <div class="productividad-value text-green">{{ $productividad_objetivo_efectivas }}</div>
-                                            <div class="productividad-formula">{{ number_format($kilos_objetivo, 0) }}kg ÷
-                                                ({{ $dotacion_max }} × {{ number_format($horas_efectivas, 1) }}h)</div>
-                                        </div>
-                                        <div class="productividad-card border-green">
-                                            <div class="productividad-label">Objetivo + Turno</div>
-                                            <div class="productividad-value text-green">{{ $productividad_objetivo_turno }}</div>
-                                            <div class="productividad-formula">{{ number_format($kilos_objetivo, 0) }}kg ÷
-                                                ({{ $dotacion_max }} × {{ number_format($horas_turno, 1) }}h)</div>
-                                        </div>
-                                        <div class="productividad-card border-blue">
-                                            <div class="productividad-label">Total + Efectivas</div>
-                                            <div class="productividad-value text-blue">{{ $productividad_total_efectivas }}</div>
-                                            <div class="productividad-formula">{{ number_format($kilos_pst_total, 0) }}kg ÷
-                                                ({{ $dotacion_max }} × {{ number_format($horas_efectivas, 1) }}h)</div>
-                                        </div>
-                                        <div class="productividad-card border-blue">
-                                            <div class="productividad-label">Total + Turno</div>
-                                            <div class="productividad-value text-blue">{{ $productividad_total_turno }}</div>
-                                            <div class="productividad-formula">{{ number_format($kilos_pst_total, 0) }}kg ÷
-                                                ({{ $dotacion_max }} × {{ number_format($horas_turno, 1) }}h)</div>
-                                        </div>
-                                    </div>
+                                <!-- Productividades en Tabla -->
+                                <div class="detalle-section productividades">
+                                    <div class="detalle-title">📊 Productividades (kg/persona/hora) y Rendimiento</div>
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <th>Tipo</th>
+                                                <th>Objetivo + Efectivas</th>
+                                                <th>Objetivo + Turno</th>
+                                                <th>Total + Efectivas</th>
+                                                <th>Total + Turno</th>
+                                                <th>Rendimiento</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><strong>Valor</strong></td>
+                                                <td class="text-center">
+                                                    <strong style="color: #059669;">{{ $productividad_objetivo_efectivas }}</strong>
+                                                </td>
+                                                <td class="text-center">
+                                                    <strong style="color: #059669;">{{ $productividad_objetivo_turno }}</strong>
+                                                </td>
+                                                <td class="text-center">
+                                                    <strong style="color: #2563eb;">{{ $productividad_total_efectivas }}</strong>
+                                                </td>
+                                                <td class="text-center">
+                                                    <strong style="color: #2563eb;">{{ $productividad_total_turno }}</strong>
+                                                </td>
+                                                <td class="text-center">
+                                                    <strong style="color: #ea580c;">{{ $rendimiento }}%</strong>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><strong>Cálculo</strong></td>
+                                                <td class="text-center">
+                                                    <small style="color: #6b7280;">{{ number_format($kilos_objetivo, 0) }}kg ÷
+                                                        ({{ $dotacion_max }} × {{ number_format($horas_efectivas, 1) }}h)</small>
+                                                </td>
+                                                <td class="text-center">
+                                                    <small style="color: #6b7280;">{{ number_format($kilos_objetivo, 0) }}kg ÷
+                                                        ({{ $dotacion_max }} × {{ number_format($horas_turno, 1) }}h)</small>
+                                                </td>
+                                                <td class="text-center">
+                                                    <small style="color: #6b7280;">{{ number_format($kilos_pst_total, 0) }}kg ÷
+                                                        ({{ $dotacion_max }} × {{ number_format($horas_efectivas, 1) }}h)</small>
+                                                </td>
+                                                <td class="text-center">
+                                                    <small style="color: #6b7280;">{{ number_format($kilos_pst_total, 0) }}kg ÷
+                                                        ({{ $dotacion_max }} × {{ number_format($horas_turno, 1) }}h)</small>
+                                                </td>
+                                                <td class="text-center">
+                                                    <small style="color: #6b7280;">{{ number_format($kilos_objetivo, 0) }}kg ÷
+                                                        {{ number_format($entrega_mp, 0) }}kg × 100</small>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
 
                                 <!-- Productos Detallados -->
@@ -639,6 +817,7 @@
                                         <table class="table">
                                             <thead>
                                                 <tr>
+                                                    <th>Especie</th>
                                                     <th>Producto</th>
                                                     <th>Calidad</th>
                                                     <th>Destino</th>
@@ -654,12 +833,14 @@
                                                 @foreach($productos_empresa as $producto)
                                                     @php
                                                         $porcentaje = $total_kilos_empresa > 0 ? (($producto->kilos / $total_kilos_empresa) * 100) : 0;
+                                                        // REVERTIDO: Nombre del producto sin especie
                                                         $nombre_producto = ($producto->corte_inicial ?? '') . ' → ' . ($producto->corte_final ?? '');
                                                         if (isset($producto->calibre) && $producto->calibre !== 'SIN CALIBRE') {
                                                             $nombre_producto .= ' → ' . $producto->calibre;
                                                         }
                                                     @endphp
                                                     <tr>
+                                                        <td>{{ $producto->especie ?? 'Sin especie' }}</td>
                                                         <td>{{ $nombre_producto }}</td>
                                                         <td>{{ $producto->calidad ?? '' }}</td>
                                                         <td>{{ $producto->destino ?? '' }}</td>
@@ -669,7 +850,7 @@
                                                     </tr>
                                                 @endforeach
                                                 <tr class="table-total">
-                                                    <td colspan="3"><strong>TOTAL</strong></td>
+                                                    <td colspan="4"><strong>TOTAL</strong></td>
                                                     <td class="text-right"><strong>{{ number_format($productos_empresa->sum('kilos'), 1) }}
                                                             kg</strong></td>
                                                     <td class="text-right"><strong>100.0%</strong></td>
@@ -721,16 +902,143 @@
     @if($fotos_informe->count() > 0)
         <div class="fotos-section">
             <div class="fotos-header">
-                📸 Fotos del Informe ({{ $fotos_informe->count() }})
+                📸 Fotos del Informe ({{ $fotos_informe->count() }}
+                {{ $fotos_informe->count() == 1 ? 'foto' : 'fotos' }})
+                @if($fotos_informe->count() <= 2)
+                    - Vista Ampliada
+                @endif
             </div>
-            <div class="fotos-grid">
+            <div class="fotos-grid{{ $fotos_informe->count() <= 2 ? ' single-photo' : '' }}">
                 @foreach($fotos_informe as $foto)
+                    @php
+                        // Construir ruta completa al archivo
+                        $ruta_completa = storage_path('app/public/' . $foto->ruta_archivo);
+                        $imagen_base64 = null;
+                        $es_vertical = false; // Inicializar variable
+
+                        // Verificar que el archivo existe y leer como Base64
+                        if (file_exists($ruta_completa)) {
+                            try {
+                                $extension = pathinfo($foto->ruta_archivo, PATHINFO_EXTENSION);
+                                $mime_type = '';
+
+                                // Determinar tipo MIME
+                                switch (strtolower($extension)) {
+                                    case 'jpg':
+                                    case 'jpeg':
+                                        $mime_type = 'image/jpeg';
+                                        break;
+                                    case 'png':
+                                        $mime_type = 'image/png';
+                                        break;
+                                    case 'gif':
+                                        $mime_type = 'image/gif';
+                                        break;
+                                    default:
+                                        $mime_type = 'image/jpeg'; // fallback
+                                }
+
+                                // PROCESAR IMAGEN PARA MANTENER PROPORCIONES
+                                $imagen_original = imagecreatefromstring(file_get_contents($ruta_completa));
+                                if ($imagen_original) {
+                                    // Obtener dimensiones originales
+                                    $ancho_original = imagesx($imagen_original);
+                                    $alto_original = imagesy($imagen_original);
+
+                                    // Determinar orientación de la imagen
+                                    $es_vertical = $alto_original > $ancho_original;
+
+                                    // Calcular nuevas dimensiones manteniendo proporciones exactas
+                                    if ($es_vertical) {
+                                        // Para fotos verticales: limitar altura máxima
+                                        $alto_maximo = 400;
+                                        $ancho_maximo = 600; // Mayor ancho permitido
+                                    } else {
+                                        // Para fotos horizontales: limitar ancho máximo
+                                        $ancho_maximo = 600;
+                                        $alto_maximo = 300;
+                                    }
+
+                                    // Calcular ratio manteniendo proporción exacta
+                                    $ratio_ancho = $ancho_maximo / $ancho_original;
+                                    $ratio_alto = $alto_maximo / $alto_original;
+                                    $ratio = min($ratio_ancho, $ratio_alto, 1); // No agrandar imágenes pequeñas
+
+                                    $ancho_nuevo = round($ancho_original * $ratio);
+                                    $alto_nuevo = round($alto_original * $ratio);
+
+                                    // Crear nueva imagen redimensionada
+                                    $imagen_redimensionada = imagecreatetruecolor($ancho_nuevo, $alto_nuevo);
+
+                                    // Preservar transparencia para PNG
+                                    if (strtolower($extension) === 'png') {
+                                        imagealphablending($imagen_redimensionada, false);
+                                        imagesavealpha($imagen_redimensionada, true);
+                                        $transparente = imagecolorallocatealpha($imagen_redimensionada, 255, 255, 255, 127);
+                                        imagefilledrectangle($imagen_redimensionada, 0, 0, $ancho_nuevo, $alto_nuevo, $transparente);
+                                    }
+
+                                    // Redimensionar
+                                    imagecopyresampled($imagen_redimensionada, $imagen_original, 0, 0, 0, 0, $ancho_nuevo, $alto_nuevo, $ancho_original, $alto_original);
+
+                                    // Capturar output como string
+                                    ob_start();
+                                    if (strtolower($extension) === 'png') {
+                                        imagepng($imagen_redimensionada);
+                                    } else {
+                                        imagejpeg($imagen_redimensionada, null, 95);
+                                    }
+                                    $imagen_contenido = ob_get_clean();
+
+                                    // Limpiar memoria
+                                    imagedestroy($imagen_original);
+                                    imagedestroy($imagen_redimensionada);
+
+                                    $imagen_base64 = 'data:' . $mime_type . ';base64,' . base64_encode($imagen_contenido);
+                                } else {
+                                    // Fallback: usar imagen original sin procesar
+                                    $imagen_contenido = file_get_contents($ruta_completa);
+                                    $imagen_base64 = 'data:' . $mime_type . ';base64,' . base64_encode($imagen_contenido);
+
+                                    // Para el fallback, también necesitamos determinar orientación
+                                    $imagen_info = getimagesize($ruta_completa);
+                                    if ($imagen_info) {
+                                        $es_vertical = $imagen_info[1] > $imagen_info[0];
+                                    }
+                                }
+                            } catch (Exception $e) {
+                                // Error al leer archivo
+                                $imagen_base64 = null;
+                            }
+                        }
+                    @endphp
+
                     <div class="foto-item no-break">
-                        <img src="{{ storage_path('app/public/' . $foto->ruta_archivo) }}" alt="{{ $foto->nombre_original }}"
-                            class="foto-img">
+                        @if($imagen_base64)
+                            <img src="{{ $imagen_base64 }}" alt="{{ $foto->nombre_original }}"
+                                class="foto-img{{ $es_vertical ? ' vertical' : ' horizontal' }}">
+                        @else
+                            <div class="foto-error">
+                                <div style="text-align: center;">
+                                    <div style="color: #dc2626; font-size: 12px; font-weight: bold; margin-bottom: 8px;">❌ Imagen no
+                                        disponible</div>
+                                    <div style="color: #7f1d1d; font-size: 10px; word-wrap: break-word;">
+                                        {{ $foto->nombre_original }}</div>
+                                </div>
+                            </div>
+                        @endif
+
                         <div class="foto-info">
-                            <div><strong>{{ $foto->nombre_original }}</strong></div>
-                            <div>{{ \Carbon\Carbon::parse($foto->fecha_subida)->format('d/m H:i') }}</div>
+                            <div class="foto-nombre">{{ $foto->nombre_original }}</div>
+                            <div class="foto-fecha">📅 {{ \Carbon\Carbon::parse($foto->fecha_subida)->format('d/m/Y H:i') }}
+                            </div>
+                            @if($foto->comentario)
+                                <div class="foto-comentario">
+                                    💬 {{ $foto->comentario }}
+                                </div>
+                            @else
+                                <div style="color: #9ca3af; font-size: 8px; margin-top: 4px;">Sin comentario</div>
+                            @endif
                         </div>
                     </div>
                 @endforeach

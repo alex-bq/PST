@@ -388,6 +388,9 @@
                                             $kilos_objetivo = $valores_empresa['pst_objetivo'] ?? 0;
                                             $kilos_pst_total = $valores_empresa['pst_total'] ?? $sala->kilos_recepcion ?? 0;
 
+                                            // NUEVA VARIABLE: Calcular entrega de materia prima
+                                            $entrega_mp = $valores_empresa['entrega_mp'] ?? $sala->kilos_entrega ?? 0;
+
                                             // Evitar división por 0 en horas
                                             $horas_efectivas = $horas_efectivas > 0 ? $horas_efectivas : 1;
                                             $horas_turno = $horas_turno > 0 ? $horas_turno : 1;
@@ -397,6 +400,9 @@
                                             $productividad_objetivo_turno = round($kilos_objetivo / ($dotacion * $horas_turno), 2);
                                             $productividad_total_efectivas = round($kilos_pst_total / ($dotacion * $horas_efectivas), 2);
                                             $productividad_total_turno = round($kilos_pst_total / ($dotacion * $horas_turno), 2);
+
+                                            // NUEVO CÁLCULO: Rendimiento (PST Objetivo / Entrega MP) × 100
+                                            $rendimiento = $entrega_mp > 0 ? round(($kilos_objetivo / $entrega_mp) * 100, 2) : 0;
                                         @endphp
 
                                         <div class="bg-gray-50 rounded-lg p-4 space-y-4">
@@ -433,7 +439,7 @@
                                             </div>
 
                                             <!-- Datos operacionales básicos -->
-                                            <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+                                            <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-4">
                                                 <div class="bg-white p-3 rounded text-center">
                                                     <p class="text-xs text-gray-600">Dotación</p>
                                                     <p class="font-semibold text-lg">{{ $dotacion_max }}</p>
@@ -445,9 +451,15 @@
                                                     </p>
                                                 </div>
                                                 <div class="bg-white p-3 rounded text-center">
-                                                    <p class="text-xs text-gray-600">Entrega MP</p>
+                                                    <p class="text-xs text-gray-600">Horas Turno</p>
                                                     <p class="font-semibold text-blue-600">
                                                         {{ number_format($horas_turno, 1) }}h
+                                                    </p>
+                                                </div>
+                                                <div class="bg-white p-3 rounded text-center">
+                                                    <p class="text-xs text-gray-600">Entrega MP</p>
+                                                    <p class="font-semibold text-purple-700">
+                                                        {{ number_format($entrega_mp, 2) }} kg
                                                     </p>
                                                 </div>
                                                 <div class="bg-white p-3 rounded text-center">
@@ -468,8 +480,9 @@
                                             <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
                                                 <h5 class="text-sm font-semibold text-yellow-800 mb-3 flex items-center gap-2">
                                                     📊 Productividades (kg/persona/hora)
+                                                    y Rendimiento
                                                 </h5>
-                                                <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                                                <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
                                                     <div class="bg-white p-3 rounded text-center border-l-4 border-green-500">
                                                         <p class="text-xs text-gray-600 mb-1">Objetivo + Efectivas</p>
                                                         <p class="font-bold text-green-700">
@@ -508,6 +521,16 @@
                                                         <p class="text-xs text-gray-500">
                                                             {{ $kilos_pst_total }}kg ÷ ({{ $dotacion }} ×
                                                             {{ number_format($horas_turno, 1) }}h)
+                                                        </p>
+                                                    </div>
+                                                    <div class="bg-white p-3 rounded text-center border-l-4 border-orange-500">
+                                                        <p class="text-xs text-gray-600 mb-1">Rendimiento</p>
+                                                        <p class="font-bold text-orange-700">
+                                                            {{ $rendimiento }}%
+                                                        </p>
+                                                        <p class="text-xs text-gray-500">
+                                                            {{ number_format($kilos_objetivo, 0) }}kg ÷
+                                                            {{ number_format($entrega_mp, 0) }}kg × 100
                                                         </p>
                                                     </div>
                                                 </div>
@@ -603,6 +626,18 @@
                                 </div>
                             </div>
 
+                            <!-- NUEVO: Preview de fotos antes de subir -->
+                            <div id="preview-container" class="hidden mt-4 space-y-4">
+                                <h4 class="font-medium text-gray-700">Fotos seleccionadas:</h4>
+                                <div id="preview-grid" class="space-y-4">
+                                    <!-- Los previews se generan dinámicamente aquí -->
+                                </div>
+                                <button id="btn-subir-todas" onclick="subirTodasLasFotos()"
+                                    class="w-full bg-green-600 text-white py-2 rounded-md hover:bg-green-700">
+                                    Subir Todas las Fotos
+                                </button>
+                            </div>
+
                             <!-- Estado de subida -->
                             <div id="upload-status" class="hidden">
                                 <div class="bg-blue-50 border border-blue-200 rounded-md p-3">
@@ -619,20 +654,37 @@
                     <div id="fotos-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-4">
                         @if(isset($fotos_existentes))
                             @foreach($fotos_existentes as $foto)
-                                <div class="foto-thumbnail" data-foto-id="{{ $foto->id_foto }}">
+                                <div class="foto-thumbnail" data-foto-id="{{ $foto->id_foto }}"
+                                    data-comentario="{{ $foto->comentario ?? '' }}">
                                     <img src="{{ asset('storage/' . $foto->ruta_archivo) }}" alt="{{ $foto->nombre_original }}"
-                                        class="w-full h-32 object-cover rounded-lg border border-gray-200"
+                                        class="w-full h-32 object-cover rounded-lg border border-gray-200 cursor-pointer"
+                                        onclick="ampliarFoto('{{ asset('storage/' . $foto->ruta_archivo) }}', '{{ $foto->nombre_original }}', '{{ $foto->comentario ?? '' }}')"
                                         onerror="console.error('❌ Error cargando imagen existente:', this.src)">
                                     @if($informe->estado == 0)
                                         <button onclick="eliminarFoto({{ $foto->id_foto }})" class="foto-eliminar" title="Eliminar foto">
                                             ×
                                         </button>
                                     @endif
-                                    <p class="text-xs text-gray-500 mt-1 truncate" title="{{ $foto->nombre_original }}">
-                                        {{ $foto->nombre_original }}
-                                    </p>
-                                    <p class="text-xs text-gray-400">{{ \Carbon\Carbon::parse($foto->fecha_subida)->format('d/m H:i') }}
-                                    </p>
+                                    <div class="p-2 space-y-1">
+                                        <p class="text-xs text-gray-500 truncate" title="{{ $foto->nombre_original }}">
+                                            {{ $foto->nombre_original }}
+                                        </p>
+                                        @if($informe->estado == 0)
+                                            <!-- COMENTARIO EDITABLE -->
+                                            <p class="comentario-foto text-xs text-blue-600 cursor-pointer hover:text-blue-800"
+                                                onclick="editarComentarioFoto({{ $foto->id_foto }})" title="Click para editar comentario">
+                                                {{ $foto->comentario ?: 'Agregar comentario...' }}
+                                            </p>
+                                        @else
+                                            <!-- COMENTARIO SOLO LECTURA -->
+                                            <p class="text-xs text-gray-600">
+                                                {{ $foto->comentario ?: 'Sin comentario' }}
+                                            </p>
+                                        @endif
+                                        <p class="text-xs text-gray-400">
+                                            {{ \Carbon\Carbon::parse($foto->fecha_subida)->format('d/m H:i') }}
+                                        </p>
+                                    </div>
                                 </div>
                             @endforeach
                         @endif
@@ -644,6 +696,60 @@
                             <p>Sin fotos adjuntas en este informe</p>
                         </div>
                     @endif
+                </div>
+
+                <!-- NUEVO: Modal para editar comentario de foto -->
+                <div id="modal-comentario-foto"
+                    class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex items-center justify-center">
+                    <div class="bg-white rounded-lg shadow-xl p-6 w-96 max-w-md mx-4">
+                        <div class="flex items-center justify-between mb-4">
+                            <h3 class="text-lg font-semibold text-gray-900">Editar Comentario</h3>
+                            <button onclick="cerrarModalComentario()" class="text-gray-400 hover:text-gray-600">
+                                <i data-lucide="x" class="h-5 w-5"></i>
+                            </button>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    Describe qué muestra esta foto:
+                                </label>
+                                <textarea id="comentario-textarea" rows="3" maxlength="500" placeholder="Agregar comentario..."
+                                    class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none"></textarea>
+                                <div class="text-right mt-1">
+                                    <span id="contador-caracteres" class="text-xs text-gray-500">0/500</span>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end space-x-3">
+                                <button onclick="cerrarModalComentario()"
+                                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200">
+                                    Cancelar
+                                </button>
+                                <button onclick="guardarComentarioFoto()"
+                                    class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+                                    Guardar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- NUEVO: Modal para ampliar fotos -->
+                <div id="modal-foto-ampliada"
+                    class="hidden fixed inset-0 bg-black bg-opacity-80 z-50 flex items-center justify-center p-4">
+                    <div class="relative max-w-6xl max-h-full flex flex-col bg-white rounded-lg overflow-hidden">
+                        <div class="relative flex-shrink-0">
+                            <img id="img-ampliada" src="" alt="Foto ampliada" class="max-w-full max-h-[80vh] object-contain">
+                            <button onclick="cerrarFotoAmpliada()"
+                                class="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-75 transition-all">
+                                <i data-lucide="x" class="w-6 h-6"></i>
+                            </button>
+                        </div>
+                        <div id="info-foto-ampliada" class="bg-white text-gray-800 px-6 py-4 border-t border-gray-200">
+                            <!-- Información de la foto se carga dinámicamente -->
+                        </div>
+                    </div>
                 </div>
             @endif
         </div>
@@ -702,13 +808,13 @@
             const estadoInforme = {{ $informe->estado }};
             const modoEdicion = true;
         @else
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                            const codInforme = null;
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    const codInforme = null;
             const es    tadoInforme = null;
             const modoEdicion = false;
         @endif
 
-                                                                                                                                                                                                                                            // Valores ya calculados desde el backend
-                                                                                                                                                                                                                                            const valoresCalculados = @json($valores_tarjetas_por_empresa);
+                                                                                                                                                                                                                                                                                                                                // Valores ya calculados desde el backend
+                                                                                                                                                                                                                                                                                                                                const valoresCalculados = @json($valores_tarjetas_por_empresa);
         console.log('📊 Valores calculados desde backend:', valoresCalculados);
 
         // Función para obtener valores reales de una empresa
@@ -753,7 +859,7 @@
                         const botonTexto = botones[0].getAttribute('onclick');
                         if (botonTexto.includes(`${codSala}`) && botonTexto.includes(`${codTipoPlanilla}`)) {
                             // Actualizar valores en el card
-                            const grid = card.querySelector('.grid.grid-cols-2.md\\:grid-cols-5');
+                            const grid = card.querySelector('.grid.grid-cols-2.md\\:grid-cols-6');
                             if (grid) {
                                 const divs = grid.querySelectorAll('.bg-white.p-3.rounded.text-center');
 
@@ -767,22 +873,49 @@
                                     if (p) p.textContent = valores.horas.toFixed(1) + 'h';
                                 }
 
-                                if (divs[2]) { // Entrega MP
+                                if (divs[2]) { // Horas Turno
                                     const p = divs[2].querySelector('p.font-semibold');
+                                    if (p) {
+                                        // Obtener horas turno desde los datos del informe
+                                        const horasTurno = {{ isset($informeData) ? ($informeData->horas_trabajadas ?? 0) : 0 }};
+                                        p.textContent = horasTurno.toFixed(1) + 'h';
+                                    }
+                                }
+
+                                if (divs[3]) { // Entrega MP
+                                    const p = divs[3].querySelector('p.font-semibold');
                                     if (p) p.textContent = valores.entregaMP.toFixed(2) + ' kg';
                                 }
 
-                                if (divs[3]) { // PST Objetivo
-                                    const p = divs[3].querySelector('p.font-semibold');
+                                if (divs[4]) { // PST Objetivo
+                                    const p = divs[4].querySelector('p.font-semibold');
                                     if (p) p.textContent = valores.pstObjetivo.toFixed(2) + ' kg';
                                 }
 
-                                if (divs[4]) { // PST Total
-                                    const p = divs[4].querySelector('p.font-semibold');
+                                if (divs[5]) { // PST Total
+                                    const p = divs[5].querySelector('p.font-semibold');
                                     if (p) p.textContent = valores.pstTotal.toFixed(2) + ' kg';
                                 }
                             }
-                            console.log(`✅ Card actualizado: ${empresa} - Dotación: ${valores.dotacion}, Horas: ${valores.horas.toFixed(1)}h, PST: ${valores.pstTotal.toFixed(2)}kg`);
+
+                            // Actualizar sección de productividades - agregar rendimiento
+                            const prodGrid = card.querySelector('.bg-yellow-50 .grid.grid-cols-2.md\\:grid-cols-5');
+                            if (prodGrid) {
+                                const prodDivs = prodGrid.querySelectorAll('.bg-white.p-3.rounded.text-center');
+
+                                // Calcular rendimiento
+                                const rendimiento = valores.entregaMP > 0 ? ((valores.pstObjetivo / valores.entregaMP) * 100) : 0;
+
+                                if (prodDivs[4]) { // Rendimiento (quinta tarjeta)
+                                    const p = prodDivs[4].querySelector('p.font-bold');
+                                    if (p) p.textContent = rendimiento.toFixed(2) + '%';
+
+                                    const calc = prodDivs[4].querySelector('p.text-xs.text-gray-500');
+                                    if (calc) calc.textContent = `${valores.pstObjetivo.toFixed(0)}kg ÷ ${valores.entregaMP.toFixed(0)}kg × 100`;
+                                }
+                            }
+
+                            console.log(`✅ Card actualizado: ${empresa} - Dotación: ${valores.dotacion}, Horas: ${valores.horas.toFixed(1)}h, PST: ${valores.pstTotal.toFixed(2)}kg, Rendimiento: ${((valores.entregaMP > 0 ? (valores.pstObjetivo / valores.entregaMP) * 100 : 0)).toFixed(2)}%`);
                             break;
                         }
                     }
@@ -1059,13 +1192,24 @@
             console.log(`✅ Creando elemento para foto ID: ${foto.id}`);
 
             fotoDiv.innerHTML = `
-                                                                                                                                                                                            <img src="${foto.url}" alt="${foto.nombre_original}"
-                                                                                                                                                                                                class="w-full h-32 object-cover rounded-lg border border-gray-200"
-                                                                                                                                                                                                onerror="console.error('❌ Error cargando imagen:', this.src)">
-                                                                                                                                                                                            <button onclick="eliminarFoto(${foto.id})" class="foto-eliminar" title="Eliminar foto">×</button>
-                                                                                                                                                                                            <p class="text-xs text-gray-500 mt-1 truncate" title="${foto.nombre_original}">${foto.nombre_original}</p>
-                                                                                                                                                                                            <p class="text-xs text-gray-400">${foto.fecha_subida}</p>
-                                                                                                                                                                                        `;
+                                                                    <img src="${foto.url}" alt="${foto.nombre_original}"
+                                                                        class="w-full h-32 object-cover rounded-lg border border-gray-200 cursor-pointer"
+                                                                        onclick="ampliarFoto('${foto.url}', '${foto.nombre_original}', '${foto.comentario || ''}')"
+                                                                        onerror="console.error('❌ Error cargando imagen:', this.src)">
+                                                                                            <button onclick="eliminarFoto(${foto.id})" class="foto-eliminar" title="Eliminar foto">×</button>
+                                                                                            <div class="p-2 space-y-1">
+                                                                                                <p class="text-xs text-gray-500 truncate" title="${foto.nombre_original}">${foto.nombre_original}</p>
+                                                                                                <p class="comentario-foto text-xs text-blue-600 cursor-pointer hover:text-blue-800" 
+                                                                                                   onclick="editarComentarioFoto(${foto.id})"
+                                                                                                   title="Click para editar comentario">
+                                                                                                    ${foto.comentario || 'Agregar comentario...'}
+                                                                                                </p>
+                                                                                                <p class="text-xs text-gray-400">${foto.fecha_subida}</p>
+                                                                                            </div>
+                                                                                        `;
+
+            // NUEVO: Guardar comentario en el data attribute
+            fotoDiv.setAttribute('data-comentario', foto.comentario || '');
 
             grid.appendChild(fotoDiv);
             console.log(`✅ Foto ID ${foto.id} agregada al grid exitosamente`);
@@ -1388,6 +1532,26 @@
                 console.log('📸 Sistema de fotos drag & drop ACTIVADO');
             }
 
+            // NUEVO: Configurar contador de caracteres para comentarios de fotos
+            const textarea = document.getElementById('comentario-textarea');
+            const contador = document.getElementById('contador-caracteres');
+
+            if (textarea && contador) {
+                textarea.addEventListener('input', function () {
+                    const longitud = this.value.length;
+                    contador.textContent = `${longitud}/500`;
+
+                    // Cambiar color si se acerca al límite
+                    if (longitud > 450) {
+                        contador.classList.add('text-red-500');
+                        contador.classList.remove('text-gray-500');
+                    } else {
+                        contador.classList.add('text-gray-500');
+                        contador.classList.remove('text-red-500');
+                    }
+                });
+            }
+
             // Mensaje informativo para el desarrollador
             if (modoEdicion && estadoInforme === 0) {
                 console.log('🚀 Sistema de comentarios automáticos ACTIVO');
@@ -1668,29 +1832,29 @@
 
             if (planillasFiltradas.length === 0) {
                 return `
-                                                                                                                                                                                                                                                                <div class="text-center text-gray-500 py-8">
-                                                                                                                                                                                                                                                                    <i data-lucide="file-x" class="h-16 w-16 mx-auto mb-4 text-gray-400"></i>
-                                                                                                                                                                                                                                                                    <h3 class="text-lg font-semibold mb-2">Sin Planillas</h3>
-                                                                                                                                                                                                                                                                    <p>No se encontraron planillas para esta empresa, sala y proceso.</p>
-                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                            `;
+                                                                                                                                                                                                                                                                                                                                                    <div class="text-center text-gray-500 py-8">
+                                                                                                                                                                                                                                                                                                                                                        <i data-lucide="file-x" class="h-16 w-16 mx-auto mb-4 text-gray-400"></i>
+                                                                                                                                                                                                                                                                                                                                                        <h3 class="text-lg font-semibold mb-2">Sin Planillas</h3>
+                                                                                                                                                                                                                                                                                                                                                        <p>No se encontraron planillas para esta empresa, sala y proceso.</p>
+                                                                                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                                                `;
             }
 
             let tabla = `
-                                                                                                                                                                                                                                                            <div class="overflow-x-auto">
-                                                                                                                                                                                                                                                                <table class="w-full border-collapse border border-gray-300">
-                                                                                                                                                                                                                                                                    <thead class="bg-gray-50">
-                                                                                                                                                                                                                                                                        <tr>
-                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Planilla</th>
-                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Trabajador</th>
-                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Dotación</th>
-                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Horas Trabajadas</th>
-                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Kg Entrega</th>
-                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">PST Total</th>
-                                                                                                                                                                                                                                                                        </tr>
-                                                                                                                                                                                                                                                                    </thead>
-                                                                                                                                                                                                                                                                    <tbody>
-                                                                                                                                                                                                                                                                `;
+                                                                                                                                                                                                                                                                                                                                                <div class="overflow-x-auto">
+                                                                                                                                                                                                                                                                                                                                                    <table class="w-full border-collapse border border-gray-300">
+                                                                                                                                                                                                                                                                                                                                                        <thead class="bg-gray-50">
+                                                                                                                                                                                                                                                                                                                                                            <tr>
+                                                                                                                                                                                                                                                                                                                                                                <th class="border border-gray-300 px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Planilla</th>
+                                                                                                                                                                                                                                                                                                                                                                <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Trabajador</th>
+                                                                                                                                                                                                                                                                                                                                                                <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Dotación</th>
+                                                                                                                                                                                                                                                                                                                                                                <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Horas Trabajadas</th>
+                                                                                                                                                                                                                                                                                                                                                                <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Kg Entrega</th>
+                                                                                                                                                                                                                                                                                                                                                                <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">PST Total</th>
+                                                                                                                                                                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                                                                                                                                                                        </thead>
+                                                                                                                                                                                                                                                                                                                                                        <tbody>
+                                                                                                                                                                                                                                                                                                                                                    `;
 
             planillasFiltradas.forEach(planilla => {
                 const horasTrabajadas = planilla.horas_trabajadas ? Number(planilla.horas_trabajadas).toFixed(1) : '0.0';
@@ -1701,15 +1865,15 @@
                 const empresa = planilla.descripcion || 'N/A';
 
                 tabla += `
-                                                                                                                                                                                                                                                            <tr class="hover:bg-gray-50 cursor-pointer" onclick="abrirModalDetallePlanilla(${planilla.numero_planilla})" title="Clic para ver detalle de la planilla">
-                                                                                                                                                                                                                                                                <td class="border border-gray-300 px-4 py-2 font-medium">#${planilla.numero_planilla}</td>
-                                                                                                                                                                                                                                                                <td class="border border-gray-300 px-4 py-2">${trabajador}</td>
-                                                                                                                                                                                                                                                                <td class="border border-gray-300 px-4 py-2 text-center font-medium text-orange-700">${dotacion}</td>
-                                                                                                                                                                                                                                                                <td class="border border-gray-300 px-4 py-2 text-right font-medium text-purple-700">${horasTrabajadas}h</td>
-                                                                                                                                                                                                                                                                <td class="border border-gray-300 px-4 py-2 text-right font-medium text-blue-700">${kilosEntrega} kg</td>
-                                                                                                                                                                                                                                                                <td class="border border-gray-300 px-4 py-2 text-right font-medium text-green-700">${pstTotal} kg</td>
-                                                                                                                                                                                                                                                            </tr>
-                                                                                                                                                                                                                                                        `;
+                                                                                                                                                                                                                                                                                                                                                <tr class="hover:bg-gray-50 cursor-pointer" onclick="abrirModalDetallePlanilla(${planilla.numero_planilla})" title="Clic para ver detalle de la planilla">
+                                                                                                                                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 font-medium">#${planilla.numero_planilla}</td>
+                                                                                                                                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2">${trabajador}</td>
+                                                                                                                                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 text-center font-medium text-orange-700">${dotacion}</td>
+                                                                                                                                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 text-right font-medium text-purple-700">${horasTrabajadas}h</td>
+                                                                                                                                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 text-right font-medium text-blue-700">${kilosEntrega} kg</td>
+                                                                                                                                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 text-right font-medium text-green-700">${pstTotal} kg</td>
+                                                                                                                                                                                                                                                                                                                                                </tr>
+                                                                                                                                                                                                                                                                                                                                            `;
             });
 
             const totalHoras = planillasFiltradas.reduce((sum, p) => sum + (Number(p.horas_trabajadas) || 0), 0);
@@ -1718,27 +1882,27 @@
             const maxDotacion = planillasFiltradas.reduce((max, p) => Math.max(max, Number(p.dotacion) || 0), 0);
 
             tabla += `
-                                                                                                                                                                                                                                                            </tbody>
-                                                                                                                                                                                                                                                        </table>
-                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                    <div class="mt-4 text-sm text-gray-600 bg-gray-50 p-4 rounded">
-                                                                                                                                                                                                                                                        <div class="grid grid-cols-4 gap-4">
-                                                                                                                                                                                                                                                            <div>
-                                                                                                                                                                                                                                                                <p><strong>Total planillas:</strong> ${planillasFiltradas.length}</p>
-                                                                                                                                                                                                                                                                <p><strong>Dotación total:</strong> <span class="text-orange-700 font-bold">${maxDotacion}</span></p>
-                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                            <div>
-                                                                                                                                                                                                                                                            <p><strong>Total horas:</strong> ${totalHoras.toFixed(1)}h</p>
-                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                        <div>
-                                                                                                                                                                                                                                                            <p><strong>Total entrega:</strong> ${totalEntrega.toFixed(2)} kg</p>
-                                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                                        <div>
-                                                                                                                                                                                                                                                            <p><strong>Total PST:</strong> ${totalPst.toFixed(2)} kg</p>
-                                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                `;
+                                                                                                                                                                                                                                                                                                                                                </tbody>
+                                                                                                                                                                                                                                                                                                                                            </table>
+                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                        <div class="mt-4 text-sm text-gray-600 bg-gray-50 p-4 rounded">
+                                                                                                                                                                                                                                                                                                                                            <div class="grid grid-cols-4 gap-4">
+                                                                                                                                                                                                                                                                                                                                                <div>
+                                                                                                                                                                                                                                                                                                                                                    <p><strong>Total planillas:</strong> ${planillasFiltradas.length}</p>
+                                                                                                                                                                                                                                                                                                                                                    <p><strong>Dotación total:</strong> <span class="text-orange-700 font-bold">${maxDotacion}</span></p>
+                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                <div>
+                                                                                                                                                                                                                                                                                                                                                <p><strong>Total horas:</strong> ${totalHoras.toFixed(1)}h</p>
+                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                            <div>
+                                                                                                                                                                                                                                                                                                                                                <p><strong>Total entrega:</strong> ${totalEntrega.toFixed(2)} kg</p>
+                                                                                                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                                                                                                            <div>
+                                                                                                                                                                                                                                                                                                                                                <p><strong>Total PST:</strong> ${totalPst.toFixed(2)} kg</p>
+                                                                                                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                    `;
 
             return tabla;
         }
@@ -1753,79 +1917,86 @@
 
             if (productosFiltrados.length === 0) {
                 return `
-                                                                                                                                                                                                                                                                <div class="text-center text-gray-500 py-8">
-                                                                                                                                                                                                                                                                    <i data-lucide="package-x" class="h-16 w-16 mx-auto mb-4 text-gray-400"></i>
-                                                                                                                                                                                                                                                                    <h3 class="text-lg font-semibold mb-2">Sin Productos</h3>
-                                                                                                                                                                                                                                                                    <p>No se encontraron productos para esta empresa, sala y proceso.</p>
-                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                            `;
+                                                                                                                                                                                                                                                                                                                                                    <div class="text-center text-gray-500 py-8">
+                                                                                                                                                                                                                                                                                                                                                        <i data-lucide="package-x" class="h-16 w-16 mx-auto mb-4 text-gray-400"></i>
+                                                                                                                                                                                                                                                                                                                                                        <h3 class="text-lg font-semibold mb-2">Sin Productos</h3>
+                                                                                                                                                                                                                                                                                                                                                        <p>No se encontraron productos para esta empresa, sala y proceso.</p>
+                                                                                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                                                `;
             }
 
             let tabla = `
-                                                                                                                                                                                                                                                            <div class="overflow-x-auto">
-                                                                                                                                                                                                                                                                <table class="w-full border-collapse border border-gray-300">
-                                                                                                                                                                                                                                                                    <thead class="bg-gray-50">
-                                                                                                                                                                                                                                                                        <tr>
-                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Producto</th>
-                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Calidad</th>
-                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Destino</th>
-                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Kg</th>
-                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">%</th>
-                                                                                                                                                                                                                                                                            <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Objetivo</th>
-                                                                                                                                                                                                                                                                        </tr>
-                                                                                                                                                                                                                                                                    </thead>
-                                                                                                                                                                                                                                                                    <tbody>
-                                                                                                                                                                                                                                                                `;
+                                                                                                                                                                                                                                                                                                                                                <div class="overflow-x-auto">
+                                                                                                                                                                                                                                                                                                                                                    <table class="w-full border-collapse border border-gray-300">
+                                                                                                                                                                                                                                                                                                                                                        <thead class="bg-gray-50">
+                                                                                                                                                                                                                                                                                                                                                            <tr>
+                                                                                                                                                                                                                                                                                                                                                                <th class="border border-gray-300 px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Especie</th>
+                                                                                                                                                                                                                                                                                                                                                                <th class="border border-gray-300 px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Producto</th>
+                                                                                                                                                                                                                                                                                                                                                                <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Calidad</th>
+                                                                                                                                                                                                                                                                                                                                                                <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Destino</th>
+                                                                                                                                                                                                                                                                                                                                                                <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">Kg</th>
+                                                                                                                                                                                                                                                                                                                                                                <th class="border border-gray-300 px-4 py-2 text-right text-xs font-medium text-gray-500 uppercase">%</th>
+                                                                                                                                                                                                                                                                                                                                                                <th class="border border-gray-300 px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase">Objetivo</th>
+                                                                                                                                                                                                                                                                                                                                                            </tr>
+                                                                                                                                                                                                                                                                                                                                                        </thead>
+                                                                                                                                                                                                                                                                                                                                                        <tbody>
+                                                                                                                                                                                                                                                                                                                                                    `;
 
             const totalKilos = productosFiltrados.reduce((sum, p) => sum + Number(p.kilos), 0);
 
             productosFiltrados.forEach(producto => {
                 const porcentaje = totalKilos > 0 ? ((Number(producto.kilos) / totalKilos) * 100).toFixed(1) : 0;
                 const esCalidadPremium = producto.calidad === 'PREMIUM';
+                // REVERTIDO: Nombre del producto sin especie
                 const nombreProducto = `${producto.corte_inicial} → ${producto.corte_final}` +
                     (producto.calibre && producto.calibre !== 'SIN CALIBRE' ? ` → ${producto.calibre}` : '');
                 const esObjetivo = producto.es_producto_objetivo == 1;
 
                 tabla += `
-                                                                                                                                                                                                                                                                <tr class="hover:bg-gray-50">
-                                                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 font-medium">${nombreProducto}</td>
-                                                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2">
-                                                                                                                                                                                                                                                                        <span class="px-2 py-1 ${esCalidadPremium ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'} rounded text-sm">
-                                                                                                                                                                                                                                                                            ${producto.calidad}
-                                                                                                                                                                                                                                                                        </span>
-                                                                                                                                                                                                                                                                    </td>
-                                                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2">${producto.destino}</td>
-                                                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 text-right font-medium">${Number(producto.kilos).toFixed(2)} kg</td>
-                                                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 text-right">${porcentaje}%</td>
-                                                                                                                                                                                                                                                                    <td class="border border-gray-300 px-4 py-2 text-center">
-                                                                                                                                                                                                                                                                        <span class="px-2 py-1 ${esObjetivo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} rounded text-sm font-medium">
-                                                                                                                                                                                                                                                                            ${esObjetivo ? 'SÍ' : 'NO'}
-                                                                                                                                                                                                                                                                        </span>
-                                                                                                                                                                                                                                                                    </td>
-                                                                                                                                                                                                                                                                </tr>
-                                                                                                                                                                                                                                                            `;
+                                                                                                                                                                                                                                                                                                                                        <tr class="hover:bg-gray-50">
+                                                                                                                                                                                                                                                                                                                                            <td class="border border-gray-300 px-4 py-2">
+                                                                                                                                                                                                                                                                                                                                                <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded text-sm font-medium">
+                                                                                                                                                                                                                                                                                                                                                    ${producto.especie || 'Sin especie'}
+                                                                                                                                                                                                                                                                                                                                                </span>
+                                                                                                                                                                                                                                                                                                                                            </td>
+                                                                                                                                                                                                                                                                                                                                            <td class="border border-gray-300 px-4 py-2 font-medium">${nombreProducto}</td>
+                                                                                                                                                                                                                                                                                                                                            <td class="border border-gray-300 px-4 py-2">
+                                                                                                                                                                                                                                                                                                                                                <span class="px-2 py-1 ${esCalidadPremium ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800'} rounded text-sm">
+                                                                                                                                                                                                                                                                                                                                                    ${producto.calidad}
+                                                                                                                                                                                                                                                                                                                                                </span>
+                                                                                                                                                                                                                                                                                                                                            </td>
+                                                                                                                                                                                                                                                                                                                                            <td class="border border-gray-300 px-4 py-2">${producto.destino}</td>
+                                                                                                                                                                                                                                                                                                                                            <td class="border border-gray-300 px-4 py-2 text-right font-medium">${Number(producto.kilos).toFixed(2)} kg</td>
+                                                                                                                                                                                                                                                                                                                                            <td class="border border-gray-300 px-4 py-2 text-right">${porcentaje}%</td>
+                                                                                                                                                                                                                                                                                                                                            <td class="border border-gray-300 px-4 py-2 text-center">
+                                                                                                                                                                                                                                                                                                                                                <span class="px-2 py-1 ${esObjetivo ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'} rounded text-sm font-medium">
+                                                                                                                                                                                                                                                                                                                                                    ${esObjetivo ? 'SÍ' : 'NO'}
+                                                                                                                                                                                                                                                                                                                                                </span>
+                                                                                                                                                                                                                                                                                                                                            </td>
+                                                                                                                                                                                                                                                                                                                                        </tr>
+                                                                                                                                                                                                                                                                                                                                    `;
             });
 
             const productosObjetivo = productosFiltrados.filter(p => p.es_producto_objetivo == 1);
             const kilosObjetivo = productosObjetivo.reduce((sum, p) => sum + Number(p.kilos), 0);
 
             tabla += `
-                                                                                                                                                                                                                                                            </tbody>
-                                                                                                                                                                                                                                                        </table>
-                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                    <div class="mt-4 text-sm text-gray-600 bg-gray-50 p-4 rounded">
-                                                                                                                                                                                                                                                        <div class="grid grid-cols-2 gap-4">
-                                                                                                                                                                                                                                                            <div>
-                                                                                                                                                                                                                                                                <p><strong>Total productos:</strong> ${productosFiltrados.length}</p>
-                                                                                                                                                                                                                                                                <p><strong>Productos objetivo:</strong> ${productosObjetivo.length} (${((productosObjetivo.length / productosFiltrados.length) * 100).toFixed(1)}%)</p>
-                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                            <div>
-                                                                                                                                                                                                                                                                <p><strong>Total kilos:</strong> ${totalKilos.toFixed(2)} kg</p>
-                                                                                                                                                                                                                                                                <p><strong>Kilos objetivo:</strong> ${kilosObjetivo.toFixed(2)} kg (${((kilosObjetivo / totalKilos) * 100).toFixed(1)}%)</p>
-                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                `;
+                                                                                                                                                                                                                                                                                                                                                </tbody>
+                                                                                                                                                                                                                                                                                                                                            </table>
+                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                        <div class="mt-4 text-sm text-gray-600 bg-gray-50 p-4 rounded">
+                                                                                                                                                                                                                                                                                                                                            <div class="grid grid-cols-2 gap-4">
+                                                                                                                                                                                                                                                                                                                                                <div>
+                                                                                                                                                                                                                                                                                                                                                    <p><strong>Total productos:</strong> ${productosFiltrados.length}</p>
+                                                                                                                                                                                                                                                                                                                                                    <p><strong>Productos objetivo:</strong> ${productosObjetivo.length} (${((productosObjetivo.length / productosFiltrados.length) * 100).toFixed(1)}%)</p>
+                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                                <div>
+                                                                                                                                                                                                                                                                                                                                                    <p><strong>Total kilos:</strong> ${totalKilos.toFixed(2)} kg</p>
+                                                                                                                                                                                                                                                                                                                                                    <p><strong>Kilos objetivo:</strong> ${kilosObjetivo.toFixed(2)} kg (${((kilosObjetivo / totalKilos) * 100).toFixed(1)}%)</p>
+                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                    `;
 
             return tabla;
         }
@@ -1838,12 +2009,12 @@
 
             if (tiemposFiltrados.length === 0) {
                 return `
-                                                                                                                                                                                                                                                                <div class="text-center text-gray-500 py-8">
-                                                                                                                                                                                                                                                                    <i data-lucide="clock" class="h-16 w-16 mx-auto mb-4 text-gray-400"></i>
-                                                                                                                                                                                                                                                                    <h3 class="text-lg font-semibold mb-2">Sin Tiempos Muertos</h3>
-                                                                                                                                                                                                                                                                    <p>No se registraron tiempos muertos para esta sala y proceso.</p>
-                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                            `;
+                                                                                                                                                                                                                                                                                                                                                    <div class="text-center text-gray-500 py-8">
+                                                                                                                                                                                                                                                                                                                                                        <i data-lucide="clock" class="h-16 w-16 mx-auto mb-4 text-gray-400"></i>
+                                                                                                                                                                                                                                                                                                                                                        <h3 class="text-lg font-semibold mb-2">Sin Tiempos Muertos</h3>
+                                                                                                                                                                                                                                                                                                                                                        <p>No se registraron tiempos muertos para esta sala y proceso.</p>
+                                                                                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                                                `;
             }
 
             let contenido = `<div class="space-y-3">`;
@@ -1853,25 +2024,25 @@
                 const horas = (minutos / 60).toFixed(1);
 
                 contenido += `
-                                                                                                                                                                                                                                                                <div class="border rounded-lg p-4 hover:bg-gray-50">
-                                                                                                                                                                                                                                                                    <div class="flex justify-between items-start">
-                                                                                                                                                                                                                                                                        <div class="flex-1">
-                                                                                                                                                                                                                                                                            <p class="font-medium text-gray-900">${tiempo.motivo}</p>
-                                                                                                                                                                                                                                                                            <p class="text-sm text-gray-600 mt-1">
-                                                                                                                                                                                                                                                                                <span class="inline-flex items-center gap-1">
-                                                                                                                                                                                                                                                                                    <i data-lucide="building" class="h-4 w-4"></i>
-                                                                                                                                                                                                                                                                                    Departamento: ${tiempo.nombre}
-                                                                                                                                                                                                                                                                                </span>
-                                                                                                                                                                                                                                                                            </p>
-                                                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                                                        <div class="text-right">
-                                                                                                                                                                                                                                                                            <span class="px-3 py-1 bg-red-100 text-red-800 rounded-md text-sm font-medium">
-                                                                                                                                                                                                                                                                                ${horas}h (${minutos} min)
-                                                                                                                                                                                                                                                                            </span>
-                                                                                                                                                                                                                                                                        </div>
-                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                            `;
+                                                                                                                                                                                                                                                                                                                                                    <div class="border rounded-lg p-4 hover:bg-gray-50">
+                                                                                                                                                                                                                                                                                                                                                        <div class="flex justify-between items-start">
+                                                                                                                                                                                                                                                                                                                                                            <div class="flex-1">
+                                                                                                                                                                                                                                                                                                                                                                <p class="font-medium text-gray-900">${tiempo.motivo}</p>
+                                                                                                                                                                                                                                                                                                                                                                <p class="text-sm text-gray-600 mt-1">
+                                                                                                                                                                                                                                                                                                                                                                    <span class="inline-flex items-center gap-1">
+                                                                                                                                                                                                                                                                                                                                                                        <i data-lucide="building" class="h-4 w-4"></i>
+                                                                                                                                                                                                                                                                                                                                                                        Departamento: ${tiempo.nombre}
+                                                                                                                                                                                                                                                                                                                                                                    </span>
+                                                                                                                                                                                                                                                                                                                                                                </p>
+                                                                                                                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                                                                                                                            <div class="text-right">
+                                                                                                                                                                                                                                                                                                                                                                <span class="px-3 py-1 bg-red-100 text-red-800 rounded-md text-sm font-medium">
+                                                                                                                                                                                                                                                                                                                                                                    ${horas}h (${minutos} min)
+                                                                                                                                                                                                                                                                                                                                                                </span>
+                                                                                                                                                                                                                                                                                                                                                            </div>
+                                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                                                `;
             });
 
             contenido += `</div>`;
@@ -1880,20 +2051,20 @@
             const totalHoras = (totalMinutos / 60).toFixed(1);
 
             contenido += `
-                                                                                                                                                                                                                                                            <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                                                                                                                                                                                                                                                                <h4 class="font-medium text-gray-900 mb-2">Resumen de Tiempos Muertos</h4>
-                                                                                                                                                                                                                                                                <div class="grid grid-cols-2 gap-4 text-sm">
-                                                                                                                                                                                                                                                                    <div>
-                                                                                                                                                                                                                                                                        <p><strong>Total eventos:</strong> ${tiemposFiltrados.length}</p>
-                                                                                                                                                                                                                                                                        <p><strong>Tiempo perdido:</strong> ${totalHoras}h (${totalMinutos} min)</p>
-                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                    <div>
-                                                                                                                                                                                                                                                                        <p><strong>Promedio por evento:</strong> ${(totalMinutos / tiemposFiltrados.length).toFixed(1)} min</p>
-                                                                                                                                                                                                                                                                        <p><strong>Impacto:</strong> <span class="text-red-600 font-medium">${totalHoras}h de producción perdida</span></p>
-                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                        `;
+                                                                                                                                                                                                                                                                                                                                                <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                                                                                                                                                                                                                                                                                                                                                    <h4 class="font-medium text-gray-900 mb-2">Resumen de Tiempos Muertos</h4>
+                                                                                                                                                                                                                                                                                                                                                    <div class="grid grid-cols-2 gap-4 text-sm">
+                                                                                                                                                                                                                                                                                                                                                        <div>
+                                                                                                                                                                                                                                                                                                                                                            <p><strong>Total eventos:</strong> ${tiemposFiltrados.length}</p>
+                                                                                                                                                                                                                                                                                                                                                            <p><strong>Tiempo perdido:</strong> ${totalHoras}h (${totalMinutos} min)</p>
+                                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                                        <div>
+                                                                                                                                                                                                                                                                                                                                                            <p><strong>Promedio por evento:</strong> ${(totalMinutos / tiemposFiltrados.length).toFixed(1)} min</p>
+                                                                                                                                                                                                                                                                                                                                                            <p><strong>Impacto:</strong> <span class="text-red-600 font-medium">${totalHoras}h de producción perdida</span></p>
+                                                                                                                                                                                                                                                                                                                                                        </div>
+                                                                                                                                                                                                                                                                                                                                                    </div>
+                                                                                                                                                                                                                                                                                                                                                </div>
+                                                                                                                                                                                                                                                                                                                                            `;
 
             return contenido;
         }
@@ -1916,6 +2087,157 @@
                 cerrarModal();
             }
         });
+
+        // ===== NUEVAS FUNCIONES PARA COMENTARIOS DE FOTOS =====
+
+        /**
+         * Abrir modal para editar comentario de foto
+         */
+        function editarComentarioFoto(idFoto) {
+            console.log('📝 Editando comentario de foto ID:', idFoto);
+
+            // Verificar permisos
+            if (!modoEdicion || estadoInforme !== 0) {
+                console.log('🚫 Edición bloqueada: informe no está en borrador');
+                return;
+            }
+
+            const fotoElement = document.querySelector(`[data-foto-id="${idFoto}"]`);
+            if (!fotoElement) {
+                console.error('❌ Elemento de foto no encontrado');
+                return;
+            }
+
+            const comentarioActual = fotoElement.getAttribute('data-comentario') || '';
+
+            // Configurar modal
+            const modal = document.getElementById('modal-comentario-foto');
+            const textarea = document.getElementById('comentario-textarea');
+            const contador = document.getElementById('contador-caracteres');
+
+            textarea.value = comentarioActual;
+            modal.dataset.fotoId = idFoto;
+
+            // Actualizar contador de caracteres
+            contador.textContent = `${comentarioActual.length}/500`;
+
+            // Mostrar modal
+            modal.classList.remove('hidden');
+            textarea.focus();
+        }
+
+        /**
+         * Cerrar modal de comentario
+         */
+        function cerrarModalComentario() {
+            const modal = document.getElementById('modal-comentario-foto');
+            modal.classList.add('hidden');
+            modal.dataset.fotoId = '';
+        }
+
+        /**
+         * Guardar comentario de foto
+         */
+        async function guardarComentarioFoto() {
+            const modal = document.getElementById('modal-comentario-foto');
+            const textarea = document.getElementById('comentario-textarea');
+            const idFoto = modal.dataset.fotoId;
+            const comentario = textarea.value.trim();
+
+            if (!idFoto) {
+                console.error('❌ ID de foto no disponible');
+                return;
+            }
+
+            try {
+                console.log('💾 Guardando comentario:', { idFoto, comentario });
+
+                const response = await fetch('{{ route('informes.actualizarComentarioFoto') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                    },
+                    body: JSON.stringify({
+                        id_foto: parseInt(idFoto),
+                        comentario: comentario
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    console.log('✅ Comentario guardado exitosamente');
+
+                    // Actualizar UI
+                    actualizarComentarioEnUI(idFoto, comentario);
+                    cerrarModalComentario();
+
+                    // Mostrar mensaje de éxito
+                    mostrarMensaje('Comentario actualizado correctamente', 'success');
+                } else {
+                    throw new Error(data.error || 'Error desconocido');
+                }
+
+            } catch (error) {
+                console.error('❌ Error guardando comentario:', error);
+                mostrarMensaje('Error al guardar comentario: ' + error.message, 'error');
+            }
+        }
+
+        /**
+         * Actualizar comentario en la UI
+         */
+        function actualizarComentarioEnUI(idFoto, nuevoComentario) {
+            const fotoElement = document.querySelector(`[data-foto-id="${idFoto}"]`);
+            if (!fotoElement) {
+                console.error('❌ Elemento de foto no encontrado para actualizar UI');
+                return;
+            }
+
+            // Actualizar data attribute
+            fotoElement.setAttribute('data-comentario', nuevoComentario);
+
+            // Actualizar texto visible
+            const comentarioElement = fotoElement.querySelector('.comentario-foto');
+            if (comentarioElement) {
+                comentarioElement.textContent = nuevoComentario || 'Agregar comentario...';
+            }
+
+            console.log('✅ UI actualizada para foto ID:', idFoto);
+        }
+
+        /**
+         * Ampliar foto en modal
+         */
+        function ampliarFoto(src, nombre, comentario = '') {
+            const modal = document.getElementById('modal-foto-ampliada');
+            const img = document.getElementById('img-ampliada');
+            const info = document.getElementById('info-foto-ampliada');
+
+            img.src = src;
+
+            // Crear contenido con nombre y comentario
+            let contenidoInfo = `<p class="font-medium text-gray-900">${nombre}</p>`;
+            if (comentario) {
+                contenidoInfo += `<p class="text-sm text-blue-600 mt-2 bg-blue-50 p-2 rounded border-l-4 border-blue-400"><i data-lucide="message-circle" class="h-4 w-4 inline mr-1"></i>${comentario}</p>`;
+            } else {
+                contenidoInfo += `<p class="text-sm text-gray-500 mt-1 italic">Sin comentario</p>`;
+            }
+
+            info.innerHTML = contenidoInfo;
+            modal.classList.remove('hidden');
+
+            setTimeout(() => lucide.createIcons(), 100);
+        }
+
+        /**
+         * Cerrar modal de foto ampliada
+         */
+        function cerrarFotoAmpliada() {
+            const modal = document.getElementById('modal-foto-ampliada');
+            modal.classList.add('hidden');
+        }
 
         /**
          * Función para mostrar indicadores visuales de guardado automático
@@ -1947,14 +2269,14 @@
             });
         }
 
-                // Función para cerrar modal de detalle de planilla (sin animaciones)
+        // Función para cerrar modal de detalle de planilla (sin animaciones)
         function cerrarModalDetallePlanilla() {
             const modal = document.getElementById('modalDetallePlanilla');
-            
+
             // Cerrar instantáneamente
             modal.classList.add('hidden');
             modal.classList.remove('flex');
-            
+
             // Limpiar iframe
             document.getElementById("iframePlanillaDetalle").src = '';
         }
@@ -1964,7 +2286,7 @@
             const url = "{{ url('/ver-planilla/') }}/" + codPlanilla;
             const modal = document.getElementById('modalDetallePlanilla');
             const iframe = document.getElementById("iframePlanillaDetalle");
-            
+
             // Configurar iframe y mostrar instantáneamente
             iframe.src = url;
             modal.classList.remove('hidden');
@@ -1978,11 +2300,30 @@
             }
         });
 
-        // Cerrar modal con tecla Escape (comportamiento Bootstrap)
+        // NUEVO: Cerrar modal de foto ampliada al hacer clic fuera
+        document.getElementById('modal-foto-ampliada').addEventListener('click', function (e) {
+            if (e.target === this) {
+                cerrarFotoAmpliada();
+            }
+        });
+
+        // Cerrar modales con tecla Escape (priorizar en orden de importancia)
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape') {
-                const modal = document.getElementById('modalDetallePlanilla');
-                if (!modal.classList.contains('hidden')) {
+                const modalComentario = document.getElementById('modal-comentario-foto');
+                const modalFotoAmpliada = document.getElementById('modal-foto-ampliada');
+                const modalDetallePlanilla = document.getElementById('modalDetallePlanilla');
+
+                // Prioridad 1: Modal de comentario (más específico)
+                if (!modalComentario.classList.contains('hidden')) {
+                    cerrarModalComentario();
+                }
+                // Prioridad 2: Modal de foto ampliada
+                else if (!modalFotoAmpliada.classList.contains('hidden')) {
+                    cerrarFotoAmpliada();
+                }
+                // Prioridad 3: Modal de detalle de planilla
+                else if (!modalDetallePlanilla.classList.contains('hidden')) {
                     cerrarModalDetallePlanilla();
                 }
             }

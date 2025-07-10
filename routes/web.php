@@ -142,6 +142,12 @@ Route::post('/informes/foto/subir', [InformeController::class, 'subirFoto'])
 Route::delete('/informes/foto/eliminar', [InformeController::class, 'eliminarFoto'])
     ->name('informes.eliminarFoto');
 
+// NUEVO: Actualizar comentario de foto
+Route::post('/informes/foto/comentario/actualizar', [InformeController::class, 'actualizarComentarioFoto'])
+    ->name('informes.actualizarComentarioFoto');
+
+
+
 // Finalizar informe (cambiar de borrador a completado)
 Route::post('/informes/finalizar', [InformeController::class, 'finalizar'])
     ->name('informes.finalizar');
