@@ -15,8 +15,8 @@
 
         body {
             font-family: 'DejaVu Sans', Arial, sans-serif;
-            font-size: 10px;
-            line-height: 1.3;
+            font-size: 12px;
+            line-height: 1.4;
             color: #333;
             background: #f9fafb;
         }
@@ -79,7 +79,7 @@
         }
 
         .header h1 {
-            font-size: 14px;
+            font-size: 18px;
             font-weight: bold;
             color: #1f2937;
             margin-bottom: 4px;
@@ -94,8 +94,8 @@
         .header-left p,
         .header-right p {
             margin: 1px 0;
-            font-size: 9px;
-            line-height: 1.2;
+            font-size: 11px;
+            line-height: 1.3;
         }
 
         .header-right {
@@ -123,13 +123,13 @@
         }
 
         .sala-title {
-            font-size: 12px;
+            font-size: 15px;
             font-weight: bold;
             color: #1f2937;
         }
 
         .sala-subtitle {
-            font-size: 9px;
+            font-size: 11px;
             color: #6b7280;
             margin-top: 1px;
         }
@@ -151,7 +151,7 @@
             font-weight: bold;
             color: #1d4ed8;
             margin-bottom: 4px;
-            font-size: 10px;
+            font-size: 13px;
         }
 
         .comentarios-content {
@@ -160,7 +160,7 @@
             border-radius: 3px;
             border: 1px solid #3b82f6;
             white-space: pre-wrap;
-            font-size: 8px;
+            font-size: 11px;
         }
 
         /* PROCESO HEADERS COMPACTOS */
@@ -169,7 +169,7 @@
             padding: 6px 8px;
             margin-bottom: 8px;
             border-radius: 4px;
-            font-size: 10px;
+            font-size: 13px;
             font-weight: bold;
             color: #374151;
         }
@@ -194,13 +194,13 @@
         }
 
         .empresa-name {
-            font-size: 12px;
+            font-size: 15px;
             font-weight: bold;
             color: #1f2937;
         }
 
         .empresa-stats {
-            font-size: 9px;
+            font-size: 12px;
             color: #6b7280;
         }
 
@@ -226,13 +226,13 @@
         }
 
         .metrica-label {
-            font-size: 8px;
+            font-size: 11px;
             color: #6b7280;
             margin-bottom: 2px;
         }
 
         .metrica-value {
-            font-size: 12px;
+            font-size: 14px;
             font-weight: bold;
             color: #1f2937;
         }
@@ -246,7 +246,7 @@
         }
 
         .metrica-unit {
-            font-size: 7px;
+            font-size: 9px;
             color: #6b7280;
             margin-top: 1px;
         }
@@ -264,7 +264,7 @@
             font-weight: bold;
             color: #92400e;
             margin-bottom: 8px;
-            font-size: 10px;
+            font-size: 13px;
         }
 
         /* PRODUCTIVIDADES USANDO FLEXBOX - COMPATIBLE CON DOMPDF */
@@ -296,13 +296,13 @@
         }
 
         .productividad-label {
-            font-size: 7px;
+            font-size: 9px;
             color: #6b7280;
             margin-bottom: 1px;
         }
 
         .productividad-value {
-            font-size: 11px;
+            font-size: 13px;
             font-weight: bold;
             color: #1f2937;
         }
@@ -316,7 +316,7 @@
         }
 
         .productividad-formula {
-            font-size: 6px;
+            font-size: 9px;
             color: #6b7280;
             margin-top: 1px;
         }
@@ -342,7 +342,7 @@
         .detalle-title {
             font-weight: bold;
             margin-bottom: 8px;
-            font-size: 10px;
+            font-size: 13px;
         }
 
         .detalle-title.productos {
@@ -357,7 +357,7 @@
         .table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 8px;
+            font-size: 11px;
         }
 
         .table th,
@@ -370,7 +370,7 @@
         .table th {
             background: #f9fafb;
             font-weight: bold;
-            font-size: 7px;
+            font-size: 10px;
             color: #6b7280;
             text-transform: uppercase;
         }
@@ -401,17 +401,17 @@
 
         .tiempo-motivo {
             font-weight: bold;
-            font-size: 8px;
+            font-size: 11px;
         }
 
         .tiempo-duracion {
             color: #dc2626;
             font-weight: bold;
-            font-size: 8px;
+            font-size: 11px;
         }
 
         .tiempo-descripcion {
-            font-size: 7px;
+            font-size: 10px;
             color: #6b7280;
             margin-top: 2px;
         }
@@ -421,7 +421,7 @@
             padding: 6px;
             margin-top: 6px;
             border-radius: 4px;
-            font-size: 7px;
+            font-size: 10px;
         }
 
         /* FOTOS SECTION */
@@ -507,7 +507,7 @@
         }
 
         .foto-info {
-            font-size: 9px;
+            font-size: 11px;
             color: #374151;
             line-height: 1.4;
             padding: 8px;
@@ -518,7 +518,7 @@
 
         .foto-info .foto-nombre {
             font-weight: bold;
-            font-size: 10px;
+            font-size: 12px;
             color: #1f2937;
             margin-bottom: 4px;
             word-wrap: break-word;
@@ -526,13 +526,13 @@
 
         .foto-info .foto-fecha {
             color: #6b7280;
-            font-size: 8px;
+            font-size: 10px;
             margin-bottom: 4px;
         }
 
         .foto-info .foto-comentario {
             color: #4b5563;
-            font-size: 8px;
+            font-size: 10px;
             font-style: italic;
             background: #f3f4f6;
             padding: 4px 6px;
@@ -568,7 +568,7 @@
             background: #f9fafb;
             border-top: 1px solid #e5e7eb;
             text-align: center;
-            font-size: 7px;
+            font-size: 9px;
             line-height: 25px;
             color: #6b7280;
         }
@@ -1020,10 +1020,11 @@
                         @else
                             <div class="foto-error">
                                 <div style="text-align: center;">
-                                    <div style="color: #dc2626; font-size: 12px; font-weight: bold; margin-bottom: 8px;">❌ Imagen no
+                                    <div style="color: #dc2626; font-size: 14px; font-weight: bold; margin-bottom: 8px;">❌ Imagen no
                                         disponible</div>
-                                    <div style="color: #7f1d1d; font-size: 10px; word-wrap: break-word;">
-                                        {{ $foto->nombre_original }}</div>
+                                    <div style="color: #7f1d1d; font-size: 12px; word-wrap: break-word;">
+                                        {{ $foto->nombre_original }}
+                                    </div>
                                 </div>
                             </div>
                         @endif
@@ -1037,7 +1038,7 @@
                                     💬 {{ $foto->comentario }}
                                 </div>
                             @else
-                                <div style="color: #9ca3af; font-size: 8px; margin-top: 4px;">Sin comentario</div>
+                                <div style="color: #9ca3af; font-size: 10px; margin-top: 4px;">Sin comentario</div>
                             @endif
                         </div>
                     </div>
