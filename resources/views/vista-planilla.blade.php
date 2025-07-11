@@ -91,6 +91,7 @@
             </div>
             <div class="col-sm-6 text-center">
                 <h2>Planilla Control Proceso</h2>
+                <p style="margin-bottom: 0px;"><strong>{{ $desc_planilla->tipo_planilla_nombre ?? 'N/A' }}</strong></p>
             </div>
             <div class="col-sm-3 text-end">
                 <h6><strong>N°</strong> {{ $desc_planilla->cod_planilla }}</h6>
@@ -100,22 +101,83 @@
         <hr class="section-divider">
 
         <div class="row">
-            <div class="col-sm-4">
+            <div class="col-sm-3">
                 <p><strong>Lote:</strong> {{ $desc_planilla->lote }}</p>
                 <p><strong>Fecha:</strong> {{ $desc_planilla->fec_turno }}</p>
                 <p><strong>Turno:</strong> {{ $desc_planilla->turno }}</p>
             </div>
 
-            <div class="col-sm-4 text-center">
+            <div class="col-sm-3 text-center">
                 <p><strong>Proveedor:</strong> {{ $desc_planilla->proveedor }}</p>
                 <p><strong>Empresa:</strong> {{ $desc_planilla->empresa }}</p>
                 <p><strong>Especie:</strong> {{ $desc_planilla->especie }}</p>
             </div>
 
-            <div class="col-sm-4 text-end">
+            <div class="col-sm-3">
                 <p><strong>Supervisor:</strong> {{ $desc_planilla->supervisor_nombre }}</p>
                 <p><strong>Planillero:</strong> {{ $desc_planilla->planillero_nombre }}</p>
+                <p><strong>Jefe Turno:</strong> {{ $desc_planilla->jefe_turno_nombre ?? 'N/A' }}</p>
+            </div>
+
+            <div class="col-sm-3 text-end">
                 <p><strong>Dotación:</strong> {{ $detalle_planilla->dotacion }}</p>
+                <p><strong>Inicio:</strong>
+                    {{ $desc_planilla->hora_inicio ? \Carbon\Carbon::parse($desc_planilla->hora_inicio)->format('H:i') : 'N/A' }}
+                </p>
+                <p><strong>Término:</strong>
+                    {{ $desc_planilla->hora_termino ? \Carbon\Carbon::parse($desc_planilla->hora_termino)->format('H:i') : 'N/A' }}
+                </p>
+                @if($desc_planilla->hora_inicio && $desc_planilla->hora_termino)
+                    @php
+                        $inicio = \Carbon\Carbon::parse($desc_planilla->hora_inicio);
+                        $termino = \Carbon\Carbon::parse($desc_planilla->hora_termino);
+                        if ($termino < $inicio) {
+                            $termino->addDay();
+                        }
+                        $tiempoTrabajado = $inicio->diffInMinutes($termino) / 60;
+                    @endphp
+                    <p><strong>Trabajado:</strong> {{ number_format($tiempoTrabajado, 1) }}h</p>
+                @else
+                    <p><strong>Trabajado:</strong> N/A</p>
+                @endif
+            </div>
+        </div>
+        <hr class="section-divider">
+
+        <!-- Sección de KPIs -->
+        <div class="row">
+            <div class="col-12">
+                <div class="row text-center">
+                    <div class="col-sm-4">
+                        <p><strong>Productividad</strong></p>
+                        <p style="font-size: 1.1em; color: #2c3e50;">
+                            {{ $detalle_planilla->productividad ? number_format($detalle_planilla->productividad, 2) : '0.00' }}
+                            kg/pers/hr
+                        </p>
+                    </div>
+                    <div class="col-sm-4">
+                        <p><strong>Rendimiento General</strong></p>
+                        <p style="font-size: 1.1em; color: #2c3e50;">
+                            @php
+                                $rendimiento_general = ($detalle_planilla->kilos_entrega > 0)
+                                    ? ($detalle_planilla->kilos_recepcion / $detalle_planilla->kilos_entrega) * 100
+                                    : 0;
+                            @endphp
+                            {{ number_format($rendimiento_general, 2) }}%
+                        </p>
+                    </div>
+                    <div class="col-sm-4">
+                        <p><strong>Rendimiento Objetivo</strong></p>
+                        <p style="font-size: 1.1em; color: #2c3e50;">
+                            @php
+                                $rendimiento_objetivo = ($detalle_planilla->kilos_entrega > 0)
+                                    ? ($kilos_objetivo / $detalle_planilla->kilos_entrega) * 100
+                                    : 0;
+                            @endphp
+                            {{ number_format($rendimiento_objetivo, 2) }}%
+                        </p>
+                    </div>
+                </div>
             </div>
         </div>
         <hr class="section-divider">
@@ -141,11 +203,13 @@
                             <th>Calidad</th>
                             <th>Piezas</th>
                             <th>Kilos</th>
+                            <th class="text-center">Objetivo</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($planilla as $registro)
-                            <tr>
+                            <tr
+                                style="{{ isset($registro->es_producto_objetivo) && $registro->es_producto_objetivo == 1 ? 'background-color: #fff9c4;' : '' }}">
                                 <td>{{ $registro->cInicial }}</td>
                                 <td>{{ $registro->cFinal }}</td>
                                 <td>{{ $registro->destino }}</td>
@@ -153,6 +217,13 @@
                                 <td>{{ $registro->calidad }}</td>
                                 <td>{{ $registro->piezas }}</td>
                                 <td>{{ round($registro->kilos, 2) }}</td>
+                                <td class="text-center">
+                                    @if(isset($registro->es_producto_objetivo) && $registro->es_producto_objetivo == 1)
+                                        <span style="color: #2c5530; font-weight: bold;">SÍ</span>
+                                    @else
+                                        <span style="color: #666;">NO</span>
+                                    @endif
+                                </td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -163,17 +234,19 @@
         <div class="row">
             <div class="col-sm-6">
                 <div class="row">
-                    <div class="col-sm-6">
+                    <div class="col-sm-4">
                         <p><strong>Entrega Frigorífico</strong></p>
-                        <p><strong>Cajas:</strong> {{ $detalle_planilla->cajas_entrega }}</p>
                         <p><strong>Kilos:</strong> {{ round($detalle_planilla->kilos_entrega, 2) }}</p>
                         <p><strong>Piezas:</strong> {{ $detalle_planilla->piezas_entrega }}</p>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-4">
                         <p><strong>Recepción Planta</strong></p>
-                        <p><strong>Cajas:</strong> {{ $detalle_planilla->cajas_recepcion }}</p>
                         <p><strong>Kilos:</strong> {{ round($detalle_planilla->kilos_recepcion, 2) }}</p>
                         <p><strong>Piezas:</strong> {{ $detalle_planilla->piezas_recepcion }}</p>
+                    </div>
+                    <div class="col-sm-4">
+                        <p><strong>Objetivo</strong></p>
+                        <p><strong>Kilos:</strong> {{ number_format($kilos_objetivo, 2) }}</p>
                     </div>
                 </div>
             </div>
@@ -217,6 +290,52 @@
             </div>
         </div>
         <hr class="section-divider">
+
+        <!-- Sección de Tiempos Muertos -->
+        @if($tiempos_muertos && count($tiempos_muertos) > 0)
+            <div class="row">
+                <div class="col-12">
+                    <h6><strong>Tiempos Muertos</strong></h6>
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Departamento</th>
+                                    <th>Causa</th>
+                                    <th class="text-center">Hora Inicio</th>
+                                    <th class="text-center">Hora Término</th>
+                                    <th class="text-center">Duración (min)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($tiempos_muertos as $tiempo)
+                                    <tr>
+                                        <td>{{ $tiempo->departamento_nombre }}</td>
+                                        <td>{{ $tiempo->causa }}</td>
+                                        <td class="text-center">
+                                            {{ $tiempo->hora_inicio ? \Carbon\Carbon::parse($tiempo->hora_inicio)->format('H:i') : '-' }}
+                                        </td>
+                                        <td class="text-center">
+                                            {{ $tiempo->hora_termino ? \Carbon\Carbon::parse($tiempo->hora_termino)->format('H:i') : '-' }}
+                                        </td>
+                                        <td class="text-center">{{ $tiempo->duracion_minutos ?? '-' }}</td>
+                                    </tr>
+                                @endforeach
+                                @if(count($tiempos_muertos) > 1)
+                                    <tr class="table-secondary">
+                                        <td colspan="4" class="text-end"><strong>Total Tiempo Muerto:</strong></td>
+                                        <td class="text-center"><strong>{{ $tiempos_muertos->sum('duracion_minutos') }}
+                                                min</strong></td>
+                                    </tr>
+                                @endif
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <hr class="section-divider">
+        @endif
+
         <div class="row">
             <p><strong>Observación:</strong> {{ $detalle_planilla->observacion }}</p>
 

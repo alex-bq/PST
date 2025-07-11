@@ -35,9 +35,24 @@ class PlanillaController extends Controller
         }
 
 
-        $planilla = DB::table("pst.dbo.v_registro_planilla_pst")
-            ->select('*')
+        $planilla = DB::table("pst.dbo.registro_planilla_pst")
+            ->join('pst.dbo.v_registro_planilla_pst', 'pst.dbo.registro_planilla_pst.cod_reg', '=', 'pst.dbo.v_registro_planilla_pst.cod_reg')
+            ->select('pst.dbo.v_registro_planilla_pst.*', 'pst.dbo.registro_planilla_pst.es_producto_objetivo')
+            ->where('pst.dbo.registro_planilla_pst.cod_planilla', $idPlanilla)
+            ->get();
+
+        // Consulta para obtener kilos objetivo
+        $kilos_objetivo = DB::table('pst.dbo.registro_planilla_pst')
             ->where('cod_planilla', $idPlanilla)
+            ->where('es_producto_objetivo', 1)
+            ->sum('kilos') ?? 0;
+
+        // Consulta para obtener tiempos muertos
+        $tiempos_muertos = DB::table('pst.dbo.tiempos_muertos as tm')
+            ->join('pst.dbo.departamentos as d', 'tm.cod_departamento', '=', 'd.cod_departamento')
+            ->select('tm.*', 'd.nombre as departamento_nombre')
+            ->where('tm.cod_planilla', $idPlanilla)
+            ->orderBy('tm.hora_inicio')
             ->get();
 
         $subtotal = DB::table('pst.dbo.registro_planilla_pst AS rp')
@@ -69,7 +84,7 @@ class PlanillaController extends Controller
             ->get();
 
 
-        return view('vista-planilla', compact('subtotal', 'total', 'planilla', 'idPlanilla', 'detalle_planilla', 'desc_planilla'));
+        return view('vista-planilla', compact('subtotal', 'total', 'planilla', 'idPlanilla', 'detalle_planilla', 'desc_planilla', 'kilos_objetivo', 'tiempos_muertos'));
     }
 
 

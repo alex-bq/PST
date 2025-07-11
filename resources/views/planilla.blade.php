@@ -779,6 +779,9 @@
                                         <div class="row">
                                             <div class="form-group">
                                                 <label for="hora_termino">Hora de Término</label>
+                                                <small class="text-muted d-block mb-1">
+                                                    <i class="bi bi-clock"></i> Inicio: {{ $desc_planilla->hora_inicio ? \Carbon\Carbon::parse($desc_planilla->hora_inicio)->format('H:i') : 'N/A' }}
+                                                </small>
                                                 <input type="time" class="form-control" id="hora_termino"
                                                     name="hora_termino"
                                                     value="{{ isset($desc_planilla->hora_termino) ? \Carbon\Carbon::parse($desc_planilla->hora_termino)->format('H:i') : '' }}"
