@@ -88,38 +88,38 @@
         }
 
         .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        /* Animación para el estado finalizado */
-        @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
+            display: none!important;
             }
 
-            50% {
-                opacity: 0.5;
+            .tab-content.active {
+                display: block !important;
             }
-        }
 
-        /* Estilos para el modal de detalle de planilla (sin animaciones) */
-        #modalDetallePlanilla {
-            backdrop-filter: blur(1px);
-        }
+            /* Animación para el estado finalizado */
+            @keyframes pulse {
 
-        /* Hacer que las filas de planilla se vean clicables */
-        .cursor-pointer:hover {
-            background-color: #f3f4f6 !important;
-            transform: translateY(-1px);
-            transition: all 0.2s ease;
-        }
-    </style>
+                0%,
+                100% {
+                    opacity: 1;
+                }
+
+                50% {
+                    opacity: 0.5;
+                }
+            }
+
+            /* Estilos para el modal de detalle de planilla (sin animaciones) */
+            #modalDetallePlanilla {
+                backdrop-filter: blur(1px);
+            }
+
+            /* Hacer que las filas de planilla se vean clicables */
+            .cursor-pointer:hover {
+                background-color: #f3f4f6 !important;
+                transform: translateY(-1px);
+                transition: all 0.2s ease;
+            }
+        </style>
 @endsection
 
 @section('content')
@@ -888,12 +888,15 @@
             modal.classList.remove('active');
         }
 
-        // Cerrar modal al hacer clic fuera de la imagen
-        document.getElementById('modal-foto').addEventListener('click', function (e) {
-            if (e.target === this) {
-                cerrarFoto();
-            }
-        });
+        // Cerrar modal al hacer clic fuera de la imagen     (con verificación)
+        const modalFotoElement = document.getElementById('modal-foto');
+        if (modalFotoElement) {
+            modalFotoElement.addEventListener('click', function (e) {
+                if (e.target === this) {
+                    cerrarFoto();
+                }
+            });
+        }
 
         // Cerrar modal con tecla Escape
         document.addEventListener('keydown', function (e) {
@@ -926,12 +929,15 @@
             modal.classList.add('flex');
         }
 
-        // Cerrar modal de detalle de planilla al hacer clic fuera
-        document.getElementById('modalDetallePlanilla').addEventListener('click', function (e) {
-            if (e.target === this) {
-                cerrarModalDetallePlanilla();
-            }
-        });
+        // Cerrar modal de detalle de planilla al hacer clic fuera (con verificación)
+        const modalDetallePlanillaElement = document.getElementById('modalDetallePlanilla');
+        if (modalDetallePlanillaElement) {
+            modalDetallePlanillaElement.addEventListener('click', function (e) {
+                if (e.target === this) {
+                    cerrarModalDetallePlanilla();
+                }
+            });
+        }
 
         // Cerrar modal con tecla Escape (solo si no hay otro modal abierto)
         document.addEventListener('keydown', function (e) {
@@ -939,14 +945,92 @@
                 const modalFoto = document.getElementById('modal-foto');
                 const modalPlanilla = document.getElementById('modalDetallePlanilla');
 
-                // Priorizar cerrar modal de foto si está abierto
-                if (modalFoto.classList.contains('active')) {
+                // Priorizar cerrar modal de foto si está abierto (con verificación)
+                if (modalFoto && modalFoto.classList.contains('active')) {
                     cerrarFoto();
-                } else if (!modalPlanilla.classList.contains('hidden')) {
+                } else if (modalPlanilla && !modalPlanilla.classList.contains('hidden')) {
                     cerrarModalDetallePlanilla();
                 }
             }
         });
+
+        // Función para activar el primer tab de forma más robusta
+        function activarPrimerTab() {
+            console.log('🔍 Buscando primer tab...');
+
+            // Buscar todos los elementos
+            const allTabButtons = document.querySelectorAll('.tab-button');
+            const allTabContents = document.querySelectorAll('.tab-content');
+
+            console.log('📊 Elementos encontrados:', {
+                buttons: allTabButtons.length,
+                contents: allTabContents.length
+            });
+
+            if (allTabButtons.length > 0 && allTabContents.length > 0) {
+                const primerButton = allTabButtons[0];
+                const primerContent = allTabContents[0];
+
+                console.log('🎯 Elementos seleccionados:', {
+                    button: primerButton.textContent?.trim(),
+                    content: primerContent.id
+                });
+
+                // Limpiar todos los estados activos
+                allTabContents.forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                allTabButtons.forEach(btn => {
+                    btn.classList.remove('active');
+                });
+
+                // Activar el primer tab
+                primerButton.classList.add('active');
+                primerContent.classList.add('active');
+
+                console.log('✅ ¡Primer tab activado correctamente!');
+
+                // Reinicializar iconos
+                setTimeout(() => {
+                    lucide.createIcons();
+                    console.log('🔄 Iconos de Lucide reinicializados');
+                }, 100);
+
+                return true;
+            }
+
+            console.log('❌ No se encontraron elementos tab válidos');
+            return false;
+        }
+
+        // Intentar activar múltiples veces para asegurar que funcione
+        let intentos = 0;
+        const maxIntentos = 10;
+
+        function intentarActivacion() {
+            intentos++;
+            console.log(`🚀 Intento ${intentos}/${maxIntentos} de activar primer tab`);
+
+            if (activarPrimerTab()) {
+                console.log('🎉 ¡Éxito! Primer tab activado');
+                return;
+            }
+
+            if (intentos < maxIntentos) {
+                setTimeout(intentarActivacion, 200 * intentos); // Incrementar delay
+            } else {
+                console.error('💥 Error: No se pudo activar el primer tab después de múltiples intentos');
+            }
+        }
+
+        // Iniciar inmediatamente
+        setTimeout(intentarActivacion, 50);
+
+        // También cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', intentarActivacion);
+
+        // Y cuando todo esté cargado
+        window.addEventListener('load', intentarActivacion);
 
         console.log('Vista de informe con tabs por sala cargada correctamente');
         console.log('Datos disponibles:', {
@@ -954,7 +1038,6 @@
             salas: {{ count($informacion_sala) }},
             comentarios: {{ $comentarios_salas->count() }},
             fotos: {{ $fotos_informe->count() }}
-
-                                                                                        });
+        });
     </script>
 @endsection
