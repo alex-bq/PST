@@ -743,13 +743,22 @@ class InformeController extends Controller
     public function subirFoto(Request $request)
     {
         try {
+            \Log::info('🔍 DEBUG: Inicio subirFoto', [
+                'request_data' => $request->all(),
+                'user_session' => session('user')
+            ]);
+
             $request->validate([
                 'cod_informe' => 'required|integer',
                 'foto' => 'required|image|mimes:jpeg,png,jpg,gif|max:5120', // 5MB max
                 'comentario' => 'nullable|string|max:500' // NUEVO: validación para comentario
             ]);
 
+            \Log::info('✅ DEBUG: Validación pasada');
+
             $cod_informe = $request->cod_informe;
+
+            \Log::info('🔍 DEBUG: Verificando permisos', ['cod_informe' => $cod_informe]);
 
             // Verificar permisos
             $informe = DB::table('pst.dbo.informes_turno')
@@ -757,47 +766,84 @@ class InformeController extends Controller
                 ->where('cod_jefe_turno', session('user.cod_usuario'))
                 ->first();
 
+            \Log::info('🔍 DEBUG: Resultado consulta informe', ['informe' => $informe]);
+
             if (!$informe || $informe->estado == 1) {
+                \Log::error('❌ DEBUG: Sin permisos o informe finalizado', [
+                    'informe_encontrado' => !is_null($informe),
+                    'estado_informe' => $informe->estado ?? 'N/A'
+                ]);
                 return response()->json(['error' => 'Sin permisos o informe finalizado'], 403);
             }
+
+            \Log::info('✅ DEBUG: Permisos verificados');
 
             $foto = $request->file('foto');
             $nombreOriginal = $foto->getClientOriginalName();
             $extension = $foto->getClientOriginalExtension();
             $nombreUnico = $cod_informe . '_' . time() . '_' . uniqid() . '.' . $extension;
 
+            \Log::info('🔍 DEBUG: Procesando archivo', [
+                'nombre_original' => $nombreOriginal,
+                'extension' => $extension,
+                'nombre_unico' => $nombreUnico,
+                'tamaño' => $foto->getSize()
+            ]);
+
             // Crear directorio si no existe
             $directorioFotos = storage_path('app/public/informes_fotos');
+            \Log::info('🔍 DEBUG: Directorio fotos', ['path' => $directorioFotos]);
+
             if (!file_exists($directorioFotos)) {
+                \Log::info('🔍 DEBUG: Creando directorio...');
                 mkdir($directorioFotos, 0755, true);
             }
 
+            \Log::info('✅ DEBUG: Directorio verificado');
+
             // Guardar en storage/app/public/informes_fotos/
+            \Log::info('🔍 DEBUG: Intentando guardar archivo en storage...');
             $rutaArchivo = $foto->storeAs('informes_fotos', $nombreUnico, 'public');
+            \Log::info('✅ DEBUG: Archivo guardado en storage', ['ruta' => $rutaArchivo]);
 
             // NUEVO: También copiar a public/storage para accesibilidad web (workaround para sistemas sin enlaces simbólicos)
             $directorioPublico = public_path('storage/informes_fotos');
+            \Log::info('🔍 DEBUG: Verificando directorio público', ['path' => $directorioPublico]);
+
             if (!file_exists($directorioPublico)) {
+                \Log::info('🔍 DEBUG: Creando directorio público...');
                 mkdir($directorioPublico, 0755, true);
             }
 
             // Copiar archivo a public/storage/informes_fotos/
             $rutaPublica = public_path('storage/informes_fotos/' . $nombreUnico);
+            \Log::info('🔍 DEBUG: Copiando a directorio público', ['destino' => $rutaPublica]);
             copy(storage_path('app/public/informes_fotos/' . $nombreUnico), $rutaPublica);
+            \Log::info('✅ DEBUG: Archivo copiado al directorio público');
 
             // Guardar en base de datos y obtener ID
-            $idFoto = DB::table('pst.dbo.fotos_informe')->insertGetId([
+            \Log::info('🔍 DEBUG: Intentando insertar en base de datos...');
+            // Formatear fecha para SQL Server
+            $fechaSubida = \Carbon\Carbon::now()->format('Y-m-d H:i:s');
+
+            $datosInsert = [
                 'cod_informe' => $cod_informe,
                 'nombre_original' => $nombreOriginal,
                 'nombre_archivo' => $nombreUnico,
                 'ruta_archivo' => $rutaArchivo,
                 'tamaño_archivo' => $foto->getSize(),
                 'tipo_mime' => $foto->getMimeType(),
-                'fecha_subida' => \Carbon\Carbon::now(),
+                'fecha_subida' => DB::raw("CONVERT(DATETIME, '" . $fechaSubida . "', 120)"),
                 'cod_usuario_subida' => session('user.cod_usuario'),
                 'activo' => 1,
                 'comentario' => $request->comentario ?? '' // NUEVO: incluir comentario
-            ]);
+            ];
+
+            \Log::info('🔍 DEBUG: Datos para insertar', $datosInsert);
+
+            $idFoto = DB::table('pst.dbo.fotos_informe')->insertGetId($datosInsert);
+
+            \Log::info('✅ DEBUG: Foto insertada en BD', ['id_foto' => $idFoto]);
 
             return response()->json([
                 'success' => true,
