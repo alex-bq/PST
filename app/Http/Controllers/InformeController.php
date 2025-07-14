@@ -229,11 +229,11 @@ class InformeController extends Controller
 
             // Crear el informe principal (estructura simplificada)
             $codInforme = DB::table('pst.dbo.informes_turno')->insertGetId([
-                'fecha_turno' => $fechaTurno,
+                'fecha_turno' => DB::raw("CONVERT(DATE, '" . $fechaTurno . "', 120)"),
                 'cod_turno' => (int) $request->cod_turno,
                 'cod_jefe_turno' => $request->cod_jefe_turno,
                 'cod_usuario_crea' => session('user.cod_usuario'),
-                'fecha_creacion' => $fechaCreacion,
+                'fecha_creacion' => DB::raw("CONVERT(DATETIME, '" . $fechaCreacion . "', 120)"),
                 'estado' => 1
             ]);
 
@@ -279,7 +279,6 @@ class InformeController extends Controller
     public function crearBorrador($fecha, $turno)
     {
         try {
-            \Log::info('Creando borrador automático:', ['fecha' => $fecha, 'turno' => $turno]);
 
             // Verificar si ya existe un informe para esta fecha y turno
             $existeInforme = DB::table('pst.dbo.informes_turno')
@@ -317,25 +316,22 @@ class InformeController extends Controller
 
             DB::beginTransaction();
 
+            // Formatear la fecha correctamente para SQL Server
+            $fechaTurno = Carbon::parse($fecha)->format('Y-m-d');
+            $fechaCreacion = Carbon::now()->format('Y-m-d H:i:s');
+
             // Crear el informe borrador
             $codInforme = DB::table('pst.dbo.informes_turno')->insertGetId([
-                'fecha_turno' => $fecha,
+                'fecha_turno' => DB::raw("CONVERT(DATE, '" . $fechaTurno . "', 120)"),
                 'cod_turno' => (int) $turno,
                 'cod_jefe_turno' => $jefe->cod_jefe_turno,
                 'cod_usuario_crea' => session('user.cod_usuario'),
-                'fecha_creacion' => Carbon::now()->format('Y-m-d H:i:s'),
+                'fecha_creacion' => DB::raw("CONVERT(DATETIME, '" . $fechaCreacion . "', 120)"),
                 'estado' => 0, // BORRADOR
                 'comentarios' => null // Se completará después
             ]);
 
             DB::commit();
-
-            \Log::info('Borrador creado exitosamente:', [
-                'cod_informe' => $codInforme,
-                'fecha' => $fecha,
-                'turno' => $turno,
-                'jefe' => $jefe->jefe_nombre
-            ]);
 
             // Redirigir a la vista de edición del borrador
             return redirect()->route('informes.editar', ['cod_informe' => $codInforme])
