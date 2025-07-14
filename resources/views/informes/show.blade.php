@@ -88,38 +88,38 @@
         }
 
         .tab-content {
-            display: none!important;
+            display: none !important;
+        }
+
+        .tab-content.active {
+            display: block !important;
+        }
+
+        /* Animación para el estado finalizado */
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
             }
 
-            .tab-content.active {
-                display: block !important;
+            50% {
+                opacity: 0.5;
             }
+        }
 
-            /* Animación para el estado finalizado */
-            @keyframes pulse {
+        /* Estilos para el modal de detalle de planilla (sin animaciones) */
+        #modalDetallePlanilla {
+            backdrop-filter: blur(1px);
+        }
 
-                0%,
-                100% {
-                    opacity: 1;
-                }
-
-                50% {
-                    opacity: 0.5;
-                }
-            }
-
-            /* Estilos para el modal de detalle de planilla (sin animaciones) */
-            #modalDetallePlanilla {
-                backdrop-filter: blur(1px);
-            }
-
-            /* Hacer que las filas de planilla se vean clicables */
-            .cursor-pointer:hover {
-                background-color: #f3f4f6 !important;
-                transform: translateY(-1px);
-                transition: all 0.2s ease;
-            }
-        </style>
+        /* Hacer que las filas de planilla se vean clicables */
+        .cursor-pointer:hover {
+            background-color: #f3f4f6 !important;
+            transform: translateY(-1px);
+            transition: all 0.2s ease;
+        }
+    </style>
 @endsection
 
 @section('content')
@@ -915,18 +915,45 @@
 
             // Limpiar iframe
             document.getElementById("iframePlanillaDetalle").src = '';
+            // ✅ MEJORA: Limpiar sessionStorage si se cierra sin guardar
+            sessionStorage.removeItem('modal_origen');
+            sessionStorage.removeItem('informe_url');
         }
 
         // Función para abrir modal de detalle de planilla (sin animaciones)
         function abrirModalDetallePlanilla(codPlanilla) {
+            console.log('🔍 DEBUG: Abriendo modal para planilla:', codPlanilla);
+
+            // ✅ SOLUCIÓN: Guardar contexto en sessionStorage
+            sessionStorage.setItem('modal_origen', 'informe');
+            sessionStorage.setItem('informe_url', window.location.href);
+            console.log('🔍 DEBUG: SessionStorage guardado:', {
+                origen: 'informe',
+                url: window.location.href
+            });
+
             const url = "{{ url('/ver-planilla/') }}/" + codPlanilla;
+            console.log('🔍 DEBUG: URL del iframe:', url);
+
             const modal = document.getElementById('modalDetallePlanilla');
             const iframe = document.getElementById("iframePlanillaDetalle");
+
+            console.log('🔍 DEBUG: Elementos encontrados:', {
+                modal: !!modal,
+                iframe: !!iframe
+            });
+
+            if (!modal || !iframe) {
+                console.error('❌ ERROR: Modal o iframe no encontrado');
+                return;
+            }
 
             // Configurar iframe y mostrar instantáneamente
             iframe.src = url;
             modal.classList.remove('hidden');
             modal.classList.add('flex');
+
+            console.log('✅ DEBUG: Modal abierto correctamente');
         }
 
         // Cerrar modal de detalle de planilla al hacer clic fuera (con verificación)
@@ -1038,6 +1065,6 @@
             salas: {{ count($informacion_sala) }},
             comentarios: {{ $comentarios_salas->count() }},
             fotos: {{ $fotos_informe->count() }}
-        });
+                        });
     </script>
 @endsection

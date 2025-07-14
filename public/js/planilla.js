@@ -467,7 +467,58 @@ $(document).ready(function () {
                     if (response.success) {
                         toastr.success("Planilla guardada correctamente");
                         sessionStorage.setItem("planillaSaved", "true");
-                        window.location.href = baseUrl + "/inicio";
+
+                        // ✅ SOLUCIÓN: Redirección condicional basada en origen
+                        const origen = sessionStorage.getItem("modal_origen");
+                        const informeUrl =
+                            sessionStorage.getItem("informe_url");
+
+                        if (origen === "informe" && informeUrl) {
+                            // Limpiar sessionStorage
+                            sessionStorage.removeItem("modal_origen");
+                            sessionStorage.removeItem("informe_url");
+
+                            // Volver al informe (navegando en el iframe principal, no en toda la ventana)
+                            console.log(
+                                "🔄 Redirigiendo al informe dentro del iframe principal:",
+                                informeUrl
+                            );
+
+                            // Acceder al iframe principal desde el modal
+                            try {
+                                const iframeContent =
+                                    window.parent.parent.document.getElementById(
+                                        "iframeContent"
+                                    );
+                                if (iframeContent) {
+                                    iframeContent.src = informeUrl;
+                                    // También actualizar sessionStorage del contexto principal
+                                    window.parent.parent.sessionStorage.setItem(
+                                        "lastVisitedPage",
+                                        informeUrl
+                                    );
+                                    console.log(
+                                        "✅ Navegación exitosa dentro del iframe principal"
+                                    );
+                                } else {
+                                    console.log(
+                                        "⚠️ No se encontró iframe principal, usando redirección normal"
+                                    );
+                                    window.parent.location.href = informeUrl;
+                                }
+                            } catch (error) {
+                                console.log(
+                                    "⚠️ Error accediendo al iframe principal, usando redirección normal:",
+                                    error
+                                );
+                                window.parent.location.href = informeUrl;
+                            }
+                        } else {
+                            // Comportamiento original: ir al inicio
+                            console.log("🔄 Redirigiendo al inicio");
+                            window.location.href = baseUrl + "/inicio";
+                        }
+
                         window.removeEventListener(
                             "beforeunload",
                             beforeUnloadHandler
