@@ -1001,11 +1001,13 @@ class InformeController extends Controller
             }
 
             // Actualizar estado a finalizado
+            $fechaFinalizacion = \Carbon\Carbon::now()->format('Y-m-d H:i:s');
+
             DB::table('pst.dbo.informes_turno')
                 ->where('cod_informe', $cod_informe)
                 ->update([
                     'estado' => 1,
-                    'fecha_finalizacion' => \Carbon\Carbon::now()
+                    'fecha_finalizacion' => DB::raw("CONVERT(DATETIME, '" . $fechaFinalizacion . "', 120)")
                 ]);
 
             return response()->json([
