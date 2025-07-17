@@ -709,7 +709,7 @@ class InformeController extends Controller
                         ->where('cod_comentario', $comentarioExistente->cod_comentario)
                         ->update([
                             'comentarios' => $comentarios,
-                            'fecha_creacion' => \Carbon\Carbon::now()
+                            'fecha_creacion' => DB::raw("CONVERT(DATETIME, '" . \Carbon\Carbon::now()->format('Y-m-d H:i:s') . "', 120)")
                         ]);
                 }
             } else if (!empty($comentarios)) {
@@ -718,7 +718,7 @@ class InformeController extends Controller
                     'cod_informe' => $cod_informe,
                     'cod_sala' => $cod_sala,
                     'comentarios' => $comentarios,
-                    'fecha_creacion' => \Carbon\Carbon::now()
+                    'fecha_creacion' => DB::raw("CONVERT(DATETIME, '" . \Carbon\Carbon::now()->format('Y-m-d H:i:s') . "', 120)")
                 ]);
             }
 
