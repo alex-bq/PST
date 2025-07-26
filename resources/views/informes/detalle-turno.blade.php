@@ -698,6 +698,9 @@
                     @endif
                 </div>
 
+                <!-- Contenedor de error para subida de fotos -->
+                <div id="error-feedback" class="error-feedback hidden mt-2"></div>
+
                 <!-- NUEVO: Modal para editar comentario de foto -->
                 <div id="modal-comentario-foto"
                     class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 z-50 flex items-center justify-center">
@@ -1135,6 +1138,13 @@
             return new Promise((resolve, reject) => {
                 console.log(`🔄 Procesando: ${archivo.name} (${(archivo.size / 1024 / 1024).toFixed(2)}MB)`);
 
+                // Limpiar mensaje de error anterior
+                const errorDiv = document.getElementById('error-feedback');
+                if (errorDiv) {
+                    errorDiv.classList.add('hidden');
+                    errorDiv.textContent = '';
+                }
+
                 const formData = new FormData();
                 formData.append('foto', archivo);
                 formData.append('cod_informe', codInforme);
@@ -1149,6 +1159,13 @@
                     .then(response => {
                         console.log(`📡 Respuesta del servidor para ${archivo.name}:`, response.status);
                         if (!response.ok) {
+                            // Mostrar error en la interfaz
+                            response.json().then(data => {
+                                if (errorDiv) {
+                                    errorDiv.textContent = data.error || `HTTP ${response.status}: ${response.statusText}`;
+                                    errorDiv.classList.remove('hidden');
+                                }
+                            });
                             throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                         }
                         return response.json();
@@ -1160,11 +1177,32 @@
                             agregarFotoAGrid(data.foto);
                             resolve(data);
                         } else {
+                            // Mostrar error en la interfaz
+                            if (errorDiv) {
+                                errorDiv.textContent = data.error || 'Error desconocido del servidor';
+                                errorDiv.classList.remove('hidden');
+                            }
                             throw new Error(data.error || 'Error desconocido del servidor');
                         }
                     })
                     .catch(error => {
                         console.error(`❌ Error subiendo ${archivo.name}:`, error);
+                        // Mostrar error en la interfaz si no se mostró antes
+                        let mensajeUsuario = 'Ocurrió un error al subir la foto. Por favor, revisa los requisitos o contacta al administrador.';
+                        let mensajeTecnico = error.message || 'Error desconocido al subir la foto';
+                        if (errorDiv && errorDiv.textContent !== '') {
+                            mensajeUsuario = errorDiv.textContent;
+                        }
+                        Swal.fire({
+                            title: 'Error al subir foto',
+                            html: `<div style='text-align:left;'>
+                                    <b>Mensaje para usuario:</b><br>${mensajeUsuario}<br><br>
+                                    <b>Detalles técnicos:</b><br><code style='font-size:12px;'>${mensajeTecnico}</code>
+                                   </div>`,
+                            icon: 'error',
+                            confirmButtonText: 'Cerrar',
+                            width: 600
+                        });
                         reject(error);
                     });
             });
