@@ -721,8 +721,7 @@
                                             <!-- Entrega Frigorífico -->
                                             <div class="col-4">
                                                 <h6>Entrega M.P</h6>
-                                                <div id="entrega_piezas" class="mb-2"
-                                                    style="display: {{ $desc_planilla->cod_tipo_planilla == 2 || $desc_planilla->cod_tipo_planilla == 4 ? 'none' : 'block' }}">
+                                                                                <div id="entrega_piezas" class="mb-2">
                                                     <label for="piezasEntrega">Piezas:</label>
                                                     <input type="number" min="0" class="form-control form-control-sm"
                                                         id="piezasEntrega"
@@ -739,8 +738,7 @@
                                             <!-- Recepción Planta -->
                                             <div class="col-4">
                                                 <h6>Recepción Planta</h6>
-                                                <div id="recepcion_piezas" class="mb-2"
-                                                    style="display: {{ $desc_planilla->cod_tipo_planilla == 2 || $desc_planilla->cod_tipo_planilla == 4 ? 'none' : 'block' }}">
+                                                <div id="recepcion_piezas" class="mb-2">
                                                     <label for="piezasRecepcion">Piezas:</label>
                                                     <input type="number" min="0" class="form-control form-control-sm"
                                                         id="piezasRecepcion"
@@ -754,9 +752,8 @@
                                                     name="kilos_recepcion" placeholder="Kilos">
                                             </div>
 
-                                            <!-- Producto Terminado -->
-                                            <div class="col-4" id="producto_terminado"
-                                                style="display: {{ $desc_planilla->cod_tipo_planilla == 2 || $desc_planilla->cod_tipo_planilla == 4 ? 'block' : 'none' }}">
+                                            <!-- Producto Terminado - Oculto para todos los tipos de planilla -->
+                                            <div class="col-4" id="producto_terminado" style="display: none;">
                                                 <h6>Producto Terminado</h6>
                                                 <div class="mb-2">
                                                     <label for="embolsadoTerminado">Embolsado:</label>

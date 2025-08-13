@@ -638,23 +638,14 @@
                             // Si no hay datos para este día y turno, retornar null
                             if (turnoDataArray.length === 0) return null;
 
-                            // Sumar todas las piezas o kilos de recepción
+                            // Sumar todas las piezas o kilos de recepción (unificado)
                             let total = 0;
                             turnoDataArray.forEach(turnoData => {
-                                // Si es Porciones, usar kilos_recepcion, si no usar piezas_recepcion
-                                if (tipoPlanillaSelect.value === 'Porciones') {
-                                    total += Number(turnoData.kilos_recepcion || 0);
-                                } else if (tipoPlanillaSelect.value === 'Empaque') {
-                                    total += Number(turnoData.empaque || 0);
-                                } else {
-                                    total += Number(turnoData.piezas_recepcion || 0);
-                                }
+                                // Usar piezas_recepcion para todos los tipos
+                                total += Number(turnoData.piezas_recepcion || 0);
                             });
 
-                            // Para Filete, dividir las piezas por dos
-                            if (tipoPlanillaSelect.value === 'Filete') {
-                                total = total / 2;
-                            }
+                            // Cálculo unificado para todos los tipos de planilla
 
                             console.log(`Total para ${dia} - Turno ${turno}:`, {
                                 registros: turnoDataArray.length,
@@ -685,23 +676,14 @@
                             // Si no hay datos para este día y turno, retornar null
                             if (turnoDataArray.length === 0) return null;
 
-                            // Sumar todas las piezas o kilos de recepción
+                            // Sumar todas las piezas o kilos de recepción (unificado)
                             let total = 0;
                             turnoDataArray.forEach(turnoData => {
-                                // Si es Porciones, usar kilos_recepcion, si no usar piezas_recepcion
-                                if (tipoPlanillaSelect.value === 'Porciones') {
-                                    total += Number(turnoData.kilos_recepcion || 0);
-                                } else if (tipoPlanillaSelect.value === 'Empaque') {
-                                    total += Number(turnoData.empaque || 0);
-                                } else {
-                                    total += Number(turnoData.piezas_recepcion || 0);
-                                }
+                                // Usar piezas_recepcion para todos los tipos
+                                total += Number(turnoData.piezas_recepcion || 0);
                             });
 
-                            // Para Filete, dividir las piezas por dos
-                            if (tipoPlanillaSelect.value === 'Filete') {
-                                total = total / 2;
-                            }
+                            // Cálculo unificado para todos los tipos de planilla
 
                             console.log(`Total para ${dia} - Turno ${turnoSeleccionado}:`, {
                                 registros: turnoDataArray.length,
@@ -713,9 +695,8 @@
                     }];
                 }
 
-                // Determinar la unidad de medida según el tipo de planilla
-                const tipoPlanilla = tipoPlanillaSelect.value;
-                const unidadMedida = (tipoPlanilla === 'Porciones') ? 'Kilos' : (tipoPlanilla === 'Empaque') ? 'Unidades' : 'Piezas';
+                // Unidad de medida unificada para todos los tipos de planilla
+                const unidadMedida = 'Piezas';
 
                 const optionsProductividad = {
                     series: seriesProductividad,
@@ -789,7 +770,7 @@
                                         right: 10
                                     }
                                 },
-                                text: `Meta: ${metaProductividadInput.value} ${tipoPlanillaSelect.value === 'Porciones' ? 'kg' : (tipoPlanillaSelect.value === 'Empaque') ? 'unidades' : 'pzs'}`
+                                text: `Meta: ${metaProductividadInput.value} pzs`
                             }
                         }]
                     }
@@ -1647,19 +1628,11 @@
                 document.getElementById('kpiAusentismo').textContent = `${kpis.ausentismo}%`;
                 document.getElementById('kpiTiempoEfectivo').textContent = `${kpis.tiempoEfectivo}%`;
 
-                // Mostrar u ocultar el indicador Rendimiento Premium dependiendo del tipo de planilla
+                // Mostrar el indicador Rendimiento Premium para todos los tipos de planilla
                 const rendimientoPremiumElement = document.getElementById('indicadorRendimientoPremium');
-                if (tipoPlanillaSelect.value === 'Porciones') {
-                    // Ocultar el indicador si es Porciones
-                    if (rendimientoPremiumElement) {
-                        rendimientoPremiumElement.style.display = 'none';
-                    }
-                } else {
-                    // Mostrar el indicador si no es Porciones
-                    if (rendimientoPremiumElement) {
-                        rendimientoPremiumElement.style.display = '';
-                        document.getElementById('kpiRendimientoPremium').textContent = `${kpis.rendimientoPremium}%`;
-                    }
+                if (rendimientoPremiumElement) {
+                    rendimientoPremiumElement.style.display = '';
+                    document.getElementById('kpiRendimientoPremium').textContent = `${kpis.rendimientoPremium}%`;
                 }
 
                 document.getElementById('kpiRendimientoGeneral').textContent = `${kpis.rendimientoGeneral}%`;

@@ -411,8 +411,9 @@ $(document).ready(function () {
         }
 
         if (tipoPlanilla === TIPO_FILETE) {
-            if (piezasEntrega <= 0 || piezasRecepcion <= 0) {
-                errores.push("Las piezas deben ser mayores a 0");
+            // Para Filete, validar que al menos uno de los dos (piezas o kilos) sea mayor a 0
+            if ((piezasEntrega <= 0 && kilosEntrega <= 0) || (piezasRecepcion <= 0 && kilosRecepcion <= 0)) {
+                errores.push("Debe ingresar al menos piezas o kilos mayores a 0");
             }
         } else if (tipoPlanilla === TIPO_PORCION) {
             // Para planillas tipo porción no validamos piezas
