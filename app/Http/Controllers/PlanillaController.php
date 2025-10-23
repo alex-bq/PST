@@ -101,11 +101,16 @@ class PlanillaController extends Controller
         $calidades = DB::select('SELECT cod_cald,nombre FROM pst.dbo.calidad WHERE activo = 1 ORDER BY nombre ASC;');
         $destinos = DB::select('SELECT cod_destino,nombre FROM pst.dbo.destino WHERE activo = 1 ORDER BY nombre ASC;');
 
-        $empresas = DB::select('SELECT cod_empresa,descripcion FROM bdsystem.dbo.empresas WHERE inactivo=0 ORDER BY descripcion ASC;');
-        $procesos = DB::select('SELECT cod_sproceso,UPPER(nombre) as nombre FROM bdsystem.dbo.subproceso WHERE inactivo=0 ORDER BY nombre ASC;');
-        $proveedores = DB::select('SELECT cod_proveedor,descripcion FROM bdsystem.dbo.proveedores WHERE inactivo=0 ORDER BY descripcion ASC;');
-        $especies = DB::select('SELECT cod_especie,descripcion FROM bdsystem.dbo.especies WHERE inactivo=0 ORDER BY descripcion ASC;');
-        $turnos = DB::select('SELECT id,nombre FROM administracion.dbo.tipos_turno WHERE activo=1 ORDER BY nombre ASC;');
+        // Obtener empresas únicas desde lomar_prod
+        $empresas = DB::connection('lomar_prod')->select('SELECT DISTINCT empresa as descripcion FROM v_lotes_pst ORDER BY empresa ASC;');
+        // Obtener procesos únicos desde lomar_prod
+        $procesos = DB::connection('lomar_prod')->select('SELECT DISTINCT proceso as nombre FROM v_lotes_pst ORDER BY proceso ASC;');
+        // Obtener proveedores únicos desde lomar_prod
+        $proveedores = DB::connection('lomar_prod')->select('SELECT DISTINCT proveedor as descripcion FROM v_lotes_pst ORDER BY proveedor ASC;');
+        // Obtener especies únicas desde lomar_prod
+        $especies = DB::connection('lomar_prod')->select('SELECT DISTINCT especie as descripcion FROM v_lotes_pst ORDER BY especie ASC;');
+        // Obtener turnos desde administracion
+        $turnos = DB::select('SELECT id,nombre FROM [administracion].[dbo].[tipos_turno] WHERE activo=1 ORDER BY nombre ASC;');
         $supervisores = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=2 AND activo = 1 ORDER BY nombre ASC;');
         $planilleros = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=1 AND activo = 1 ORDER BY nombre ASC;');
         $jefes_turno = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=4 AND activo = 1 ORDER BY nombre ASC;');

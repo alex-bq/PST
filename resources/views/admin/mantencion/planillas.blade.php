@@ -268,7 +268,7 @@
                                     <select class="form-control" style="width: 100%" name="empresa" disabled>
                                         <option selected disabled></option>
                                         @foreach ($empresas as $empresa)
-                                            <option value="{{ $empresa->cod_empresa }}">{{ $empresa->descripcion }}
+                                            <option value="{{ $empresa->descripcion }}">{{ $empresa->descripcion }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -280,7 +280,7 @@
                                     <select class="form-control" name="proveedor" disabled>
                                         <option selected disabled></option>
                                         @foreach ($proveedores as $proveedor)
-                                            <option value="{{ $proveedor->cod_proveedor }}">{{ $proveedor->descripcion }}
+                                            <option value="{{ $proveedor->descripcion }}">{{ $proveedor->descripcion }}
                                             </option>
                                         @endforeach
                                     </select>
@@ -296,7 +296,7 @@
                                     <select class="form-control" name="especie" disabled>
                                         <option selected disabled></option>
                                         @foreach ($especies as $especie)
-                                            <option value="{{ $especie->cod_especie }}">{{ $especie->descripcion }}</option>
+                                            <option value="{{ $especie->descripcion }}">{{ $especie->descripcion }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -307,7 +307,7 @@
                                     <select class="form-control" name="proceso" disabled>
                                         <option selected disabled></option>
                                         @foreach ($procesos as $proceso)
-                                            <option value="{{ $proceso->cod_sproceso }}">{{ $proceso->nombre }}</option>
+                                            <option value="{{ $proceso->nombre }}">{{ $proceso->nombre }}</option>
                                         @endforeach
                                     </select>
                                 </div>
@@ -463,10 +463,10 @@
                         'lote': loteValue
                     },
                     success: function (response) {
-                        $('select[name="empresa"]').val(response.cod_empresa)
-                        $('select[name="proveedor"]').val(response.cod_proveedor)
-                        $('select[name="especie"]').val(response.cod_especie)
-                        $('select[name="proceso"]').val(response.cod_sproceso)
+                        $('select[name="empresa"]').val(response.empresa)
+                        $('select[name="proveedor"]').val(response.proveedor)
+                        $('select[name="especie"]').val(response.especie)
+                        $('select[name="proceso"]').val(response.proceso)
                         $('#mensajeError').hide()
                     },
                     error: function (xhr) {

@@ -31,11 +31,47 @@ class IndexController extends Controller
             return redirect('/login');
         }
 
-        $empresas = DB::select('SELECT cod_empresa,descripcion FROM bdsystem.dbo.empresas WHERE inactivo=0 ORDER BY descripcion ASC;');
-        $procesos = DB::select('SELECT cod_sproceso,UPPER(nombre) as nombre FROM bdsystem.dbo.subproceso WHERE inactivo=0 ORDER BY nombre ASC;');
-        $proveedores = DB::select('SELECT cod_proveedor,descripcion FROM bdsystem.dbo.proveedores WHERE inactivo=0 ORDER BY descripcion ASC;');
-        $especies = DB::select('SELECT cod_especie,descripcion FROM bdsystem.dbo.especies WHERE inactivo=0 ORDER BY descripcion ASC;');
-        $turnos = DB::select('SELECT id,nombre FROM administracion.dbo.tipos_turno WHERE activo=1 ORDER BY id ASC;');
+        // Obtener datos únicos desde lomar_prod (sin duplicados)
+        $empresas = DB::connection('lomar_prod')
+            ->table('v_lotes_pst')
+            ->select('empresa as descripcion')
+            ->distinct()
+            ->orderBy('empresa')
+            ->get()
+            ->map(function ($item) {
+                return (object) ['descripcion' => $item->descripcion];
+            });
+
+        $procesos = DB::connection('lomar_prod')
+            ->table('v_lotes_pst')
+            ->select('proceso as nombre')
+            ->distinct()
+            ->orderBy('proceso')
+            ->get()
+            ->map(function ($item) {
+                return (object) ['nombre' => strtoupper($item->nombre)];
+            });
+
+        $proveedores = DB::connection('lomar_prod')
+            ->table('v_lotes_pst')
+            ->select('proveedor as descripcion')
+            ->distinct()
+            ->orderBy('proveedor')
+            ->get()
+            ->map(function ($item) {
+                return (object) ['descripcion' => $item->descripcion];
+            });
+
+        $especies = DB::connection('lomar_prod')
+            ->table('v_lotes_pst')
+            ->select('especie as descripcion')
+            ->distinct()
+            ->orderBy('especie')
+            ->get()
+            ->map(function ($item) {
+                return (object) ['descripcion' => $item->descripcion];
+            });
+        $turnos = DB::select('SELECT id,nombre FROM [administracion].[dbo].[tipos_turno] WHERE activo=1 ORDER BY id ASC;');
         $supervisores = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=2 AND activo = 1 ORDER BY nombre ASC;');
         $planilleros = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=1 AND activo = 1 ORDER BY nombre ASC;');
         $jefes_turno = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=4 AND activo = 1 ORDER BY nombre ASC;');
@@ -87,7 +123,7 @@ class IndexController extends Controller
 
 
 
-        return view('index', compact('procesos', 'empresas', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'jefes_turno', 'planillasHoy', 'planillas7dias', 'noGuardado', 'tipos_planilla'));
+        return view('index', compact('turnos', 'supervisores', 'planilleros', 'jefes_turno', 'planillasHoy', 'planillas7dias', 'noGuardado', 'tipos_planilla'));
     }
 
     public function planillas(Request $request)
@@ -96,15 +132,18 @@ class IndexController extends Controller
             return redirect('/login');
         }
 
-        $empresas = DB::select('SELECT cod_empresa,descripcion FROM bdsystem.dbo.empresas WHERE inactivo=0 ORDER BY descripcion ASC;');
-        $procesos = DB::select('SELECT cod_sproceso,UPPER(nombre) as nombre FROM bdsystem.dbo.subproceso WHERE inactivo=0 ORDER BY nombre ASC;');
-        $proveedores = DB::select('SELECT cod_proveedor,descripcion FROM bdsystem.dbo.proveedores WHERE inactivo=0 ORDER BY descripcion ASC;');
-        $especies = DB::select('SELECT cod_especie,descripcion FROM bdsystem.dbo.especies WHERE inactivo=0 ORDER BY descripcion ASC;');
-        $turnos = DB::select('SELECT id,nombre FROM administracion.dbo.tipos_turno WHERE activo=1 ORDER BY id ASC;');
+        // Datos obtenidos desde lomar_prod (líneas 34-73)
+        $turnos = DB::select('SELECT id,nombre FROM [administracion].[dbo].[tipos_turno] WHERE activo=1 ORDER BY id ASC;');
         $supervisores = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=2 AND activo = 1 ORDER BY nombre ASC;');
         $planilleros = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=1 AND activo = 1 ORDER BY nombre ASC;');
         $jefes_turno = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=4 AND activo = 1 ORDER BY nombre ASC;');
         $tipos_planilla = DB::select('SELECT cod_tipo_planilla, nombre FROM pst.dbo.tipo_planilla WHERE activo = 1 ORDER BY nombre ASC;');
+
+        // Obtener datos únicos desde lomar_prod para los filtros
+        $empresas = DB::connection('lomar_prod')->select('SELECT DISTINCT empresa as descripcion FROM v_lotes_pst ORDER BY empresa ASC;');
+        $procesos = DB::connection('lomar_prod')->select('SELECT DISTINCT proceso as nombre FROM v_lotes_pst ORDER BY proceso ASC;');
+        $proveedores = DB::connection('lomar_prod')->select('SELECT DISTINCT proveedor as descripcion FROM v_lotes_pst ORDER BY proveedor ASC;');
+        $especies = DB::connection('lomar_prod')->select('SELECT DISTINCT especie as descripcion FROM v_lotes_pst ORDER BY especie ASC;');
 
         $planillas = DB::table('pst.dbo.v_planilla_pst')
             ->select('*')
@@ -158,16 +197,16 @@ class IndexController extends Controller
         $planillas = $planillas->orderByDesc('fec_turno')->get();
 
         return view('admin.mantencion.planillas', compact(
-            'procesos',
-            'empresas',
-            'proveedores',
-            'especies',
             'turnos',
             'supervisores',
             'planilleros',
             'jefes_turno',
             'planillas',
-            'tipos_planilla'
+            'tipos_planilla',
+            'empresas',
+            'procesos',
+            'proveedores',
+            'especies'
         ));
     }
     public function eliminarPlanilla($idPlanilla)
@@ -231,21 +270,27 @@ class IndexController extends Controller
     {
         $loteValue = $request->input('lote');
 
-        $result = DB::table('bdsystem.dbo.lotes')
-            ->leftJoin('bdsystem.dbo.detalle_lote', 'bdsystem.dbo.lotes.cod_lote', '=', 'bdsystem.dbo.detalle_lote.cod_lote')
-            ->where('nombre', $loteValue)
-            ->select('cod_empresa', 'bdsystem.dbo.detalle_lote.cod_proveedor', 'cod_especie', 'cod_sproceso')
+        // Buscar en lomar_prod usando la vista v_lotes_pst
+        $result = DB::connection('lomar_prod')
+            ->table('v_lotes_pst')
+            ->where('nombre_lote', $loteValue)
+            ->select('id_lote', 'nombre_lote', 'empresa', 'proveedor', 'especie', 'proceso', 'planta')
             ->first();
 
         if (!$result) {
-            // Muestra un mensaje en el terminal
-
             return response()->json(['error' => 'El lote no existe.'], 422);
         }
 
-
-
-        return response()->json($result);
+        // Retornar en el formato esperado por el frontend
+        return response()->json([
+            'id_lote' => $result->id_lote,
+            'nombre_lote' => $result->nombre_lote,
+            'empresa' => $result->empresa,
+            'proveedor' => $result->proveedor,
+            'especie' => $result->especie,
+            'proceso' => $result->proceso,
+            'planta' => $result->planta
+        ]);
     }
 
     public function procesarFormulario(Request $request)
@@ -265,34 +310,36 @@ class IndexController extends Controller
             'jefeTurno' => 'required',
         ]);
 
-        $loteExistente = DB::table('bdsystem.dbo.lotes')
-            ->where('nombre', $request->input('codLote'))
-            ->exists();
+        // Verificar que el lote existe en lomar_prod
+        $loteData = DB::connection('lomar_prod')
+            ->table('v_lotes_pst')
+            ->where('nombre_lote', $request->input('codLote'))
+            ->first();
 
-        if (!$loteExistente) {
+        if (!$loteData) {
             return response()->json(['error' => 'El lote no existe.'], 422);
         }
 
-        $idLote = DB::table('bdsystem.dbo.lotes')
-            ->where('nombre', $request->input('codLote'))
-            ->value('cod_lote');
-
         try {
+            // Insertar usando las nuevas columnas (strings de lomar_prod)
             DB::table('pst.dbo.planillas_pst')->insert([
                 'cod_tipo_planilla' => $request->input('tipo_planilla'),
-                'cod_lote' => $idLote,
                 'fec_turno' => $request->input('fechaTurno'),
                 'hora_inicio' => $request->input('horaInicio'),
                 'cod_turno' => $request->input('turno'),
-                'cod_empresa' => $request->input('empresa'),
-                'cod_proveedor' => $request->input('proveedor'),
-                'cod_especie' => $request->input('especie'),
-                'cod_proceso' => $request->input('proceso'),
                 'cod_planillero' => $request->input('planillero'),
                 'cod_supervisor' => $request->input('supervisor'),
                 'cod_usuario_crea_planilla' => session('user.cod_usuario'),
                 'cod_jefe_turno' => $request->input('jefeTurno'),
                 'guardado' => 0,
+                // Nuevas columnas de lomar_prod
+                'lote_id_mp' => $loteData->id_lote,
+                'lote_nombre' => $loteData->nombre_lote,
+                'empresa_nombre' => $loteData->empresa,
+                'proveedor_nombre' => $loteData->proveedor,
+                'especie_nombre' => $loteData->especie,
+                'proceso_nombre' => $loteData->proceso,
+                'planta_nombre' => $loteData->planta,
             ]);
             $idPlanilla = DB::table('pst.dbo.planillas_pst')
                 ->orderBy('cod_planilla', 'desc')
@@ -311,9 +358,9 @@ class IndexController extends Controller
 
         $query = DB::table('pst.dbo.v_planilla_pst')->select('*')->orderByDesc('fec_turno')->where('guardado', 1);
 
-
         if (!empty($filtroLote)) {
-            $query->where('lote', 'LIKE', '%' . $filtroLote . '%');
+            // Usar la nueva columna lote_nombre en lugar de lote
+            $query->where('lote_nombre', 'LIKE', '%' . $filtroLote . '%');
         }
 
         $resultados = $query->get();

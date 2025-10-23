@@ -725,13 +725,13 @@
                                                     <label for="piezasEntrega">Piezas:</label>
                                                     <input type="number" min="0" class="form-control form-control-sm"
                                                         id="piezasEntrega"
-                                                        value="{{ round($detalle_planilla->piezas_entrega) }}"
+                                                        value="{{ $detalle_planilla ? round($detalle_planilla->piezas_entrega) : 0 }}"
                                                         name="piezas_entrega" placeholder="Piezas">
                                                 </div>
                                                 <label for="kilosEntrega">Kilos:</label>
                                                 <input type="number" min="0" class="form-control form-control-sm"
                                                     id="kilosEntrega"
-                                                    value="{{ round($detalle_planilla->kilos_entrega, 2) }}"
+                                                    value="{{ $detalle_planilla ? round($detalle_planilla->kilos_entrega, 2) : 0 }}"
                                                     name="kilos_entrega" placeholder="Kilos">
                                             </div>
 
@@ -742,13 +742,13 @@
                                                     <label for="piezasRecepcion">Piezas:</label>
                                                     <input type="number" min="0" class="form-control form-control-sm"
                                                         id="piezasRecepcion"
-                                                        value="{{ round($detalle_planilla->piezas_recepcion) }}"
+                                                        value="{{ $detalle_planilla ? round($detalle_planilla->piezas_recepcion) : 0 }}"
                                                         name="piezas_recepcion" placeholder="Piezas">
                                                 </div>
                                                 <label for="kilosRecepcion">Kilos:</label>
                                                 <input type="number" min="0" class="form-control form-control-sm"
                                                     id="kilosRecepcion"
-                                                    value="{{ round($detalle_planilla->kilos_recepcion, 2) }}"
+                                                    value="{{ $detalle_planilla ? round($detalle_planilla->kilos_recepcion, 2) : 0 }}"
                                                     name="kilos_recepcion" placeholder="Kilos">
                                             </div>
 
@@ -759,13 +759,13 @@
                                                     <label for="embolsadoTerminado">Embolsado:</label>
                                                     <input type="number" min="0" class="form-control form-control-sm"
                                                         id="embolsadoTerminado" name="embolsado_terminado"
-                                                        value="{{ isset($detalle_planilla->embolsado_terminado) ? $detalle_planilla->embolsado_terminado : '' }}"
+                                                        value="{{ $detalle_planilla && isset($detalle_planilla->embolsado_terminado) ? $detalle_planilla->embolsado_terminado : '' }}"
                                                         placeholder="Embolsado">
                                                 </div>
                                                 <label for="kilosTerminado">Kilos:</label>
                                                 <input type="number" min="0" class="form-control form-control-sm"
                                                     id="kilosTerminado" name="kilos_terminado"
-                                                    value="{{ isset($detalle_planilla->kilos_terminado) ? round($detalle_planilla->kilos_terminado, 2) : '' }}"
+                                                    value="{{ $detalle_planilla && isset($detalle_planilla->kilos_terminado) ? round($detalle_planilla->kilos_terminado, 2) : '' }}"
                                                     placeholder="Kilos" step="0.01">
                                             </div>
                                         </div>
@@ -792,7 +792,7 @@
                                                     <option value="" selected disabled hidden>Selecciona una sala</option>
                                                     @foreach ($salas as $sala)
                                                                                                     @php
-                                                                                                        $selected = ($detalle_planilla && $sala->cod_sala == $detalle_planilla->cod_sala) ? 'selected' : '';
+                                                                                                        $selected = ($detalle_planilla && isset($detalle_planilla->cod_sala) && $sala->cod_sala == $detalle_planilla->cod_sala) ? 'selected' : '';
                                                                                                     @endphp
                                                                                                     <option value="{{ $sala->cod_sala }}" {{ $selected }}>
                                                                                                         {{ $sala->nombre }}
@@ -801,13 +801,13 @@
                                                 </select>
                                                 <h6>Dotación</h6>
                                                 <input type="number" min="1" class="form-control" name="dotacion"
-                                                    id="dotacion" value="{{ $detalle_planilla->dotacion }}"
+                                                    id="dotacion" value="{{ $detalle_planilla ? $detalle_planilla->dotacion : '' }}"
                                                     placeholder="Dotacion" required>
                                             </div>
                                             <div class="col">
                                                 <h6>Observación</h6>
                                                 <textarea class="form-control" name="observacion" id="observacion"
-                                                    style="height: 108px;">{{ $detalle_planilla->observacion }}</textarea>
+                                                    style="height: 108px;">{{ $detalle_planilla ? $detalle_planilla->observacion : '' }}</textarea>
                                             </div>
                                         </div>
                                     </div>

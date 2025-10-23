@@ -95,6 +95,21 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        // Nueva conexión para lomar_prod
+        'lomar_prod' => [
+            'driver' => 'sqlsrv',
+            'url' => env('DATABASE_URL'),
+            'host' => env('DB_HOST_LOMAR', env('DB_HOST', 'localhost')),
+            'port' => env('DB_PORT_LOMAR', '1433'),
+            'database' => 'lomar_prod',
+            'username' => env('DB_USERNAME_LOMAR', env('DB_USERNAME', 'forge')),
+            'password' => env('DB_PASSWORD_LOMAR', env('DB_PASSWORD', '')),
+            'charset' => 'utf8',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'encrypt' => env('DB_ENCRYPT', 'false'),
+        ],
+
     ],
 
     /*

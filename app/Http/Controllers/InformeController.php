@@ -481,7 +481,7 @@ class InformeController extends Controller
                         dp.dotacion,
                     dp.kilos_entrega,
                         dp.kilos_recepcion as pst_total,
-                        emp.descripcion,
+                        p.empresa_nombre as descripcion,
                         dp.cod_sala,
                         p.cod_tipo_planilla,
                         p.guardado,
@@ -489,12 +489,12 @@ class InformeController extends Controller
                 FROM pst.dbo.planillas_pst p
                 LEFT JOIN pst.dbo.usuarios_pst u ON p.cod_planillero = u.cod_usuario
                     LEFT JOIN pst.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
-                LEFT JOIN bdsystem.dbo.empresas emp ON p.cod_empresa = emp.cod_empresa
+                -- Usar empresa_nombre directamente de planillas_pst
                     LEFT JOIN pst.dbo.sala s ON dp.cod_sala = s.cod_sala
                 WHERE p.fec_turno = ? 
                 AND p.cod_turno = ? 
                 AND p.guardado = 1
-                    ORDER BY emp.descripcion, s.nombre, p.cod_planilla
+                    ORDER BY p.empresa_nombre, s.nombre, p.cod_planilla
             ", [$fecha_formateada, $turno]);
             } catch (\Exception $e) {
                 // Si hay error con las planillas, usar array vacío
@@ -1120,7 +1120,7 @@ class InformeController extends Controller
                         dp.dotacion,
                         dp.kilos_entrega,
                         dp.kilos_recepcion as pst_total,
-                        emp.descripcion,
+                        p.empresa_nombre as descripcion,
                         dp.cod_sala,
                         p.cod_tipo_planilla,
                         p.guardado,
@@ -1128,7 +1128,7 @@ class InformeController extends Controller
                     FROM pst.dbo.planillas_pst p
                     LEFT JOIN pst.dbo.usuarios_pst u ON p.cod_planillero = u.cod_usuario
                     LEFT JOIN pst.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
-                    LEFT JOIN bdsystem.dbo.empresas emp ON p.cod_empresa = emp.cod_empresa
+                    -- Usar empresa_nombre directamente de planillas_pst
                     LEFT JOIN pst.dbo.sala s ON dp.cod_sala = s.cod_sala
                     WHERE p.fec_turno = ?
                     AND p.cod_turno = ?
@@ -1290,7 +1290,7 @@ class InformeController extends Controller
                         dp.dotacion,
                         dp.kilos_entrega,
                         dp.kilos_recepcion as pst_total,
-                        emp.descripcion,
+                        p.empresa_nombre as descripcion,
                         dp.cod_sala,
                         p.cod_tipo_planilla,
                         p.guardado,
@@ -1298,7 +1298,7 @@ class InformeController extends Controller
                     FROM pst.dbo.planillas_pst p
                     LEFT JOIN pst.dbo.usuarios_pst u ON p.cod_planillero = u.cod_usuario
                     LEFT JOIN pst.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
-                    LEFT JOIN bdsystem.dbo.empresas emp ON p.cod_empresa = emp.cod_empresa
+                    -- Usar empresa_nombre directamente de planillas_pst
                     LEFT JOIN pst.dbo.sala s ON dp.cod_sala = s.cod_sala
                     WHERE p.fec_turno = ?
                     AND p.cod_turno = ?

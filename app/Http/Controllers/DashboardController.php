@@ -34,36 +34,37 @@ class DashboardController extends Controller
                 // Obtener datos de empaque premium
                 $empaqueQuery = DB::select("
                     SELECT 
-                        CAST(Registro_Sistema AS DATE) AS fecha_turno,
-                        N_Turno AS turno,
-                        Producto,
-                        Empresa,
-                        COUNT(DISTINCT N_Lote) AS cantidad_lotes,
-                        SUM(CAST(N_PNom AS FLOAT)) AS total_kilos,
-                        SUM(piezas) AS total_piezas
-                    FROM bdsystem.dbo.v_empaque
+                        p.fec_turno AS fecha_turno,
+                        p.cod_turno AS turno,
+                        p.empresa_nombre AS Empresa,
+                        p.lote_nombre AS Producto,
+                        COUNT(DISTINCT p.lote_nombre) AS cantidad_lotes,
+                        SUM(CAST(dp.kilos_terminado AS FLOAT)) AS total_kilos,
+                        SUM(dp.piezas_recepcion) AS total_piezas
+                    FROM pst.dbo.planillas_pst p
+                    INNER JOIN pst.dbo.detalle_planilla_pst dp ON p.cod_planilla = dp.cod_planilla
+                    INNER JOIN pst.dbo.sala s ON dp.cod_sala = s.cod_sala
                     WHERE 
-                        CAST(Registro_Sistema AS DATE) BETWEEN ? AND ?
-                        AND N_Calidad = 'PREMIUM'
+                        p.fec_turno BETWEEN ? AND ?
+                        AND p.guardado = 1
                         AND (
-                            (N_IDTurno = 1 AND CAST(Registro_Sistema AS TIME) BETWEEN '08:00:00' AND '17:30:00')
+                            (p.cod_turno = 1 AND p.hora_inicio BETWEEN '08:00:00' AND '17:30:00')
                             OR 
-                            (N_IDTurno = 3 AND (
-                                CAST(Registro_Sistema AS TIME) BETWEEN '20:00:00' AND '23:59:59'
+                            (p.cod_turno = 3 AND (
+                                p.hora_inicio BETWEEN '20:00:00' AND '23:59:59'
                                 OR 
-                                CAST(Registro_Sistema AS TIME) BETWEEN '00:00:00' AND '05:30:00'
+                                p.hora_inicio BETWEEN '00:00:00' AND '05:30:00'
                             ))
                         )
-                        AND N_MotivoSalida IN('Despacho a Cliente','En Stock')
                     GROUP BY 
-                        CAST(Registro_Sistema AS DATE),
-                        N_Turno,
-                        Producto,
-                        Empresa
+                        p.fec_turno,
+                        p.cod_turno,
+                        p.lote_nombre,
+                        p.empresa_nombre
                     ORDER BY 
-                        CAST(Registro_Sistema AS DATE) DESC,
-                        N_Turno,
-                        SUM(CAST(N_PNom AS FLOAT)) DESC
+                        p.fec_turno DESC,
+                        p.cod_turno,
+                        SUM(CAST(dp.kilos_terminado AS FLOAT)) DESC
                 ", [$inicioSemana->format('Y-m-d'), $finSemana->format('Y-m-d')]);
 
                 // Obtener datos de productividad de empaque
@@ -78,7 +79,7 @@ class DashboardController extends Controller
                         i.tiempo_muerto_empaque,
                         i.productividad_empaque
                     FROM pst.dbo.informes_turno i
-                    JOIN bdsystem.dbo.turno t ON i.cod_turno = t.CodTurno
+                    -- Usar directamente cod_turno de informes_turno
                     WHERE 
                         i.fecha_turno BETWEEN ? AND ?
                         AND i.estado = 1

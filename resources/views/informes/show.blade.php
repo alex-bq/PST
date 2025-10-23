@@ -1,3 +1,7 @@
+@php
+    use Illuminate\Support\Facades\DB;
+@endphp
+
 @extends('layouts.main-iframe')
 
 @section('title', 'Visualización del Informe de Turno')
@@ -267,7 +271,14 @@
                                 <!-- Proceso/Tipo de Planilla -->
                                 <div class="border rounded-lg p-6 space-y-6 bg-gray-50">
                                     <div class="flex items-center justify-between">
-                                        <h3 class="font-semibold text-xl text-gray-800">{{ $sala->tipo_planilla }}</h3>
+                                        <h3 class="font-semibold text-xl text-gray-800">
+                                            @php
+                                                // Obtener nombre del tipo de planilla desde la base de datos
+                                                $tipo_planilla = DB::select("SELECT nombre FROM pst.dbo.tipo_planilla WHERE cod_tipo_planilla = ?", [$sala->cod_tipo_planilla]);
+                                                $nombre_tipo = $tipo_planilla ? $tipo_planilla[0]->nombre : 'Tipo ' . $sala->cod_tipo_planilla;
+                                            @endphp
+                                            {{ $nombre_tipo }}
+                                        </h3>
                                         @php
                                             // Obtener empresas para esta sala y tipo
                                             $empresas_en_sala = collect($detalle_procesamiento)
@@ -1065,6 +1076,6 @@
             salas: {{ count($informacion_sala) }},
             comentarios: {{ $comentarios_salas->count() }},
             fotos: {{ $fotos_informe->count() }}
-                        });
+                            });
     </script>
 @endsection
