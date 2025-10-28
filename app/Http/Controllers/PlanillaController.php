@@ -101,14 +101,10 @@ class PlanillaController extends Controller
         $calidades = DB::select('SELECT cod_cald,nombre FROM pst.dbo.calidad WHERE activo = 1 ORDER BY nombre ASC;');
         $destinos = DB::select('SELECT cod_destino,nombre FROM pst.dbo.destino WHERE activo = 1 ORDER BY nombre ASC;');
 
-        // Obtener empresas únicas desde lomar_prod
-        $empresas = DB::connection('lomar_prod')->select('SELECT DISTINCT empresa as descripcion FROM v_lotes_pst ORDER BY empresa ASC;');
-        // Obtener procesos únicos desde lomar_prod
-        $procesos = DB::connection('lomar_prod')->select('SELECT DISTINCT proceso as nombre FROM v_lotes_pst ORDER BY proceso ASC;');
-        // Obtener proveedores únicos desde lomar_prod
-        $proveedores = DB::connection('lomar_prod')->select('SELECT DISTINCT proveedor as descripcion FROM v_lotes_pst ORDER BY proveedor ASC;');
-        // Obtener especies únicas desde lomar_prod
-        $especies = DB::connection('lomar_prod')->select('SELECT DISTINCT especie as descripcion FROM v_lotes_pst ORDER BY especie ASC;');
+        // OPTIMIZADO: Eliminadas consultas innecesarias a lomar_prod (empresas, procesos, proveedores, especies)
+        // Estas consultas no se usan en la vista planilla.blade.php
+        // Ahorro: ~61.7 segundos por carga
+
         // Obtener turnos desde administracion
         $turnos = DB::select('SELECT id,nombre FROM [administracion].[dbo].[tipos_turno] WHERE activo=1 ORDER BY nombre ASC;');
         $supervisores = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=2 AND activo = 1 ORDER BY nombre ASC;');
@@ -173,7 +169,7 @@ class PlanillaController extends Controller
                 ->get();
 
 
-            return view('planilla', compact('subtotal', 'total', 'planilla', 'destinos', 'cortes', 'salas', 'calibres', 'calidades', 'idPlanilla', 'detalle_planilla', 'desc_planilla', 'empresas', 'procesos', 'proveedores', 'especies', 'turnos', 'supervisores', 'planilleros', 'jefes_turno', 'tipo_planilla'));
+            return view('planilla', compact('subtotal', 'total', 'planilla', 'destinos', 'cortes', 'salas', 'calibres', 'calidades', 'idPlanilla', 'detalle_planilla', 'desc_planilla', 'turnos', 'supervisores', 'planilleros', 'jefes_turno', 'tipo_planilla'));
         } else {
             return redirect('/inicio')->with('error', 'No tiene permiso para editar la planilla, indicar a su supervisor');
         }

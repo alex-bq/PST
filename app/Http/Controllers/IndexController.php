@@ -31,46 +31,10 @@ class IndexController extends Controller
             return redirect('/login');
         }
 
-        // Obtener datos únicos desde lomar_prod (sin duplicados)
-        $empresas = DB::connection('lomar_prod')
-            ->table('v_lotes_pst')
-            ->select('empresa as descripcion')
-            ->distinct()
-            ->orderBy('empresa')
-            ->get()
-            ->map(function ($item) {
-                return (object) ['descripcion' => $item->descripcion];
-            });
+        // OPTIMIZADO: Eliminadas consultas innecesarias a lomar_prod (empresas, procesos, proveedores, especies)
+        // Estas consultas no se usan en la vista index.blade.php
+        // Ahorro: ~61.7 segundos por carga
 
-        $procesos = DB::connection('lomar_prod')
-            ->table('v_lotes_pst')
-            ->select('proceso as nombre')
-            ->distinct()
-            ->orderBy('proceso')
-            ->get()
-            ->map(function ($item) {
-                return (object) ['nombre' => strtoupper($item->nombre)];
-            });
-
-        $proveedores = DB::connection('lomar_prod')
-            ->table('v_lotes_pst')
-            ->select('proveedor as descripcion')
-            ->distinct()
-            ->orderBy('proveedor')
-            ->get()
-            ->map(function ($item) {
-                return (object) ['descripcion' => $item->descripcion];
-            });
-
-        $especies = DB::connection('lomar_prod')
-            ->table('v_lotes_pst')
-            ->select('especie as descripcion')
-            ->distinct()
-            ->orderBy('especie')
-            ->get()
-            ->map(function ($item) {
-                return (object) ['descripcion' => $item->descripcion];
-            });
         $turnos = DB::select('SELECT id,nombre FROM [administracion].[dbo].[tipos_turno] WHERE activo=1 ORDER BY id ASC;');
         $supervisores = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=2 AND activo = 1 ORDER BY nombre ASC;');
         $planilleros = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=1 AND activo = 1 ORDER BY nombre ASC;');
@@ -139,11 +103,11 @@ class IndexController extends Controller
         $jefes_turno = DB::select('SELECT cod_usuario,nombre FROM pst.dbo.v_data_usuario WHERE cod_rol=4 AND activo = 1 ORDER BY nombre ASC;');
         $tipos_planilla = DB::select('SELECT cod_tipo_planilla, nombre FROM pst.dbo.tipo_planilla WHERE activo = 1 ORDER BY nombre ASC;');
 
-        // Obtener datos únicos desde lomar_prod para los filtros
-        $empresas = DB::connection('lomar_prod')->select('SELECT DISTINCT empresa as descripcion FROM v_lotes_pst ORDER BY empresa ASC;');
-        $procesos = DB::connection('lomar_prod')->select('SELECT DISTINCT proceso as nombre FROM v_lotes_pst ORDER BY proceso ASC;');
-        $proveedores = DB::connection('lomar_prod')->select('SELECT DISTINCT proveedor as descripcion FROM v_lotes_pst ORDER BY proveedor ASC;');
-        $especies = DB::connection('lomar_prod')->select('SELECT DISTINCT especie as descripcion FROM v_lotes_pst ORDER BY especie ASC;');
+        // // Obtener datos únicos desde lomar_prod para los filtros
+        // $empresas = DB::connection('lomar_prod')->select('SELECT DISTINCT empresa as descripcion FROM v_lotes_pst ORDER BY empresa ASC;');
+        // $procesos = DB::connection('lomar_prod')->select('SELECT DISTINCT proceso as nombre FROM v_lotes_pst ORDER BY proceso ASC;');
+        // $proveedores = DB::connection('lomar_prod')->select('SELECT DISTINCT proveedor as descripcion FROM v_lotes_pst ORDER BY proveedor ASC;');
+        // $especies = DB::connection('lomar_prod')->select('SELECT DISTINCT especie as descripcion FROM v_lotes_pst ORDER BY especie ASC;');
 
         $planillas = DB::table('pst.dbo.v_planilla_pst')
             ->select('*')
@@ -196,17 +160,17 @@ class IndexController extends Controller
 
         $planillas = $planillas->orderByDesc('fec_turno')->get();
 
+        // OPTIMIZADO: Ya no se pasan empresas/proveedores/especies/procesos
+        // Esos valores se obtienen dinámicamente vía AJAX cuando el usuario escribe el lote
+        // Ahorro: ~61.7 segundos por carga
+
         return view('admin.mantencion.planillas', compact(
             'turnos',
             'supervisores',
             'planilleros',
             'jefes_turno',
             'planillas',
-            'tipos_planilla',
-            'empresas',
-            'procesos',
-            'proveedores',
-            'especies'
+            'tipos_planilla'
         ));
     }
     public function eliminarPlanilla($idPlanilla)

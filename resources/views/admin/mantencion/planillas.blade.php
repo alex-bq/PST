@@ -74,29 +74,14 @@
                                 </div>
 
                                 <div class="col-md-3">
-                                    <select class="form-select js-example-basic-single" style="width: 100%"
-                                        name="filtroProv">
-                                        <option selected disabled>Proveedor</option>
-                                        <option value=" " selected disabled>Sin Filtro Proveedor</option>
-                                        @foreach ($proveedores as $proveedor)
-                                            <option value="{{ $proveedor->descripcion }}" {{ request('filtroProv') == $proveedor->descripcion ? 'selected' : '' }}>
-                                                {{ $proveedor->descripcion }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <!-- Proveedor: Ya no se usa dropdown estático, se obtiene dinámicamente vía AJAX -->
+                                    <input type="text" class="form-control" name="filtroProv" placeholder="Proveedor"
+                                        value="{{ request('filtroProv') }}" readonly style="background-color: #e9ecef;">
                                 </div>
                                 <div class="col-md-3">
-                                    <select class="form-select js-example-basic-single" style="width: 100%"
-                                        name="filtroEmpresa">
-                                        <option selected disabled>Filtro Empresa</option>
-                                        <option value=" " selected disabled>Sin Filtro Empresa</option>
-
-                                        @foreach ($empresas as $empresa)
-                                            <option value="{{ $empresa->descripcion }}" {{ request('filtroEmpresa') == $empresa->descripcion ? 'selected' : '' }}>
-                                                {{ $empresa->descripcion }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <!-- Empresa: Ya no se usa dropdown estático, se obtiene dinámicamente vía AJAX -->
+                                    <input type="text" class="form-control" name="filtroEmpresa" placeholder="Empresa"
+                                        value="{{ request('filtroEmpresa') }}" readonly style="background-color: #e9ecef;">
                                 </div>
 
 
@@ -104,17 +89,9 @@
                             <br>
                             <div class="row">
                                 <div class="col-md-3">
-                                    <select class="form-select js-example-basic-single" style="width: 100%"
-                                        name="filtroEspecie">
-                                        <option selected disabled>Filtro Especie</option>
-                                        <option value=" " selected disabled>Sin Filtro Especie</option>
-
-                                        @foreach ($especies as $especie)
-                                            <option value="{{ $especie->descripcion }}" {{ request('filtroEspecie') == $especie->descripcion ? 'selected' : '' }}>
-                                                {{ $especie->descripcion }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <!-- Especie: Ya no se usa dropdown estático, se obtiene dinámicamente vía AJAX -->
+                                    <input type="text" class="form-control" name="filtroEspecie" placeholder="Especie"
+                                        value="{{ request('filtroEspecie') }}" readonly style="background-color: #e9ecef;">
                                 </div>
                                 <div class="col-md-3">
                                     <select class="form-select js-example-basic-single" style="width: 100%"
@@ -264,26 +241,14 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="codEmpresa">Empresa</label>
-                                    <select class="form-control" style="width: 100%" name="empresa" disabled>
-                                        <option selected disabled></option>
-                                        @foreach ($empresas as $empresa)
-                                            <option value="{{ $empresa->descripcion }}">{{ $empresa->descripcion }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <label for="empresa">Empresa</label>
+                                    <input type="text" class="form-control" name="empresa" id="empresa" readonly>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="proveedor">Proveedor</label>
-                                    <select class="form-control" name="proveedor" disabled>
-                                        <option selected disabled></option>
-                                        @foreach ($proveedores as $proveedor)
-                                            <option value="{{ $proveedor->descripcion }}">{{ $proveedor->descripcion }}
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    <input type="text" class="form-control" name="proveedor" id="proveedor" readonly>
                                 </div>
                             </div>
 
@@ -292,24 +257,14 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="codEspecie">Especie</label>
-                                    <select class="form-control" name="especie" disabled>
-                                        <option selected disabled></option>
-                                        @foreach ($especies as $especie)
-                                            <option value="{{ $especie->descripcion }}">{{ $especie->descripcion }}</option>
-                                        @endforeach
-                                    </select>
+                                    <label for="especie">Especie</label>
+                                    <input type="text" class="form-control" name="especie" id="especie" readonly>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label for="proceso">Proceso</label>
-                                    <select class="form-control" name="proceso" disabled>
-                                        <option selected disabled></option>
-                                        @foreach ($procesos as $proceso)
-                                            <option value="{{ $proceso->nombre }}">{{ $proceso->nombre }}</option>
-                                        @endforeach
-                                    </select>
+                                    <input type="text" class="form-control" name="proceso" id="proceso" readonly>
                                 </div>
                             </div>
 
@@ -463,17 +418,17 @@
                         'lote': loteValue
                     },
                     success: function (response) {
-                        $('select[name="empresa"]').val(response.empresa)
-                        $('select[name="proveedor"]').val(response.proveedor)
-                        $('select[name="especie"]').val(response.especie)
-                        $('select[name="proceso"]').val(response.proceso)
+                        $('#empresa').val(response.empresa)
+                        $('#proveedor').val(response.proveedor)
+                        $('#especie').val(response.especie)
+                        $('#proceso').val(response.proceso)
                         $('#mensajeError').hide()
                     },
                     error: function (xhr) {
-                        $('select[name="empresa"]').val('');
-                        $('select[name="proveedor"]').val('');
-                        $('select[name="especie"]').val('');
-                        $('select[name="proceso"]').val('');
+                        $('#empresa').val('');
+                        $('#proveedor').val('');
+                        $('#especie').val('');
+                        $('#proceso').val('');
                         $('#mensajeError').text('El lote no existe.').show();
                     }
                 });
@@ -495,17 +450,17 @@
                 if (!$('#codLote').val()) {
                     errores.push("Debe ingresar un lote");
                 }
-                if (!$('select[name="empresa"]').val()) {
-                    errores.push("Debe seleccionar una empresa");
+                if (!$('#empresa').val()) {
+                    errores.push("Debe ingresar un lote válido para obtener la empresa");
                 }
-                if (!$('select[name="proveedor"]').val()) {
-                    errores.push("Debe seleccionar un proveedor");
+                if (!$('#proveedor').val()) {
+                    errores.push("Debe ingresar un lote válido para obtener el proveedor");
                 }
-                if (!$('select[name="especie"]').val()) {
-                    errores.push("Debe seleccionar una especie");
+                if (!$('#especie').val()) {
+                    errores.push("Debe ingresar un lote válido para obtener la especie");
                 }
-                if (!$('select[name="proceso"]').val()) {
-                    errores.push("Debe seleccionar un proceso");
+                if (!$('#proceso').val()) {
+                    errores.push("Debe ingresar un lote válido para obtener el proceso");
                 }
                 if (!$('#fechaTurno').val()) {
                     errores.push("Debe seleccionar una fecha de turno");
@@ -543,10 +498,10 @@
                 var datos = {
                     tipo_planilla: $('select[name="tipo_planilla"]').val(),
                     codLote: $('#codLote').val(),
-                    empresa: $('select[name="empresa"]').val(),
-                    proveedor: $('select[name="proveedor"]').val(),
-                    especie: $('select[name="especie"]').val(),
-                    proceso: $('select[name="proceso"]').val(),
+                    empresa: $('#empresa').val(),
+                    proveedor: $('#proveedor').val(),
+                    especie: $('#especie').val(),
+                    proceso: $('#proceso').val(),
                     fechaTurno: $('#fechaTurno').val(),
                     horaInicio: $('#horaInicio').val(),
                     turno: $('select[name="turno"]').val(),
